@@ -1,0 +1,19 @@
+#pragma once
+
+namespace dune3d {
+enum class ColorP {
+    BACKGROUND_TOP,
+    BACKGROUND_BOTTOM,
+    SOLID_MODEL,
+    ENTITY,
+    POINT,
+    CONSTRAINT,
+    CONSTRUCTION_ENTITY,
+    CONSTRUCTION_POINT,
+    INACTIVE_ENTITY,
+    INACTIVE_POINT,
+    HOVER,
+    SELECTED,
+    SELECTED_HOVER,
+};
+}

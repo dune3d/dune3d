@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/dune3d/dune3d">
+    <file>window.ui</file>
+    <file>dune3d.css</file>
+    <file>canvas/shaders/background-fragment.glsl</file>
+    <file>canvas/shaders/background-vertex.glsl</file>
+    <file>canvas/shaders/face-vertex.glsl</file>
+    <file>canvas/shaders/face-fragment.glsl</file>
+    <file>canvas/shaders/point-vertex.glsl</file>
+    <file>canvas/shaders/point-fragment.glsl</file>
+    <file>canvas/shaders/line-vertex.glsl</file>
+    <file>canvas/shaders/line-fragment.glsl</file>
+    <file>canvas/shaders/line-geometry.glsl</file>
+    <file>canvas/shaders/glyph-vertex.glsl</file>
+    <file>canvas/shaders/glyph-fragment.glsl</file>
+    <file>canvas/shaders/glyph-geometry.glsl</file>
+    <file>canvas/shaders/icon-vertex.glsl</file>
+    <file>canvas/shaders/icon-fragment.glsl</file>
+    <file>canvas/shaders/icon-geometry.glsl</file>
+    <file>canvas/shaders/ubo.glsl</file>
+    <file>preferences/key_sequences.ui</file>
+    <file>preferences/keys_default.json</file>
+    <file>preferences/canvas.ui</file>
+    
+    <file preprocess="xml-stripblanks">icons/scalable/actions/action-lmb-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/action-rmb-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/action-move-group-down2-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/action-move-group-down3-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/apps/dune3d.svg</file>
+    <file>icon_texture_atlas.png</file>
+  </gresource>
+</gresources>

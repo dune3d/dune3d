@@ -1,0 +1,28 @@
+[submodule "extlib/zlib"]
+	path = extlib/zlib
+	url = https://github.com/madler/zlib
+	ignore = dirty
+[submodule "extlib/libpng"]
+	path = extlib/libpng
+	url = https://github.com/glennrp/libpng
+[submodule "extlib/freetype"]
+	path = extlib/freetype
+	url = https://git.savannah.nongnu.org/r/freetype/freetype2.git/
+[submodule "extlib/libdxfrw"]
+	path = extlib/libdxfrw
+	url = https://github.com/solvespace/libdxfrw.git
+[submodule "extlib/pixman"]
+	path = extlib/pixman
+	url = https://github.com/solvespace/pixman
+[submodule "extlib/cairo"]
+	path = extlib/cairo
+	url = https://github.com/solvespace/cairo
+[submodule "extlib/angle"]
+	path = extlib/angle
+	url = https://github.com/solvespace/angle
+[submodule "extlib/mimalloc"]
+	path = extlib/mimalloc
+	url = https://github.com/microsoft/mimalloc
+[submodule "extlib/eigen"]
+	path = extlib/eigen
+	url = https://gitlab.com/libeigen/eigen.git

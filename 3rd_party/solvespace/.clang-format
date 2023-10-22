@@ -1,0 +1,41 @@
+---
+# Things explicitly enumerated in CONTRIBUTING.md
+IndentWidth: 4
+UseTab: Never
+SpaceBeforeParens: Never
+BreakBeforeBraces: Attach
+ColumnLimit: 100
+# Docs say 100, but some places look more like 80.
+#ColumnLimit: 80
+
+# Based on minimizing diff when applying clang-format
+AccessModifierOffset: -4
+AlignConsecutiveAssignments: true
+AlignEscapedNewlines: DontAlign
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes # MultiLine
+BreakConstructorInitializers: BeforeColon
+DerivePointerAlignment: true
+FixNamespaceComments: true
+IndentPPDirectives: AfterHash
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: Inner
+SpaceAfterTemplateKeyword: false
+
+# No way to remove all space around operators as seen in much of the code I looked at.
+#SpaceBeforeAssignmentOperators: false
+
+# Only seen some of the time (mostly just variables, not functions)
+# but clang-format only has a true/false
+#AlignConsecutiveDeclarations: true
+
+
+# Would be nice to turn on eventually, maybe?
+SortIncludes: false
+SortUsingDeclarations: false
+
+# Hard to tell what the desired config here was.
+# AllowShortFunctionsOnASingleLine: Inline
+AllowShortFunctionsOnASingleLine: None

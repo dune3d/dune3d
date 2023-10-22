@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.12.1 -->
+<interface>
+  <!-- interface-name window.ui -->
+  <requires lib="gtk" version="4.10"/>
+  <object class="GtkApplicationWindow" id="window">
+    <property name="title">Dune 3D</property>
+    <property name="titlebar">
+      <object class="GtkHeaderBar" id="titlebar">
+        <child type="start">
+          <object class="GtkButton" id="open_button">
+            <property name="label">Open</property>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkMenuButton" id="hamburger_menu_button">
+            <property name="icon-name">open-menu-symbolic</property>
+          </object>
+        </child>
+        <child type="start">
+          <object class="GtkButton" id="new_button">
+            <property name="icon-name">document-new-symbolic</property>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkBox">
+            <property name="css-classes">linked</property>
+            <child>
+              <object class="GtkButton" id="save_button">
+                <property name="label">Save</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="save_as_button">
+                <property name="icon-name">document-save-as-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkPaned" id="paned">
+            <property name="position">300</property>
+            <property name="position-set">True</property>
+            <property name="resize-end-child">False</property>
+            <property name="shrink-start-child">False</property>
+            <property name="start-child">left_bar</property>
+            <child>
+              <object class="GtkPaned" id="left_bar">
+                <property name="orientation">vertical</property>
+                <property name="position">400</property>
+                <property name="position-set">True</property>
+                <property name="resize-end-child">False</property>
+                <property name="shrink-end-child">False</property>
+                <property name="shrink-start-child">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkInfoBar" id="version_info_bar">
+                    <property name="message-type">warning</property>
+                    <property name="revealed">False</property>
+                    <child>
+                      <object class="GtkLabel" id="version_info_bar_label">
+                        <property name="hexpand">True</property>
+                        <property name="label">lalala</property>
+                        <property name="wrap">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkOverlay">
+                    <child>
+                      <object class="GtkBox" id="canvas_box">
+                        <property name="vexpand">True</property>
+                      </object>
+                    </child>
+                    <child type="overlay">
+                      <object class="GtkBox" id="lollipop_box">
+                        <property name="halign">end</property>
+                        <property name="margin-end">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="valign">start</property>
+                      </object>
+                    </child>
+                    <child type="overlay">
+                      <object class="GtkRevealer" id="tool_bar">
+                        <property name="transition-type">slide-up</property>
+                        <property name="valign">end</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="margin-bottom">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="spacing">10</property>
+                            <child>
+                              <object class="GtkLabel" id="tool_bar_name_label">
+                                <property name="label">Tool frobniacate</property>
+                                <style>
+                                  <class name="dune3d-tool-bar-name-label"/>
+                                </style>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkStack" id="tool_bar_stack">
+                                <property name="transition-type">slide-up-down</property>
+                                <child>
+                                  <object class="GtkLabel" id="tool_bar_flash_label">
+                                    <property name="label">flash</property>
+                                    <property name="xalign">0.0</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox" id="tool_bar_box">
+                                    <child>
+                                      <object class="GtkBox" id="tool_bar_actions_box">
+                                        <property name="spacing">10</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="tool_bar_tip_label">
+                                        <property name="label">tip</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="osd"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkLabel" id="key_hint_label">
+                <property name="label">fixme</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-start">4</property>
+                <property name="margin-top">4</property>
+                <property name="width-chars">12</property>
+                <property name="xalign">0.0</property>
+                <style/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="workplane_label">
+                <property name="label">workplane goes here</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

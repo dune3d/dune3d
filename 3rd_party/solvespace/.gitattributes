@@ -1,0 +1,10 @@
+* text=auto
+*.cpp  text
+*.h    text
+*.txt  text
+*.gz   binary
+*.ico  binary
+*.jpg  binary
+*.lib  binary
+*.png  binary
+*.slvs binary

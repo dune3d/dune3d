@@ -1,0 +1,50 @@
+#pragma once
+#include "constraint.hpp"
+#include "entity_and_point.hpp"
+#include <glm/glm.hpp>
+
+namespace dune3d {
+
+class ConstraintPointDistanceBase : public Constraint {
+public:
+    explicit ConstraintPointDistanceBase(const UUID &uu);
+    explicit ConstraintPointDistanceBase(const UUID &uu, const json &j);
+    json serialize() const override;
+
+    EntityAndPoint m_entity1;
+    EntityAndPoint m_entity2;
+
+    UUID m_wrkpl;
+
+    double m_distance = 1;
+    glm::dvec3 m_offset;
+
+    virtual double measure_distance(const Document &doc) const = 0;
+
+    std::set<UUID> get_referenced_entities() const override;
+
+    void flip();
+
+protected:
+    glm::dvec3 get_distance_vector(const Document &doc) const;
+};
+
+class ConstraintPointDistance : public ConstraintPointDistanceBase {
+public:
+    using ConstraintPointDistanceBase::ConstraintPointDistanceBase;
+
+    static constexpr Type s_type = Type::POINT_DISTANCE;
+    Type get_type() const override
+    {
+        return s_type;
+    }
+
+    double measure_distance(const Document &doc) const override;
+
+    std::unique_ptr<Constraint> clone() const override;
+
+    void accept(ConstraintVisitor &visitor) const override;
+};
+
+
+} // namespace dune3d
