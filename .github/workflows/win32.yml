@@ -1,0 +1,47 @@
+name: Build Windows binaries
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!appveyor-*'
+      - '!freebsd-*'
+      - '!pr-review*'
+    tags: [ '*' ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-win32:
+    runs-on: windows-latest
+    steps:
+    - name: Check tag
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo "Building tag ${{ github.ref }}"
+    - uses: actions/checkout@v3
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-pkgconf
+          mingw-w64-x86_64-gtkmm4
+          mingw-w64-x86_64-glm
+          mingw-w64-x86_64-opencascade
+          mingw-w64-x86_64-mimalloc
+          mingw-w64-x86_64-eigen3
+          mingw-w64-x86_64-meson
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-python
+          mingw-w64-x86_64-python-cairo
+          mingw-w64-x86_64-python-gobject
+          mingw-w64-x86_64-range-v3
+          zip
+          unzip
+          git
+          dos2unix
+    - name: Build
+      shell: msys2 {0}
+      run: |
+        meson setup build
+        meson compile -C build
