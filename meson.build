@@ -16,18 +16,9 @@ eigen = dependency('eigen3')
 glm = dependency('glm')
 
 
-opencascade = dependency('OpenCASCADE', method : 'cmake', required:false)
+opencascade = dependency('OpenCASCADE', method : 'cmake')
+
 rangev3 = dependency('range-v3', method : 'cmake')
-
-
-
-if not cxx.links('int main(void) {return 0;}', dependencies: opencascade)
-    message('opencascade link args are broken, replacing')
-    # on ubuntu 20.04, the link args are broken and are missing the -l for some reason??
-    opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args:['-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKBRep', '-lTKG3d', '-lTKGeomBase', '-lTKHLR'])
-endif
-
-
 
 src = files(
   'src/main.cpp',
