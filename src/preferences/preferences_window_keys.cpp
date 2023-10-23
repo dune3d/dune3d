@@ -331,7 +331,8 @@ public:
     void update()
     {
 
-        m_lb->remove_all();
+        while (auto child = m_lb->get_first_child())
+            m_lb->remove(*child);
         size_t i = 0;
         if (m_prefs.key_sequences.keys.contains(m_action)) {
             auto &keys = m_prefs.key_sequences.keys.at(m_action);
@@ -375,9 +376,8 @@ private:
 
 void KeySequencesPreferencesEditor::update_action_editors()
 {
-
-    m_action_editors->remove_all();
-
+    while (auto child = m_action_editors->get_first_child())
+        m_action_editors->remove(*child);
 
     auto row = std::dynamic_pointer_cast<Gtk::TreeListRow>(m_selection_model->get_selected_item());
     if (!row)
