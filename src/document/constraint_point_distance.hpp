@@ -17,7 +17,7 @@ public:
     UUID m_wrkpl;
 
     double m_distance = 1;
-    glm::dvec3 m_offset;
+    glm::dvec3 m_offset = {0, 0, 0};
 
     virtual double measure_distance(const Document &doc) const = 0;
 
