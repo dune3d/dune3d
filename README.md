@@ -48,6 +48,8 @@ meson compile -C build
 
 This should work on any reasonably up-to-date Linux distro, various BSDs and Windows using MSYS2.
 
+See [the CI configuration](.github/workflows/all.yml) for the exact package names for debian-based distros and Arch Linux.
+
 ## How to use
 
 Similar to Horizon EDA, all tools and actions are available from the spacebar menu.

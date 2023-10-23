@@ -14,7 +14,7 @@ CLANG_FORMAT=${CLANG_FORMAT:-$(command -v clang-format-160)}
 CLANG_FORMAT=${CLANG_FORMAT:-$(command -v clang-format)}
 
 if [ ! -z $CLANG_FORMAT ]; then
-    CLANG_FORMAT_VERSION="$(${CLANG_FORMAT} -version | cut -d " " -f 3 | cut -d "." -f 1)"
+    CLANG_FORMAT_VERSION="$(${CLANG_FORMAT} -version | cut -d " " -f 4 | cut -d "." -f 1)"
 
     # Check version
     if [ "$CLANG_FORMAT_VERSION" = "16" ]; then

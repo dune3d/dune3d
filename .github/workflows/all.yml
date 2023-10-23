@@ -1,0 +1,83 @@
+name: Stylecheck and CI
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!win32-*'
+      - '!freebsd-*'
+    tags: [ '*' ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  LANG: en_US.UTF-8
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  stylecheck:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install preliminary dependencies
+      run: sudo apt-get update -y && sudo apt-get install curl gnupg apt-transport-https -y
+    - name: Add clang 11.0 to apt sources
+      run: echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main" | sudo tee -a /etc/apt/sources.list
+    - name: Add LLVM apt key
+      run: curl https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+    - name: Install dependencies
+      run: sudo apt-get update -y && sudo apt-get install git clang-format-16 -y
+    - name: Style checker
+      run: bash scripts/stylecheck.sh
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - container: debian:trixie
+            cxx: g++-13
+            cc: gcc
+          - container: ubuntu:lunar
+            cxx: g++-13
+            cc: gcc
+        target:
+          - all
+    runs-on: ubuntu-latest
+    container: ${{ matrix.os.container }}
+    needs: stylecheck
+    steps:
+    - uses: actions/checkout@v3
+    - name: generate locales
+      run: |
+        apt-get update
+        apt-get install -y locales
+        locale-gen ${{ env.LANG }}
+    - name: Install dependencies
+      run: apt-get install meson build-essential meson  libglm-dev  libocct-ocaf-dev cmake pkg-config libgtkmm-4.0-dev libgtkmm-4.0-dev uuid-dev libeigen3-dev librange-v3-dev libmimalloc-dev git python3-gi-cairo gir1.2-rsvg-2.0 ${{ matrix.os.cxx }} libocct-data-exchange-dev -y
+    - name: Build
+      run: |
+        mkdir ../build
+        CXX=${{ matrix.os.cxx }} CC=${{ matrix.os.cc }} meson setup ../build
+        ninja -C ../build ${{ matrix.target }}
+
+  build-arch:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - all
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    needs: stylecheck
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install updates
+      run: pacman -Syu --noconfirm
+    - name: Install dependencies
+      run: pacman -Sy --needed --noconfirm  gtkmm-4.0 cairomm librsvg opencascade glm python  cmake meson eigen mimalloc range-v3 git python-gobject python-cairo
+    - name: Build
+      run: |
+        mkdir ../build
+        CXX=${{ matrix.os.cxx }} CC=${{ matrix.os.cc }} meson setup ../build
+        ninja -C ../build ${{ matrix.target }}
