@@ -4,7 +4,8 @@
 
 namespace dune3d {
 
-struct EntityAndPoint {
+class EntityAndPoint {
+public:
     UUID entity;
     unsigned int point;
 
