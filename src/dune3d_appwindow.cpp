@@ -94,10 +94,13 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_constraints_box->update();
 
 
-    // auto pick_button = refBuilder->get_widget<Gtk::Button>("pick_button");
-    // pick_button->signal_clicked().connect([this] { m_canvas->queue_pick(); });
-
     auto titlebar = refBuilder->get_widget<Gtk::HeaderBar>("titlebar");
+
+    {
+        auto pick_button = Gtk::make_managed<Gtk::Button>("pick");
+        titlebar->pack_start(*pick_button);
+        pick_button->signal_clicked().connect([this] { m_canvas->queue_pick(); });
+    }
 
     /*{
         auto save_button = create_action_button(ActionID::SAVE_ALL);

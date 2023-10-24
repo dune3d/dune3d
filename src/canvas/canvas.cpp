@@ -286,7 +286,7 @@ Canvas::VertexType Canvas::get_vertex_type_for_pick(unsigned int pick) const
     }
     std::cout << "pick=" << pick << std::endl;
     for (const auto &[ty, it] : m_vertex_type_picks) {
-        std::cout << std::format("type={} {}:{}\n", static_cast<int>(ty), it.offset,it.count);
+        std::cout << std::format("type={} {}:{}\n", static_cast<int>(ty), it.offset, it.count);
     }
     throw std::runtime_error("pick not found");
 }
@@ -371,7 +371,11 @@ uint16_t Canvas::read_pick_buf(int x, int y) const
     int xi = x * get_scale_factor();
     int yi = y * get_scale_factor();
     const int idx = ((m_height * get_scale_factor()) - yi - 1) * m_width * get_scale_factor() + xi;
-    return m_pick_buf.at(idx);
+    auto p = m_pick_buf.at(idx);
+    if (p >= m_pick_base)
+        return 0;
+    else
+        return p;
 }
 
 glm::dvec3 Canvas::get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const
