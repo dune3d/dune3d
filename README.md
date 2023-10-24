@@ -28,6 +28,10 @@ With all of the building blocks available, I set out to glue them together to fo
 [^1]: I ended up directly using solvespace's solver instead of the suggested [wrapper code](https://github.com/solvespace/solvespace/blob/master/exposed/DOC.txt) since it didn't expose all of the features I needed.
 I also had to patch the solver to make it sufficiently fast for the kinds of equations I was generating by symbolically solving equations where applicable.
 
+## Packages / Repositorys
+[Archlinux (AUR)](https://aur.archlinux.org/packages/dune3d-git)
+
+
 ## How to build
 
 You're going to need these dependencies:
