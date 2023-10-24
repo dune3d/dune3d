@@ -580,7 +580,7 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
         e.tag  = alone;
         p->tag = alone;
 
-        {
+        if(e.e->CountParamReferences(hp) == 1) {
             Rearraged rearraged;
             rearraged.lhs = e.e;
             rearraged.rhs = Expr::From(0);
@@ -588,7 +588,7 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
             p->val   = rearraged.rhs->Eval();
             p->known = true;
         }
-        /*
+        else {
             WriteJacobian(alone);
             if(!NewtonSolve(alone)) {
                 // We don't do the rank test, so let's arbitrarily return
@@ -597,7 +597,7 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
                 // Failed to converge, bail out early
                 goto didnt_converge;
             }
-            */
+        }
         alone++;
     }
     talone_end = clock();
