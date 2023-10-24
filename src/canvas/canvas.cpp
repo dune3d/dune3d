@@ -11,6 +11,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/io.hpp>
 #include <fstream>
+#include <format>
 
 
 namespace dune3d {
@@ -282,6 +283,10 @@ Canvas::VertexType Canvas::get_vertex_type_for_pick(unsigned int pick) const
     for (const auto &[ty, it] : m_vertex_type_picks) {
         if ((pick >= it.offset) && ((pick - it.offset) < it.count))
             return ty;
+    }
+    std::cout << "pick=" << pick << std::endl;
+    for (const auto &[ty, it] : m_vertex_type_picks) {
+        std::cout << std::format("type={} {}:{}\n", static_cast<int>(ty), it.offset,it.count);
     }
     throw std::runtime_error("pick not found");
 }
