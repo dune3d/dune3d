@@ -187,6 +187,8 @@ private:
 
     int m_dev_width = 100;
     int m_dev_height = 100;
+    int m_width = 100;
+    int m_height = 100;
     bool m_needs_resize = false;
 
     float m_cam_azimuth = 90;
