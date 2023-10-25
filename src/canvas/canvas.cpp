@@ -129,16 +129,16 @@ Canvas::Canvas()
         m_last_y = y;
         const auto delta = glm::mat2(1, 0, 0, -1) * (glm::vec2(x, y) - m_pointer_pos_orig);
         if (m_pan_mode == PanMode::ROTATE) {
-            set_cam_azimuth(m_cam_azimuth_orig - (delta.x / m_width) * 360);
-            set_cam_elevation(m_cam_elevation_orig - (delta.y / m_height) * 90);
+            set_cam_azimuth(m_cam_azimuth_orig - (delta.x / m_dev_width) * 360);
+            set_cam_elevation(m_cam_elevation_orig - (delta.y / m_dev_height) * 90);
         }
         else if (m_pan_mode == PanMode::MOVE) {
             m_center = m_center_orig + get_center_shift(delta);
             queue_draw();
         }
         else {
-            m_cursor_pos.x = (x / m_width) * 2. - 1.;
-            m_cursor_pos.y = (y / m_height) * -2. + 1.;
+            m_cursor_pos.x = (x / m_dev_width) * 2. - 1.;
+            m_cursor_pos.y = (y / m_dev_height) * -2. + 1.;
 
             update_hover_selection();
         }
@@ -229,7 +229,7 @@ void Canvas::rotate_gesture_update_cb(Gdk::EventSequence *seq)
     double cx, cy;
     m_gesture_rotate->get_bounding_box_center(cx, cy);
     auto dy = cy - m_gesture_rotate_pos_orig.y;
-    set_cam_elevation(m_gesture_rotate_cam_elevation_orig + (dy / m_height) * 180);
+    set_cam_elevation(m_gesture_rotate_cam_elevation_orig + (dy / m_dev_height) * 180);
 }
 
 static float fix_cam_elevation(float cam_elevation)
@@ -302,7 +302,7 @@ void Canvas::update_hover_selection()
                 for (int dy = -box_size; dy <= box_size; dy++) {
                     int px = m_last_x + dx;
                     int py = m_last_y + dy;
-                    if (px >= 0 && px < m_width && py >= 0 && py < m_height) {
+                    if (px >= 0 && px < m_dev_width && py >= 0 && py < m_dev_height) {
                         if (auto p = read_pick_buf(px, py)) {
                             if (get_vertex_type_for_pick(p) == VertexType::FACE_GROUP)
                                 continue;
@@ -365,7 +365,7 @@ uint16_t Canvas::read_pick_buf(int x, int y) const
 {
     int xi = x * get_scale_factor();
     int yi = y * get_scale_factor();
-    const int idx = ((m_height * get_scale_factor()) - yi - 1) * m_width * get_scale_factor() + xi;
+    const int idx = ((m_dev_height * get_scale_factor()) - yi - 1) * m_dev_width * get_scale_factor() + xi;
     return m_pick_buf.at(idx);
 }
 
@@ -476,17 +476,17 @@ void Canvas::resize_buffers()
 
     glGetIntegerv(GL_RENDERBUFFER_BINDING, &rb); // save rb
     glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA8, m_width * get_scale_factor(),
-                                     m_height * get_scale_factor());
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA8, m_dev_width * get_scale_factor(),
+                                     m_dev_height * get_scale_factor());
     glBindRenderbuffer(GL_RENDERBUFFER, m_depthrenderbuffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT, m_width * get_scale_factor(),
-                                     m_height * get_scale_factor());
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT, m_dev_width * get_scale_factor(),
+                                     m_dev_height * get_scale_factor());
     glBindRenderbuffer(GL_RENDERBUFFER, m_pickrenderbuffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_R16UI, m_width * get_scale_factor(),
-                                     m_height * get_scale_factor());
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_R16UI, m_dev_width * get_scale_factor(),
+                                     m_dev_height * get_scale_factor());
 
     glBindRenderbuffer(GL_RENDERBUFFER, m_pickrenderbuffer_downsampled);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_R16UI, m_width * get_scale_factor(), m_height * get_scale_factor());
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_R16UI, m_dev_width * get_scale_factor(), m_dev_height * get_scale_factor());
 
     glBindRenderbuffer(GL_RENDERBUFFER, rb);
 }
@@ -581,12 +581,12 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
         float cam_dist_max = 500;
 
 
-        float m = tan(0.5 * glm::radians(m_cam_fov)) / m_height * m_cam_distance;
+        float m = tan(0.5 * glm::radians(m_cam_fov)) / m_dev_height * m_cam_distance;
         float d = cam_dist_max * 2;
 
-        m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_width / m_height, cam_dist_min, cam_dist_max);
+        m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_dev_width / m_dev_height, cam_dist_min, cam_dist_max);
 
-        m_projmat = glm::ortho(-m_width * m, m_width * m, -m_height * m, m_height * m, -d, d);
+        m_projmat = glm::ortho(-m_dev_width * m, m_dev_width * m, -m_dev_height * m, m_dev_height * m, -d, d);
         //   }
         m_cam_normal = glm::normalize(cam_offset);
 
@@ -610,25 +610,25 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     glReadBuffer(GL_COLOR_ATTACHMENT1);
-    glBlitFramebuffer(0, 0, m_width * get_scale_factor(), m_height * get_scale_factor(), 0, 0,
-                      m_width * get_scale_factor(), m_height * get_scale_factor(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0, 0, m_dev_width * get_scale_factor(), m_dev_height * get_scale_factor(), 0, 0,
+                      m_dev_width * get_scale_factor(), m_dev_height * get_scale_factor(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_downsampled);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    m_pick_buf.resize(m_width * get_scale_factor() * m_height * get_scale_factor());
+    m_pick_buf.resize(m_dev_width * get_scale_factor() * m_dev_height * get_scale_factor());
     GL_CHECK_ERROR
 
     glPixelStorei(GL_PACK_ALIGNMENT, 2);
-    glReadPixels(0, 0, m_width * get_scale_factor(), m_height * get_scale_factor(), GL_RED_INTEGER, GL_UNSIGNED_SHORT,
+    glReadPixels(0, 0, m_dev_width * get_scale_factor(), m_dev_height * get_scale_factor(), GL_RED_INTEGER, GL_UNSIGNED_SHORT,
                  m_pick_buf.data());
 
     GL_CHECK_ERROR
     if (m_pick_state == PickState::QUEUED) {
         m_pick_state = PickState::CURRENT;
         std::ofstream ofs("/tmp/pick.txt");
-        for (int y = 0; y < m_height; y++) {
-            for (int x = 0; x < m_width; x++) {
-                ofs << m_pick_buf.at(x + y * m_width) << " ";
+        for (int y = 0; y < m_dev_height; y++) {
+            for (int x = 0; x < m_dev_width; x++) {
+                ofs << m_pick_buf.at(x + y * m_dev_width) << " ";
             }
             ofs << std::endl;
         }
@@ -637,8 +637,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
     glDrawBuffer(fb ? GL_COLOR_ATTACHMENT0 : GL_FRONT);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glBlitFramebuffer(0, 0, m_width * get_scale_factor(), m_height * get_scale_factor(), 0, 0,
-                      m_width * get_scale_factor(), m_height * get_scale_factor(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0, 0, m_dev_width * get_scale_factor(), m_dev_height * get_scale_factor(), 0, 0,
+                      m_dev_width * get_scale_factor(), m_dev_height * get_scale_factor(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
     GL_CHECK_ERROR
@@ -653,12 +653,12 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
 
 void Canvas::on_resize(int width, int height)
 {
-    if (width == m_width && height == m_height)
+    if (width == m_dev_width && height == m_dev_height)
         return;
     std::cout << "resize " << width << "x" << height << std::endl;
-    m_width = width;
-    m_height = height;
-    m_screenmat = glm::scale(glm::translate(glm::mat3(1), glm::vec2(-1, 1)), glm::vec2(2.0 / m_width, -2.0 / m_height));
+    m_dev_width = width;
+    m_dev_height = height;
+    m_screenmat = glm::scale(glm::translate(glm::mat3(1), glm::vec2(-1, 1)), glm::vec2(2.0 / m_dev_width, -2.0 / m_dev_height));
 
     resize_buffers();
 
