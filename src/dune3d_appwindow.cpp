@@ -681,6 +681,7 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
         m_workspace_browser->set_sensitive(m_core.has_documents());
         update_version_info();
     });
+    m_workspace_browser->set_sensitive(m_core.has_documents());
 
     {
         Gtk::Box *lollipop_box = refBuilder->get_widget<Gtk::Box>("lollipop_box");
