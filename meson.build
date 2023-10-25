@@ -9,6 +9,7 @@ is_windows = target_machine.system() == 'windows'
 
 
 
+libm = cxx.find_library('m')
 gtk4 = dependency('gtk4', version: '>=4.0')
 gtkmm = dependency('gtkmm-4.0', version: '>=4.0.0')
 epoxy = dependency('epoxy')
@@ -181,7 +182,19 @@ resources = gnome.compile_resources(
 
 cpp_args = ['-DLIBRARY', '-DUSINGZ', '-D_USE_MATH_DEFINES']
 
-build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3]
+stdlibs = []
+is_libstdcpp = cxx.get_define('__GLIBCXX__', prefix: '#include <vector>') != ''
+if is_libstdcpp
+    message('using libstdc++')
+else
+    message('not using libstdc++')
+endif
+if is_libstdcpp
+    stdlibs += cxx.find_library('stdc++')
+    stdlibs += cxx.find_library('stdc++fs')
+endif
+
+build_dependencies = [libm, gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
