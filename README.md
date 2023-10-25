@@ -50,6 +50,12 @@ This should work on any reasonably up-to-date Linux distro, various BSDs and Win
 
 See [the CI configuration](.github/workflows/all.yml) for the exact package names for debian-based distros and Arch Linux.
 
+> [!IMPORTANT]
+> Dune 3D is currently still alpha software undergoing rapid development, so please don't package it for
+> your favourite distro yet. Users have expecations regarding stability and completeness towards packaged
+> software that Dune 3D doesn't meet yet. Also having built it from source makes it easier to get the
+> latest bugfixes and simplifies debugging.
+
 ## How to use
 
 Similar to Horizon EDA, all tools and actions are available from the spacebar menu.
