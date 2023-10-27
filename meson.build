@@ -130,7 +130,7 @@ src = files(
   'src/util/action_label.cpp',
   'src/tool_popover.cpp',
   'src/workspace_browser.cpp',
-  'src/constraints_box.cpp',
+  'src/widgets/constraints_box.cpp',
   'src/document_view.cpp',
   'src/group_editor.cpp',
   'src/dialogs/dialogs.cpp',

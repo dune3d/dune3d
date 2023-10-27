@@ -16,12 +16,7 @@ public:
 
 private:
     Gtk::ListView *m_view = nullptr;
-
-
-    class ConstraintItem;
-    friend class ConstraintRow;
-    Glib::RefPtr<Gio::ListStore<ConstraintItem>> m_store;
-
+    Glib::RefPtr<Gtk::SingleSelection> m_selection_model;
     Core &m_core;
 };
 } // namespace dune3d

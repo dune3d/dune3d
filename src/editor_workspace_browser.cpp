@@ -1,7 +1,7 @@
 #include "editor.hpp"
 #include "workspace_browser.hpp"
 #include "dune3d_appwindow.hpp"
-#include "constraints_box.hpp"
+#include "widgets/constraints_box.hpp"
 #include "document/all_groups.hpp"
 #include "util/selection_util.hpp"
 #include "canvas/canvas.hpp"

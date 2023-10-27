@@ -1,7 +1,7 @@
 #include "editor.hpp"
 #include "dune3d_appwindow.hpp"
 #include "core/tool_id.hpp"
-#include "constraints_box.hpp"
+#include "widgets/constraints_box.hpp"
 #include "action/action_id.hpp"
 #include "in_tool_action/in_tool_action.hpp"
 #include "in_tool_action/in_tool_action_catalog.hpp"
