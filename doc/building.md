@@ -24,6 +24,12 @@ See [the CI configuration](../.github/workflows/all.yml) for the exact package n
 
 See [below](#building-on-windows) for how to build on Windows.
 
+> [!IMPORTANT]
+> Dune 3D is currently still alpha software undergoing rapid development, so please don't package it for
+> your favourite distro yet. Users have expecations regarding stability and completeness towards packaged
+> software that Dune 3D doesn't meet yet. Also having built it from source makes it easier to get the
+> latest bugfixes and simplifies debugging.
+
 
 ## Building on Windows
 
