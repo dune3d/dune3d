@@ -1,12 +1,39 @@
-# Building on Windows
+# Building Dune3D from source
 
-## Install MSYS2
+## General Instructions
+
+You're going to need these dependencies:
+
+ - gtkmm4
+ - libepoxy
+ - eigen
+ - opencascade (oce doesn't appear to compile)
+ - mimalloc
+ - glm
+ - range-v3
+
+Then run
+```
+meson setup build
+meson compile -C build
+```
+
+This should work on any reasonably up-to-date Linux distro, various BSDs and Windows using MSYS2.
+
+See [the CI configuration](../.github/workflows/all.yml) for the exact package names for debian-based distros and Arch Linux.
+
+See [below](#building-on-windows) for how to build on Windows.
+
+
+## Building on Windows
+
+### Install MSYS2
 
 Download and run the msys2 installer from http://msys2.github.io/
 
 It is probably a good idea to pick the 64bit version and to make sure that the path you select for installation doesn’t contain any spaces.
 
-## Start MSYS console
+### Start MSYS console
 
 Launch the Start Menu item “MSYS2 mingw 64 bit” you should be greeted with a console window. All steps below refer to what you should type into that window.
 Install updates
@@ -16,7 +43,8 @@ pacman -Syu
 ```
 
 if it tells you to close restart msys, close the console window and start it again. Then run `pacman -Syu` again.
-Install dependencies
+
+### Install dependencies
 
 ```
 pacman -S \
@@ -40,21 +68,21 @@ pacman -S \
 	--needed
 ```
 
-## Clone Dune3D
+### Clone Dune3D
 
 ```
 git clone https://github.com/dune3d/dune3d
 cd dune3d
 ```
 
-## Build it
+### Build it
 
 ```
 meson setup build
 meson compile -C build
 ```
 
-## Running
+### Running
 
 ```
 build/dune3d.exe
