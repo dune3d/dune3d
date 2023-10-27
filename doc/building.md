@@ -41,8 +41,10 @@ It is probably a good idea to pick the 64bit version and to make sure that the p
 
 ### Start MSYS console
 
-Launch the Start Menu item “MSYS2 mingw 64 bit” you should be greeted with a console window. All steps below refer to what you should type into that window.
-Install updates
+Launch the Start Menu item “MSYS2 MINGW64”, you should be greeted with a console window. All steps below refer to what you should type into that window.
+
+
+### Install updates
 
 ```
 pacman -Syu
