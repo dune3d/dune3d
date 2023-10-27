@@ -50,6 +50,8 @@ This should work on any reasonably up-to-date Linux distro, various BSDs and Win
 
 See [the CI configuration](.github/workflows/all.yml) for the exact package names for debian-based distros and Arch Linux.
 
+See [detailed build instructions](doc/building.md#building-on-windows) for how to build on Windows.
+
 > [!IMPORTANT]
 > Dune 3D is currently still alpha software undergoing rapid development, so please don't package it for
 > your favourite distro yet. Users have expecations regarding stability and completeness towards packaged
@@ -70,7 +72,7 @@ See the [samples](https://github.com/dune3d/samples) repository.
 
 ### Does it run on Windows?
 
-Yes, build it using MSYS2.
+See [detailed build instructions](doc/building.md#building-on-windows) for how to build on Windows.
 
 ### Why not integrate it into Horizon EDA?
 
