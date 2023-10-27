@@ -93,5 +93,5 @@ meson compile -C build
 ### Running
 
 ```
-build/dune3d.exe
+./build/dune3d.exe
 ```
