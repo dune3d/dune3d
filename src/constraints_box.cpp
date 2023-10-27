@@ -112,12 +112,19 @@ void ConstraintsBox::update()
         return;
     auto group_uu = m_core.get_current_group();
 
+    std::vector<Constraint *> constraints;
+
+
     for (const auto &[uu, it] : m_core.get_current_document().m_constraints) {
         if (it->m_group != group_uu)
             continue;
+        constraints.push_back(it.get());
+    }
+    std::ranges::sort(constraints, [](auto a, auto b) { return a->get_type() < b->get_type(); });
+    for (const auto it : constraints) {
         auto ci = ConstraintItem::create();
         ci->m_name = it->get_type_name();
-        ci->m_uuid = uu;
+        ci->m_uuid = it->m_uuid;
         m_store->append(ci);
     }
 }
