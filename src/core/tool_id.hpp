@@ -32,5 +32,7 @@ enum class ToolID {
     UNSET_CONSTRUCTION,
     IMPORT_STEP,
     SELECT_EDGES,
+    SET_WORKPLANE,
+    UNSET_WORKPLANE,
 };
 }

@@ -9,8 +9,6 @@ enum class ActionID {
     UNDO,
     REDO,
     POPOVER,
-    SET_WORKPLANE,
-    UNSET_WORKPLANE,
     CLOSE_DOCUMENT,
     OPEN_DOCUMENT,
     NEW_DOCUMENT,

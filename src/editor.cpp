@@ -247,32 +247,15 @@ void Editor::init_actions()
         }
     }
 
-    connect_action(ActionID::UNSET_WORKPLANE, [this](const auto &conn) {
-        m_core.set_current_workplane(UUID());
-        update_workplane_label();
-    });
-
-    connect_action(ActionID::SET_WORKPLANE, [this](const auto &conn) {
-        auto sel = get_canvas().get_selection();
-        for (const auto &it : sel) {
-            if (it.type == SelectableRef::Type::ENTITY) {
-                if (m_core.get_current_document().m_entities.count(it.item)
-                    && m_core.get_current_document().m_entities.at(it.item)->get_type() == Entity::Type::WORKPLANE) {
-                    m_core.set_current_workplane(it.item);
-                    break;
-                }
-            }
-        }
-        update_workplane_label();
-    });
-
     connect_action(ActionID::UNDO, [this](const auto &a) {
         m_core.undo();
         canvas_update_keep_selection();
+        update_workplane_label();
     });
     connect_action(ActionID::REDO, [this](const auto &a) {
         m_core.redo();
         canvas_update_keep_selection();
+        update_workplane_label();
     });
 
     connect_action(ActionID::PREFERENCES, [this](const auto &a) {
@@ -552,8 +535,6 @@ void Editor::update_action_sensitivity()
             }
         }
     }
-    m_action_sensitivity[ActionID::SET_WORKPLANE] = has_workplane;
-    m_action_sensitivity[ActionID::UNSET_WORKPLANE] = m_core.has_documents();
     m_action_sensitivity[ActionID::UNDO] = m_core.can_undo();
     m_action_sensitivity[ActionID::REDO] = m_core.can_redo();
     m_action_sensitivity[ActionID::SAVE_ALL] = m_core.get_needs_save_any();
@@ -805,6 +786,7 @@ void Editor::tool_process_one()
         get_canvas().set_selection_mode(Canvas::SelectionMode::HOVER);
         m_no_canvas_update = false;
         m_solid_model_edge_select_mode = false;
+        update_workplane_label();
     }
     if (!m_no_canvas_update)
         canvas_update();

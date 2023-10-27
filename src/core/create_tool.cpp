@@ -22,6 +22,7 @@
 #include "tools/tool_constrain_diameter_radius.hpp"
 #include "tools/tool_select_edges.hpp"
 #include "tools/tool_constrain_perpendicular.hpp"
+#include "tools/tool_set_workplane.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -103,6 +104,10 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_PERPENDICULAR:
         return std::make_unique<ToolConstrainPerpendicular>(tool_id, *this, m_intf, flags);
+
+    case ToolID::SET_WORKPLANE:
+    case ToolID::UNSET_WORKPLANE:
+        return std::make_unique<ToolSetWorkplane>(tool_id, *this, m_intf, flags);
 
     default:
         throw std::runtime_error("unknown tool");

@@ -7,6 +7,7 @@ namespace dune3d {
 class Entity;
 class EntityWorkplane;
 class Document;
+class Group;
 
 class ToolCommon : public ToolBase {
 protected:
@@ -30,5 +31,6 @@ protected:
     EntityWorkplane *get_workplane();
 
     Document &get_doc();
+    Group &get_group();
 };
 } // namespace dune3d

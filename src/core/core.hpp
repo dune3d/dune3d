@@ -127,7 +127,6 @@ public:
             get_current_document_info().m_current_group = uu;
     }
 
-    void set_current_workplane(const UUID &uu);
     UUID get_current_workplane() const override
     {
         return get_current_document_info().get_current_workplane();

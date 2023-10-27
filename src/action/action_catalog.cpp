@@ -17,8 +17,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::MOVE, {"Move", ActionGroup::MOVE, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DELETE, {"Delete", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::POPOVER, {"Popover", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_NO_POPOVER}},
-        {ActionID::SET_WORKPLANE, {"Set workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
-        {ActionID::UNSET_WORKPLANE, {"Unset workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::SET_WORKPLANE, {"Set workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::UNSET_WORKPLANE, {"Unset workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_COINCIDENT,
          {"Constrain coincident", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_HORIZONTAL,
@@ -84,8 +84,6 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(UNDO),
         ACTION_LUT_ITEM(REDO),
         ACTION_LUT_ITEM(POPOVER),
-        ACTION_LUT_ITEM(SET_WORKPLANE),
-        ACTION_LUT_ITEM(UNSET_WORKPLANE),
         ACTION_LUT_ITEM(CLOSE_DOCUMENT),
         ACTION_LUT_ITEM(OPEN_DOCUMENT),
         ACTION_LUT_ITEM(NEW_DOCUMENT),
@@ -131,6 +129,8 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(UNSET_CONSTRUCTION),
         TOOL_LUT_ITEM(IMPORT_STEP),
         TOOL_LUT_ITEM(SELECT_EDGES),
+        TOOL_LUT_ITEM(SET_WORKPLANE),
+        TOOL_LUT_ITEM(UNSET_WORKPLANE),
 };
 
 

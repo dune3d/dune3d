@@ -224,12 +224,6 @@ UUID Core::DocumentInfo::get_current_workplane() const
         return cur_group.m_active_wrkpl;
 }
 
-void Core::set_current_workplane(const UUID &uu)
-{
-    if (uu == UUID() || get_current_document().m_entities.contains(uu))
-        get_current_document().m_groups.at(get_current_group())->m_active_wrkpl = uu;
-}
-
 std::set<InToolActionID> Core::get_tool_actions() const
 {
     if (m_tool)
