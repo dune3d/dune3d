@@ -1,7 +1,6 @@
 #include "editor.hpp"
 #include "dune3d_appwindow.hpp"
 #include "core/tool_id.hpp"
-#include "workspace_browser.hpp"
 #include "constraints_box.hpp"
 #include "action/action_id.hpp"
 #include "in_tool_action/in_tool_action.hpp"
@@ -20,6 +19,7 @@
 #include "document/entity_workplane.hpp"
 #include "logger/logger.hpp"
 #include "document/constraint.hpp"
+#include "util/fs_util.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -31,24 +31,59 @@ Editor::Editor(Dune3DAppWindow &win, Preferences &prefs)
 
 void Editor::init()
 {
-    m_workspace_browser = Gtk::make_managed<WorkspaceBrowser>(m_core);
-    m_win.get_left_bar().set_start_child(*m_workspace_browser);
+    init_workspace_browser();
+    init_properties_notebook();
+    init_header_bar();
+    init_actions();
+    init_tool_popover();
+    init_canvas();
 
-    m_properties_notebook = Gtk::make_managed<Gtk::Notebook>();
-    m_properties_notebook->set_show_border(false);
-    m_properties_notebook->set_tab_pos(Gtk::PositionType::BOTTOM);
-    m_win.get_left_bar().set_end_child(*m_properties_notebook);
-    {
-        m_group_editor_box = Gtk::make_managed<Gtk::Box>();
-        m_properties_notebook->append_page(*m_group_editor_box, "Group");
-    }
-
-    m_constraints_box = Gtk::make_managed<ConstraintsBox>(m_core);
-    m_properties_notebook->append_page(*m_constraints_box, "Constraints");
-    m_core.signal_rebuilt().connect([this] { m_constraints_box->update(); });
     m_core.signal_needs_save().connect([this] { update_action_sensitivity(); });
-    m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
 
+    m_win.signal_close_request().connect(
+            [this] {
+                if (!m_core.get_needs_save_any())
+                    return false;
+
+                auto cb = [this] {
+                    // here, the close dialog is still there and closing the main window causes a near-segfault
+                    // so break out of the current event
+                    Glib::signal_idle().connect_once([this] { m_win.close(); });
+                };
+                close_document(m_core.get_current_idocument_info().get_uuid(), cb, cb);
+
+                return true; // keep window open
+            },
+            true);
+
+
+    update_workplane_label();
+
+
+    m_preferences.signal_changed().connect(sigc::mem_fun(*this, &Editor::apply_preferences));
+
+    apply_preferences();
+
+    m_core.signal_tool_changed().connect(sigc::mem_fun(*this, &Editor::handle_tool_change));
+
+
+    m_core.signal_documents_changed().connect([this] {
+        canvas_update_keep_selection();
+        m_workspace_browser->update_documents(m_document_view);
+        update_group_editor();
+        update_workplane_label();
+        update_action_sensitivity();
+        m_workspace_browser->set_sensitive(m_core.has_documents());
+        update_version_info();
+    });
+
+
+    update_action_sensitivity();
+    reset_key_hint_label();
+}
+
+void Editor::init_canvas()
+{
     {
         auto controller = Gtk::EventControllerKey::create();
         controller->signal_key_pressed().connect(
@@ -59,11 +94,76 @@ void Editor::init()
 
         m_win.add_controller(controller);
     }
+    {
+        auto controller = Gtk::GestureClick::create();
+        controller->set_button(0);
+        controller->signal_pressed().connect([this, controller](int n_press, double x, double y) {
+            auto button = controller->get_current_button();
+            if (button == 1 || button == 3)
+                handle_click(button, n_press);
+            else if (button == 8)
+                trigger_action(ActionID::NEXT_GROUP);
+            else if (button == 9)
+                trigger_action(ActionID::PREVIOUS_GROUP);
+        });
 
-    canvas_update();
-    m_constraints_box->update();
+        controller->signal_released().connect([this, controller](int n_press, double x, double y) {
+            m_drag_tool = ToolID::NONE;
+            if (controller->get_current_button() == 1 && n_press == 1) {
+                if (m_core.tool_is_active()) {
+                    ToolArgs args;
+                    args.type = ToolEventType::ACTION;
+                    args.action = InToolActionID::LMB_RELEASE;
+                    ToolResponse r = m_core.tool_update(args);
+                    tool_process(r);
+                }
+            }
+        });
+
+        get_canvas().add_controller(controller);
+    }
+    {
+        auto controller = Gtk::EventControllerMotion::create();
+        controller->signal_motion().connect([this](double x, double y) {
+            if (m_last_x != x || m_last_y != y) {
+                handle_cursor_move();
+                m_last_x = x;
+                m_last_y = y;
+            }
+        });
+        get_canvas().add_controller(controller);
+    }
+}
 
 
+void Editor::init_properties_notebook()
+{
+    m_properties_notebook = Gtk::make_managed<Gtk::Notebook>();
+    m_properties_notebook->set_show_border(false);
+    m_properties_notebook->set_tab_pos(Gtk::PositionType::BOTTOM);
+    m_win.get_left_bar().set_end_child(*m_properties_notebook);
+    {
+        m_group_editor_box = Gtk::make_managed<Gtk::Box>();
+        m_properties_notebook->append_page(*m_group_editor_box, "Group");
+    }
+    m_core.signal_rebuilt().connect([this] {
+        if (m_group_editor) {
+            if (m_core.get_current_group() != m_group_editor->get_group())
+                update_group_editor();
+            else
+                m_group_editor->reload();
+        }
+    });
+
+
+    m_constraints_box = Gtk::make_managed<ConstraintsBox>(m_core);
+    m_properties_notebook->append_page(*m_constraints_box, "Constraints");
+    m_core.signal_rebuilt().connect([this] { m_constraints_box->update(); });
+    m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
+}
+
+void Editor::init_header_bar()
+{
     attach_action_button(m_win.get_open_button(), ActionID::OPEN_DOCUMENT);
     attach_action_button(m_win.get_new_button(), ActionID::NEW_DOCUMENT);
     attach_action_button(m_win.get_save_button(), ActionID::SAVE);
@@ -94,7 +194,10 @@ void Editor::init()
 
         m_win.get_hamburger_menu_button().set_menu_model(top);
     }
+}
 
+void Editor::init_actions()
+{
     connect_action(ActionID::SAVE_ALL, [this](auto &a) { m_core.save_all(); });
     connect_action(ActionID::SAVE, [this](auto &a) {
         if (m_core.get_current_idocument_info().has_path()) {
@@ -108,184 +211,24 @@ void Editor::init()
         }
     });
 
-    connect_action(ActionID::SAVE_AS, [this](auto &a) {
-        auto dialog = Gtk::FileDialog::create();
-
-        // Add filters, so that only certain file types can be selected:
-        auto filters = Gio::ListStore<Gtk::FileFilter>::create();
-
-        auto filter_any = Gtk::FileFilter::create();
-        filter_any->set_name("Dune 3D documents");
-        filter_any->add_pattern("*.d3ddoc");
-        filters->append(filter_any);
-
-        dialog->set_filters(filters);
-
-        // Show the dialog and wait for a user response:
-        dialog->save(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
-            try {
-                auto file = dialog->save_finish(result);
-                // open_file_view(file);
-                //  Notice that this is a std::string, not a Glib::ustring.
-                auto filename = file->get_path();
-                // std::cout << "File selected: " << filename << std::endl;
-                m_core.save_as(filename);
-                m_workspace_browser->update_documents(m_document_view);
-                update_version_info();
-                if (m_after_save_cb)
-                    m_after_save_cb();
-            }
-            catch (const Gtk::DialogError &err) {
-                // Can be thrown by dialog->open_finish(result).
-                std::cout << "No file selected. " << err.what() << std::endl;
-            }
-            catch (const Glib::Error &err) {
-                std::cout << "Unexpected exception. " << err.what() << std::endl;
-            }
-        });
-    });
+    connect_action(ActionID::SAVE_AS, sigc::mem_fun(*this, &Editor::on_save_as));
 
 
     connect_action(ActionID::CLOSE_DOCUMENT, [this](auto &a) {
         auto &doci = m_core.get_current_idocument_info();
         close_document(doci.get_uuid(), nullptr, nullptr);
     });
-    m_workspace_browser->signal_close_document().connect(
-            [this](const UUID &doc_uu) { close_document(doc_uu, nullptr, nullptr); });
-
-    m_win.signal_close_request().connect(
-            [this] {
-                if (!m_core.get_needs_save_any())
-                    return false;
-
-                auto cb = [this] {
-                    // here, the close dialog is still there and closing the main window causes a near-segfault
-                    // so break out of the current event
-                    Glib::signal_idle().connect_once([this] { m_win.close(); });
-                };
-                close_document(m_core.get_current_idocument_info().get_uuid(), cb, cb);
-
-                return true; // keep window open
-            },
-            true);
 
 
     connect_action(ActionID::NEW_DOCUMENT, [this](auto &a) { m_core.add_document(); });
-    connect_action(ActionID::OPEN_DOCUMENT, [this](auto &a) {
-        auto dialog = Gtk::FileDialog::create();
-
-        // Add filters, so that only certain file types can be selected:
-        auto filters = Gio::ListStore<Gtk::FileFilter>::create();
-
-        auto filter_any = Gtk::FileFilter::create();
-        filter_any->set_name("Dune 3D documents");
-        filter_any->add_pattern("*.d3ddoc");
-        filters->append(filter_any);
-
-        dialog->set_filters(filters);
-
-        // Show the dialog and wait for a user response:
-        dialog->open(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
-            try {
-                auto file = dialog->open_finish(result);
-                m_win.open_file_view(file);
-                // Notice that this is a std::string, not a Glib::ustring.
-                auto filename = file->get_path();
-                std::cout << "File selected: " << filename << std::endl;
-            }
-            catch (const Gtk::DialogError &err) {
-                // Can be thrown by dialog->open_finish(result).
-                std::cout << "No file selected. " << err.what() << std::endl;
-            }
-            catch (const Glib::Error &err) {
-                std::cout << "Unexpected exception. " << err.what() << std::endl;
-            }
-        });
-    });
+    connect_action(ActionID::OPEN_DOCUMENT, sigc::mem_fun(*this, &Editor::on_open_document));
 
 
-    connect_action(ActionID::EXPORT_SOLID_MODEL_STL, [this](auto &a) {
-        auto dialog = Gtk::FileDialog::create();
-
-        // Add filters, so that only certain file types can be selected:
-        auto filters = Gio::ListStore<Gtk::FileFilter>::create();
-
-        auto filter_any = Gtk::FileFilter::create();
-        filter_any->set_name("STL");
-        filter_any->add_pattern("*.stl");
-        filters->append(filter_any);
-
-        dialog->set_filters(filters);
-
-        // Show the dialog and wait for a user response:
-        dialog->save(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
-            try {
-                auto file = dialog->save_finish(result);
-                // open_file_view(file);
-                //  Notice that this is a std::string, not a Glib::ustring.
-
-                auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
-                if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group))
-                    gr->get_solid_model()->export_stl(file->get_path());
-            }
-            catch (const Gtk::DialogError &err) {
-                // Can be thrown by dialog->open_finish(result).
-                std::cout << "No file selected. " << err.what() << std::endl;
-            }
-            catch (const Glib::Error &err) {
-                std::cout << "Unexpected exception. " << err.what() << std::endl;
-            }
-        });
-    });
-    connect_action(ActionID::EXPORT_SOLID_MODEL_STEP, [this](auto &a) {
-        auto dialog = Gtk::FileDialog::create();
-
-        // Add filters, so that only certain file types can be selected:
-        auto filters = Gio::ListStore<Gtk::FileFilter>::create();
-
-        auto filter_any = Gtk::FileFilter::create();
-        filter_any->set_name("STEP");
-        filter_any->add_pattern("*.step");
-        filter_any->add_pattern("*.stp");
-        filters->append(filter_any);
-
-        dialog->set_filters(filters);
-
-        // Show the dialog and wait for a user response:
-        dialog->save(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
-            try {
-                auto file = dialog->save_finish(result);
-                // open_file_view(file);
-                //  Notice that this is a std::string, not a Glib::ustring.
-
-                auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
-                if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group))
-                    gr->get_solid_model()->export_step(file->get_path());
-            }
-            catch (const Gtk::DialogError &err) {
-                // Can be thrown by dialog->open_finish(result).
-                std::cout << "No file selected. " << err.what() << std::endl;
-            }
-            catch (const Glib::Error &err) {
-                std::cout << "Unexpected exception. " << err.what() << std::endl;
-            }
-        });
-    });
+    connect_action(ActionID::EXPORT_SOLID_MODEL_STL, sigc::mem_fun(*this, &Editor::on_export_solid_model));
+    connect_action(ActionID::EXPORT_SOLID_MODEL_STEP, sigc::mem_fun(*this, &Editor::on_export_solid_model));
 
     connect_action(ActionID::NEXT_GROUP, [this](auto &a) { m_workspace_browser->group_prev_next(1); });
     connect_action(ActionID::PREVIOUS_GROUP, [this](auto &a) { m_workspace_browser->group_prev_next(-1); });
-
-    {
-        auto controller = Gtk::EventControllerMotion::create();
-        controller->signal_motion().connect([this](double x, double y) {
-            if (m_last_x != x || m_last_y != y) {
-                handle_cursor_move();
-                m_last_x = x;
-                m_last_y = y;
-            }
-        });
-        get_canvas().add_controller(controller);
-    }
 
     connect_action(ActionID::TOGGLE_SOLID_MODEL, [this](const auto &a) {
         auto &doc = m_core.get_current_document();
@@ -297,38 +240,6 @@ void Editor::init()
         m_workspace_browser->update_current_group(m_document_view);
         canvas_update_keep_selection();
     });
-
-    {
-        auto controller = Gtk::GestureClick::create();
-        controller->set_button(0);
-        controller->signal_pressed().connect([this, controller](int n_press, double x, double y) {
-            auto button = controller->get_current_button();
-            std::cout << "click " << button << std::endl;
-            if (button == 1 || button == 3)
-                handle_click(button, n_press);
-            else if (button == 8)
-                trigger_action(ActionID::NEXT_GROUP);
-            else if (button == 9)
-                trigger_action(ActionID::PREVIOUS_GROUP);
-        });
-
-        controller->signal_released().connect([this, controller](int n_press, double x, double y) {
-            m_drag_tool = ToolID::NONE;
-            if (controller->get_current_button() == 1 && n_press == 1) {
-                if (m_core.tool_is_active()) {
-                    ToolArgs args;
-                    args.type = ToolEventType::ACTION;
-                    args.action = InToolActionID::LMB_RELEASE;
-                    ToolResponse r = m_core.tool_update(args);
-                    tool_process(r);
-                }
-            }
-        });
-
-        get_canvas().add_controller(controller);
-    }
-
-    update_workplane_label();
 
     for (const auto &[id, it] : action_catalog) {
         if (std::holds_alternative<ToolID>(id)) {
@@ -355,7 +266,153 @@ void Editor::init()
         update_workplane_label();
     });
 
+    connect_action(ActionID::UNDO, [this](const auto &a) {
+        m_core.undo();
+        canvas_update_keep_selection();
+    });
+    connect_action(ActionID::REDO, [this](const auto &a) {
+        m_core.redo();
+        canvas_update_keep_selection();
+    });
 
+    connect_action(ActionID::PREFERENCES, [this](const auto &a) {
+        auto pwin = dynamic_cast<Dune3DApplication &>(*m_win.get_application()).show_preferences_window();
+        pwin->set_transient_for(m_win);
+    });
+
+
+    connect_action(ActionID::VIEW_ALL, [this](auto &a) {
+        get_canvas().set_cam_azimuth(270);
+        get_canvas().set_cam_elevation(80);
+        get_canvas().set_cam_distance(10);
+        get_canvas().set_center({0, 0, 0});
+    });
+
+
+    m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
+}
+
+void Editor::on_export_solid_model(const ActionConnection &conn)
+{
+    const auto action = std::get<ActionID>(conn.id);
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    if (action == ActionID::EXPORT_SOLID_MODEL_STEP) {
+        filter_any->set_name("STEP");
+        filter_any->add_pattern("*.step");
+        filter_any->add_pattern("*.stp");
+    }
+    else {
+        filter_any->set_name("STL");
+        filter_any->add_pattern("*.stl");
+    }
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    dialog->save(m_win, [this, dialog, action](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->save_finish(result);
+            // open_file_view(file);
+            //  Notice that this is a std::string, not a Glib::ustring.
+            const auto path = path_from_string(file->get_path());
+            auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
+            if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
+                if (action == ActionID::EXPORT_SOLID_MODEL_STEP)
+                    gr->get_solid_model()->export_step(file->get_path());
+                else
+                    gr->get_solid_model()->export_stl(file->get_path());
+            }
+        }
+        catch (const Gtk::DialogError &err) {
+            // Can be thrown by dialog->open_finish(result).
+            std::cout << "No file selected. " << err.what() << std::endl;
+        }
+        catch (const Glib::Error &err) {
+            std::cout << "Unexpected exception. " << err.what() << std::endl;
+        }
+    });
+}
+
+void Editor::on_open_document(const ActionConnection &conn)
+{
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("Dune 3D documents");
+    filter_any->add_pattern("*.d3ddoc");
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    dialog->open(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->open_finish(result);
+            m_win.open_file_view(file);
+            // Notice that this is a std::string, not a Glib::ustring.
+            auto filename = file->get_path();
+            std::cout << "File selected: " << filename << std::endl;
+        }
+        catch (const Gtk::DialogError &err) {
+            // Can be thrown by dialog->open_finish(result).
+            std::cout << "No file selected. " << err.what() << std::endl;
+        }
+        catch (const Glib::Error &err) {
+            std::cout << "Unexpected exception. " << err.what() << std::endl;
+        }
+    });
+}
+
+void Editor::on_save_as(const ActionConnection &conn)
+{
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("Dune 3D documents");
+    filter_any->add_pattern("*.d3ddoc");
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    dialog->save(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->save_finish(result);
+            // open_file_view(file);
+            //  Notice that this is a std::string, not a Glib::ustring.
+            auto filename = file->get_path();
+            // std::cout << "File selected: " << filename << std::endl;
+            m_core.save_as(filename);
+            m_workspace_browser->update_documents(m_document_view);
+            update_version_info();
+            if (m_after_save_cb)
+                m_after_save_cb();
+        }
+        catch (const Gtk::DialogError &err) {
+            // Can be thrown by dialog->open_finish(result).
+            std::cout << "No file selected. " << err.what() << std::endl;
+        }
+        catch (const Glib::Error &err) {
+            std::cout << "Unexpected exception. " << err.what() << std::endl;
+        }
+    });
+}
+
+
+void Editor::init_tool_popover()
+{
     m_tool_popover = Gtk::make_managed<ToolPopover>();
     m_tool_popover->set_parent(get_canvas());
     m_tool_popover->signal_action_activated().connect([this](ActionToolID action_id) { trigger_action(action_id); });
@@ -384,250 +441,6 @@ void Editor::init()
 
         m_tool_popover->popup();
     });
-
-    connect_action(ActionID::UNDO, [this](const auto &a) {
-        m_core.undo();
-        canvas_update_keep_selection();
-    });
-    connect_action(ActionID::REDO, [this](const auto &a) {
-        m_core.redo();
-        canvas_update_keep_selection();
-    });
-
-    connect_action(ActionID::PREFERENCES, [this](const auto &a) {
-        auto pwin = dynamic_cast<Dune3DApplication &>(*m_win.get_application()).show_preferences_window();
-        pwin->set_transient_for(m_win);
-    });
-
-
-    m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
-
-    m_preferences.signal_changed().connect(sigc::mem_fun(*this, &Editor::apply_preferences));
-
-    apply_preferences();
-
-    m_core.signal_tool_changed().connect(sigc::mem_fun(*this, &Editor::handle_tool_change));
-
-    m_workspace_browser->update_documents(m_document_view);
-
-    m_workspace_browser->signal_group_selected().connect([this](const UUID &uu_doc, const UUID &uu_group) {
-        if (m_core.tool_is_active())
-            return;
-        if (m_core.get_current_idocument_info().get_uuid() == uu_doc) {
-            if (m_core.get_current_group() == uu_group)
-                return;
-            m_core.set_current_group(uu_group);
-            m_workspace_browser->update_current_group(m_document_view);
-            canvas_update_keep_selection();
-            update_workplane_label();
-            m_constraints_box->update();
-            update_group_editor();
-            update_action_sensitivity();
-        }
-    });
-    m_workspace_browser->signal_add_group().connect([this](Group::Type group_type) {
-        if (m_core.tool_is_active())
-            return;
-        auto &doc = m_core.get_current_document();
-        auto &current_group = doc.get_group(m_core.get_current_group());
-        Group *new_group = nullptr;
-        if (group_type == Group::Type::SKETCH) {
-            auto &group = doc.insert_group<GroupSketch>(UUID::random(), current_group.m_uuid);
-            new_group = &group;
-            group.m_name = "Sketch";
-        }
-        else if (group_type == Group::Type::EXTRUDE) {
-            if (!current_group.m_active_wrkpl)
-                return;
-            auto &group = doc.insert_group<GroupExtrude>(UUID::random(), current_group.m_uuid);
-            new_group = &group;
-            group.m_name = "Extrude";
-            group.m_wrkpl = current_group.m_active_wrkpl;
-            group.m_source_group = current_group.m_uuid;
-        }
-        else if (group_type == Group::Type::LATHE) {
-            if (!current_group.m_active_wrkpl)
-                return;
-            auto sel = get_canvas().get_selection();
-            std::optional<UUID> wrkpl = entity_from_selection(doc, sel, Entity::Type::WORKPLANE);
-            std::optional<LineAndPoint> line_and_point =
-                    line_and_point_from_selection(doc, sel, LineAndPoint::AllowSameEntity::YES);
-            if (!wrkpl && !line_and_point)
-                return;
-
-            auto &group = doc.insert_group<GroupLathe>(UUID::random(), current_group.m_uuid);
-            new_group = &group;
-            group.m_name = "Lathe";
-            group.m_wrkpl = current_group.m_active_wrkpl;
-            group.m_source_group = current_group.m_uuid;
-            if (wrkpl) {
-                group.m_origin = *wrkpl;
-                group.m_origin_point = 1;
-                group.m_normal = *wrkpl;
-            }
-            else {
-                assert(line_and_point.has_value());
-                group.m_origin = line_and_point->point;
-                group.m_origin_point = line_and_point->point_point;
-                group.m_normal = line_and_point->line;
-            }
-        }
-        else if (group_type == Group::Type::FILLET) {
-            auto &group = doc.insert_group<GroupFillet>(UUID::random(), current_group.m_uuid);
-            new_group = &group;
-            group.m_name = "Fillet";
-        }
-        else if (group_type == Group::Type::CHAMFER) {
-            auto &group = doc.insert_group<GroupChamfer>(UUID::random(), current_group.m_uuid);
-            new_group = &group;
-            group.m_name = "Chamfer";
-            m_core.set_needs_save();
-        }
-        if (new_group) {
-            m_core.set_needs_save();
-            m_core.rebuild("add group");
-            m_workspace_browser->update_documents(m_document_view);
-            canvas_update_keep_selection();
-            m_workspace_browser->select_group(new_group->m_uuid);
-        }
-    });
-    m_workspace_browser->signal_delete_current_group().connect([this] {
-        if (m_core.tool_is_active())
-            return;
-
-        auto &doc = m_core.get_current_document();
-
-        auto &group = doc.get_group(m_core.get_current_group());
-        if (group.get_type() == Group::Type::REFERENCE)
-            return;
-
-        UUID previous_group;
-        previous_group = doc.get_group_rel(group.m_uuid, -1);
-        if (!previous_group)
-            previous_group = doc.get_group_rel(group.m_uuid, 1);
-
-        if (!previous_group)
-            return;
-
-        {
-            Document::ItemsToDelete items;
-            items.groups = {group.m_uuid};
-            auto exra_items = doc.get_additional_items_to_delete(items);
-            items.append(exra_items);
-            doc.delete_items(items);
-        }
-
-        m_core.set_current_group(previous_group);
-
-        m_core.set_needs_save();
-        m_core.rebuild("delete group");
-        canvas_update_keep_selection();
-        m_workspace_browser->update_documents(m_document_view);
-    });
-
-
-    m_workspace_browser->signal_move_group().connect([this](WorkspaceBrowser::MoveGroup op) {
-        if (m_core.tool_is_active())
-            return;
-        auto &doc = m_core.get_current_document();
-
-        auto &group = doc.get_group(m_core.get_current_group());
-        auto groups_by_body = doc.get_groups_by_body();
-
-        UUID group_after;
-        using Op = WorkspaceBrowser::MoveGroup;
-        switch (op) {
-        case Op::UP:
-            group_after = doc.get_group_rel(group.m_uuid, -2);
-            break;
-        case Op::DOWN:
-            group_after = doc.get_group_rel(group.m_uuid, 1);
-            break;
-        case Op::END_OF_DOCUMENT:
-            group_after = groups_by_body.back().groups.back()->m_uuid;
-            break;
-        case Op::END_OF_BODY: {
-            for (auto it_body = groups_by_body.begin(); it_body != groups_by_body.end(); it_body++) {
-                auto it_group = std::ranges::find(it_body->groups, &group);
-                if (it_group == it_body->groups.end())
-                    continue;
-
-                if (it_group == (it_body->groups.end() - 1)) {
-                    // is at end of body, move to end of next body
-                    auto it_next_body = it_body + 1;
-                    if (it_next_body == groups_by_body.end()) {
-                        it_next_body = it_body;
-                    }
-                    group_after = it_next_body->groups.back()->m_uuid;
-                }
-                else {
-                    group_after = it_body->groups.back()->m_uuid;
-                }
-            }
-
-        } break;
-        }
-        if (!group_after)
-            return;
-
-        std::cout << "move after " << doc.get_group(group_after).m_name << std::endl;
-
-        if (!doc.reorder_group(group.m_uuid, group_after))
-            return;
-        m_core.set_needs_save();
-        m_core.rebuild("reorder_group");
-        canvas_update_keep_selection();
-        m_workspace_browser->update_documents(m_document_view);
-    });
-
-
-    m_core.signal_rebuilt().connect([this] { m_workspace_browser->update_documents(m_document_view); });
-    update_group_editor();
-    m_core.signal_rebuilt().connect([this] {
-        if (m_group_editor) {
-            if (m_core.get_current_group() != m_group_editor->get_group())
-                update_group_editor();
-            else
-                m_group_editor->reload();
-        }
-    });
-
-    m_workspace_browser->signal_group_checked().connect([this](const UUID &uu_doc, const UUID &uu_group, bool checked) {
-        m_document_view.m_group_views[uu_group].m_visible = checked;
-        m_workspace_browser->update_current_group(m_document_view);
-        canvas_update_keep_selection();
-    });
-    m_workspace_browser->signal_body_checked().connect([this](const UUID &uu_doc, const UUID &uu_group, bool checked) {
-        m_document_view.m_body_views[uu_group].m_visible = checked;
-        m_workspace_browser->update_current_group(m_document_view);
-        canvas_update_keep_selection();
-    });
-    m_workspace_browser->signal_body_solid_model_checked().connect(
-            [this](const UUID &uu_doc, const UUID &uu_group, bool checked) {
-                m_document_view.m_body_views[uu_group].m_solid_model_visible = checked;
-                m_workspace_browser->update_current_group(m_document_view);
-                canvas_update_keep_selection();
-            });
-
-    m_core.signal_documents_changed().connect([this] {
-        canvas_update_keep_selection();
-        m_workspace_browser->update_documents(m_document_view);
-        update_group_editor();
-        update_workplane_label();
-        update_action_sensitivity();
-        m_workspace_browser->set_sensitive(m_core.has_documents());
-        update_version_info();
-    });
-    m_workspace_browser->set_sensitive(m_core.has_documents());
-
-    connect_action(ActionID::VIEW_ALL, [this](auto &a) {
-        get_canvas().set_cam_azimuth(270);
-        get_canvas().set_cam_elevation(80);
-        get_canvas().set_cam_distance(10);
-        get_canvas().set_center({0, 0, 0});
-    });
-
-    update_action_sensitivity();
 }
 
 Canvas &Editor::get_canvas()

@@ -4,10 +4,11 @@
 #include <gtkmm.h>
 #include "action/action.hpp"
 #include "preferences/preferences.hpp"
-
 #include "document_view.hpp"
 #include "dialogs/dialogs.hpp"
 #include "util/action_label.hpp"
+#include "document/group.hpp"
+#include "workspace_browser.hpp"
 
 
 namespace dune3d {
@@ -18,7 +19,6 @@ class Preferences;
 enum class ToolID;
 class ActionLabelInfo;
 class ToolPopover;
-class WorkspaceBrowser;
 class ConstraintsBox;
 class GroupEditor;
 
@@ -56,6 +56,26 @@ public:
     void open_file(const std::filesystem::path &path);
 
 private:
+    void init_workspace_browser();
+    void init_properties_notebook();
+    void init_header_bar();
+    void init_actions();
+    void init_tool_popover();
+    void init_canvas();
+
+    void on_workspace_browser_group_selected(const UUID &uu_doc, const UUID &uu_group);
+    void on_workspace_browser_add_group(Group::Type group_type);
+    void on_workspace_browser_delete_current_group();
+    void on_workspace_browser_move_group(WorkspaceBrowser::MoveGroup op);
+    void on_workspace_browser_group_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
+    void on_workspace_browser_body_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
+    void on_workspace_browser_body_solid_model_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
+
+    void on_export_solid_model(const ActionConnection &conn);
+    void on_open_document(const ActionConnection &conn);
+    void on_save_as(const ActionConnection &conn);
+
+
     Canvas &get_canvas();
     const Canvas &get_canvas() const;
 

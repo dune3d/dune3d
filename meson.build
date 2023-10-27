@@ -26,6 +26,7 @@ src = files(
   'src/dune3d_application.cpp',
   'src/dune3d_appwindow.cpp',
   'src/editor.cpp',
+  'src/editor_workspace_browser.cpp',
   'src/canvas/canvas.cpp',
   'src/canvas/gl_util.cpp',
   'src/canvas/base_renderer.cpp',
