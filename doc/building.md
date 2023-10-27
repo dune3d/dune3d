@@ -90,6 +90,9 @@ meson setup build
 meson compile -C build
 ```
 
+> If you get the error `meson: command not found`, you are probably using the MSYS console (rather than the MINGW64 console).
+> You can run the command `export PATH=/bin/mingw64:$PATH` to tell the console where to find meson (and the rest of mingw64).
+
 ### Running
 
 ```
