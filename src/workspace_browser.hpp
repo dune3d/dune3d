@@ -1,7 +1,7 @@
 #pragma once
 #include <gtkmm.h>
 #include "util/uuid.hpp"
-#include "document/group.hpp"
+#include "document/group/group.hpp"
 
 namespace dune3d {
 

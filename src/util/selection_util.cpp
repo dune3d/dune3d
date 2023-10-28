@@ -1,7 +1,7 @@
 #include "selection_util.hpp"
 #include "document/document.hpp"
-#include "document/entity_line2d.hpp"
-#include "document/entity_line3d.hpp"
+#include "document/entity/entity_line2d.hpp"
+#include "document/entity/entity_line3d.hpp"
 #include "canvas/selectable_ref.hpp"
 
 namespace dune3d {

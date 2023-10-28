@@ -1,7 +1,7 @@
 #include "tool_common.hpp"
-#include "document/entity_workplane.hpp"
+#include "document/entity/entity_workplane.hpp"
 #include "tool_common_impl.hpp"
-#include "document/group.hpp"
+#include "document/group/group.hpp"
 
 namespace dune3d {
 Document &ToolCommon::get_doc()

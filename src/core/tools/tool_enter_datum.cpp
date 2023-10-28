@@ -1,9 +1,9 @@
 #include "tool_enter_datum.hpp"
 #include "document/document.hpp"
-#include "document/entity.hpp"
-#include "document/constraint.hpp"
-#include "document/constraint_point_distance_hv.hpp"
-#include "document/iconstraint_datum.hpp"
+#include "document/entity/entity.hpp"
+#include "document/constraint/constraint.hpp"
+#include "document/constraint/constraint_point_distance_hv.hpp"
+#include "document/constraint/iconstraint_datum.hpp"
 
 #include "editor_interface.hpp"
 #include "dialogs/dialogs.hpp"

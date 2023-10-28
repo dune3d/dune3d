@@ -1,18 +1,18 @@
 #include "document.hpp"
 #include "nlohmann/json.hpp"
-#include "entity.hpp"
-#include "constraint.hpp"
-#include "group.hpp"
+#include "entity/entity.hpp"
+#include "constraint/constraint.hpp"
+#include "group/group.hpp"
 #include "util/util.hpp"
-#include "group_extrude.hpp"
-#include "group_reference.hpp"
-#include "group_sketch.hpp"
+#include "group/group_extrude.hpp"
+#include "group/group_reference.hpp"
+#include "group/group_sketch.hpp"
 #include "system/system.hpp"
 #include <ranges>
 #include <set>
 #include <algorithm>
 #include <iostream>
-#include "entity_and_point.hpp"
+#include "entity/entity_and_point.hpp"
 
 namespace dune3d {
 

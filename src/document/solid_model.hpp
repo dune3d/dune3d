@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include <glm/glm.hpp>
-#include "all_groups_fwd.hpp"
+#include "group/all_groups_fwd.hpp"
 
 namespace dune3d {
 

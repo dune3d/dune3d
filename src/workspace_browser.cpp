@@ -1,7 +1,7 @@
 #include "workspace_browser.hpp"
 #include "core/core.hpp"
 #include "document/document.hpp"
-#include "document/group.hpp"
+#include "document/group/group.hpp"
 #include "document_view.hpp"
 #include <iostream>
 

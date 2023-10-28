@@ -1,8 +1,8 @@
 #include "tool_constrain_hv.hpp"
 #include "document/document.hpp"
-#include "document/entity_line3d.hpp"
-#include "document/entity_line2d.hpp"
-#include "document/constraint_hv.hpp"
+#include "document/entity/entity_line3d.hpp"
+#include "document/entity/entity_line2d.hpp"
+#include "document/constraint/constraint_hv.hpp"
 #include "core/tool_id.hpp"
 #include <optional>
 #include "util/selection_util.hpp"

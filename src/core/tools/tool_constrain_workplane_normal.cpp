@@ -1,8 +1,8 @@
 #include "tool_constrain_workplane_normal.hpp"
 #include "document/document.hpp"
-#include "document/entity.hpp"
-#include "document/entity_workplane.hpp"
-#include "document/constraint_workplane_normal.hpp"
+#include "document/entity/entity.hpp"
+#include "document/entity/entity_workplane.hpp"
+#include "document/constraint/constraint_workplane_normal.hpp"
 #include "core/tool_id.hpp"
 #include <optional>
 #include <iostream>

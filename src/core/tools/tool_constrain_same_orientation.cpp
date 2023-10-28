@@ -1,7 +1,7 @@
 #include "tool_constrain_same_orientation.hpp"
 #include "document/document.hpp"
-#include "document/entity.hpp"
-#include "document/constraint_same_orientation.hpp"
+#include "document/entity/entity.hpp"
+#include "document/constraint/constraint_same_orientation.hpp"
 #include "core/tool_id.hpp"
 #include <optional>
 #include "util/selection_util.hpp"

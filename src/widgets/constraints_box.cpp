@@ -1,7 +1,7 @@
 #include "constraints_box.hpp"
 #include "core/core.hpp"
 #include "document/document.hpp"
-#include "document/constraint.hpp"
+#include "document/constraint/constraint.hpp"
 
 namespace dune3d {
 

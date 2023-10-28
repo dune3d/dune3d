@@ -1,8 +1,8 @@
 #include "tool_constrain_perpendicular.hpp"
 #include "document/document.hpp"
-#include "document/entity.hpp"
-#include "document/entity_line3d.hpp"
-#include "document/constraint_line_points_perpendicular.hpp"
+#include "document/entity/entity.hpp"
+#include "document/entity/entity_line3d.hpp"
+#include "document/constraint/constraint_line_points_perpendicular.hpp"
 #include "core/tool_id.hpp"
 #include <optional>
 #include "util/selection_util.hpp"

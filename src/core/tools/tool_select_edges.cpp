@@ -1,6 +1,6 @@
 #include "tool_select_edges.hpp"
 #include "document/document.hpp"
-#include "document/group_local_operation.hpp"
+#include "document/group/group_local_operation.hpp"
 #include <optional>
 #include <iostream>
 #include <algorithm>

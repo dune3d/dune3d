@@ -4,9 +4,9 @@
 #include "nlohmann/json.hpp"
 #include "tool_id.hpp"
 #include "document/document.hpp"
-#include "document/group.hpp"
-#include "document/group_extrude.hpp"
-#include "document/entity_workplane.hpp"
+#include "document/group/group.hpp"
+#include "document/group/group_extrude.hpp"
+#include "document/entity/entity_workplane.hpp"
 #include "system/system.hpp"
 #include "util/fs_util.hpp"
 #include <iostream>

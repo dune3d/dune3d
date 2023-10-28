@@ -1,9 +1,8 @@
 #include "tool_delete.hpp"
 #include "document/document.hpp"
-#include "document/entity.hpp"
-#include "document/entity_step.hpp"
-#include "document/constraint.hpp"
-#include "document/group.hpp"
+#include "document/entity/entity_step.hpp"
+#include "document/constraint/constraint.hpp"
+#include "document/group/group.hpp"
 #include "tool_common_impl.hpp"
 #include <iostream>
 

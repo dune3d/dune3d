@@ -2,8 +2,8 @@
 #include "uuid.hpp"
 #include <optional>
 #include <set>
-#include "document/entity.hpp"
-#include "document/entity_and_point.hpp"
+#include "document/entity/entity.hpp"
+#include "document/entity/entity_and_point.hpp"
 
 namespace dune3d {
 

@@ -1,6 +1,6 @@
 #include "tool_add_anchor.hpp"
 #include "document/document.hpp"
-#include "document/entity_step.hpp"
+#include "document/entity/entity_step.hpp"
 #include <optional>
 #include <iostream>
 #include <algorithm>

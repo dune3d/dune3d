@@ -3,11 +3,9 @@
 #include <map>
 #include <glm/glm.hpp>
 #include <list>
-#include "document/all_constraints_fwd.hpp"
-#include "document/all_entities_fwd.hpp"
-#include "document/all_groups_fwd.hpp"
-#include "document/entity_visitor.hpp"
-#include "document/constraint_visitor.hpp"
+#include "document/group/all_groups_fwd.hpp"
+#include "document/entity/entity_visitor.hpp"
+#include "document/constraint/constraint_visitor.hpp"
 
 namespace dune3d {
 

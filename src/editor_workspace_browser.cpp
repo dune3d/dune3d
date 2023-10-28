@@ -2,8 +2,8 @@
 #include "workspace_browser.hpp"
 #include "dune3d_appwindow.hpp"
 #include "widgets/constraints_box.hpp"
-#include "document/all_groups.hpp"
-#include "document/entity_workplane.hpp"
+#include "document/group/all_groups.hpp"
+#include "document/entity/entity_workplane.hpp"
 #include "util/selection_util.hpp"
 #include "canvas/canvas.hpp"
 #include <iostream>

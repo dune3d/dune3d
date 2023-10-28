@@ -1,6 +1,6 @@
 #include "tool_toggle_construction.hpp"
 #include "document/document.hpp"
-#include "document/entity.hpp"
+#include "document/entity/entity.hpp"
 #include "core/tool_id.hpp"
 #include "tool_common_impl.hpp"
 #include <algorithm>

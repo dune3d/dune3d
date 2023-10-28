@@ -7,7 +7,7 @@
 #include "document_view.hpp"
 #include "dialogs/dialogs.hpp"
 #include "util/action_label.hpp"
-#include "document/group.hpp"
+#include "document/group/group.hpp"
 #include "workspace_browser.hpp"
 
 

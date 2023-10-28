@@ -1,7 +1,7 @@
 #include "tool_constrain_equal_length.hpp"
 #include "document/document.hpp"
-#include "document/entity.hpp"
-#include "document/constraint_equal_length.hpp"
+#include "document/entity/entity.hpp"
+#include "document/constraint/constraint_equal_length.hpp"
 #include "core/tool_id.hpp"
 #include <list>
 #include "util/selection_util.hpp"
