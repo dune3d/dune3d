@@ -3,6 +3,7 @@
 #include "dune3d_appwindow.hpp"
 #include "widgets/constraints_box.hpp"
 #include "document/all_groups.hpp"
+#include "document/entity_workplane.hpp"
 #include "util/selection_util.hpp"
 #include "canvas/canvas.hpp"
 #include <iostream>
@@ -74,6 +75,7 @@ void Editor::on_workspace_browser_add_group(Group::Type group_type)
         new_group = &group;
         group.m_name = "Extrude";
         group.m_wrkpl = current_group.m_active_wrkpl;
+        group.m_dvec = doc.get_entity<EntityWorkplane>(group.m_wrkpl).get_normal();
         group.m_source_group = current_group.m_uuid;
     }
     else if (group_type == Group::Type::LATHE) {
