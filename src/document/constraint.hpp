@@ -54,6 +54,8 @@ public:
 
     virtual std::set<UUID> get_referenced_entities() const = 0;
 
+    bool m_modify_to_satisfy = false;
+
 protected:
     explicit Constraint(const UUID &uu);
     explicit Constraint(const UUID &uu, const json &j);

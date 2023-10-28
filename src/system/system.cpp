@@ -586,8 +586,10 @@ void System::update_document()
             c->m_val = val;
         else if (auto c = m_doc.get_constraint_ptr<ConstraintParallel>(uu))
             c->m_val = val;
-        else if (auto c = m_doc.get_constraint_ptr<ConstraintPointOnLine>(uu))
+        else if (auto c = m_doc.get_constraint_ptr<ConstraintPointOnLine>(uu)) {
             c->m_val = val;
+            c->m_modify_to_satisfy = false;
+        }
     }
 }
 
@@ -736,16 +738,17 @@ void System::visit(const ConstraintPointOnLine &constraint)
     cb.ptA.v = m_entity_refs_r.at(constraint.m_point);
     cb.entityA.v = m_entity_refs_r.at(EntityRef{constraint.m_line, 0});
 
-    {
-        Param p = {};
-        p.h = cb.h.param(0);
-        cb.valP = p.h;
-        p.val = constraint.m_val;
-        SK.param.Add(&p);
-        m_sys->param.Add(&p);
-    }
+
+    Param p = {};
+    p.h = cb.h.param(0);
+    cb.valP = p.h;
+    p.val = constraint.m_val;
+    SK.param.Add(&p);
 
     SK.constraint.Add(&cb);
+    if (constraint.m_modify_to_satisfy)
+        cb.ModifyToSatisfy();
+    m_sys->param.Add(SK.GetParam(p.h));
 }
 
 static void AddEq(hConstraint h, IdList<Equation, hEquation> *l, Expr *expr, int index)

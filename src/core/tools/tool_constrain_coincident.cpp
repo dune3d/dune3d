@@ -67,6 +67,7 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
         constraint.m_line = tp->line;
         constraint.m_point = {tp->point, tp->point_point};
         constraint.m_wrkpl = m_core.get_current_workplane();
+        constraint.m_modify_to_satisfy = true;
     }
     else if (is_point_on_circle()) {
         auto tp = circle_and_point_from_selection(get_doc(), m_selection);
