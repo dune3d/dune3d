@@ -118,7 +118,7 @@ Canvas::Canvas()
                 }
             }
         });
-        controller->signal_released().connect([this](int n_press, double x, double y) { m_pan_mode = PanMode::NONE; });
+        controller->signal_released().connect([this](int n_press, double x, double y) { end_pan(); });
         add_controller(controller);
     }
 
@@ -141,9 +141,15 @@ Canvas::Canvas()
             m_cursor_pos.y = (y / m_height) * -2. + 1.;
 
             update_hover_selection();
+            m_signal_cursor_moved.emit();
         }
     });
     add_controller(controller);
+}
+
+void Canvas::end_pan()
+{
+    m_pan_mode = PanMode::NONE;
 }
 
 void Canvas::scroll_zoom(double dx, double dy, Gtk::EventController &ctrl)

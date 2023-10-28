@@ -111,8 +111,15 @@ public:
         return m_signal_view_changed;
     }
 
+    type_signal_view_changed signal_cursor_moved()
+    {
+        return m_signal_cursor_moved;
+    }
+
     void set_appearance(const Appearance &appearance);
 
+
+    void end_pan();
 
 private:
     BackgroundRenderer m_background_renderer;
@@ -359,6 +366,7 @@ private:
     void update_hover_selection();
 
     type_signal_view_changed m_signal_view_changed;
+    type_signal_view_changed m_signal_cursor_moved;
 
     void apply_flags(VertexFlags &flags);
 };

@@ -126,13 +126,13 @@ void Editor::init_canvas()
         auto controller = Gtk::EventControllerMotion::create();
         controller->signal_motion().connect([this](double x, double y) {
             if (m_last_x != x || m_last_y != y) {
-                handle_cursor_move();
                 m_last_x = x;
                 m_last_y = y;
             }
         });
         get_canvas().add_controller(controller);
     }
+    get_canvas().signal_cursor_moved().connect(sigc::mem_fun(*this, &Editor::handle_cursor_move));
 }
 
 
