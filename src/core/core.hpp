@@ -219,8 +219,10 @@ private:
 
     std::unique_ptr<ToolBase> create_tool(ToolID tool_id, ToolBase::Flags flags = ToolBase::Flags::DEFAULT);
     std::unique_ptr<ToolBase> m_tool = nullptr;
-    void maybe_end_tool(const ToolResponse &r);
+    bool maybe_end_tool(const ToolResponse &r);
     std::set<SelectableRef> m_last_tool_selection;
+    bool m_pending_begin = false;
+    ToolResponse do_begin(const ToolArgs &args);
 
     enum class ToolState { NONE, BEGINNING, UPDATING };
     ToolState m_tool_state = ToolState::NONE;

@@ -127,6 +127,11 @@ public:
         return false;
     }
 
+    virtual bool needs_delayed_begin() const
+    {
+        return false;
+    }
+
     std::set<SelectableRef> m_selection;
 
     virtual ~ToolBase()

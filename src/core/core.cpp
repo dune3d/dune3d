@@ -371,25 +371,37 @@ ToolResponse Core::tool_begin(ToolID tool_id, const ToolArgs &args, bool transie
         m_current_groups_sorted = get_current_document().get_groups_sorted();
         m_signal_tool_changed.emit();
         ToolResponse r;
-        try {
-            r = m_tool->begin(args);
-        }
-        catch (const std::exception &e) {
-            m_tool.reset();
-            m_signal_tool_changed.emit();
-            Logger::log_critical("exception thrown in tool_begin of "
-                                 /*+ action_catalog.at({ActionID::TOOL, tool_id}).name*/,
-                                 Logger::Domain::CORE, e.what());
-            // history_load(history_manager.get_current());
-            rebuild_internal(true, "undo");
-            return ToolResponse::end();
-        }
-        maybe_end_tool(r);
+        m_pending_begin = false;
+        if (!m_tool->needs_delayed_begin())
+            return do_begin(args);
+        else
+            m_pending_begin = true;
 
         return r;
     }
 
     return ToolResponse();
+}
+
+ToolResponse Core::do_begin(const ToolArgs &args)
+{
+    ToolResponse r;
+
+    try {
+        r = m_tool->begin(args);
+    }
+    catch (const std::exception &e) {
+        m_tool.reset();
+        m_signal_tool_changed.emit();
+        Logger::log_critical("exception thrown in tool_begin of "
+                             /*+ action_catalog.at({ActionID::TOOL, tool_id}).name*/,
+                             Logger::Domain::CORE, e.what());
+        // history_load(history_manager.get_current());
+        rebuild_internal(true, "undo");
+        return ToolResponse::end();
+    }
+    maybe_end_tool(r);
+    return r;
 }
 
 void Core::set_needs_save(bool v)
@@ -468,7 +480,7 @@ void Core::save_as(const std::filesystem::path &path)
 }
 
 
-void Core::maybe_end_tool(const ToolResponse &r)
+bool Core::maybe_end_tool(const ToolResponse &r)
 {
     if (r.result != ToolResponse::Result::NOP) { // end tool
         /*for (auto [tid, settings] : tool->get_all_settings()) {
@@ -493,7 +505,9 @@ void Core::maybe_end_tool(const ToolResponse &r)
             // do nothing
         }
         // tool_id_current = ToolID::NONE;
+        return true;
     }
+    return false;
 }
 
 ToolResponse Core::tool_update(ToolArgs &args)
@@ -507,6 +521,13 @@ ToolResponse Core::tool_update(ToolArgs &args)
         return ToolResponse::end();
     if (m_tool) {
         ToolResponse r;
+        if (m_pending_begin) {
+            m_pending_begin = false;
+            r = do_begin(args);
+            if (maybe_end_tool(r))
+                return r;
+        }
+
         try {
             r = m_tool->update(args);
         }

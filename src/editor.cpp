@@ -82,6 +82,15 @@ void Editor::init()
     reset_key_hint_label();
 }
 
+static std::string action_tool_id_to_string(ActionToolID id)
+{
+    if (auto tool = std::get_if<ToolID>(&id))
+        return "T_" + tool_lut.lookup_reverse(*tool);
+    else if (auto act = std::get_if<ActionID>(&id))
+        return "A_" + action_lut.lookup_reverse(*act);
+    throw std::runtime_error("invalid action");
+}
+
 void Editor::init_canvas()
 {
     {
@@ -99,6 +108,16 @@ void Editor::init_canvas()
         controller->set_button(0);
         controller->signal_pressed().connect([this, controller](int n_press, double x, double y) {
             auto button = controller->get_current_button();
+            if (button == 3) {
+                if (m_core.tool_is_active()) {
+                    m_context_menu_last_x = NAN;
+                    m_context_menu_last_y = NAN;
+                }
+                else {
+                    m_context_menu_last_x = x;
+                    m_context_menu_last_y = y;
+                }
+            }
             if (button == 1 || button == 3)
                 handle_click(button, n_press);
             else if (button == 8)
@@ -118,6 +137,15 @@ void Editor::init_canvas()
                     tool_process(r);
                 }
             }
+            else if (controller->get_current_button() == 3 && n_press == 1) {
+                if (isnan(m_context_menu_last_x) || isnan(m_context_menu_last_y))
+                    return;
+                const auto dist =
+                        glm::length(glm::vec2(x, y) - glm::vec2(m_context_menu_last_x, m_context_menu_last_y));
+                if (dist > 16)
+                    return;
+                open_context_menu();
+            }
         });
 
         get_canvas().add_controller(controller);
@@ -133,8 +161,62 @@ void Editor::init_canvas()
         get_canvas().add_controller(controller);
     }
     get_canvas().signal_cursor_moved().connect(sigc::mem_fun(*this, &Editor::handle_cursor_move));
+
+    m_context_menu = Gtk::make_managed<Gtk::PopoverMenu>();
+    m_context_menu->set_parent(get_canvas());
+
+    auto actions = Gio::SimpleActionGroup::create();
+    for (const auto &[id, act] : action_catalog) {
+        std::string name;
+        auto action_id = id;
+        actions->add_action(action_tool_id_to_string(id), [this, action_id] {
+            get_canvas().set_selection(m_context_menu_selection);
+            trigger_action(action_id);
+        });
+    }
+    m_context_menu->insert_action_group("menu", actions);
 }
 
+void Editor::open_context_menu()
+{
+    Gdk::Rectangle rect;
+    rect.set_x(m_last_x);
+    rect.set_y(m_last_y);
+
+    m_context_menu->set_pointing_to(rect);
+    get_canvas().end_pan();
+    auto menu = Gio::Menu::create();
+    auto sel = get_canvas().get_selection();
+    auto hover_sel = get_canvas().get_hover_selection();
+    if (!hover_sel)
+        return;
+    if (!sel.contains(*hover_sel))
+        sel = {*hover_sel};
+    m_context_menu_selection = sel;
+    for (const auto &[action_group, action_group_name] : action_group_catalog) {
+        for (const auto &[id, it_cat] : action_catalog) {
+            if (it_cat.group == action_group && !(it_cat.flags & ActionCatalogItem::FLAGS_NO_MENU)) {
+                if (auto tool = std::get_if<ToolID>(&id)) {
+                    auto r = m_core.tool_can_begin(*tool, sel);
+                    if (r.can_begin && r.is_specific) {
+                        auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
+                        menu->append_item(item);
+                    }
+                }
+                else if (auto act = std::get_if<ActionID>(&id)) {
+                    if (get_action_sensitive(*act) && (it_cat.flags & ActionCatalogItem::FLAGS_SPECIFIC)) {
+                        auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
+                        menu->append_item(item);
+                    }
+                }
+            }
+        }
+    }
+    if (menu->get_n_items() != 0) {
+        m_context_menu->set_menu_model(menu);
+        m_context_menu->popup();
+    }
+}
 
 void Editor::init_properties_notebook()
 {

@@ -27,6 +27,11 @@ public:
     }
     bool can_begin() override;
 
+    bool needs_delayed_begin() const override
+    {
+        return true;
+    }
+
 
 private:
     glm::dvec3 m_inital_pos;
