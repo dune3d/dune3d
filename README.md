@@ -30,33 +30,7 @@ I also had to patch the solver to make it sufficiently fast for the kinds of equ
 
 ## How to build
 
-You're going to need these dependencies:
-
- - gtkmm4
- - libepoxy
- - eigen
- - opencascade (oce doesn't appear to compile)
- - mimalloc
- - glm
- - range-v3
-
-Then run
-```
-meson setup build
-meson compile -C build
-```
-
-This should work on any reasonably up-to-date Linux distro, various BSDs and Windows using MSYS2.
-
-See [the CI configuration](.github/workflows/all.yml) for the exact package names for debian-based distros and Arch Linux.
-
-See [detailed build instructions](doc/building.md#building-on-windows) for how to build on Windows.
-
-> [!IMPORTANT]
-> Dune 3D is currently still alpha software undergoing rapid development, so please don't package it for
-> your favourite distro yet. Users have expecations regarding stability and completeness towards packaged
-> software that Dune 3D doesn't meet yet. Also having built it from source makes it easier to get the
-> latest bugfixes and simplifies debugging.
+See the [build instructions](doc/building.md).
 
 ## How to use
 
@@ -72,7 +46,7 @@ See the [samples](https://github.com/dune3d/samples) repository.
 
 ### Does it run on Windows?
 
-See [detailed build instructions](doc/building.md#building-on-windows) for how to build on Windows.
+See the [build instructions](doc/building.md#building-on-windows) for how to build on Windows.
 
 ### Why not integrate it into Horizon EDA?
 
