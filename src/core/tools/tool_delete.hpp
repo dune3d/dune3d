@@ -15,6 +15,7 @@ public:
         return true;
     }
 
+    bool can_begin() override;
 
 private:
 };

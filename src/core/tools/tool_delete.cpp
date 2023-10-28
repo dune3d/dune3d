@@ -9,6 +9,21 @@
 
 namespace dune3d {
 
+bool ToolDelete::can_begin()
+{
+    for (const auto &sr : m_selection) {
+        if (sr.type == SelectableRef::Type::ENTITY) {
+            auto &entity = get_entity(sr.item);
+            if (entity.can_delete(get_doc()))
+                return true;
+        }
+        else if (sr.type == SelectableRef::Type::CONSTRAINT) {
+            return true;
+        }
+    }
+    return false;
+}
+
 ToolResponse ToolDelete::begin(const ToolArgs &args)
 {
     auto &doc = get_doc();
