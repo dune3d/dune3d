@@ -1,7 +1,7 @@
 #include "tool_draw_line_3d.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity_line3d.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "util/action_label.hpp"
 #include "tool_common_impl.hpp"

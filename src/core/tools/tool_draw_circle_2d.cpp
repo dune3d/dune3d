@@ -2,7 +2,7 @@
 #include "document/document.hpp"
 #include "document/entity/entity_circle2d.hpp"
 #include "document/entity/entity_workplane.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "util/selection_util.hpp"
 #include "tool_common_impl.hpp"
 

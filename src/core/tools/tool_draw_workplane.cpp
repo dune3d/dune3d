@@ -1,7 +1,7 @@
 #include "tool_draw_workplane.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity_workplane.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "util/action_label.hpp"
 #include "util/selection_util.hpp"

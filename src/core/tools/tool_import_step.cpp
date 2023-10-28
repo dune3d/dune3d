@@ -1,7 +1,7 @@
 #include "tool_import_step.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity_step.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "dialogs/dialogs.hpp"
 #include "import_step/step_import_manager.hpp"
 #include <gtkmm.h>

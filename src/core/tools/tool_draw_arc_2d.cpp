@@ -3,7 +3,7 @@
 #include "document/entity/entity_arc2d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "util/selection_util.hpp"
 #include "tool_common_impl.hpp"
 

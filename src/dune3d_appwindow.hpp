@@ -1,6 +1,6 @@
 #pragma once
 #include <gtkmm.h>
-#include "editor.hpp"
+#include "editor/editor.hpp"
 
 namespace dune3d {
 

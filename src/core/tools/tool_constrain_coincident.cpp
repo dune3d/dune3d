@@ -7,7 +7,7 @@
 #include "document/constraint/constraint_point_on_line.hpp"
 #include "document/constraint/constraint_point_on_circle.hpp"
 #include "util/selection_util.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "tool_common_impl.hpp"
 
 namespace dune3d {

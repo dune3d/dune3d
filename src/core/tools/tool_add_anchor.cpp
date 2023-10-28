@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include "util/selection_util.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 
 
 namespace dune3d {

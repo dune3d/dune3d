@@ -1,6 +1,6 @@
 #include "enter_datum_window.hpp"
 #include "widgets/spin_button_dim.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "util/gtk_util.hpp"
 
 namespace dune3d {

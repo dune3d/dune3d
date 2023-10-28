@@ -8,7 +8,7 @@
 #include "document/entity/entity_step.hpp"
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_diameter_radius.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "tool_common_impl.hpp"
 
 namespace dune3d {

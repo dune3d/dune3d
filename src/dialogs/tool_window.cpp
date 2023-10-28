@@ -1,5 +1,5 @@
 #include "tool_window.hpp"
-#include "editor_interface.hpp"
+#include "editor/editor_interface.hpp"
 #include "util/gtk_util.hpp"
 #include <iostream>
 
