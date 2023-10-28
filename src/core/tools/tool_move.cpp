@@ -14,12 +14,13 @@
 
 namespace dune3d {
 
-
 bool ToolMove::can_begin()
 {
     for (const auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {
-            return true;
+            auto &entity = get_entity(sr.item);
+            if (entity.can_move(get_doc()))
+                return true;
         }
         else if (sr.type == SelectableRef::Type::CONSTRAINT) {
             auto &constr = get_doc().get_constraint(sr.item);
