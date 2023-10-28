@@ -17,7 +17,17 @@ namespace dune3d {
 
 bool ToolMove::can_begin()
 {
-    return m_selection.size() > 0;
+    for (const auto &sr : m_selection) {
+        if (sr.type == SelectableRef::Type::ENTITY) {
+            return true;
+        }
+        else if (sr.type == SelectableRef::Type::CONSTRAINT) {
+            auto &constr = get_doc().get_constraint(sr.item);
+            if (constr.is_movable())
+                return true;
+        }
+    }
+    return false;
 }
 
 ToolResponse ToolMove::begin(const ToolArgs &args)

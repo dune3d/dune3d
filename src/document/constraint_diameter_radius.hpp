@@ -33,6 +33,11 @@ public:
         m_distance = d;
     }
 
+    bool is_movable() const override
+    {
+        return true;
+    }
+
     void accept(ConstraintVisitor &visitor) const override;
 
 protected:

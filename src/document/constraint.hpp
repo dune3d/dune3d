@@ -56,6 +56,11 @@ public:
 
     bool m_modify_to_satisfy = false;
 
+    virtual bool is_movable() const
+    {
+        return false;
+    }
+
 protected:
     explicit Constraint(const UUID &uu);
     explicit Constraint(const UUID &uu, const json &j);
