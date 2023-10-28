@@ -2,8 +2,7 @@
 
 namespace dune3d {
 
-class ConstraintPointDistanceBase;
-class ConstraintDiameterRadius;
+class IConstraintDatum;
 
 class ToolEnterDatum : public ToolCommon {
 public:
@@ -16,9 +15,9 @@ public:
         return true;
     }
 
+    bool can_begin() override;
 
 private:
-    ConstraintPointDistanceBase *m_constraint_point_distance = nullptr;
-    ConstraintDiameterRadius *m_constraint_diameter_radius = nullptr;
+    IConstraintDatum *m_constraint = nullptr;
 };
 } // namespace dune3d

@@ -1,11 +1,12 @@
 #pragma once
 #include "constraint.hpp"
 #include "entity_and_point.hpp"
+#include "iconstraint_datum.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
 
-class ConstraintPointDistanceBase : public Constraint {
+class ConstraintPointDistanceBase : public Constraint, public IConstraintDatum {
 public:
     explicit ConstraintPointDistanceBase(const UUID &uu);
     explicit ConstraintPointDistanceBase(const UUID &uu, const json &j);
@@ -22,6 +23,16 @@ public:
     virtual double measure_distance(const Document &doc) const = 0;
 
     std::set<UUID> get_referenced_entities() const override;
+
+    double get_datum() const override
+    {
+        return m_distance;
+    }
+
+    void set_datum(double d) override
+    {
+        m_distance = d;
+    }
 
     void flip();
 
@@ -40,6 +51,10 @@ public:
     }
 
     double measure_distance(const Document &doc) const override;
+    std::string get_datum_name() const override
+    {
+        return "Distance";
+    }
 
     std::unique_ptr<Constraint> clone() const override;
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "constraint.hpp"
+#include "iconstraint_datum.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -7,7 +8,7 @@ namespace dune3d {
 class Entity;
 class Document;
 
-class ConstraintDiameterRadius : public Constraint {
+class ConstraintDiameterRadius : public Constraint, public IConstraintDatum {
 public:
     explicit ConstraintDiameterRadius(const UUID &uu);
     explicit ConstraintDiameterRadius(const UUID &uu, const json &j);
@@ -21,6 +22,16 @@ public:
     virtual void measure(const Document &doc) = 0;
 
     std::set<UUID> get_referenced_entities() const override;
+
+    double get_datum() const override
+    {
+        return m_distance;
+    }
+
+    void set_datum(double d) override
+    {
+        m_distance = d;
+    }
 
     void accept(ConstraintVisitor &visitor) const override;
 
@@ -42,6 +53,11 @@ public:
         return m_distance;
     }
 
+    std::string get_datum_name() const override
+    {
+        return "Diameter";
+    }
+
     void measure(const Document &doc) override;
 
     std::unique_ptr<Constraint> clone() const override;
@@ -59,6 +75,11 @@ public:
     double get_diameter() const override
     {
         return m_distance * 2;
+    }
+
+    std::string get_datum_name() const override
+    {
+        return "Radius";
     }
 
     void measure(const Document &doc) override;

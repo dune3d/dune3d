@@ -26,6 +26,10 @@ public:
     }
 
     double measure_distance(const Document &doc) const override;
+    std::string get_datum_name() const override
+    {
+        return "Horizontal distance";
+    }
 
     std::unique_ptr<Constraint> clone() const override;
 };
@@ -41,6 +45,10 @@ public:
     }
 
     double measure_distance(const Document &doc) const override;
+    std::string get_datum_name() const override
+    {
+        return "Vertical distance";
+    }
 
     std::unique_ptr<Constraint> clone() const override;
 };

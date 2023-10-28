@@ -2,15 +2,36 @@
 #include "document/document.hpp"
 #include "document/entity.hpp"
 #include "document/constraint.hpp"
-#include "document/constraint_point_distance.hpp"
 #include "document/constraint_point_distance_hv.hpp"
-#include "document/constraint_diameter_radius.hpp"
+#include "document/iconstraint_datum.hpp"
+
 #include "editor_interface.hpp"
 #include "dialogs/dialogs.hpp"
 #include "dialogs/enter_datum_window.hpp"
 #include "tool_common_impl.hpp"
 
 namespace dune3d {
+
+static std::optional<UUID> constraint_from_selection(const std::set<SelectableRef> &sel)
+{
+    if (sel.size() != 1)
+        return {};
+    auto &sr = *sel.begin();
+
+    if (sr.type != SelectableRef::Type::CONSTRAINT)
+        return {};
+
+    return sr.item;
+}
+
+bool ToolEnterDatum::can_begin()
+{
+    auto uu = constraint_from_selection(m_selection);
+    if (!uu)
+        return false;
+    auto &constr = get_doc().get_constraint(*uu);
+    return dynamic_cast<IConstraintDatum *>(&constr);
+}
 
 ToolResponse ToolEnterDatum::begin(const ToolArgs &args)
 {
@@ -22,22 +43,17 @@ ToolResponse ToolEnterDatum::begin(const ToolArgs &args)
         return ToolResponse::end();
 
     auto &constr = get_doc().get_constraint(sr.item);
+    m_constraint = dynamic_cast<IConstraintDatum *>(&constr);
 
 
-    m_constraint_point_distance = dynamic_cast<ConstraintPointDistanceBase *>(&constr);
-    m_constraint_diameter_radius = dynamic_cast<ConstraintDiameterRadius *>(&constr);
-    if (!m_constraint_point_distance && !m_constraint_diameter_radius)
+    if (!m_constraint)
         return ToolResponse::end();
 
-    double def = 0;
-    if (m_constraint_point_distance)
-        def = m_constraint_point_distance->m_distance;
-    else if (m_constraint_diameter_radius)
-        def = m_constraint_diameter_radius->m_distance;
+    double def = m_constraint->get_datum();
 
-    auto win = m_intf.get_dialogs().show_enter_datum_window("Enter distance", def);
+    auto win = m_intf.get_dialogs().show_enter_datum_window("Enter " + m_constraint->get_datum_name(), def);
 
-    if (dynamic_cast<ConstraintPointDistanceHV *>(m_constraint_point_distance))
+    if (dynamic_cast<ConstraintPointDistanceHV *>(m_constraint))
         win->set_range(-1e3, 1e3);
     else
         win->set_range(0, 1e3);
@@ -46,17 +62,13 @@ ToolResponse ToolEnterDatum::begin(const ToolArgs &args)
     return ToolResponse();
 }
 
-
 ToolResponse ToolEnterDatum::update(const ToolArgs &args)
 {
     if (args.type == ToolEventType::DATA) {
         if (auto data = dynamic_cast<const ToolDataWindow *>(args.data.get())) {
             if (data->event == ToolDataWindow::Event::UPDATE) {
                 if (auto d = dynamic_cast<const ToolDataEnterDatumWindow *>(args.data.get())) {
-                    if (m_constraint_point_distance)
-                        m_constraint_point_distance->m_distance = d->value;
-                    else if (m_constraint_diameter_radius)
-                        m_constraint_diameter_radius->m_distance = d->value;
+                    m_constraint->set_datum(d->value);
                     m_core.solve_current();
                 }
             }
