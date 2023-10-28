@@ -87,8 +87,8 @@ void Editor::init_canvas()
     {
         auto controller = Gtk::EventControllerKey::create();
         controller->signal_key_pressed().connect(
-                [this](guint keyval, guint keycode, Gdk::ModifierType state) -> bool {
-                    return handle_action_key(keyval, state);
+                [this, controller](guint keyval, guint keycode, Gdk::ModifierType state) -> bool {
+                    return handle_action_key(controller, keyval, state);
                 },
                 true);
 
@@ -929,8 +929,14 @@ void Editor::reset_key_hint_label()
 }
 
 
-bool Editor::handle_action_key(unsigned int keyval, Gdk::ModifierType state)
+bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller, unsigned int keyval,
+                               Gdk::ModifierType state)
 {
+    auto ev = controller->get_current_event();
+    if (ev->is_modifier())
+        return false;
+    state &= ~ev->get_consumed_modifiers();
+    state &= (Gdk::ModifierType::SHIFT_MASK | Gdk::ModifierType::CONTROL_MASK | Gdk::ModifierType::ALT_MASK);
     if (keyval == GDK_KEY_Escape) {
         if (!m_core.tool_is_active()) {
             get_canvas().set_selection_mode(Canvas::SelectionMode::HOVER);
@@ -956,9 +962,7 @@ bool Editor::handle_action_key(unsigned int keyval, Gdk::ModifierType state)
         }
     }
     else {
-        m_keys_current.push_back({keyval, state
-                                                  & (Gdk::ModifierType::SHIFT_MASK | Gdk::ModifierType::CONTROL_MASK
-                                                     | Gdk::ModifierType::ALT_MASK)});
+        m_keys_current.push_back({keyval, state});
         auto in_tool_actions = m_core.get_tool_actions();
         std::map<InToolActionID, std::pair<KeyMatchResult, KeySequence>> in_tool_actions_matched;
         std::map<ActionConnection *, std::pair<KeyMatchResult, KeySequence>> connections_matched;

@@ -106,7 +106,8 @@ private:
 
     KeySequence m_keys_current;
     KeyMatchResult keys_match(const KeySequence &keys) const;
-    bool handle_action_key(unsigned int keyval, Gdk::ModifierType state);
+    bool handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller, unsigned int keyval,
+                           Gdk::ModifierType state);
     void handle_tool_action(const ActionConnection &conn);
 
     bool trigger_action(ActionToolID action, ActionSource source = ActionSource::UNKNOWN);
