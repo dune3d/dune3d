@@ -13,7 +13,9 @@ public:
     {
         return true;
     }
+    bool can_begin() override;
 
 private:
+    std::set<Entity *> get_entities();
 };
 } // namespace dune3d

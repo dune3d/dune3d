@@ -3,21 +3,40 @@
 #include "document/entity.hpp"
 #include "core/tool_id.hpp"
 #include "tool_common_impl.hpp"
+#include <algorithm>
 
 
 namespace dune3d {
 
+bool ToolToggleConstruction::can_begin()
+{
+    auto entities = get_entities();
+    if (entities.size() == 0)
+        return false;
+    if (m_tool_id == ToolID::TOGGLE_CONSTRUCTION)
+        return true;
+    else if (m_tool_id == ToolID::SET_CONSTRUCTION)
+        return std::ranges::any_of(entities, [](auto x) { return !x->m_construction; });
+    else if (m_tool_id == ToolID::UNSET_CONSTRUCTION)
+        return std::ranges::any_of(entities, [](auto x) { return x->m_construction; });
+    return false;
+}
 
-ToolResponse ToolToggleConstruction::begin(const ToolArgs &args)
+std::set<Entity *> ToolToggleConstruction::get_entities()
 {
     std::set<Entity *> entities;
-
     for (auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {
             auto &en = get_entity(sr.item);
             entities.insert(&en);
         }
     }
+    return entities;
+}
+
+ToolResponse ToolToggleConstruction::begin(const ToolArgs &args)
+{
+    auto entities = get_entities();
     if (entities.size() == 0)
         return ToolResponse::end();
 
