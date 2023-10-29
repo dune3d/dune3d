@@ -51,6 +51,10 @@ ConstraintsBox::ConstraintsBox(Core &core) : m_core(core)
 
         m_view->add_controller(controller);
     }
+    m_selection_model->signal_selection_changed().connect([this](guint, guint) {
+        auto sel = std::dynamic_pointer_cast<ConstraintItem>(m_selection_model->get_selected_item());
+        m_signal_constraint_selected.emit(sel->m_uuid);
+    });
     m_view->add_css_class("navigation-sidebar");
     set_child(*m_view);
     set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::AUTOMATIC);
