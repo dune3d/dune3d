@@ -1266,7 +1266,7 @@ void Editor::tool_bar_append_action(InToolActionID action1, InToolActionID actio
                 }
             }
         }
-        key_box->get_style_context()->add_class("imp-key-box");
+        key_box->get_style_context()->add_class("editor-key-box");
 
         box->append(*key_box);
     }

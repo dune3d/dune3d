@@ -1,2 +1,19 @@
 .dune3d-tool-bar-name-label {font-weight: bold;}
+
 .solid-model-toggle-button:checked {border-color: rgba(0,0,0,0); background: none;}
+
+.editor-key-box {
+  font-weight: bold;
+  border: 2px solid;
+  border-radius: 5px;
+}
+
+.editor-key-box > label {
+ padding-left:.25em;
+ padding-right:.25em;
+ min-width:1em;
+}
+
+.editor-key-box > label:not(:last-child) {
+  border-right: 2px solid;
+}

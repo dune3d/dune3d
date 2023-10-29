@@ -120,6 +120,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkBox" id="tool_bar_box">
+                                    <property name="spacing">10</property>
                                     <child>
                                       <object class="GtkBox" id="tool_bar_actions_box">
                                         <property name="spacing">10</property>

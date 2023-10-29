@@ -108,6 +108,7 @@
 	(1,50,"GtkStack","transition-type","slide-up-down",None,None,None,None,None,None,None,None,None),
 	(1,51,"GtkLabel","label","flash",None,None,None,None,None,None,None,None,None),
 	(1,51,"GtkLabel","xalign","0.0",None,None,None,None,None,None,None,None,None),
+	(1,52,"GtkBox","spacing","10",None,None,None,None,None,None,None,None,None),
 	(1,53,"GtkBox","spacing","10",None,None,None,None,None,None,None,None,None),
 	(1,54,"GtkLabel","label","tip",None,None,None,None,None,None,None,None,None),
 	(1,55,"GtkLabel","label","lalala",None,None,None,None,None,None,None,None,None),
