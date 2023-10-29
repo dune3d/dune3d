@@ -34,7 +34,9 @@ void Editor::init_workspace_browser()
     m_workspace_browser->set_sensitive(m_core.has_documents());
 
 
-    m_core.signal_rebuilt().connect([this] { m_workspace_browser->update_documents(m_document_view); });
+    m_core.signal_rebuilt().connect([this] {
+        Glib::signal_idle().connect_once([this] { m_workspace_browser->update_documents(m_document_view); });
+    });
 
     m_win.get_left_bar().set_start_child(*m_workspace_browser);
 }
