@@ -8,47 +8,6 @@
 #include "widgets/capture_dialog.hpp"
 #include <iostream>
 namespace dune3d {
-/*
-class ActionEditor : public ActionEditorBase {
-public:
-ActionEditor(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &x, Preferences &prefs, ActionToolID act,
-             ActionCatalogItem::Availability av, const std::string &title)
-    : ActionEditorBase(cobject, x, prefs, title), action(act), availability(av)
-{
-    update();
-    set_placeholder_text("use default");
-}
-static ActionEditor *create(Preferences &prefs, ActionToolID action, ActionCatalogItem::Availability availability,
-                            const std::string &title)
-{
-    ActionEditor *w;
-    Glib::RefPtr<Gtk::Builder> x = Gtk::Builder::create();
-    x->add_from_resource("/org/horizon-eda/horizon/pool-prj-mgr/preferences/preferences.ui", "action_editor");
-    x->get_widget_derived("action_editor", w, prefs, action, availability, title);
-    w->reference();
-    return w;
-}
-
-private:
-const ActionToolID action;
-const ActionCatalogItem::Availability availability;
-
-std::vector<KeySequence> *maybe_get_keys() override
-{
-    if (preferences.key_sequences.keys.count(action)
-        && preferences.key_sequences.keys.at(action).count(availability)) {
-        return &preferences.key_sequences.keys.at(action).at(availability);
-    }
-    else {
-        return nullptr;
-    }
-}
-std::vector<KeySequence> &get_keys() override
-{
-    return preferences.key_sequences.keys[action][availability];
-}
-};
-*/
 
 class KeySequencesPreferencesEditor::ActionItem : public Glib::Object {
 public:
@@ -86,65 +45,15 @@ private:
 
 
 GType KeySequencesPreferencesEditor::ActionItem::gtype;
-/*
-class KeySequencesPreferencesEditor::GroupItem : public Glib::Object {
-public:
-    static Glib::RefPtr<GroupItem> create()
-    {
-        return Glib::make_refptr_for_instance<GroupItem>(new GroupItem);
-    }
 
-    ActionToolID m_id;
-    std::string m_name;
-
-    Glib::RefPtr<Gio::ListStore<ActionItem>> m_store;
-
-
-    // No idea why the ObjectBase::get_type won't work for us but
-    // reintroducing the method and using the name used by gtkmm seems
-    // to work.
-    static GType get_type()
-    {
-        // Let's cache once the type does exist.
-        if (!gtype)
-            gtype = g_type_from_name("gtkmm__CustomObject_KeySequencesPreferencesEditor_GroupItem");
-        return gtype;
-    }
-
-private:
-    GroupItem() : Glib::ObjectBase("GroupItem")
-    {
-        m_store = Gio::ListStore<ActionItem>::create();
-    }
-
-    static GType gtype;
-};
-
-
-GType KeySequencesPreferencesEditor::GroupItem::gtype;
-*/
 
 Glib::RefPtr<Gio::ListModel> KeySequencesPreferencesEditor::create_model(const Glib::RefPtr<Glib::ObjectBase> &item)
 {
-    // The items in a StringList are StringObjects.
     if (auto col = std::dynamic_pointer_cast<ActionItem>(item)) {
         if (col->m_store->get_n_items())
             return col->m_store;
     }
     return nullptr;
-    /*Glib::RefPtr<Gio::ListModel> result;
-    if (!col)
-        // Top names
-        result = Gtk::StringList::create({"Billy Bob", "Joey Jojo", "Rob McRoberts"});
-    else if (col->get_string() == "Billy Bob")
-        result = Gtk::StringList::create({"Billy Bob Junior", "Sue Bob"});
-    else if (col->get_string() == "Rob McRoberts")
-        result = Gtk::StringList::create({"Xavier McRoberts"});
-*/
-    // If result is empty, it's a leaf in the tree, i.e. an item without children.
-    // Returning an empty RefPtr (not a RefPtr with an empty StringList)
-    // signals that the item is not expandable.
-    // return result;
 }
 
 KeySequencesPreferencesEditor::KeySequencesPreferencesEditor(BaseObjectType *cobject,
