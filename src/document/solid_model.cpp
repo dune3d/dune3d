@@ -57,14 +57,7 @@ public:
     }
     glm::dvec2 p;
     std::set<std::pair<class Edge *, unsigned int>> connected_edges;
-    std::array<Edge *, 2> get_edges()
-    {
-        assert(connected_edges.size() == 2);
-        auto it = connected_edges.begin();
-        auto &e1 = *it++;
-        auto &e2 = *it;
-        return {e1.first, e2.first};
-    }
+    std::array<Edge *, 2> get_edges();
     bool is_valid() const
     {
         return connected_edges.size() == 2;
@@ -132,6 +125,18 @@ public:
     }
     const Entity &entity;
 };
+
+std::array<Edge *, 2> Node::get_edges()
+{
+    assert(connected_edges.size() == 2);
+    auto it = connected_edges.begin();
+    auto &e1 = *it++;
+    auto &e2 = *it;
+    if (e1.first->entity.m_uuid < e2.first->entity.m_uuid)
+        return {e1.first, e2.first};
+    else
+        return {e2.first, e1.first};
+}
 
 using Path = std::deque<std::pair<Node &, Edge &>>;
 
