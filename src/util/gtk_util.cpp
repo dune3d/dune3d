@@ -22,12 +22,10 @@ void install_esc_to_close(Gtk::Window &win)
 
 void spinbutton_connect_activate(Gtk::SpinButton &sp, std::function<void()> cb)
 {
-
     auto controller = Gtk::EventControllerKey::create();
     controller->set_propagation_phase(Gtk::PropagationPhase::CAPTURE);
     controller->signal_key_pressed().connect(
             [&sp, cb](guint keyval, guint keycode, Gdk::ModifierType state) {
-                std::cout << "kp " << keyval << std::endl;
                 if (keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter) {
                     const auto old_value = sp.get_value();
                     sp.update();
@@ -44,6 +42,38 @@ void spinbutton_connect_activate(Gtk::SpinButton &sp, std::function<void()> cb)
             },
             false);
     sp.add_controller(controller);
+}
+
+void spinbutton_connect_activate_immediate(Gtk::SpinButton &sp, std::function<void()> cb)
+{
+    {
+        auto controller = Gtk::EventControllerKey::create();
+        controller->set_propagation_phase(Gtk::PropagationPhase::CAPTURE);
+        controller->signal_key_pressed().connect(
+                [&sp, cb](guint keyval, guint keycode, Gdk::ModifierType state) {
+                    std::cout << "kp " << keyval << std::endl;
+                    if (keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter) {
+                        sp.update();
+                        cb();
+                        return true;
+                    }
+                    return false;
+                },
+                false);
+        sp.add_controller(controller);
+    }
+}
+
+Gtk::Label &grid_attach_label_and_widget(Gtk::Grid &gr, const std::string &label, Gtk::Widget &w, int &top)
+{
+    auto la = Gtk::make_managed<Gtk::Label>(label);
+    la->add_css_class("dim-label");
+    la->set_xalign(1);
+    la->show();
+    gr.attach(*la, 0, top, 1, 1);
+    gr.attach(w, 1, top, 1, 1);
+    top++;
+    return *la;
 }
 
 

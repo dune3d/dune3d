@@ -6,21 +6,10 @@
 #include "document/group/group_reference.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include "core/core.hpp"
+#include "util/gtk_util.hpp"
 #include <iostream>
 
 namespace dune3d {
-static Gtk::Label *grid_attach_label_and_widget(Gtk::Grid *gr, const std::string &label, Gtk::Widget *w, int &top)
-{
-    auto la = Gtk::make_managed<Gtk::Label>(label);
-    la->add_css_class("dim-label");
-    la->set_xalign(1);
-    la->show();
-    gr->attach(*la, 0, top, 1, 1);
-    w->show();
-    gr->attach(*w, 1, top, 1, 1);
-    top++;
-    return la;
-}
 
 class GroupEditorSweep : public GroupEditor {
 protected:
@@ -39,7 +28,7 @@ protected:
             group.m_operation = static_cast<GroupExtrude::Operation>(m_operation_combo->get_selected());
             m_signal_changed.emit();
         });
-        grid_attach_label_and_widget(this, "Operation", m_operation_combo, m_top);
+        grid_attach_label_and_widget(*this, "Operation", *m_operation_combo, m_top);
     }
 
 
@@ -68,7 +57,7 @@ public:
         m_normal_switch->set_halign(Gtk::Align::START);
         auto &group = get_group();
         m_normal_switch->set_active(group.m_direction == GroupExtrude::Direction::NORMAL);
-        grid_attach_label_and_widget(this, "Along normal", m_normal_switch, m_top);
+        grid_attach_label_and_widget(*this, "Along normal", *m_normal_switch, m_top);
         m_normal_switch->property_active().signal_changed().connect([this] {
             auto &group = get_group();
             if (m_normal_switch->get_active())
@@ -91,7 +80,7 @@ public:
                 group.m_mode = static_cast<GroupExtrude::Mode>(m_mode_combo->get_selected());
                 m_signal_changed.emit();
             });
-            grid_attach_label_and_widget(this, "Mode", m_mode_combo, m_top);
+            grid_attach_label_and_widget(*this, "Mode", *m_mode_combo, m_top);
         }
     }
 
@@ -129,26 +118,12 @@ public:
         m_radius_sp->set_range(0, 1000);
         auto &group = get_group();
         m_radius_sp->set_value(group.m_radius);
-        {
-            auto controller = Gtk::EventControllerKey::create();
-            controller->set_propagation_phase(Gtk::PropagationPhase::CAPTURE);
-            controller->signal_key_pressed().connect(
-                    [this](guint keyval, guint keycode, Gdk::ModifierType state) {
-                        std::cout << "kp " << keyval << std::endl;
-                        if (keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter) {
-                            m_radius_sp->update();
-                            get_group().m_radius = m_radius_sp->get_value();
-                            m_signal_changed.emit();
-                            return true;
-                        }
-                        else {
-                            return false;
-                        }
-                    },
-                    false);
-            m_radius_sp->add_controller(controller);
-        }
-        grid_attach_label_and_widget(this, "Radius", m_radius_sp, m_top);
+        spinbutton_connect_activate_immediate(*m_radius_sp, [this] {
+            get_group().m_radius = m_radius_sp->get_value();
+            m_signal_changed.emit();
+        });
+
+        grid_attach_label_and_widget(*this, "Radius", *m_radius_sp, m_top);
     }
 
     void reload() override
@@ -176,7 +151,7 @@ public:
         m_switch_xy = Gtk::make_managed<Gtk::Switch>();
         m_switch_xy->set_halign(Gtk::Align::START);
         m_switch_xy->set_valign(Gtk::Align::CENTER);
-        grid_attach_label_and_widget(this, "XY", m_switch_xy, m_top);
+        grid_attach_label_and_widget(*this, "XY", *m_switch_xy, m_top);
         m_switch_xy->set_active(group.m_show_xy);
         m_switch_xy->property_active().signal_changed().connect([this] {
             get_group().m_show_xy = m_switch_xy->get_active();
@@ -186,7 +161,7 @@ public:
         m_switch_yz = Gtk::make_managed<Gtk::Switch>();
         m_switch_yz->set_halign(Gtk::Align::START);
         m_switch_yz->set_valign(Gtk::Align::CENTER);
-        grid_attach_label_and_widget(this, "YZ", m_switch_yz, m_top);
+        grid_attach_label_and_widget(*this, "YZ", *m_switch_yz, m_top);
         m_switch_yz->set_active(group.m_show_yz);
         m_switch_yz->property_active().signal_changed().connect([this] {
             get_group().m_show_yz = m_switch_yz->get_active();
@@ -196,7 +171,7 @@ public:
         m_switch_zx = Gtk::make_managed<Gtk::Switch>();
         m_switch_zx->set_halign(Gtk::Align::START);
         m_switch_zx->set_valign(Gtk::Align::CENTER);
-        grid_attach_label_and_widget(this, "ZX", m_switch_zx, m_top);
+        grid_attach_label_and_widget(*this, "ZX", *m_switch_zx, m_top);
         m_switch_zx->set_active(group.m_show_zx);
         m_switch_zx->property_active().signal_changed().connect([this] {
             get_group().m_show_zx = m_switch_zx->get_active();
@@ -254,11 +229,11 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
         m_type_label->set_text("Lathe");
         break;
     }
-    grid_attach_label_and_widget(this, "Type", m_type_label, m_top);
+    grid_attach_label_and_widget(*this, "Type", *m_type_label, m_top);
 
     m_name_entry = Gtk::make_managed<Gtk::Entry>();
     m_name_entry->set_text(group.m_name);
-    grid_attach_label_and_widget(this, "Name", m_name_entry, m_top);
+    grid_attach_label_and_widget(*this, "Name", *m_name_entry, m_top);
     m_name_entry->signal_activate().connect([this] {
         auto &group = m_core.get_current_document().get_group(m_group_uu);
         group.m_name = m_name_entry->get_text();
@@ -277,7 +252,7 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 3);
         box->append(*m_body_cb);
         box->append(*m_body_entry);
-        grid_attach_label_and_widget(this, "Body", box, m_top);
+        grid_attach_label_and_widget(*this, "Body", *box, m_top);
     }
     m_body_entry->signal_activate().connect([this] {
         auto &group = m_core.get_current_document().get_group(m_group_uu);
@@ -321,6 +296,10 @@ void GroupEditor::reload()
     if (group.m_body.has_value())
         m_body_entry->set_text(group.m_body->m_name);
     m_body_cb->set_active(group.m_body.has_value());
+}
+
+GroupEditor::~GroupEditor()
+{
 }
 
 } // namespace dune3d

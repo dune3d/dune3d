@@ -18,6 +18,8 @@ public:
         return m_group_uu;
     }
 
+    virtual ~GroupEditor();
+
 private:
     Gtk::Label *m_type_label = nullptr;
     Gtk::Entry *m_name_entry = nullptr;
