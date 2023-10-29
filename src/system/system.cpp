@@ -607,6 +607,12 @@ void System::add_dragged(const UUID &entity, unsigned int point)
                 params.insert(idx);
         }
     } break;
+    case Entity::Type::CIRCLE_2D: {
+        for (const auto &[idx, param_ref] : m_param_refs) {
+            if (param_ref.type == ParamRef::Type::ENTITY && param_ref.item == entity && (param_ref.point == point))
+                params.insert(idx);
+        }
+    } break;
     case Entity::Type::STEP: {
         if (point == 0)
             point = 1;
