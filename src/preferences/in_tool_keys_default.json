@@ -1,0 +1,34 @@
+{
+    "ARC_MODE": [
+        [
+            {
+                "key": "m",
+                "mod": 0
+            }
+        ]
+    ],
+    "FLIP_ARC": [
+        [
+            {
+                "key": "e",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_COINCIDENT_CONSTRAINT": [
+        [
+            {
+                "key": "c",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_CONSTRUCTION": [
+        [
+            {
+                "key": "x",
+                "mod": 0
+            }
+        ]
+    ]
+}

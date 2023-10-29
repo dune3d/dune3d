@@ -22,8 +22,8 @@ Preferences::Preferences()
 void Preferences::load_default()
 {
     key_sequences.load_from_json(json_from_resource("/org/dune3d/dune3d/preferences/keys_default.json"));
-    // in_tool_key_sequences.load_from_json(
-    //       json_from_resource("/org/dune3d/dune3d/preferences/in_tool_keys_default.json"));
+    in_tool_key_sequences.load_from_json(
+            json_from_resource("/org/dune3d/dune3d/preferences/in_tool_keys_default.json"));
 }
 
 std::filesystem::path Preferences::get_preferences_filename()
@@ -282,13 +282,14 @@ void Preferences::load_from_json(const json &j)
 
     if (j.count("in_tool_key_sequences"))
         in_tool_key_sequences.load_from_json(j.at("in_tool_key_sequences"));
+    in_tool_key_sequences.append_from_json(
+            json_from_resource("/org/dune3d/dune3d/preferences/in_tool_keys_default.json"));
+
     if (j.count("action_bar"))
         action_bar.load_from_json(j.at("action_bar"));
     if (j.count("canvas"))
         canvas.load_from_json(j.at("canvas"));
-    // key_sequences.append_from_json(json_from_resource("/org/horizon-eda/horizon/imp/keys_default.json"));
-    // in_tool_key_sequences.append_from_json(
-    //       json_from_resource("/org/horizon-eda/horizon/imp/in_tool_keys_default.json"));
+
     if (j.count("tool_bar"))
         tool_bar.load_from_json(j.at("tool_bar"));
 }

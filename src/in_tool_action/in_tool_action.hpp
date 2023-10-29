@@ -9,6 +9,11 @@ enum class InToolActionID {
     LMB_RELEASE,
     LMB_DOUBLE,
     RMB,
+    TOGGLE_CONSTRUCTION,
+    TOGGLE_COINCIDENT_CONSTRAINT,
+
+    FLIP_ARC,
+    ARC_MODE,
 
     CANCEL,
     COMMIT

@@ -21,6 +21,7 @@
     <file>canvas/shaders/ubo.glsl</file>
     <file>preferences/key_sequences.ui</file>
     <file>preferences/keys_default.json</file>
+    <file>preferences/in_tool_keys_default.json</file>
     <file>preferences/canvas.ui</file>
     <file>widgets/constraints_box_list_item.ui</file>
     
