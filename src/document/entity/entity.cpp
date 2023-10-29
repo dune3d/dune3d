@@ -11,6 +11,35 @@ Entity::Entity(const UUID &uu) : m_uuid(uu)
 {
 }
 
+std::string Entity::get_type_name(Type type)
+{
+    switch (type) {
+    case Type::LINE_2D:
+        return "Line in workplane";
+    case Type::LINE_3D:
+        return "Line in 3D";
+    case Type::ARC_2D:
+        return "Arc in workplane";
+    case Type::ARC_3D:
+        return "Arc in 3D";
+    case Type::CIRCLE_2D:
+        return "Circle in workplane";
+    case Type::CIRCLE_3D:
+        return "Circle in 3D";
+    case Type::STEP:
+        return "STEP model";
+    case Type::WORKPLANE:
+        return "Workplane";
+    default:
+        return "Entity";
+    }
+}
+
+std::string Entity::get_type_name() const
+{
+    return get_type_name(get_type());
+}
+
 Entity::Entity(const UUID &uu, const json &j) : m_uuid(uu), m_construction(j.value("construction", false))
 {
     if (j.contains("group"))

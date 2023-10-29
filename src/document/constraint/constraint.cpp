@@ -14,9 +14,9 @@ Constraint::Constraint(const UUID &uu) : m_uuid(uu)
 {
 }
 
-std::string Constraint::get_type_name() const
+std::string Constraint::get_type_name(Type type)
 {
-    switch (get_type()) {
+    switch (type) {
     case Type::EQUAL_LENGTH:
         return "Equal length";
     case Type::EQUAL_RADIUS:
@@ -58,6 +58,11 @@ std::string Constraint::get_type_name() const
     default:
         return "Constraint";
     }
+}
+
+std::string Constraint::get_type_name() const
+{
+    return get_type_name(get_type());
 }
 
 Constraint::Constraint(const UUID &uu, const json &j) : m_uuid(uu)

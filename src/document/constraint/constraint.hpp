@@ -36,6 +36,7 @@ public:
         LINE_POINTS_PERPENDICULAR,
     };
     virtual Type get_type() const = 0;
+    static std::string get_type_name(Type type);
     std::string get_type_name() const;
 
     virtual ~Constraint();
