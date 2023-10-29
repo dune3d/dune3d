@@ -40,6 +40,7 @@ src = files(
   'src/canvas/bitmap_font/bitmap_font_img.c',
   'src/canvas/icon_renderer.cpp',
   'src/canvas/appearance.cpp',
+  'src/canvas/selectable_ref.cpp',
   'src/import_step/step_importer.cpp',
   'src/import_step/step_import_manager.cpp',
   'src/util/uuid.cpp',
