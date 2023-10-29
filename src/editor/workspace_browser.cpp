@@ -235,6 +235,28 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
     unblock_signals();
 }
 
+class SolidModelToggleButton : public Gtk::ToggleButton {
+public:
+    SolidModelToggleButton()
+    {
+        add_css_class("solid-model-toggle-button");
+        set_has_frame(false);
+        update_icon();
+        signal_toggled().connect(sigc::mem_fun(*this, &SolidModelToggleButton::update_icon));
+    }
+
+private:
+    void update_icon()
+    {
+        if (get_active()) {
+            set_image_from_icon_name("view-show-solid-model-symbolic");
+        }
+        else {
+            set_image_from_icon_name("view-hide-solid-model-symbolic");
+        }
+    }
+};
+
 class WorkspaceBrowser::WorkspaceRow : public Gtk::TreeExpander {
 public:
     WorkspaceRow(WorkspaceBrowser &browser) : m_browser(browser)
@@ -242,7 +264,7 @@ public:
         m_checkbutton = Gtk::make_managed<Gtk::CheckButton>();
         m_checkbutton->set_active(true);
 
-        m_solid_toggle = Gtk::make_managed<Gtk::ToggleButton>("S");
+        m_solid_toggle = Gtk::make_managed<SolidModelToggleButton>();
         m_solid_toggle->signal_toggled().connect([this] {
             m_browser.signal_body_solid_model_checked().emit(m_body->m_doc, m_body->m_uuid,
                                                              m_solid_toggle->get_active());

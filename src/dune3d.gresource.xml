@@ -28,6 +28,8 @@
     <file preprocess="xml-stripblanks">icons/scalable/actions/action-rmb-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/actions/action-move-group-down2-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/actions/action-move-group-down3-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/view-show-solid-model-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/view-hide-solid-model-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/apps/dune3d.svg</file>
     <file>icon_texture_atlas.png</file>
   </gresource>

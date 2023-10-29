@@ -1,1 +1,2 @@
 .dune3d-tool-bar-name-label {font-weight: bold;}
+.solid-model-toggle-button:checked {border-color: rgba(0,0,0,0); background: none;}
