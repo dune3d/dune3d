@@ -27,7 +27,8 @@ void BaseRenderer::realize_base()
 
 
 struct UBOBuffer {
-    std::array<std::array<float, 4>, 32> colors;
+    // keep in sync with ubo.glsl
+    std::array<std::array<float, 4>, 64> colors;
     void set_colors(const Appearance &appearance, Canvas::SelectionMode selection_mode, Canvas::VertexType type)
     {
         using F = Canvas::VertexFlags;
@@ -66,6 +67,9 @@ struct UBOBuffer {
                 set_color(f | F::HOVER | F::SELECTED, appearance, ColorP::SELECTED_HOVER);
             }
         }
+        for (uint32_t i = 0; i <= static_cast<uint32_t>(F::COLOR_MASK); i++) {
+            set_color(static_cast<F>(i) | F::HIGHLIGHT, appearance, ColorP::HIGHLIGHT);
+        }
     }
 
 private:
@@ -73,8 +77,7 @@ private:
     {
         using F = Canvas::VertexFlags;
         const auto &color = appearance.get_color(colorp);
-        static const auto color_mask = F::SELECTED | F::INACTIVE | F::HOVER | F::CONSTRAINT | F::CONSTRUCTION;
-        auto &e = colors.at(static_cast<size_t>(flags & color_mask));
+        auto &e = colors.at(static_cast<size_t>(flags & F::COLOR_MASK));
         std::get<0>(e) = color.r;
         std::get<1>(e) = color.g;
         std::get<2>(e) = color.b;

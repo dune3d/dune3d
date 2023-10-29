@@ -199,6 +199,7 @@ static const LutEnumStr<ColorP> colorp_lut = {
         COLORP_LUT_ITEM(HOVER),
         COLORP_LUT_ITEM(SELECTED),
         COLORP_LUT_ITEM(SELECTED_HOVER),
+        COLORP_LUT_ITEM(HIGHLIGHT),
 };
 
 #undef COLORP_LUT_ITEM

@@ -364,6 +364,7 @@ void Canvas::update_hover_selection()
             }
             m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_ICONS);
             queue_draw();
+            m_signal_hover_selection_changed.emit();
         }
     }
 }
@@ -844,20 +845,32 @@ Canvas::VertexFlags &Canvas::get_vertex_flags(const VertexRef &vref)
 
 void Canvas::set_selection(const std::set<SelectableRef> &sel, bool emit)
 {
+    set_flag_for_selectables(sel, VertexFlags::SELECTED);
+    if (emit)
+        m_signal_selection_changed.emit();
+}
+
+void Canvas::set_highlight(const std::set<SelectableRef> &sel)
+{
+    set_flag_for_selectables(sel, VertexFlags::HIGHLIGHT);
+}
+
+void Canvas::set_flag_for_selectables(const std::set<SelectableRef> &sel, VertexFlags flag)
+{
     for (auto &x : m_lines) {
-        x.flags &= ~VertexFlags::SELECTED;
+        x.flags &= ~flag;
     }
     for (auto &x : m_points) {
-        x.flags &= ~VertexFlags::SELECTED;
+        x.flags &= ~flag;
     }
     for (auto &x : m_glyphs) {
-        x.flags &= ~VertexFlags::SELECTED;
+        x.flags &= ~flag;
     }
     for (auto &x : m_face_groups) {
-        x.flags &= ~VertexFlags::SELECTED;
+        x.flags &= ~flag;
     }
     for (auto &x : m_icons) {
-        x.flags &= ~VertexFlags::SELECTED;
+        x.flags &= ~flag;
     }
     for (auto &sr : sel) {
         if (!m_selectable_to_vertex_map.contains(sr))
@@ -865,14 +878,12 @@ void Canvas::set_selection(const std::set<SelectableRef> &sel, bool emit)
         auto &vrefs = m_selectable_to_vertex_map.at(sr);
         for (const auto &vref : vrefs) {
             auto &flags = get_vertex_flags(vref);
-            flags |= VertexFlags::SELECTED;
+            flags |= flag;
         }
         // auto &flags = get_vertex_flags()
     }
     m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_ICONS);
     queue_draw();
-    if (emit)
-        m_signal_selection_changed.emit();
 }
 
 void Canvas::set_hover_selection(const std::optional<SelectableRef> &sr)

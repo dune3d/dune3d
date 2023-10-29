@@ -24,6 +24,7 @@ static const std::map<ColorP, std::string> color_names = {
         {ColorP::HOVER, "Hover"},
         {ColorP::SELECTED, "Selected"},
         {ColorP::SELECTED_HOVER, "Selected hover"},
+        {ColorP::HIGHLIGHT, "Highlight"},
 };
 
 class ColorEditorPalette : public Gtk::Box {

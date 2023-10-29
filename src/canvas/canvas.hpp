@@ -121,10 +121,17 @@ public:
         return m_signal_selection_changed;
     }
 
+    type_signal_view_changed signal_hover_selection_changed()
+    {
+        return m_signal_hover_selection_changed;
+    }
+
     void set_appearance(const Appearance &appearance);
 
 
     void end_pan();
+
+    void set_highlight(const std::set<SelectableRef> &sr);
 
 private:
     BackgroundRenderer m_background_renderer;
@@ -248,7 +255,9 @@ private:
         INACTIVE = (1 << 2),
         CONSTRAINT = (1 << 3),
         CONSTRUCTION = (1 << 4),
-        SCREEN = (1 << 5),
+        HIGHLIGHT = (1 << 5),
+        SCREEN = (1 << 6),
+        COLOR_MASK = SELECTED | HOVER | INACTIVE | CONSTRAINT | CONSTRUCTION | HIGHLIGHT,
     };
     bool m_vertex_inactive = false;
     bool m_vertex_constraint = false;
@@ -373,8 +382,11 @@ private:
     type_signal_view_changed m_signal_view_changed;
     type_signal_view_changed m_signal_cursor_moved;
     type_signal_view_changed m_signal_selection_changed;
+    type_signal_view_changed m_signal_hover_selection_changed;
 
     void apply_flags(VertexFlags &flags);
+
+    void set_flag_for_selectables(const std::set<SelectableRef> &sr, VertexFlags flag);
 };
 
 } // namespace dune3d

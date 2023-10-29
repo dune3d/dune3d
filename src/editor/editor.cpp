@@ -176,6 +176,29 @@ void Editor::init_canvas()
         });
     }
     m_context_menu->insert_action_group("menu", actions);
+
+
+    get_canvas().signal_hover_selection_changed().connect([this] {
+        auto hsel = get_canvas().get_hover_selection();
+        if (!hsel) {
+            get_canvas().set_highlight({});
+            return;
+        }
+        if (hsel->type != SelectableRef::Type::CONSTRAINT) {
+            get_canvas().set_highlight({});
+            return;
+        }
+        auto &constraint = m_core.get_current_document().get_constraint(hsel->item);
+        std::set<SelectableRef> sel;
+        for (const auto &uu : constraint.get_referenced_entities()) {
+            // ignore workplanes
+            auto &entity = m_core.get_current_document().get_entity(uu);
+            if (entity.get_type() == Entity::Type::WORKPLANE)
+                continue;
+            sel.emplace(UUID(), SelectableRef::Type::ENTITY, uu, 0);
+        }
+        get_canvas().set_highlight(sel);
+    });
 }
 
 void Editor::open_context_menu()
