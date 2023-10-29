@@ -20,6 +20,7 @@
 #include "logger/logger.hpp"
 #include "document/constraint/constraint.hpp"
 #include "util/fs_util.hpp"
+#include "selection_editor.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -242,6 +243,23 @@ void Editor::init_properties_notebook()
     m_properties_notebook->append_page(*m_constraints_box, "Constraints");
     m_core.signal_rebuilt().connect([this] { m_constraints_box->update(); });
     m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
+
+    m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core);
+    m_selection_editor->signal_changed().connect([this] {
+        m_core.set_needs_save();
+        m_core.rebuild("selection edited");
+        canvas_update_keep_selection();
+    });
+    m_properties_notebook->append_page(*m_selection_editor, "Selection");
+    get_canvas().signal_selection_changed().connect(sigc::mem_fun(*this, &Editor::update_selection_editor));
+}
+
+void Editor::update_selection_editor()
+{
+    if (get_canvas().get_selection_mode() == Canvas::SelectionMode::HOVER)
+        m_selection_editor->set_selection({});
+    else
+        m_selection_editor->set_selection(get_canvas().get_selection());
 }
 
 void Editor::init_header_bar()
@@ -333,11 +351,13 @@ void Editor::init_actions()
         m_core.undo();
         canvas_update_keep_selection();
         update_workplane_label();
+        update_selection_editor();
     });
     connect_action(ActionID::REDO, [this](const auto &a) {
         m_core.redo();
         canvas_update_keep_selection();
         update_workplane_label();
+        update_selection_editor();
     });
 
     connect_action(ActionID::PREFERENCES, [this](const auto &a) {

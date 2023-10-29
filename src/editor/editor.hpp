@@ -21,7 +21,7 @@ class ActionLabelInfo;
 class ToolPopover;
 class ConstraintsBox;
 class GroupEditor;
-
+class SelectionEditor;
 
 class Dune3DAppWindow;
 
@@ -146,6 +146,9 @@ private:
     Gtk::Box *m_group_editor_box = nullptr;
     GroupEditor *m_group_editor = nullptr;
     void update_group_editor();
+
+    SelectionEditor *m_selection_editor = nullptr;
+    void update_selection_editor();
 
     Dialogs m_dialogs;
     Dialogs &get_dialogs() override

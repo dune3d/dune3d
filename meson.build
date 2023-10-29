@@ -133,6 +133,7 @@ src = files(
   'src/widgets/constraints_box.cpp',
   'src/editor/document_view.cpp',
   'src/editor/group_editor.cpp',
+  'src/editor/selection_editor.cpp',
   'src/dialogs/dialogs.cpp',
   'src/dialogs/enter_datum_window.cpp',
   'src/dialogs/tool_window.cpp',
