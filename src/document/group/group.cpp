@@ -152,5 +152,10 @@ std::set<UUID> Group::get_required_groups(const Document &doc) const
     return {};
 }
 
+json Group::serialize(const Document &doc) const
+{
+    return serialize();
+}
+
 Group::~Group() = default;
 } // namespace dune3d

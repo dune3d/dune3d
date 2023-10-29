@@ -37,6 +37,7 @@ public:
 
     virtual ~Group();
     virtual json serialize() const;
+    virtual json serialize(const Document &doc) const;
 
     static std::unique_ptr<Group> new_from_json(const UUID &uu, const json &j);
     virtual std::unique_ptr<Group> clone() const = 0;

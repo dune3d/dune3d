@@ -16,7 +16,7 @@ public:
     {
         return s_type;
     }
-    json serialize() const override;
+    json serialize(const Document &doc) const override;
     std::unique_ptr<Group> clone() const override;
 
     virtual void generate(Document &doc) const override;
@@ -25,12 +25,17 @@ public:
     bool m_show_yz = true;
     bool m_show_zx = true;
 
+    glm::dvec2 m_xy_size = {10, 10};
+    glm::dvec2 m_yz_size = {10, 10};
+    glm::dvec2 m_zx_size = {10, 10};
+
     UUID get_workplane_xy_uuid() const;
     UUID get_workplane_yz_uuid() const;
     UUID get_workplane_zx_uuid() const;
 
 private:
-    EntityWorkplane &add_workplane(Document &doc, const UUID &uu, const glm::dquat &normal) const;
+    EntityWorkplane &add_workplane(Document &doc, const UUID &uu, const glm::dquat &normal,
+                                   const glm::dvec2 &size) const;
 };
 
 } // namespace dune3d

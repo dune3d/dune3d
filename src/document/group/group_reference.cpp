@@ -12,16 +12,21 @@ GroupReference::GroupReference(const UUID &uu) : Group(uu)
 
 GroupReference::GroupReference(const UUID &uu, const json &j)
     : Group(uu, j), m_show_xy(j.value("show_xy", true)), m_show_yz(j.value("show_yz", true)),
-      m_show_zx(j.value("show_zx", true))
+      m_show_zx(j.value("show_zx", true)), m_xy_size(j.value("xy_size", glm::dvec2(10, 10))),
+      m_yz_size(j.value("yz_size", glm::dvec2(10, 10))), m_zx_size(j.value("zx_size", glm::dvec2(10, 10)))
 {
 }
 
-json GroupReference::serialize() const
+json GroupReference::serialize(const Document &doc) const
 {
     json j = Group::serialize();
     j["show_xy"] = m_show_xy;
     j["show_yz"] = m_show_yz;
     j["show_zx"] = m_show_zx;
+
+    j["xy_size"] = doc.get_entity<EntityWorkplane>(get_workplane_xy_uuid()).m_size;
+    j["yz_size"] = doc.get_entity<EntityWorkplane>(get_workplane_yz_uuid()).m_size;
+    j["zx_size"] = doc.get_entity<EntityWorkplane>(get_workplane_zx_uuid()).m_size;
     return j;
 }
 
@@ -50,14 +55,18 @@ void GroupReference::generate(Document &doc) const
     const auto ax = glm::dvec3(1, 0, 0);
     const auto ay = glm::dvec3(0, 1, 0);
     const auto az = glm::dvec3(0, 0, 1);
-    add_workplane(doc, get_workplane_xy_uuid(), quat_from_uv(ax, ay)).m_visible = m_show_xy;
-    add_workplane(doc, get_workplane_yz_uuid(), quat_from_uv(ay, az)).m_visible = m_show_yz;
-    add_workplane(doc, get_workplane_zx_uuid(), quat_from_uv(az, ax)).m_visible = m_show_zx;
+    add_workplane(doc, get_workplane_xy_uuid(), quat_from_uv(ax, ay), m_xy_size).m_visible = m_show_xy;
+    add_workplane(doc, get_workplane_yz_uuid(), quat_from_uv(ay, az), m_yz_size).m_visible = m_show_yz;
+    add_workplane(doc, get_workplane_zx_uuid(), quat_from_uv(az, ax), m_zx_size).m_visible = m_show_zx;
 }
 
-EntityWorkplane &GroupReference::add_workplane(Document &doc, const UUID &uu, const glm::dquat &normal) const
+EntityWorkplane &GroupReference::add_workplane(Document &doc, const UUID &uu, const glm::dquat &normal,
+                                               const glm::dvec2 &size) const
 {
-    auto &wrkpl = doc.get_or_add_entity<EntityWorkplane>(uu);
+    bool added = false;
+    auto &wrkpl = doc.get_or_add_entity<EntityWorkplane>(uu, &added);
+    if (added)
+        wrkpl.m_size = size;
     wrkpl.m_kind = ItemKind::GENRERATED;
     wrkpl.m_origin = glm::dvec3(0, 0, 0);
     wrkpl.m_group = m_uuid;

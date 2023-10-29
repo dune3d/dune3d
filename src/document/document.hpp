@@ -43,12 +43,18 @@ public:
         return dynamic_cast<T &>(*m_entities.at(uu));
     }
 
-    template <typename T> T &get_or_add_entity(const UUID &uu)
+    template <typename T> T &get_or_add_entity(const UUID &uu, bool *was_added = nullptr)
     {
-        if (m_entities.count(uu))
+        if (m_entities.count(uu)) {
+            if (was_added)
+                *was_added = false;
             return dynamic_cast<T &>(*m_entities.at(uu));
-        else
+        }
+        else {
+            if (was_added)
+                *was_added = true;
             return add_entity<T>(uu);
+        }
     }
 
     template <typename T = Entity> const T &get_entity(const UUID &uu) const

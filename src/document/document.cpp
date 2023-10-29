@@ -26,15 +26,17 @@ static void to_json(nlohmann::json &j, const std::unique_ptr<Constraint> &e)
     j = e->serialize();
 }
 
-static void to_json(nlohmann::json &j, const std::unique_ptr<Group> &e)
-{
-    j = e->serialize();
-}
-
 json Document::serialize() const
 {
-    auto j = json{{"groups", m_groups}, {"type", "document"}};
+    auto j = json{{"type", "document"}};
     m_version.serialize(j);
+    {
+        auto o = json::object();
+        for (const auto &[uu, it] : m_groups) {
+            o[uu] = it->serialize(*this);
+        }
+        j["groups"] = o;
+    }
     {
         auto o = json::object();
         for (const auto &[uu, it] : m_entities) {
