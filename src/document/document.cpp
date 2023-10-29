@@ -379,6 +379,11 @@ glm::dvec3 Document::get_point(const EntityAndPoint &ep) const
     return get_entity(ep.entity).get_point(ep.point, *this);
 }
 
+bool Document::is_valid_point(const EntityAndPoint &ep) const
+{
+    return get_entity(ep.entity).is_valid_point(ep.point);
+}
+
 Document::~Document() = default;
 
 } // namespace dune3d

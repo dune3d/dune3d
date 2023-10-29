@@ -15,9 +15,7 @@ public:
     {
         using I = InToolActionID;
         return {
-                I::LMB,
-                I::CANCEL,
-                I::RMB,
+                I::LMB, I::CANCEL, I::RMB, I::TOGGLE_CONSTRUCTION, I::TOGGLE_COINCIDENT_CONSTRAINT,
         };
     }
 
@@ -31,5 +29,6 @@ private:
     void update_tip();
 
     glm::dvec2 get_cursor_pos_in_plane() const;
+    bool m_constrain = true;
 };
 } // namespace dune3d

@@ -112,6 +112,7 @@ public:
     }
 
     glm::dvec3 get_point(const EntityAndPoint &ep) const;
+    bool is_valid_point(const EntityAndPoint &ep) const;
 
     std::vector<Group *> get_groups_sorted();
     std::vector<const Group *> get_groups_sorted() const;

@@ -2,8 +2,12 @@
 #include "document/document.hpp"
 #include "document/entity/entity_circle2d.hpp"
 #include "document/entity/entity_workplane.hpp"
+#include "document/constraint/constraint_points_coincident.hpp"
+#include "document/constraint/constraint_point_on_line.hpp"
+#include "document/constraint/constraint_point_on_circle.hpp"
 #include "editor/editor_interface.hpp"
 #include "util/selection_util.hpp"
+#include "util/action_label.hpp"
 #include "tool_common_impl.hpp"
 
 namespace dune3d {
@@ -11,6 +15,7 @@ namespace dune3d {
 ToolResponse ToolDrawCircle2D::begin(const ToolArgs &args)
 {
     m_wrkpl = get_workplane();
+    m_intf.enable_hover_selection();
     return ToolResponse();
 }
 
@@ -36,9 +41,22 @@ ToolResponse ToolDrawCircle2D::update(const ToolArgs &args)
     else if (args.type == ToolEventType::ACTION) {
         switch (args.action) {
         case InToolActionID::LMB: {
-
             if (m_temp_circle) {
                 m_temp_circle->m_selection_invisible = false;
+                if (m_constrain) {
+                    if (auto hsel = m_intf.get_hover_selection()) {
+                        if (hsel->type == SelectableRef::Type::ENTITY) {
+                            const auto enp = hsel->get_entity_and_point();
+                            if (get_doc().is_valid_point(enp)) {
+                                auto &constraint = add_constraint<ConstraintPointOnCircle>();
+                                constraint.m_circle = m_temp_circle->m_uuid;
+                                constraint.m_point = enp;
+                                constraint.m_wrkpl = m_wrkpl->m_uuid;
+                                constraint.m_modify_to_satisfy = true;
+                            }
+                        }
+                    }
+                }
                 return ToolResponse::commit();
             }
             else {
@@ -47,24 +65,65 @@ ToolResponse ToolDrawCircle2D::update(const ToolArgs &args)
                 m_temp_circle->m_radius = 0;
                 m_temp_circle->m_center = get_cursor_pos_in_plane();
                 m_temp_circle->m_wrkpl = m_wrkpl->m_uuid;
+
+                if (m_constrain) {
+                    if (auto hsel = m_intf.get_hover_selection()) {
+                        if (hsel->type == SelectableRef::Type::ENTITY) {
+                            const auto enp = hsel->get_entity_and_point();
+                            const EntityAndPoint circle_center{m_temp_circle->m_uuid, 1};
+                            if (get_doc().is_valid_point(enp)) {
+                                auto &constraint = add_constraint<ConstraintPointsCoincident>();
+                                constraint.m_entity1 = enp;
+                                constraint.m_entity2 = circle_center;
+                                constraint.m_wrkpl = m_wrkpl->m_uuid;
+                                m_core.solve_current();
+                                // m_temp_circle->m_center = m_wrkpl->project(get_doc().get_point(enp));
+                            }
+                            else if (enp.point == 0) {
+                                auto &entity = get_entity(enp.entity);
+                                if (entity.get_type() == Entity::Type::LINE_2D
+                                    || entity.get_type() == Entity::Type::LINE_3D) {
+                                    auto &constraint = add_constraint<ConstraintPointOnLine>();
+                                    constraint.m_line = entity.m_uuid;
+                                    constraint.m_point = circle_center;
+                                    constraint.m_wrkpl = m_wrkpl->m_uuid;
+                                    constraint.m_modify_to_satisfy = true;
+                                    m_core.solve_current();
+                                }
+                                else if (entity.get_type() == Entity::Type::ARC_2D
+                                         || entity.get_type() == Entity::Type::CIRCLE_2D) {
+                                    auto &constraint = add_constraint<ConstraintPointOnCircle>();
+                                    constraint.m_circle = entity.m_uuid;
+                                    constraint.m_point = circle_center;
+                                    constraint.m_wrkpl = m_wrkpl->m_uuid;
+                                    constraint.m_modify_to_satisfy = true;
+                                    m_core.solve_current();
+                                }
+                            }
+                        }
+                    }
+                }
+
                 return ToolResponse();
             }
+        } break;
 
+        case InToolActionID::TOGGLE_CONSTRUCTION: {
+            if (m_temp_circle)
+                m_temp_circle->m_construction = !m_temp_circle->m_construction;
+        } break;
 
-        }
-
-
-        break;
+        case InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT: {
+            m_constrain = !m_constrain;
+        } break;
 
         case InToolActionID::RMB:
-
-
         case InToolActionID::CANCEL:
-
             return ToolResponse::revert();
 
         default:;
         }
+        update_tip();
     }
 
     return ToolResponse();
@@ -72,7 +131,59 @@ ToolResponse ToolDrawCircle2D::update(const ToolArgs &args)
 
 void ToolDrawCircle2D::update_tip()
 {
+    std::vector<ActionLabelInfo> actions;
+
+    if (m_temp_circle)
+        actions.emplace_back(InToolActionID::LMB, "place radius");
+    else
+        actions.emplace_back(InToolActionID::LMB, "place center");
+
+    actions.emplace_back(InToolActionID::RMB, "end tool");
+
+    if (m_temp_circle) {
+        if (m_temp_circle->m_construction)
+            actions.emplace_back(InToolActionID::TOGGLE_CONSTRUCTION, "normal");
+        else
+            actions.emplace_back(InToolActionID::TOGGLE_CONSTRUCTION, "construction");
+    }
+
+    if (m_constrain)
+        actions.emplace_back(InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT, "constraint off");
+    else
+        actions.emplace_back(InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT, "constraint on");
+
+
+    m_intf.tool_bar_set_tool_tip("");
+    if (m_constrain && !m_temp_circle) {
+        if (auto hsel = m_intf.get_hover_selection()) {
+            if (hsel->type == SelectableRef::Type::ENTITY) {
+                const auto enp = hsel->get_entity_and_point();
+                if (get_doc().is_valid_point(enp)) {
+                    m_intf.tool_bar_set_tool_tip("constrain center on point");
+                }
+                else if (enp.point == 0) {
+                    auto &entity = get_entity(enp.entity);
+                    if (entity.get_type() == Entity::Type::LINE_2D || entity.get_type() == Entity::Type::LINE_3D) {
+                        m_intf.tool_bar_set_tool_tip("constrain center on line");
+                    }
+                    else if (entity.get_type() == Entity::Type::ARC_2D
+                             || entity.get_type() == Entity::Type::CIRCLE_2D) {
+                        m_intf.tool_bar_set_tool_tip("constrain center on circle");
+                    }
+                }
+            }
+        }
+    }
+    if (m_constrain && m_temp_circle) {
+        if (auto hsel = m_intf.get_hover_selection()) {
+            if (hsel->type == SelectableRef::Type::ENTITY) {
+                const auto enp = hsel->get_entity_and_point();
+                if (get_doc().is_valid_point(enp)) {
+                    m_intf.tool_bar_set_tool_tip("constrain radius on point");
+                }
+            }
+        }
+    }
+    m_intf.tool_bar_set_actions(actions);
 }
-
-
 } // namespace dune3d
