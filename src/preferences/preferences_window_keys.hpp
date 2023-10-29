@@ -1,34 +1,21 @@
 #pragma once
-#include <gtkmm.h>
-#include "action/action.hpp"
+#include "preferences_window_keys_base.hpp"
 
 namespace dune3d {
 
-class KeySequencesPreferencesEditor : public Gtk::Box {
+class KeySequencesPreferencesEditor : public KeySequencesPreferencesEditorBase {
 public:
     KeySequencesPreferencesEditor(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &x,
                                   class Preferences &prefs);
     static KeySequencesPreferencesEditor *create(Preferences &prefs);
 
 private:
-    class Preferences &m_preferences;
     class KeySequencesPreferences &m_keyseq_preferences;
+    class ActionItemKeys;
 
-    Gtk::ColumnView *m_view = nullptr;
-
-    class ActionItem;
-    Glib::RefPtr<Gio::ListStore<ActionItem>> m_store;
-    Glib::RefPtr<Gtk::TreeListModel> m_model;
-    Glib::RefPtr<Gtk::SingleSelection> m_selection_model;
-    Glib::RefPtr<Gio::ListModel> create_model(const Glib::RefPtr<Glib::ObjectBase> &item = {});
-
-    Gtk::FlowBox *m_action_editors = nullptr;
-
-    void update_action_editors();
-    void update_keys();
-    void handle_save();
-    void handle_load();
-    void handle_load_default();
+    void update_item(ActionItem &it) override;
+    void update_action_editors(const ActionItem &it) override;
+    void handle_load_default() override;
 };
 
 } // namespace dune3d
