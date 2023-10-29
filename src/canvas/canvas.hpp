@@ -66,7 +66,7 @@ public:
         return m_selection_mode;
     }
 
-    void set_selection(const std::set<SelectableRef> &sel);
+    void set_selection(const std::set<SelectableRef> &sel, bool emit);
     std::set<SelectableRef> get_selection() const;
     auto get_hover_selection() const
     {
@@ -114,6 +114,11 @@ public:
     type_signal_view_changed signal_cursor_moved()
     {
         return m_signal_cursor_moved;
+    }
+
+    type_signal_view_changed signal_selection_changed()
+    {
+        return m_signal_selection_changed;
     }
 
     void set_appearance(const Appearance &appearance);
@@ -367,6 +372,7 @@ private:
 
     type_signal_view_changed m_signal_view_changed;
     type_signal_view_changed m_signal_cursor_moved;
+    type_signal_view_changed m_signal_selection_changed;
 
     void apply_flags(VertexFlags &flags);
 };

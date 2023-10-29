@@ -170,7 +170,7 @@ void Editor::init_canvas()
         std::string name;
         auto action_id = id;
         actions->add_action(action_tool_id_to_string(id), [this, action_id] {
-            get_canvas().set_selection(m_context_menu_selection);
+            get_canvas().set_selection(m_context_menu_selection, false);
             trigger_action(action_id);
         });
     }
@@ -795,7 +795,7 @@ void Editor::canvas_update_keep_selection()
 {
     auto sel = get_canvas().get_selection();
     canvas_update();
-    get_canvas().set_selection(sel);
+    get_canvas().set_selection(sel, false);
 }
 
 void Editor::tool_begin(ToolID id /*bool override_selection, const std::set<SelectableRef> &sel,
@@ -853,7 +853,7 @@ void Editor::tool_process(ToolResponse &resp)
 void Editor::canvas_update_from_tool()
 {
     canvas_update();
-    get_canvas().set_selection(m_core.get_tool_selection());
+    get_canvas().set_selection(m_core.get_tool_selection(), false);
 }
 
 
@@ -865,14 +865,16 @@ void Editor::tool_process_one()
         // reset_tool_hint_label();
         // canvas->set_cursor_external(false);
         // canvas->snap_filter.clear();
-        get_canvas().set_selection_mode(Canvas::SelectionMode::HOVER);
         m_no_canvas_update = false;
         m_solid_model_edge_select_mode = false;
         update_workplane_label();
     }
     if (!m_no_canvas_update)
         canvas_update();
-    get_canvas().set_selection(m_core.get_tool_selection());
+    get_canvas().set_selection(m_core.get_tool_selection(), false);
+    if (!m_core.tool_is_active())
+        get_canvas().set_selection_mode(Canvas::SelectionMode::HOVER);
+
     /*  if (m_core.tool_is_active()) {
           canvas->set_selection(m_core.get_tool_selection());
       }
@@ -1022,7 +1024,7 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
     if (keyval == GDK_KEY_Escape) {
         if (!m_core.tool_is_active()) {
             get_canvas().set_selection_mode(Canvas::SelectionMode::HOVER);
-            get_canvas().set_selection({});
+            get_canvas().set_selection({}, true);
 
             reset_key_hint_label();
             if (m_keys_current.size() == 0) {

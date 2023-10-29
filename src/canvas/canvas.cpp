@@ -79,6 +79,7 @@ Canvas::Canvas()
                 if (m_hover_selection.has_value()) {
                     m_selection_mode = SelectionMode::NORMAL;
                     queue_draw();
+                    m_signal_selection_changed.emit();
                 }
             }
             else if (m_selection_mode == SelectionMode::NORMAL) {
@@ -88,10 +89,10 @@ Canvas::Canvas()
                         sel.erase(m_hover_selection.value());
                     else
                         sel.insert(m_hover_selection.value());
-                    set_selection(sel);
+                    set_selection(sel, true);
                 }
                 else {
-                    set_selection({});
+                    set_selection({}, true);
                 }
             }
         });
@@ -841,7 +842,7 @@ Canvas::VertexFlags &Canvas::get_vertex_flags(const VertexRef &vref)
     }
 }
 
-void Canvas::set_selection(const std::set<SelectableRef> &sel)
+void Canvas::set_selection(const std::set<SelectableRef> &sel, bool emit)
 {
     for (auto &x : m_lines) {
         x.flags &= ~VertexFlags::SELECTED;
@@ -870,6 +871,8 @@ void Canvas::set_selection(const std::set<SelectableRef> &sel)
     }
     m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_ICONS);
     queue_draw();
+    if (emit)
+        m_signal_selection_changed.emit();
 }
 
 void Canvas::set_hover_selection(const std::optional<SelectableRef> &sr)
@@ -931,9 +934,9 @@ void Canvas::set_selection_mode(SelectionMode mode)
     m_selection_mode = mode;
     if (m_selection_mode == SelectionMode::HOVER || m_selection_mode == SelectionMode::HOVER_ONLY) {
         if (m_hover_selection.has_value())
-            set_selection({m_hover_selection.value()});
+            set_selection({m_hover_selection.value()}, true);
         else
-            set_selection({});
+            set_selection({}, true);
     }
     else if (m_selection_mode == SelectionMode::NONE) {
         for (auto &x : m_lines) {
