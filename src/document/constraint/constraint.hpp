@@ -10,6 +10,7 @@ namespace dune3d {
 using json = nlohmann::json;
 
 class Document;
+class EntityAndPoint;
 
 class Constraint {
 public:
@@ -58,6 +59,12 @@ public:
     bool m_modify_to_satisfy = false;
 
     virtual bool is_movable() const
+    {
+        return false;
+    }
+
+    // returns true if replaced
+    virtual bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
     {
         return false;
     }

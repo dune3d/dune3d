@@ -1,11 +1,11 @@
-#include "tool_common.hpp"
+#include "tool_helper_constrain.hpp"
 #include "in_tool_action/in_tool_action.hpp"
 #include <optional>
 
 namespace dune3d {
 
 
-class ToolDrawCircle2D : public ToolCommon {
+class ToolDrawCircle2D : public virtual ToolCommon, public ToolHelperConstrain {
 public:
     using ToolCommon::ToolCommon;
 

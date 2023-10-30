@@ -39,4 +39,13 @@ void ConstraintPointOnCircle::accept(ConstraintVisitor &visitor) const
     visitor.visit(*this);
 }
 
+bool ConstraintPointOnCircle::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
+{
+    if (m_point == old_point) {
+        m_point = new_point;
+        return true;
+    }
+    return false;
+}
+
 } // namespace dune3d

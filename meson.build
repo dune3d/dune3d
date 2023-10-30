@@ -121,6 +121,7 @@ src = files(
   'src/core/tools/tool_import_step.cpp',
   'src/core/tools/tool_select_edges.cpp',
   'src/core/tools/tool_set_workplane.cpp',
+  'src/core/tools/tool_helper_constrain.cpp',
   'src/util/history_manager.cpp',
   'src/action/action.cpp',
   'src/action/action_catalog.cpp',

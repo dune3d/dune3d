@@ -26,6 +26,8 @@ public:
     std::set<UUID> get_referenced_entities() const override;
 
     void accept(ConstraintVisitor &visitor) const override;
+
+    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
 };
 
 } // namespace dune3d

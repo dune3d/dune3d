@@ -42,4 +42,17 @@ void ConstraintPointsCoincident::accept(ConstraintVisitor &visitor) const
     visitor.visit(*this);
 }
 
+bool ConstraintPointsCoincident::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
+{
+    if (m_entity1 == old_point) {
+        m_entity1 = new_point;
+        return true;
+    }
+    else if (m_entity2 == old_point) {
+        m_entity2 = new_point;
+        return true;
+    }
+    return false;
+}
+
 } // namespace dune3d
