@@ -79,5 +79,26 @@ jobs:
     - name: Build
       run: |
         mkdir ../build
-        CXX=${{ matrix.os.cxx }} CC=${{ matrix.os.cc }} meson setup ../build
+        meson setup ../build
+        ninja -C ../build ${{ matrix.target }}
+
+  build-arch-clang:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - all
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    needs: stylecheck
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install updates
+      run: pacman -Syu --noconfirm
+    - name: Install dependencies
+      run: pacman -Sy --needed --noconfirm  gtkmm-4.0 cairomm librsvg opencascade glm python  cmake meson eigen mimalloc range-v3 git python-gobject python-cairo clang
+    - name: Build
+      run: |
+        mkdir ../build
+        CC=clang CXX=clang meson setup ../build
         ninja -C ../build ${{ matrix.target }}
