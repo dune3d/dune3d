@@ -96,11 +96,11 @@
                         <property name="valign">end</property>
                         <child>
                           <object class="GtkBox">
-                            <property name="margin-bottom">4</property>
-                            <property name="margin-end">4</property>
-                            <property name="margin-start">4</property>
-                            <property name="margin-top">4</property>
-                            <property name="spacing">10</property>
+                            <property name="margin-bottom">8</property>
+                            <property name="margin-end">8</property>
+                            <property name="margin-start">8</property>
+                            <property name="margin-top">8</property>
+                            <property name="spacing">20</property>
                             <child>
                               <object class="GtkLabel" id="tool_bar_name_label">
                                 <property name="label">Tool frobniacate</property>
