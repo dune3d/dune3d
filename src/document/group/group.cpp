@@ -42,8 +42,8 @@ Group::Group(const UUID &uu) : m_uuid(uu)
 {
 }
 Group::Group(const UUID &uu, const json &j)
-    : m_uuid(uu), m_name(j.at("name").get<std::string>()), m_index(j.at("index").get<int>()),
-      m_body(j.at("body").get<std::optional<Body>>())
+    : m_uuid(uu), m_name(j.at("name").get<std::string>()), m_body(j.at("body").get<std::optional<Body>>()),
+      m_index(j.at("index").get<int>())
 {
     if (j.contains("active_wrkpl"))
         j.at("active_wrkpl").get_to(m_active_wrkpl);

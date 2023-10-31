@@ -394,7 +394,7 @@ void System::add(const GroupExtrude &group)
     m_param_refs.emplace(dx, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 0, 0});
     m_param_refs.emplace(dy, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 0, 1});
     m_param_refs.emplace(dz, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 0, 2});
-    auto hg = hGroup{(uint32_t)group.m_index + 1};
+    auto hg = hGroup{(uint32_t)group.get_index() + 1};
     unsigned int eqi = 0;
     {
         ExprVector direction = ExprVector::From(hParam{dx}, hParam{dy}, hParam{dz});
@@ -638,7 +638,7 @@ bool System::solve()
         return false;
 
     ::Group g = {};
-    g.h.v = gr.m_index + 1;
+    g.h.v = gr.get_index() + 1;
 
     std::cout << "solve group " << gr.m_name << std::endl;
     List<hConstraint> bad = {};
@@ -1056,7 +1056,7 @@ void System::visit(const ConstraintLinePointsPerpendicular &constraint)
 
 int System::get_group_index(const UUID &uu) const
 {
-    return m_doc.get_group(uu).m_index + 1;
+    return m_doc.get_group(uu).get_index() + 1;
 }
 
 int System::get_group_index(const Constraint &constraint) const

@@ -70,7 +70,7 @@ Document::Document() : m_version(app_version)
     grp.m_body.emplace();
 
     auto &sketch = add_group<GroupSketch>(UUID::random());
-    sketch.m_index = 1;
+    sketch.set_index({}, 1);
     sketch.m_name = "Sketch";
     sketch.m_active_wrkpl = grp.get_workplane_xy_uuid();
 
@@ -137,7 +137,7 @@ std::vector<const Group *> Document::get_groups_sorted() const
     for (auto &[uu, it] : m_groups) {
         r.push_back(it.get());
     }
-    std::ranges::sort(r, {}, [](auto a) { return a->m_index; });
+    std::ranges::sort(r, {}, [](auto a) { return a->get_index(); });
     return r;
 }
 
@@ -200,10 +200,10 @@ void Document::solve_all()
 void Document::insert_group(std::unique_ptr<Group> new_group, const UUID &after)
 {
     auto &gr_after = *m_groups.at(after);
-    new_group->m_index = gr_after.m_index + 1;
+    new_group->set_index({}, gr_after.get_index() + 1);
     for (auto &[uu, group] : m_groups) {
-        if (group->m_index > gr_after.m_index)
-            group->m_index++;
+        if (group->get_index() > gr_after.get_index())
+            group->set_index({}, group->get_index() + 1);
     }
     m_groups.emplace(new_group->m_uuid, std::move(new_group));
 }
@@ -246,7 +246,7 @@ bool Document::reorder_group(const UUID &group_uu, const UUID &after)
     {
         unsigned int index = 0;
         for (auto gr : groups_new_order) {
-            gr->m_index = index++;
+            gr->set_index({}, index++);
         }
     }
 

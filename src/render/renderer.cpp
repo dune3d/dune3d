@@ -24,7 +24,7 @@ bool Renderer::group_is_visible(const UUID &uu) const
     if (m_current_group->m_uuid == uu)
         return true;
     auto &group = m_doc->get_group(uu);
-    if (group.m_index > m_current_group->m_index)
+    if (group.get_index() > m_current_group->get_index())
         return false;
     if (!m_doc_view->group_is_visible(uu))
         return false;

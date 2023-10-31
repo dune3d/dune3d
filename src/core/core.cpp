@@ -218,7 +218,7 @@ UUID Core::DocumentInfo::get_current_workplane() const
     auto &group = m_doc->get_group<Group>(en.m_group);
 
     auto &current_group = m_doc->get_group<Group>(m_current_group);
-    if (group.m_index > current_group.m_index)
+    if (group.get_index() > current_group.get_index())
         return UUID();
     else
         return cur_group.m_active_wrkpl;
@@ -267,8 +267,8 @@ void Core::solve_current(const DraggedList &dragged)
         if (!tool_is_active())
             throw std::runtime_error("to be called in tools only");
         for (auto group : m_current_groups_sorted) {
-            const auto index = group->m_index;
-            if (index > get_current_document().get_group(get_current_group()).m_index)
+            const auto index = group->get_index();
+            if (index > get_current_document().get_group(get_current_group()).get_index())
                 break;
 
             System system{get_current_document(), group->m_uuid};

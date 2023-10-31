@@ -1,5 +1,6 @@
 #pragma once
 #include "util/uuid.hpp"
+#include "util/badge.hpp"
 #include "nlohmann/json_fwd.hpp"
 #include <memory>
 #include <optional>
@@ -43,8 +44,15 @@ public:
     virtual std::unique_ptr<Group> clone() const = 0;
 
     std::string m_name;
-    int m_index = 0;
     int m_dof = -1;
+    auto get_index() const
+    {
+        return m_index;
+    }
+    void set_index(Badge<Document>, int index)
+    {
+        m_index = index;
+    }
 
     std::optional<Body> m_body;
     UUID m_active_wrkpl;
@@ -74,6 +82,9 @@ public:
 protected:
     explicit Group(const UUID &uu, const json &j);
     explicit Group(const UUID &uu);
+
+private:
+    int m_index = 0;
 };
 
 } // namespace dune3d
