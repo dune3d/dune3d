@@ -25,7 +25,6 @@ public:
 
     std::map<UUID, std::unique_ptr<Entity>> m_entities;
     std::map<UUID, std::unique_ptr<Constraint>> m_constraints;
-    std::map<UUID, std::unique_ptr<Group>> m_groups;
 
     FileVersion m_version;
     static unsigned int get_app_version();
@@ -83,6 +82,11 @@ public:
         auto p = en.get();
         m_constraints.emplace(uu, std::move(en));
         return *p;
+    }
+
+    const auto &get_groups() const
+    {
+        return m_groups;
     }
 
     template <typename T = Group> const T &get_group(const UUID &uu) const
@@ -158,6 +162,8 @@ public:
     ~Document();
 
 private:
+    std::map<UUID, std::unique_ptr<Group>> m_groups;
+
     void insert_group(std::unique_ptr<Group> group, const UUID &after);
 };
 } // namespace dune3d

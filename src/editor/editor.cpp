@@ -377,7 +377,7 @@ void Editor::init_actions()
 
     connect_action(ActionID::TOGGLE_SOLID_MODEL, [this](const auto &a) {
         auto &doc = m_core.get_current_document();
-        auto &group = *doc.m_groups.at(m_core.get_current_group());
+        auto &group = doc.get_group(m_core.get_current_group());
         auto &body_group = group.find_body(doc).group.m_uuid;
 
         m_document_view.m_body_views[body_group].m_solid_model_visible =

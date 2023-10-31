@@ -53,7 +53,7 @@ System::System(Document &doc, const UUID &grp)
             continue;
         constraint->accept(*this);
     }
-    for (const auto &[uu, group] : m_doc.m_groups) {
+    for (const auto &[uu, group] : m_doc.get_groups()) {
         if (uu != m_solve_group)
             continue;
         switch (group->get_type()) {
@@ -571,7 +571,7 @@ void System::update_document()
             m_doc.m_entities.at(param_ref.item)->set_param(param_ref.point, param_ref.axis, val);
             break;
         case ParamRef::Type::GROUP:
-            if (m_doc.m_groups.at(param_ref.item)->get_type() == Group::Type::EXTRUDE) {
+            if (m_doc.get_group(param_ref.item).get_type() == Group::Type::EXTRUDE) {
                 if (param_ref.point == 0)
                     m_doc.get_group<GroupExtrude>(param_ref.item).m_dvec[param_ref.axis] = val;
                 else if (param_ref.point == 1)
@@ -633,7 +633,7 @@ void System::add_dragged(const UUID &entity, unsigned int point)
 
 bool System::solve()
 {
-    auto &gr = *m_doc.m_groups.at(m_solve_group);
+    auto &gr = m_doc.get_group(m_solve_group);
     if (gr.get_type() == Group::Type::REFERENCE)
         return false;
 
@@ -1056,7 +1056,7 @@ void System::visit(const ConstraintLinePointsPerpendicular &constraint)
 
 int System::get_group_index(const UUID &uu) const
 {
-    return m_doc.m_groups.at(uu)->m_index + 1;
+    return m_doc.get_group(uu).m_index + 1;
 }
 
 int System::get_group_index(const Constraint &constraint) const

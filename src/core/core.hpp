@@ -123,7 +123,7 @@ public:
 
     void set_current_group(const UUID &uu)
     {
-        if (get_current_document().m_groups.contains(uu))
+        if (get_current_document().get_groups().contains(uu))
             get_current_document_info().m_current_group = uu;
     }
 

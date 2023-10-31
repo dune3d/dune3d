@@ -209,9 +209,9 @@ std::string Core::DocumentInfo::get_basename() const
 
 UUID Core::DocumentInfo::get_current_workplane() const
 {
-    if (!m_doc->m_groups.contains(m_current_group))
+    if (!m_doc->get_groups().contains(m_current_group))
         return UUID();
-    auto &cur_group = *m_doc->m_groups.at(m_current_group);
+    auto &cur_group = m_doc->get_group(m_current_group);
     if (!cur_group.m_active_wrkpl)
         return UUID();
     auto &en = m_doc->get_entity<EntityWorkplane>(cur_group.m_active_wrkpl);
@@ -268,7 +268,7 @@ void Core::solve_current(const DraggedList &dragged)
             throw std::runtime_error("to be called in tools only");
         for (auto group : m_current_groups_sorted) {
             const auto index = group->m_index;
-            if (index > get_current_document().m_groups.at(get_current_group())->m_index)
+            if (index > get_current_document().get_group(get_current_group()).m_index)
                 break;
 
             System system{get_current_document(), group->m_uuid};
@@ -548,7 +548,7 @@ ToolResponse Core::tool_update(ToolArgs &args)
 void Core::fix_current_group()
 {
     auto grp = get_current_group();
-    if (!get_current_document().m_groups.contains(grp))
+    if (!get_current_document().get_groups().contains(grp))
         set_current_group(get_current_document().get_groups_sorted().back()->m_uuid);
 }
 

@@ -201,7 +201,7 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
                 auto &it_group = *it_body.m_group_store->get_item(i_group);
                 bool is_current = doci.get_current_group() == it_group.m_uuid;
                 it_group.m_active = is_current;
-                auto &gr = *doci.get_document().m_groups.at(it_group.m_uuid);
+                auto &gr = doci.get_document().get_group(it_group.m_uuid);
                 it_group.m_dof = gr.m_dof;
                 it_group.m_name = gr.m_name;
                 if (is_current) {

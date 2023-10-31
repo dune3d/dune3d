@@ -23,7 +23,7 @@ bool Renderer::group_is_visible(const UUID &uu) const
 {
     if (m_current_group->m_uuid == uu)
         return true;
-    auto &group = *m_doc->m_groups.at(uu);
+    auto &group = m_doc->get_group(uu);
     if (group.m_index > m_current_group->m_index)
         return false;
     if (!m_doc_view->group_is_visible(uu))
@@ -38,7 +38,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
 {
     m_doc = &doc;
     m_doc_view = &doc_view;
-    m_current_group = doc.m_groups.at(current_group).get();
+    m_current_group = &doc.get_group(current_group);
     m_current_body_group = &m_current_group->find_body(doc).group;
     m_constraints.clear();
 
@@ -105,7 +105,7 @@ void Renderer::render(const Entity &entity)
 {
     if (!entity.m_visible)
         return;
-    auto &entity_group = *m_doc->m_groups.at(entity.m_group);
+    auto &entity_group = m_doc->get_group(entity.m_group);
     if (!group_is_visible(entity.m_group))
         return;
     if (entity.m_construction && entity_group.m_uuid != m_current_group->m_uuid)
