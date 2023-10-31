@@ -5,6 +5,7 @@
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "document/constraint/constraint_point_on_line.hpp"
 #include "document/constraint/constraint_point_on_circle.hpp"
+#include "tool_common_impl.hpp"
 
 namespace dune3d {
 Constraint *ToolHelperConstrain::constrain_point(const UUID &wrkpl, const EntityAndPoint &enp_to_constrain)
