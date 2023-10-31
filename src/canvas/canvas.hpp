@@ -126,6 +126,11 @@ public:
         return m_signal_hover_selection_changed;
     }
 
+    type_signal_view_changed signal_selection_mode_changed()
+    {
+        return m_signal_selection_mode_changed;
+    }
+
     void set_appearance(const Appearance &appearance);
 
 
@@ -383,6 +388,7 @@ private:
     type_signal_view_changed m_signal_cursor_moved;
     type_signal_view_changed m_signal_selection_changed;
     type_signal_view_changed m_signal_hover_selection_changed;
+    type_signal_view_changed m_signal_selection_mode_changed;
 
     void apply_flags(VertexFlags &flags);
 

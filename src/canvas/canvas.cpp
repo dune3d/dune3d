@@ -80,6 +80,7 @@ Canvas::Canvas()
                     m_selection_mode = SelectionMode::NORMAL;
                     queue_draw();
                     m_signal_selection_changed.emit();
+                    m_signal_selection_mode_changed.emit();
                 }
             }
             else if (m_selection_mode == SelectionMode::NORMAL) {
@@ -968,6 +969,7 @@ void Canvas::set_selection_mode(SelectionMode mode)
         m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_ICONS);
         queue_draw();
     }
+    m_signal_selection_mode_changed.emit();
 }
 
 void Canvas::set_appearance(const Appearance &appearance)

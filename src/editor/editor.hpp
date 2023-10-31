@@ -140,6 +140,7 @@ private:
     WorkspaceBrowser *m_workspace_browser = nullptr;
 
     void update_workplane_label();
+    void update_selection_mode_label();
 
     Gtk::Notebook *m_properties_notebook = nullptr;
     ConstraintsBox *m_constraints_box = nullptr;

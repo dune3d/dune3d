@@ -84,6 +84,7 @@ public:
     void tool_bar_flash_replace(const std::string &s);
 
     void set_version_info(const std::string &s);
+    void set_selection_mode_label_text(const std::string &s);
 
 
 private:
@@ -126,5 +127,7 @@ private:
 
     Gtk::InfoBar *m_version_info_bar = nullptr;
     Gtk::Label *m_version_info_bar_label = nullptr;
+
+    Gtk::Label *m_selection_mode_label = nullptr;
 };
 } // namespace dune3d

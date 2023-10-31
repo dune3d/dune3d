@@ -199,6 +199,24 @@ void Editor::init_canvas()
         }
         get_canvas().set_highlight(sel);
     });
+
+    get_canvas().signal_selection_mode_changed().connect(sigc::mem_fun(*this, &Editor::update_selection_mode_label));
+    update_selection_mode_label();
+}
+
+void Editor::update_selection_mode_label()
+{
+    const auto mode = get_canvas().get_selection_mode();
+    std::string label;
+    switch (mode) {
+    case Canvas::SelectionMode::HOVER:
+        m_win.set_selection_mode_label_text("Hover select");
+        break;
+    case Canvas::SelectionMode::NORMAL:
+        m_win.set_selection_mode_label_text("Click select");
+        break;
+    default:;
+    }
 }
 
 void Editor::open_context_menu()

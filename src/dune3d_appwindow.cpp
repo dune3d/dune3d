@@ -84,6 +84,7 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_version_info_bar = refBuilder->get_widget<Gtk::InfoBar>("version_info_bar");
     m_version_info_bar_label = refBuilder->get_widget<Gtk::Label>("version_info_bar_label");
 
+    m_selection_mode_label = refBuilder->get_widget<Gtk::Label>("selection_mode_label");
 
     set_icon_name("dune3d");
 
@@ -98,6 +99,11 @@ void Dune3DAppWindow::set_workplane_label_text(const std::string &s)
 void Dune3DAppWindow::set_key_hint_label_text(const std::string &s)
 {
     m_key_hint_label->set_text(s);
+}
+
+void Dune3DAppWindow::set_selection_mode_label_text(const std::string &s)
+{
+    m_selection_mode_label->set_text(s);
 }
 
 
