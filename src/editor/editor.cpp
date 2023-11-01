@@ -110,16 +110,10 @@ void Editor::init_canvas()
         controller->signal_pressed().connect([this, controller](int n_press, double x, double y) {
             auto button = controller->get_current_button();
             if (button == 3) {
-                if (m_core.tool_is_active()) {
-                    m_context_menu_last_x = NAN;
-                    m_context_menu_last_y = NAN;
-                }
-                else {
-                    m_context_menu_last_x = x;
-                    m_context_menu_last_y = y;
-                }
+                m_rmb_last_x = x;
+                m_rmb_last_y = y;
             }
-            if (button == 1 || button == 3)
+            if (button == 1 /*|| button == 3*/)
                 handle_click(button, n_press);
             else if (button == 8)
                 trigger_action(ActionID::NEXT_GROUP);
@@ -139,13 +133,14 @@ void Editor::init_canvas()
                 }
             }
             else if (controller->get_current_button() == 3 && n_press == 1) {
-                if (isnan(m_context_menu_last_x) || isnan(m_context_menu_last_y))
-                    return;
                 const auto dist =
-                        glm::length(glm::vec2(x, y) - glm::vec2(m_context_menu_last_x, m_context_menu_last_y));
+                        glm::length(glm::vec2(x, y) - glm::vec2(m_rmb_last_x, m_rmb_last_y));
                 if (dist > 16)
                     return;
-                open_context_menu();
+                if (m_core.tool_is_active())
+                    handle_click(3, 1);
+                else
+                    open_context_menu();
             }
         });
 
