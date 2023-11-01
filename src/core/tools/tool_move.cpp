@@ -47,11 +47,17 @@ ToolResponse ToolMove::begin(const ToolArgs &args)
         if (sr.type == SelectableRef::Type::ENTITY) {
             auto &entity = get_entity(sr.item);
             get_doc().accumulate_first_group(first_group, entity.m_group);
+            m_entities.emplace(&entity, sr.point);
         }
         // we don't care about constraints since dragging them is pureley cosmetic
     }
     if (first_group)
         m_first_group = first_group->m_uuid;
+
+
+    for (auto [entity, point] : m_entities) {
+        m_dragged_list.emplace_back(entity->m_uuid, point);
+    }
 
     return ToolResponse();
 }
@@ -63,83 +69,80 @@ ToolResponse ToolMove::update(const ToolArgs &args)
     auto &last_doc = m_core.get_current_last_document();
     if (args.type == ToolEventType::MOVE) {
         const auto delta = m_intf.get_cursor_pos() - m_inital_pos;
-        for (const auto &sr : m_selection) {
-            if (sr.type == SelectableRef::Type::ENTITY) {
-                auto entity = doc.m_entities.at(sr.item).get();
-                if (!entity->can_move(doc))
-                    continue;
-                if (auto en = dynamic_cast<EntityLine3D *>(entity)) {
-                    auto &en_last = dynamic_cast<const EntityLine3D &>(*last_doc.m_entities.at(sr.item));
-                    if (sr.point == 0 || sr.point == 1) {
-                        en->m_p1 = en_last.m_p1 + delta;
-                    }
-                    if (sr.point == 0 || sr.point == 2) {
-                        en->m_p2 = en_last.m_p2 + delta;
-                    }
+        for (auto [entity, point] : m_entities) {
+            if (!entity->can_move(doc))
+                continue;
+            if (auto en = dynamic_cast<EntityLine3D *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityLine3D &>(*last_doc.m_entities.at(entity->m_uuid));
+                if (point == 0 || point == 1) {
+                    en->m_p1 = en_last.m_p1 + delta;
                 }
-                if (auto en = dynamic_cast<EntityWorkplane *>(entity)) {
-                    auto &en_last = dynamic_cast<const EntityWorkplane &>(*last_doc.m_entities.at(sr.item));
-                    en->m_origin = en_last.m_origin + delta;
-                }
-                if (auto en = dynamic_cast<EntitySTEP *>(entity)) {
-                    auto &en_last = dynamic_cast<const EntitySTEP &>(*last_doc.m_entities.at(sr.item));
-                    if (sr.point == 0 || sr.point == 1)
-                        en->m_origin = en_last.m_origin + delta;
-                    else if (en->m_anchors_transformed.contains(sr.point)
-                             && en_last.m_anchors_transformed.contains(sr.point))
-                        en->m_anchors_transformed.at(sr.point) = en_last.m_anchors_transformed.at(sr.point) + delta;
-                }
-                if (auto en = dynamic_cast<EntityLine2D *>(entity)) {
-                    auto &en_last = dynamic_cast<const EntityLine2D &>(*last_doc.m_entities.at(sr.item));
-                    auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
-                    const auto delta2d =
-                            wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal()))
-                            - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                    if (sr.point == 0 || sr.point == 1) {
-                        en->m_p1 = en_last.m_p1 + delta2d;
-                    }
-                    if (sr.point == 0 || sr.point == 2) {
-                        en->m_p2 = en_last.m_p2 + delta2d;
-                    }
-                }
-                if (auto en = dynamic_cast<EntityArc2D *>(entity)) {
-                    auto &en_last = dynamic_cast<const EntityArc2D &>(*last_doc.m_entities.at(sr.item));
-                    auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
-                    const auto delta2d =
-                            wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal()))
-                            - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                    if (sr.point == 0 || sr.point == 1) {
-                        en->m_from = en_last.m_from + delta2d;
-                    }
-                    if (sr.point == 0 || sr.point == 2) {
-                        en->m_to = en_last.m_to + delta2d;
-                    }
-                    if (sr.point == 0 || sr.point == 3) {
-                        en->m_center = en_last.m_center + delta2d;
-                    }
-                }
-                if (auto en = dynamic_cast<EntityCircle2D *>(entity)) {
-                    auto &en_last = dynamic_cast<const EntityCircle2D &>(*last_doc.m_entities.at(sr.item));
-                    auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
-
-                    if (sr.point == 1) {
-                        const auto delta2d =
-                                wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal()))
-                                - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                        en->m_center = en_last.m_center + delta2d;
-                    }
-                    else if (sr.point == 0) {
-                        const auto initial_radius = glm::length(en_last.m_center - m_inital_pos_wrkpl.at(wrkpl.m_uuid));
-                        const auto current_radius = glm::length(
-                                en->m_center
-                                - wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal())));
-
-
-                        en->m_radius = en_last.m_radius + (current_radius - initial_radius);
-                    }
+                if (point == 0 || point == 2) {
+                    en->m_p2 = en_last.m_p2 + delta;
                 }
             }
-            else if (sr.type == SelectableRef::Type::CONSTRAINT) {
+            if (auto en = dynamic_cast<EntityWorkplane *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityWorkplane &>(*last_doc.m_entities.at(entity->m_uuid));
+                en->m_origin = en_last.m_origin + delta;
+            }
+            if (auto en = dynamic_cast<EntitySTEP *>(entity)) {
+                auto &en_last = dynamic_cast<const EntitySTEP &>(*last_doc.m_entities.at(entity->m_uuid));
+                if (point == 0 || point == 1)
+                    en->m_origin = en_last.m_origin + delta;
+                else if (en->m_anchors_transformed.contains(point) && en_last.m_anchors_transformed.contains(point))
+                    en->m_anchors_transformed.at(point) = en_last.m_anchors_transformed.at(point) + delta;
+            }
+            if (auto en = dynamic_cast<EntityLine2D *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityLine2D &>(*last_doc.m_entities.at(entity->m_uuid));
+                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
+                const auto delta2d = wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal()))
+                                     - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                if (point == 0 || point == 1) {
+                    en->m_p1 = en_last.m_p1 + delta2d;
+                }
+                if (point == 0 || point == 2) {
+                    en->m_p2 = en_last.m_p2 + delta2d;
+                }
+            }
+            if (auto en = dynamic_cast<EntityArc2D *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityArc2D &>(*last_doc.m_entities.at(entity->m_uuid));
+                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
+                const auto delta2d = wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal()))
+                                     - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                if (point == 0 || point == 1) {
+                    en->m_from = en_last.m_from + delta2d;
+                }
+                if (point == 0 || point == 2) {
+                    en->m_to = en_last.m_to + delta2d;
+                }
+                if (point == 0 || point == 3) {
+                    en->m_center = en_last.m_center + delta2d;
+                }
+            }
+            if (auto en = dynamic_cast<EntityCircle2D *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityCircle2D &>(*last_doc.m_entities.at(entity->m_uuid));
+                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
+
+                if (point == 1) {
+                    const auto delta2d =
+                            wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal()))
+                            - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                    en->m_center = en_last.m_center + delta2d;
+                }
+                else if (point == 0) {
+                    const auto initial_radius = glm::length(en_last.m_center - m_inital_pos_wrkpl.at(wrkpl.m_uuid));
+                    const auto current_radius = glm::length(
+                            en->m_center
+                            - wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal())));
+
+
+                    en->m_radius = en_last.m_radius + (current_radius - initial_radius);
+                }
+            }
+        }
+
+        for (auto sr : m_selection) {
+            if (sr.type == SelectableRef::Type::CONSTRAINT) {
                 auto constraint = doc.m_constraints.at(sr.item).get();
                 if (auto co = dynamic_cast<ConstraintPointDistanceBase *>(constraint)) {
                     auto cdelta = delta;
@@ -168,14 +171,8 @@ ToolResponse ToolMove::update(const ToolArgs &args)
             }
         }
 
-        ICore::DraggedList dragged_entities;
-        for (const auto &sr : m_selection) {
-            if (sr.type == SelectableRef::Type::ENTITY)
-                dragged_entities.emplace_back(sr.item, sr.point);
-        }
-
         doc.set_group_solve_pending(m_first_group);
-        m_core.solve_current(dragged_entities);
+        m_core.solve_current(m_dragged_list);
 
         return ToolResponse();
     }
