@@ -46,8 +46,16 @@ ToolResponse ToolMove::begin(const ToolArgs &args)
     for (const auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {
             auto &entity = get_entity(sr.item);
-            get_doc().accumulate_first_group(first_group, entity.m_group);
-            m_entities.emplace(&entity, sr.point);
+            if (entity.m_move_instead.contains(sr.point)) {
+                auto &enp = entity.m_move_instead.at(sr.point);
+                auto &other_entity = get_entity(enp.entity);
+                get_doc().accumulate_first_group(first_group, other_entity.m_group);
+                m_entities.emplace(&other_entity, enp.point);
+            }
+            else {
+                get_doc().accumulate_first_group(first_group, entity.m_group);
+                m_entities.emplace(&entity, sr.point);
+            }
         }
         // we don't care about constraints since dragging them is pureley cosmetic
     }

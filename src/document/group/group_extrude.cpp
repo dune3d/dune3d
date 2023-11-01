@@ -155,6 +155,9 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_line.m_p2 = wrkpl.transform(li.get_point(pt, doc)) + dvec;
                 new_line.m_group = m_uuid;
                 new_line.m_name = "Extrusion" + std::to_string(pt);
+                new_line.m_move_instead.clear();
+                new_line.m_move_instead.emplace(std::piecewise_construct, std::forward_as_tuple(1),
+                                                std::forward_as_tuple(li.m_uuid, pt));
                 //  new_line.m_wrkpl = new_wrkpl_uu;
 
                 new_line.m_kind = ItemKind::GENRERATED;
@@ -200,6 +203,9 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_line.m_p2 = wrkpl.transform(circle.get_point(pt, doc)) + dvec;
                 new_line.m_group = m_uuid;
                 new_line.m_name = "Extrusion" + std::to_string(pt);
+                new_line.m_move_instead.clear();
+                new_line.m_move_instead.emplace(std::piecewise_construct, std::forward_as_tuple(1),
+                                                std::forward_as_tuple(circle.m_uuid, pt));
 
                 new_line.m_kind = ItemKind::GENRERATED;
             }

@@ -2,6 +2,7 @@
 #include "util/uuid.hpp"
 #include "nlohmann/json_fwd.hpp"
 #include "document/item_kind.hpp"
+#include "entity_and_point.hpp"
 #include <glm/glm.hpp>
 #include <memory>
 #include <set>
@@ -57,6 +58,8 @@ public:
 
     bool can_delete(const Document &doc) const;
     bool can_move(const Document &doc) const;
+
+    std::map<unsigned int, EntityAndPoint> m_move_instead;
 
     virtual std::set<UUID> get_referenced_entities() const;
 
