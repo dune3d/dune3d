@@ -86,7 +86,7 @@ ToolResponse ToolDrawArc2D::update(const ToolArgs &args)
 
             case State::TO:
                 if (m_constrain) {
-                    m_constraint_from = constrain_point(m_wrkpl->m_uuid, get_entity_and_point(m_state, m_flipped));
+                    m_constraint_to = constrain_point(m_wrkpl->m_uuid, get_entity_and_point(m_state, m_flipped));
                 }
                 m_state = State::CENTER;
                 break;
