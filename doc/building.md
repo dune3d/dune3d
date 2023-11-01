@@ -28,6 +28,13 @@ See [the CI configuration](../.github/workflows/all.yml) for the exact package n
 > software that Dune 3D doesn't meet yet. Also having built it from source makes it easier to get the
 > latest bugfixes and simplifies debugging.
 
+## Building and running on NixOS (Linux x86_64)
+
+To build and run the latest version of Dune3D, just use this command:
+
+```
+nix --experimental-features "nix-command flakes" run github:dune3d/dune3d
+```
 
 ## Building on Windows
 
