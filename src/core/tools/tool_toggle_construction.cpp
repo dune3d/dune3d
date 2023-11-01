@@ -13,12 +13,14 @@ bool ToolToggleConstruction::can_begin()
     auto entities = get_entities();
     if (entities.size() == 0)
         return false;
+    const bool has_normal = std::ranges::any_of(entities, [](auto x) { return !x->m_construction; });
+    const bool has_construction = std::ranges::any_of(entities, [](auto x) { return x->m_construction; });
     if (m_tool_id == ToolID::TOGGLE_CONSTRUCTION)
-        return true;
+        return has_normal && has_construction;
     else if (m_tool_id == ToolID::SET_CONSTRUCTION)
-        return std::ranges::any_of(entities, [](auto x) { return !x->m_construction; });
+        return has_normal;
     else if (m_tool_id == ToolID::UNSET_CONSTRUCTION)
-        return std::ranges::any_of(entities, [](auto x) { return x->m_construction; });
+        return has_construction;
     return false;
 }
 
