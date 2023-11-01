@@ -1,5 +1,6 @@
 #pragma once
 #include "util/uuid.hpp"
+#include "document/entity/entity_and_point.hpp"
 #include <vector>
 
 namespace dune3d {
@@ -12,7 +13,7 @@ public:
     virtual UUID get_current_group() const = 0;
     virtual UUID get_current_workplane() const = 0;
 
-    using DraggedList = std::vector<std::pair<UUID, unsigned int>>;
+    using DraggedList = std::vector<EntityAndPoint>;
 
     virtual void solve_current(const DraggedList &dragged = {}) = 0;
 };

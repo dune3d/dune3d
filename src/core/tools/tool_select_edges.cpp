@@ -66,6 +66,7 @@ ToolResponse ToolSelectEdges::update(const ToolArgs &args)
 
                 m_group->m_edges.insert(sr.point);
             }
+            set_current_group_update_solid_model_pending();
             return ToolResponse::commit();
         }
 

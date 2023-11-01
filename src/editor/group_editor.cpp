@@ -26,6 +26,7 @@ protected:
         m_operation_combo->property_selected().signal_changed().connect([this] {
             auto &group = get_group();
             group.m_operation = static_cast<GroupExtrude::Operation>(m_operation_combo->get_selected());
+            m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
             m_signal_changed.emit();
         });
         grid_attach_label_and_widget(*this, "Operation", *m_operation_combo, m_top);
@@ -64,6 +65,7 @@ public:
                 group.m_direction = GroupExtrude::Direction::NORMAL;
             else
                 group.m_direction = GroupExtrude::Direction::ARBITRARY;
+            m_core.get_current_document().set_group_solve_pending(group.m_uuid);
             m_signal_changed.emit();
         });
         add_operation_combo();
@@ -78,6 +80,7 @@ public:
             m_mode_combo->property_selected().signal_changed().connect([this] {
                 auto &group = get_group();
                 group.m_mode = static_cast<GroupExtrude::Mode>(m_mode_combo->get_selected());
+                m_core.get_current_document().set_group_generate_pending(group.m_uuid);
                 m_signal_changed.emit();
             });
             grid_attach_label_and_widget(*this, "Mode", *m_mode_combo, m_top);
@@ -120,6 +123,7 @@ public:
         m_radius_sp->set_value(group.m_radius);
         spinbutton_connect_activate_immediate(*m_radius_sp, [this] {
             get_group().m_radius = m_radius_sp->get_value();
+            m_core.get_current_document().set_group_update_solid_model_pending(get_group().m_uuid);
             m_signal_changed.emit();
         });
 
@@ -155,6 +159,7 @@ public:
         m_switch_xy->set_active(group.m_show_xy);
         m_switch_xy->property_active().signal_changed().connect([this] {
             get_group().m_show_xy = m_switch_xy->get_active();
+            get_group().generate(m_core.get_current_document());
             m_signal_changed.emit();
         });
 
@@ -165,6 +170,7 @@ public:
         m_switch_yz->set_active(group.m_show_yz);
         m_switch_yz->property_active().signal_changed().connect([this] {
             get_group().m_show_yz = m_switch_yz->get_active();
+            get_group().generate(m_core.get_current_document());
             m_signal_changed.emit();
         });
 
@@ -175,6 +181,7 @@ public:
         m_switch_zx->set_active(group.m_show_zx);
         m_switch_zx->property_active().signal_changed().connect([this] {
             get_group().m_show_zx = m_switch_zx->get_active();
+            get_group().generate(m_core.get_current_document());
             m_signal_changed.emit();
         });
     }
@@ -267,6 +274,7 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
         else
             group.m_body.reset();
         m_body_entry->set_sensitive(group.m_body.has_value());
+        m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
         m_signal_changed.emit();
     });
 }

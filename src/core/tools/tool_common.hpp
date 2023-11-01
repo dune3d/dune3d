@@ -28,6 +28,10 @@ protected:
         return add_constraint<T>(UUID::random());
     }
 
+    void set_current_group_solve_pending();
+    void set_current_group_generate_pending();
+    void set_current_group_update_solid_model_pending();
+
     EntityWorkplane *get_workplane();
 
     Document &get_doc();

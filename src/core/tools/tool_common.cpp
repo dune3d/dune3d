@@ -23,4 +23,19 @@ EntityWorkplane *ToolCommon::get_workplane()
         return nullptr;
 }
 
+void ToolCommon::set_current_group_solve_pending()
+{
+    get_doc().set_group_solve_pending(m_core.get_current_group());
+}
+
+void ToolCommon::set_current_group_generate_pending()
+{
+    get_doc().set_group_generate_pending(m_core.get_current_group());
+}
+
+void ToolCommon::set_current_group_update_solid_model_pending()
+{
+    get_doc().set_group_update_solid_model_pending(m_core.get_current_group());
+}
+
 } // namespace dune3d

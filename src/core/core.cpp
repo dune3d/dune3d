@@ -122,9 +122,6 @@ Core::DocumentInfo::DocumentInfo(const UUID &uu) : m_uuid(uu)
 Core::DocumentInfo::DocumentInfo(const UUID &uu, const std::filesystem::path &path)
     : m_uuid(uu), m_path(path), m_doc(Document::new_from_file(path))
 {
-    m_doc->generate_all();
-    m_doc->solve_all();
-    m_doc->update_solid_models();
     history_push("init");
     m_current_group = m_doc->get_groups_sorted().front()->m_uuid;
 }
@@ -263,26 +260,11 @@ ToolID Core::get_tool_id() const
 
 void Core::solve_current(const DraggedList &dragged)
 {
-    {
-        if (!tool_is_active())
-            throw std::runtime_error("to be called in tools only");
-        for (auto group : m_current_groups_sorted) {
-            const auto index = group->get_index();
-            if (index > get_current_document().get_group(get_current_group()).get_index())
-                break;
 
-            System system{get_current_document(), group->m_uuid};
-            for (const auto &[en, pt] : dragged) {
-                system.add_dragged(en, pt);
-            }
-            system.solve();
-            system.update_document();
-            {
-                if (auto gr = dynamic_cast<IGroupSolidModel *>(group))
-                    gr->update_solid_model(get_current_document());
-            }
-        }
-    }
+    if (!tool_is_active())
+        throw std::runtime_error("to be called in tools only");
+    auto &doc = get_current_document();
+    doc.update_pending(get_current_group(), dragged);
 }
 
 Core::ToolStateSetter::ToolStateSetter(ToolState &s, ToolState target) : m_state(s)
@@ -560,9 +542,7 @@ void Core::rebuild_internal(bool from_undo, const std::string &comment)
     for (auto &[uu, en] : get_current_document().m_entities) {
         en->m_selection_invisible = false;
     }
-    get_current_document().generate_all();
-    get_current_document().solve_all();
-    get_current_document().update_solid_models();
+    get_current_document().update_pending();
     //  frame.expand();
     rebuild_finish(from_undo, comment);
 }

@@ -69,6 +69,7 @@ ToolResponse ToolEnterDatum::update(const ToolArgs &args)
             if (data->event == ToolDataWindow::Event::UPDATE) {
                 if (auto d = dynamic_cast<const ToolDataEnterDatumWindow *>(args.data.get())) {
                     m_constraint->set_datum(d->value);
+                    set_current_group_solve_pending();
                     m_core.solve_current();
                 }
             }

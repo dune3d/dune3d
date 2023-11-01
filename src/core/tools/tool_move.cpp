@@ -1,5 +1,6 @@
 #include "tool_move.hpp"
 #include "document/document.hpp"
+#include "document/group/group.hpp"
 #include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_line2d.hpp"
 #include "document/entity/entity_arc2d.hpp"
@@ -41,6 +42,16 @@ ToolResponse ToolMove::begin(const ToolArgs &args)
                     uu, wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal())));
         }
     }
+    const Group *first_group = nullptr;
+    for (const auto &sr : m_selection) {
+        if (sr.type == SelectableRef::Type::ENTITY) {
+            auto &entity = get_entity(sr.item);
+            get_doc().accumulate_first_group(first_group, entity.m_group);
+        }
+        // we don't care about constraints since dragging them is pureley cosmetic
+    }
+    if (first_group)
+        m_first_group = first_group->m_uuid;
 
     return ToolResponse();
 }
@@ -163,6 +174,7 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                 dragged_entities.emplace_back(sr.item, sr.point);
         }
 
+        doc.set_group_solve_pending(m_first_group);
         m_core.solve_current(dragged_entities);
 
         return ToolResponse();

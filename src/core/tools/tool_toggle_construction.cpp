@@ -1,6 +1,7 @@
 #include "tool_toggle_construction.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity.hpp"
+#include "document/group/group.hpp"
 #include "core/tool_id.hpp"
 #include "tool_common_impl.hpp"
 #include <algorithm>
@@ -42,7 +43,10 @@ ToolResponse ToolToggleConstruction::begin(const ToolArgs &args)
     if (entities.size() == 0)
         return ToolResponse::end();
 
+    const Group *first_group = nullptr;
+
     for (auto en : entities) {
+        get_doc().accumulate_first_group(first_group, en->m_group);
         switch (m_tool_id) {
         case ToolID::TOGGLE_CONSTRUCTION:
             en->m_construction = !en->m_construction;
@@ -57,6 +61,8 @@ ToolResponse ToolToggleConstruction::begin(const ToolArgs &args)
         default:;
         }
     }
+    if (first_group)
+        get_doc().set_group_generate_pending(first_group->m_uuid);
 
     return ToolResponse::commit();
 }

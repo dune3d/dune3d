@@ -48,8 +48,7 @@ json Document::serialize() const
     {
         auto o = json::object();
         for (const auto &[uu, it] : m_constraints) {
-            if (it->m_kind == ItemKind::USER)
-                o[uu] = it->serialize();
+            o[uu] = it->serialize();
         }
         j["constraints"] = o;
     }
@@ -74,7 +73,7 @@ Document::Document() : m_version(app_version)
     sketch.m_name = "Sketch";
     sketch.m_active_wrkpl = grp.get_workplane_xy_uuid();
 
-    generate_all();
+    set_group_generate_pending(grp.m_uuid);
 }
 
 Document::Document(const json &j, const std::filesystem::path &containing_dir) : m_version(app_version, j)
@@ -92,7 +91,9 @@ Document::Document(const json &j, const std::filesystem::path &containing_dir) :
                          std::forward_as_tuple(Group::new_from_json(uu, it)));
     }
 
-    generate_all();
+    if (m_groups.size())
+        set_group_generate_pending(get_groups_sorted().front()->m_uuid);
+    update_pending();
 
     erase_invalid();
 }
@@ -155,46 +156,99 @@ std::vector<Document::BodyGroups> Document::get_groups_by_body() const
     return r;
 }
 
-void Document::generate_all()
+void Document::update_pending(const UUID &last_group_to_update, const std::vector<EntityAndPoint> &dragged)
 {
-    for (auto &[uu, it] : m_entities) {
-        if (it->m_kind == ItemKind::GENRERATED)
-            it->m_kind = ItemKind::GENRERATED_STALE;
-    }
-    for (auto &[uu, it] : m_constraints) {
-        if (it->m_kind == ItemKind::GENRERATED)
-            it->m_kind = ItemKind::GENRERATED_STALE;
-    }
+    auto groups_sorted = get_groups_sorted();
+    auto get_first_index = [this](const UUID &uu) {
+        if (uu)
+            return get_group(uu).get_index();
+        else
+            return INT_MAX;
+    };
 
-    for (auto group : get_groups_sorted()) {
-        if (auto gg = dynamic_cast<IGroupGenerate *>(group))
-            gg->generate(*this);
-    }
-
-    map_erase_if(m_entities, [](auto &x) { return x.second->m_kind == ItemKind::GENRERATED_STALE; });
-    map_erase_if(m_constraints, [](auto &x) { return x.second->m_kind == ItemKind::GENRERATED_STALE; });
-    erase_invalid();
-}
-
-void Document::update_solid_models()
-{
-    for (auto group : get_groups_sorted()) {
-        if (auto gr = dynamic_cast<IGroupSolidModel *>(group))
-            gr->update_solid_model(*this);
-    }
-}
-
-void Document::solve_all()
-{
-    for (auto group : get_groups_sorted()) {
-        if (group->get_type() == Group::Type::REFERENCE) {
-            group->m_dof = 0;
-            continue;
+    const auto first_generate_index = get_first_index(m_first_group_generate);
+    const auto first_solve_index = get_first_index(m_first_group_solve);
+    const auto first_update_solid_model_index = get_first_index(m_first_group_update_solid_model);
+    const Group *last_group = nullptr;
+    // first pass: generate
+    if (m_first_group_generate) {
+        for (auto group : groups_sorted) {
+            if (last_group && last_group->m_uuid == last_group_to_update) {
+                // we've seen all groups we needed to see, update to the rest
+                if (m_first_group_generate)
+                    m_first_group_generate = group->m_uuid;
+                break;
+            }
+            const auto index = group->get_index();
+            if (index >= first_generate_index) {
+                generate_group(*group);
+            }
+            last_group = group;
         }
-        System system{*this, group->m_uuid};
-        system.solve();
-        system.update_document();
     }
+    if (!last_group_to_update)
+        m_first_group_generate = UUID();
+
+    erase_invalid();
+
+    last_group = nullptr;
+    for (auto group : groups_sorted) {
+        if (last_group && last_group->m_uuid == last_group_to_update) {
+            // we've seen all groups we needed to see, update to the rest
+            if (m_first_group_solve)
+                m_first_group_solve = group->m_uuid;
+            if (m_first_group_update_solid_model)
+                m_first_group_update_solid_model = group->m_uuid;
+            return;
+        }
+        const auto index = group->get_index();
+        if (index >= first_solve_index) {
+            solve_group(*group, dragged);
+        }
+        if (index >= first_update_solid_model_index) {
+            update_solid_model(*group);
+        }
+
+        last_group = group;
+    }
+    // we've seen all groups, reset all pendings
+    m_first_group_solve = UUID();
+    m_first_group_update_solid_model = UUID();
+}
+
+void Document::generate_group(Group &group)
+{
+    if (auto gg = dynamic_cast<IGroupGenerate *>(&group)) {
+        for (auto &[uu, it] : m_entities) {
+            if (it->m_group == group.m_uuid && it->m_kind == ItemKind::GENRERATED)
+                it->m_kind = ItemKind::GENRERATED_STALE;
+        }
+        gg->generate(*this);
+        map_erase_if(m_entities, [&group](auto &x) {
+            return x.second->m_group == group.m_uuid && x.second->m_kind == ItemKind::GENRERATED_STALE;
+        });
+    }
+}
+
+
+void Document::update_solid_model(Group &group)
+{
+    if (auto gr = dynamic_cast<IGroupSolidModel *>(&group))
+        gr->update_solid_model(*this);
+}
+
+void Document::solve_group(Group &group, const std::vector<EntityAndPoint> &dragged)
+{
+    if (group.get_type() == Group::Type::REFERENCE) {
+        group.m_dof = 0;
+        return;
+    }
+    System system{*this, group.m_uuid};
+    for (const auto &[en, pt] : dragged) {
+        system.add_dragged(en, pt);
+    }
+    system.solve();
+    system.update_document();
 }
 
 void Document::insert_group(std::unique_ptr<Group> new_group, const UUID &after)
@@ -284,6 +338,34 @@ size_t Document::ItemsToDelete::size() const
     return entities.size() + groups.size() + constraints.size();
 }
 
+void Document::accumulate_first_group(const Group *&first_group, const UUID &group_uu) const
+{
+    auto &group = get_group(group_uu);
+    if (!first_group || group.get_index() < first_group->get_index())
+        first_group = &group;
+}
+
+UUID Document::ItemsToDelete::get_first_group(const Document &doc) const
+{
+    const Group *first_group = nullptr;
+    for (const auto &uu : groups) {
+        doc.accumulate_first_group(first_group, uu);
+    }
+    for (const auto &uu : entities) {
+        auto &en = doc.get_entity(uu);
+        doc.accumulate_first_group(first_group, en.m_group);
+    }
+    for (const auto &uu : constraints) {
+        auto &co = doc.get_constraint(uu);
+        doc.accumulate_first_group(first_group, co.m_group);
+    }
+
+    if (first_group)
+        return first_group->m_uuid;
+    else
+        return UUID();
+}
+
 Document::ItemsToDelete Document::get_additional_items_to_delete(const ItemsToDelete &items_initial) const
 {
     ItemsToDelete items = items_initial;
@@ -356,6 +438,7 @@ Document::ItemsToDelete Document::get_additional_items_to_delete(const ItemsToDe
 
 void Document::delete_items(const ItemsToDelete &items)
 {
+    set_group_generate_pending(items.get_first_group(*this));
     for (auto &it : items.entities) {
         m_entities.erase(it);
     }
@@ -382,6 +465,35 @@ glm::dvec3 Document::get_point(const EntityAndPoint &ep) const
 bool Document::is_valid_point(const EntityAndPoint &ep) const
 {
     return get_entity(ep.entity).is_valid_point(ep.point);
+}
+
+void Document::update_group_if_less(UUID &uu, const UUID &new_group)
+{
+    if (uu == UUID()) {
+        uu = new_group;
+        return;
+    }
+    auto current_index = get_group(uu).get_index();
+    auto new_index = get_group(new_group).get_index();
+    if (new_index < current_index)
+        uu = new_group;
+}
+
+void Document::set_group_generate_pending(const UUID &group)
+{
+    update_group_if_less(m_first_group_generate, group);
+    set_group_solve_pending(group);
+}
+
+void Document::set_group_solve_pending(const UUID &group)
+{
+    update_group_if_less(m_first_group_solve, group);
+    set_group_update_solid_model_pending(group);
+}
+
+void Document::set_group_update_solid_model_pending(const UUID &group)
+{
+    update_group_if_less(m_first_group_update_solid_model, group);
 }
 
 Document::~Document() = default;

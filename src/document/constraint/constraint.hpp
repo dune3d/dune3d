@@ -52,8 +52,6 @@ public:
 
     UUID m_group;
 
-    ItemKind m_kind = ItemKind::USER;
-
     virtual std::set<UUID> get_referenced_entities() const = 0;
 
     bool m_modify_to_satisfy = false;

@@ -36,5 +36,6 @@ public:
 private:
     glm::dvec3 m_inital_pos;
     std::map<UUID, glm::dvec2> m_inital_pos_wrkpl;
+    UUID m_first_group;
 };
 } // namespace dune3d
