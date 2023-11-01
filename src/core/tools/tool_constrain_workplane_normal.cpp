@@ -9,48 +9,63 @@
 #include "util/selection_util.hpp"
 #include "editor/editor_interface.hpp"
 #include "tool_common_impl.hpp"
+#include "util/action_label.hpp"
 
 
 namespace dune3d {
 
-static std::optional<UUID> one_wrkpl_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+EntityWorkplane *ToolConstrainWorkplaneNormal::get_wrkpl()
 {
-    if (sel.size() != 1)
+    if (m_selection.size() != 1)
         return {};
-    auto it = sel.begin();
+    auto it = m_selection.begin();
     auto &sr1 = *it++;
 
     if (sr1.type != SelectableRef::Type::ENTITY)
         return {};
 
-    auto &en1 = doc.get_entity(sr1.item);
-    if (en1.get_type() == Entity::Type::WORKPLANE)
-        return {en1.m_uuid};
+    auto &en1 = get_entity(sr1.item);
+    if (en1.get_type() == Entity::Type::WORKPLANE) {
+        auto &wrkpl = dynamic_cast<EntityWorkplane &>(en1);
+        if (en1.m_group == m_core.get_current_group() && en1.m_kind == ItemKind::USER)
+            return &wrkpl;
+    }
 
-    return {};
+    return nullptr;
 }
 
 bool ToolConstrainWorkplaneNormal::can_begin()
 {
-    return one_wrkpl_from_selection(get_doc(), m_selection).has_value();
+    return get_wrkpl();
 }
 
 ToolResponse ToolConstrainWorkplaneNormal::begin(const ToolArgs &args)
 {
-    auto tp = one_wrkpl_from_selection(get_doc(), m_selection);
-
-    if (!tp.has_value())
-        return ToolResponse::end();
-
-    m_wrkpl = &get_doc().get_entity<EntityWorkplane>(*tp);
-
-    if (m_wrkpl->m_group != m_core.get_current_group())
+    m_wrkpl = get_wrkpl();
+    if (!m_wrkpl)
         return ToolResponse::end();
 
     m_intf.enable_hover_selection();
 
+    m_constraint = &add_constraint<ConstraintWorkplaneNormal>();
+    m_constraint->m_wrkpl = m_wrkpl->m_uuid;
+    update_tip();
 
     return ToolResponse();
+}
+
+void ToolConstrainWorkplaneNormal::update_tip()
+{
+    std::vector<ActionLabelInfo> actions;
+
+    if (m_line1)
+        actions.emplace_back(InToolActionID::LMB, "select other vector");
+    else
+        actions.emplace_back(InToolActionID::LMB, "select u vector");
+
+    actions.emplace_back(InToolActionID::RMB, "end tool");
+
+    m_intf.tool_bar_set_actions(actions);
 }
 
 ToolResponse ToolConstrainWorkplaneNormal::update(const ToolArgs &args)
@@ -66,31 +81,38 @@ ToolResponse ToolConstrainWorkplaneNormal::update(const ToolArgs &args)
             if (hsel->type != SelectableRef::Type::ENTITY)
                 return ToolResponse();
 
-            if (hsel->point != 0)
+            if (hsel->point != 0) {
+                m_intf.tool_bar_flash("please click on a line");
                 return ToolResponse();
+            }
 
             auto &entity = get_entity(hsel->item);
-            if (entity.get_type() != Entity::Type::LINE_2D && entity.get_type() != Entity::Type::LINE_3D)
+            if (entity.get_type() != Entity::Type::LINE_2D && entity.get_type() != Entity::Type::LINE_3D) {
+                m_intf.tool_bar_flash("please click on a line");
                 return ToolResponse();
+            }
 
-            if (entity.m_group == m_core.get_current_group())
+            if (entity.m_group == m_core.get_current_group()) {
+                m_intf.tool_bar_flash("please click on a line from a previous group");
                 return ToolResponse();
+            }
 
             if (m_line1 == nullptr) {
                 m_line1 = &entity;
+                update_tip();
             }
             else {
-                auto &constraint = add_constraint<ConstraintWorkplaneNormal>();
-                constraint.m_line1 = m_line1->m_uuid;
-                constraint.m_line2 = entity.m_uuid;
-                constraint.m_wrkpl = m_wrkpl->m_uuid;
-                auto uvn = constraint.get_uvn(get_doc());
-                if (!uvn.has_value())
-                    return ToolResponse::revert();
+                m_constraint->m_line1 = m_line1->m_uuid;
+                m_constraint->m_line2 = entity.m_uuid;
+                auto uvn = m_constraint->get_uvn(get_doc());
+                if (!uvn.has_value()) {
+                    m_intf.tool_bar_flash("line has no coincident point with first line");
+                    return ToolResponse();
+                }
 
                 auto d = glm::dot(glm::vec3(uvn->n), m_intf.get_cam_normal());
                 if (d > 0)
-                    constraint.m_flip_normal = true;
+                    m_constraint->m_flip_normal = true;
 
                 return ToolResponse::commit();
             }
@@ -100,8 +122,6 @@ ToolResponse ToolConstrainWorkplaneNormal::update(const ToolArgs &args)
         } break;
 
         case InToolActionID::RMB:
-
-
         case InToolActionID::CANCEL:
 
             return ToolResponse::revert();
