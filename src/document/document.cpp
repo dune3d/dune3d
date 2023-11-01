@@ -160,7 +160,7 @@ void Document::update_pending(const UUID &last_group_to_update, const std::vecto
 {
     auto groups_sorted = get_groups_sorted();
     auto get_first_index = [this](const UUID &uu) {
-        if (uu)
+        if (m_groups.contains(uu))
             return get_group(uu).get_index();
         else
             return INT_MAX;
