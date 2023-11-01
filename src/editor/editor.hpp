@@ -80,8 +80,8 @@ private:
     const Canvas &get_canvas() const;
 
     Gtk::PopoverMenu *m_context_menu = nullptr;
-    double m_context_menu_last_x = NAN;
-    double m_context_menu_last_y = NAN;
+    double m_rmb_last_x = NAN;
+    double m_rmb_last_y = NAN;
     std::set<SelectableRef> m_context_menu_selection;
     void open_context_menu();
 
