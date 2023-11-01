@@ -4,13 +4,24 @@
 
 You're going to need these dependencies:
 
- - gtkmm4
- - libepoxy
- - eigen
- - opencascade (oce doesn't appear to compile)
+ - gtkmm-4.0
+ - cairomm
+ - opencascade
  - mimalloc
- - glm
- - range-v3
+ - uuid
+ - pkg-config (build-time only)
+ - librsvg (build-time only)
+ - glm (build-time only, since it's just headers)
+ - python (build-time only)
+ - cmake (build-time only)
+ - meson (build-time only)
+ - eigen  (build-time only, since it's just headers)
+ - range-v3  (build-time only, since it's just headers)
+ - git (build-time only, required when building from a git repo)
+ - python-gobject (build-time only)
+ - python-cairo (build-time only)
+
+And a C++ compiler that supports `format`.
 
 Then run
 ```
