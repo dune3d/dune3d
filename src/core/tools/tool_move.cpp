@@ -149,6 +149,9 @@ ToolResponse ToolMove::update(const ToolArgs &args)
             }
         }
 
+        doc.set_group_solve_pending(m_first_group);
+        m_core.solve_current(m_dragged_list);
+
         for (auto sr : m_selection) {
             if (sr.type == SelectableRef::Type::CONSTRAINT) {
                 auto constraint = doc.m_constraints.at(sr.item).get();
@@ -163,7 +166,8 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                     }
                     auto &co_last =
                             dynamic_cast<const ConstraintPointDistanceBase &>(*last_doc.m_constraints.at(sr.item));
-                    co->m_offset = co_last.m_offset + cdelta;
+                    const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));
+                    co->m_offset = co_last.m_offset + cdelta - odelta;
                 }
                 if (auto co = dynamic_cast<ConstraintDiameterRadius *>(constraint)) {
                     auto &en = doc.get_entity(co->m_entity);
@@ -174,13 +178,12 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                             - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
 
                     auto &co_last = dynamic_cast<const ConstraintDiameterRadius &>(*last_doc.m_constraints.at(sr.item));
-                    co->m_offset = co_last.m_offset + delta2d;
+                    const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));
+                    co->m_offset = co_last.m_offset + delta2d - odelta;
                 }
             }
         }
 
-        doc.set_group_solve_pending(m_first_group);
-        m_core.solve_current(m_dragged_list);
 
         return ToolResponse();
     }

@@ -71,5 +71,12 @@ void ConstraintPointDistance::accept(ConstraintVisitor &visitor) const
     visitor.visit(*this);
 }
 
+glm::dvec3 ConstraintPointDistanceBase::get_origin(const Document &doc) const
+{
+    glm::vec3 from = doc.get_point(m_entity1);
+    glm::vec3 to = doc.get_point(m_entity2);
+    glm::vec3 mid = (from + to) / 2.f;
+    return mid;
+}
 
 } // namespace dune3d

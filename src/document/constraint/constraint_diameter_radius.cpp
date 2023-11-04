@@ -3,6 +3,7 @@
 #include "document/document.hpp"
 #include "document/entity/ientity_radius.hpp"
 #include "document/entity/entity.hpp"
+#include "document/entity/entity_workplane.hpp"
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
 #include "constraint_visitor.hpp"
@@ -61,6 +62,13 @@ double ConstraintDiameterRadius::measure_radius(const Document &doc)
 void ConstraintDiameterRadius::accept(ConstraintVisitor &visitor) const
 {
     visitor.visit(*this);
+}
+
+glm::dvec2 ConstraintDiameterRadius::get_origin(const Document &doc) const
+{
+    auto &en = doc.get_entity(m_entity);
+    auto &en_radius = dynamic_cast<const IEntityRadius &>(en);
+    return en_radius.get_center();
 }
 
 } // namespace dune3d

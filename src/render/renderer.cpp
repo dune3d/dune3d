@@ -353,8 +353,7 @@ void Renderer::visit(const ConstraintPointDistance &constr)
     m_ca.set_vertex_constraint(true);
     glm::vec3 from = m_doc->get_point(constr.m_entity1);
     glm::vec3 to = m_doc->get_point(constr.m_entity2);
-    glm::vec3 mid = (from + to) / 2.f;
-    auto p = mid + static_cast<glm::vec3>(constr.m_offset);
+    auto p = constr.get_origin(*m_doc) + constr.m_offset;
     if (constr.m_wrkpl) {
         auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constr.m_wrkpl);
         p = wrkpl.project3(p);
@@ -394,7 +393,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     auto &en_radius = dynamic_cast<const IEntityRadius &>(en);
     auto &en_wrkpl = dynamic_cast<const IEntityInWorkplane &>(en);
     auto &wrkpl = m_doc->get_entity<EntityWorkplane>(en_wrkpl.get_workplane());
-    const auto center = wrkpl.project(en.get_point(en.get_type() == Entity::Type::CIRCLE_2D ? 1 : 3, *m_doc));
+    const auto center = en_radius.get_center();
     const auto radius = en_radius.get_radius();
     const auto offset_norm = glm::normalize(constr.m_offset);
 

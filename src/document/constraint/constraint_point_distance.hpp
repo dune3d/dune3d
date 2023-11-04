@@ -19,6 +19,7 @@ public:
 
     double m_distance = 1;
     glm::dvec3 m_offset = {0, 0, 0};
+    glm::dvec3 get_origin(const Document &doc) const;
 
     virtual double measure_distance(const Document &doc) const = 0;
 

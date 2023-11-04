@@ -17,6 +17,7 @@ public:
     UUID m_entity;
     double m_distance = 1;
     glm::dvec2 m_offset = {1, 0};
+    glm::dvec2 get_origin(const Document &doc) const;
 
     virtual double get_diameter() const = 0;
     virtual void measure(const Document &doc) = 0;
