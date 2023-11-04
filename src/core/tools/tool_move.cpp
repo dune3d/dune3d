@@ -4,6 +4,7 @@
 #include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_line2d.hpp"
 #include "document/entity/entity_arc2d.hpp"
+#include "document/entity/entity_arc3d.hpp"
 #include "document/entity/entity_circle2d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
@@ -125,6 +126,18 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                 }
                 if (point == 0 || point == 3) {
                     en->m_center = en_last.m_center + delta2d;
+                }
+            }
+            if (auto en = dynamic_cast<EntityArc3D *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityArc3D &>(*last_doc.m_entities.at(entity->m_uuid));
+                if (point == 0 || point == 1) {
+                    en->m_from = en_last.m_from + delta;
+                }
+                if (point == 0 || point == 2) {
+                    en->m_to = en_last.m_to + delta;
+                }
+                if (point == 0 || point == 3) {
+                    en->m_center = en_last.m_center + delta;
                 }
             }
             if (auto en = dynamic_cast<EntityCircle2D *>(entity)) {

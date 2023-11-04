@@ -600,7 +600,8 @@ void System::add_dragged(const UUID &entity, unsigned int point)
     switch (entity_type) {
     case Entity::Type::LINE_3D:
     case Entity::Type::LINE_2D:
-    case Entity::Type::ARC_2D: {
+    case Entity::Type::ARC_2D:
+    case Entity::Type::ARC_3D: {
         for (const auto &[idx, param_ref] : m_param_refs) {
             if (param_ref.type == ParamRef::Type::ENTITY && param_ref.item == entity
                 && (param_ref.point == point || point == 0))
