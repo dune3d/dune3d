@@ -6,6 +6,7 @@
 #include "line_renderer.hpp"
 #include "glyph_renderer.hpp"
 #include "icon_renderer.hpp"
+#include "box_selection.hpp"
 #include "icanvas.hpp"
 #include "color.hpp"
 #include "bitmask_operators.hpp"
@@ -25,6 +26,7 @@ public:
     friend IconRenderer;
     friend BaseRenderer;
     friend struct UBOBuffer;
+    friend BoxSelection;
     Canvas();
 
     void request_push();
@@ -59,7 +61,7 @@ public:
     glm::vec3 get_cam_normal() const;
     glm::dvec2 get_cursor_pos_win() const;
 
-    enum class SelectionMode { HOVER, NORMAL, HOVER_ONLY, NONE };
+    enum class SelectionMode { HOVER, NORMAL, HOVER_ONLY, DRAG, NONE };
     void set_selection_mode(SelectionMode mode);
     SelectionMode get_selection_mode() const
     {
@@ -138,6 +140,11 @@ public:
 
     void set_highlight(const std::set<SelectableRef> &sr);
 
+    void inhibit_drag_selection()
+    {
+        m_inhibit_drag_selection = true;
+    }
+
 private:
     BackgroundRenderer m_background_renderer;
     FaceRenderer m_face_renderer;
@@ -145,6 +152,7 @@ private:
     LineRenderer m_line_renderer;
     GlyphRenderer m_glyph_renderer;
     IconRenderer m_icon_renderer;
+    BoxSelection m_box_selection;
     unsigned int m_pick_base = 1;
 
     Appearance m_appearance;
@@ -245,6 +253,8 @@ private:
 
     enum class PanMode { NONE, MOVE, ROTATE };
     PanMode m_pan_mode = PanMode::NONE;
+
+    void handle_click_release();
 
     glm::vec2 m_pointer_pos_orig;
     float m_cam_azimuth_orig;
@@ -376,7 +386,9 @@ private:
     };
 
     std::map<VertexType, PickInfo> m_vertex_type_picks;
-    VertexType get_vertex_type_for_pick(unsigned int pick) const;
+    VertexRef get_vertex_ref_for_pick(unsigned int pick) const;
+    std::optional<SelectableRef> get_selectable_ref_for_vertex_ref(const VertexRef &vref) const;
+    std::optional<SelectableRef> get_selectable_ref_for_pick(unsigned int pick) const;
 
     SelectionMode m_selection_mode = SelectionMode::HOVER;
     std::optional<SelectableRef> m_hover_selection;
@@ -393,6 +405,14 @@ private:
     void apply_flags(VertexFlags &flags);
 
     void set_flag_for_selectables(const std::set<SelectableRef> &sr, VertexFlags flag);
+
+    glm::vec2 m_drag_selection_start;
+    SelectionMode m_last_selection_mode = SelectionMode::NONE;
+    bool m_dragging = false;
+    void update_drag_selection(glm::vec2 pos);
+    bool m_inhibit_drag_selection = false;
+
+    int m_scale_factor = 1;
 };
 
 } // namespace dune3d

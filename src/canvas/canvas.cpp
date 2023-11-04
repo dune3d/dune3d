@@ -17,7 +17,7 @@ namespace dune3d {
 
 Canvas::Canvas()
     : m_background_renderer(*this), m_face_renderer(*this), m_point_renderer(*this), m_line_renderer(*this),
-      m_glyph_renderer(*this), m_icon_renderer(*this)
+      m_glyph_renderer(*this), m_icon_renderer(*this), m_box_selection(*this)
 {
     set_can_focus(true);
     set_focusable(true);
@@ -75,15 +75,7 @@ Canvas::Canvas()
         auto controller = Gtk::GestureClick::create();
         controller->set_button(1);
         controller->signal_pressed().connect([this, controller](int n_press, double x, double y) {
-            if (m_selection_mode == SelectionMode::HOVER) {
-                if (m_hover_selection.has_value()) {
-                    m_selection_mode = SelectionMode::NORMAL;
-                    queue_draw();
-                    m_signal_selection_changed.emit();
-                    m_signal_selection_mode_changed.emit();
-                }
-            }
-            else if (m_selection_mode == SelectionMode::NORMAL) {
+            if (m_selection_mode == SelectionMode::NORMAL) {
                 if (m_hover_selection.has_value()) {
                     auto sel = get_selection();
                     if (sel.contains(m_hover_selection.value()))
@@ -96,7 +88,14 @@ Canvas::Canvas()
                     set_selection({}, true);
                 }
             }
+            if (m_selection_mode == SelectionMode::NORMAL || m_selection_mode == SelectionMode::HOVER) {
+                m_drag_selection_start = {x, y};
+                m_dragging = true;
+            }
+            m_last_selection_mode = m_selection_mode;
         });
+        controller->signal_released().connect([this](int n_press, double x, double y) { handle_click_release(); });
+        controller->signal_cancel().connect([this](auto seq) { handle_click_release(); });
         add_controller(controller);
     }
 
@@ -129,6 +128,35 @@ Canvas::Canvas()
         grab_focus();
         m_last_x = x;
         m_last_y = y;
+        if (m_dragging && !m_inhibit_drag_selection) {
+            if (m_selection_mode == SelectionMode::DRAG) {
+                update_drag_selection({x, y});
+                return;
+            }
+            const auto delta_drag = glm::abs(glm::mat2(1, 0, 0, -1) * (glm::vec2(x, y) - m_drag_selection_start));
+            if (delta_drag.x > 16 || delta_drag.y > 16) {
+                set_selection_mode(SelectionMode::DRAG);
+                m_box_selection.set_active(true);
+                auto mask = VertexFlags::HOVER;
+                for (auto &x : m_lines) {
+                    x.flags &= ~mask;
+                }
+                for (auto &x : m_points) {
+                    x.flags &= ~mask;
+                }
+                for (auto &x : m_glyphs) {
+                    x.flags &= ~mask;
+                }
+                for (auto &x : m_face_groups) {
+                    x.flags &= ~mask;
+                }
+                for (auto &x : m_icons) {
+                    x.flags &= ~mask;
+                }
+                update_drag_selection({x, y});
+                return;
+            }
+        }
         const auto delta = glm::mat2(1, 0, 0, -1) * (glm::vec2(x, y) - m_pointer_pos_orig);
         if (m_pan_mode == PanMode::ROTATE) {
             set_cam_azimuth(m_cam_azimuth_orig - (delta.x / m_width) * 360);
@@ -148,6 +176,64 @@ Canvas::Canvas()
     });
     add_controller(controller);
 }
+
+void Canvas::handle_click_release()
+{
+    m_dragging = false;
+    m_inhibit_drag_selection = false;
+    if (m_last_selection_mode == SelectionMode::NONE || m_last_selection_mode == SelectionMode::HOVER)
+        return;
+    if (m_selection_mode == SelectionMode::DRAG) {
+        m_box_selection.set_active(false);
+        set_selection_mode(SelectionMode::NORMAL);
+        m_signal_selection_changed.emit();
+    }
+    else if (m_selection_mode == SelectionMode::HOVER) {
+        if (m_hover_selection.has_value()) {
+            m_selection_mode = SelectionMode::NORMAL;
+            queue_draw();
+            m_signal_selection_changed.emit();
+            m_signal_selection_mode_changed.emit();
+        }
+    }
+}
+
+void Canvas::update_drag_selection(glm::vec2 pos)
+{
+    m_box_selection.set_box(m_drag_selection_start, pos);
+    const auto a = glm::min(m_drag_selection_start, pos);
+    const auto b = glm::max(m_drag_selection_start, pos);
+    const auto x0 = static_cast<int>(a.x);
+    const auto y0 = static_cast<int>(a.y);
+    const auto x1 = static_cast<int>(b.x);
+    const auto y1 = static_cast<int>(b.y);
+    std::set<int> picks;
+    std::set<int> picks_border;
+    for (int x = x0; x <= x1; x++) {
+        for (int y = y0; y <= y1; y++) {
+            const bool is_border = (x == x0) || (x == x1) || (y == y0) || (y == y1);
+            const auto pick = read_pick_buf(x, y);
+            if (pick) {
+                if (is_border)
+                    picks_border.insert(pick);
+                else
+                    picks.insert(pick);
+            }
+        }
+    }
+
+    std::set<SelectableRef> sel;
+    for (const auto pick : picks) {
+        if (auto sr = get_selectable_ref_for_pick(pick))
+            sel.insert(*sr);
+    }
+    for (const auto pick : picks_border) {
+        if (auto sr = get_selectable_ref_for_pick(pick))
+            sel.erase(*sr);
+    }
+    set_selection(sel, false);
+}
+
 
 void Canvas::end_pan()
 {
@@ -285,14 +371,30 @@ void Canvas::set_center(glm::vec3 center)
     m_signal_view_changed.emit();
 }
 
-Canvas::VertexType Canvas::get_vertex_type_for_pick(unsigned int pick) const
+Canvas::VertexRef Canvas::get_vertex_ref_for_pick(unsigned int pick) const
 {
     for (const auto &[ty, it] : m_vertex_type_picks) {
         if ((pick >= it.offset) && ((pick - it.offset) < it.count))
-            return ty;
+            return {ty, pick - it.offset};
     }
     throw std::runtime_error("pick not found");
 }
+
+std::optional<SelectableRef> Canvas::get_selectable_ref_for_vertex_ref(const VertexRef &vref) const
+{
+    if (m_vertex_to_selectable_map.contains(vref))
+        return m_vertex_to_selectable_map.at(vref);
+    else
+        return {};
+}
+
+std::optional<SelectableRef> Canvas::get_selectable_ref_for_pick(unsigned int pick) const
+{
+    if (!pick)
+        return {};
+    return get_selectable_ref_for_vertex_ref(get_vertex_ref_for_pick(pick));
+}
+
 
 void Canvas::update_hover_selection()
 {
@@ -302,7 +404,7 @@ void Canvas::update_hover_selection()
         auto last_hover_selection = m_hover_selection;
         m_hover_selection.reset();
         auto pick = read_pick_buf(m_last_x, m_last_y);
-        if (!pick || get_vertex_type_for_pick(pick) == VertexType::FACE_GROUP) {
+        if (!pick || get_vertex_ref_for_pick(pick).type == VertexType::FACE_GROUP) {
             int box_size = 10;
             float best_distance = glm::vec2(box_size, box_size).length();
             unsigned int best_pick = pick;
@@ -312,7 +414,7 @@ void Canvas::update_hover_selection()
                     int py = m_last_y + dy;
                     if (px >= 0 && px < m_dev_width && py >= 0 && py < m_dev_height) {
                         if (auto p = read_pick_buf(px, py)) {
-                            if (get_vertex_type_for_pick(p) == VertexType::FACE_GROUP)
+                            if (get_vertex_ref_for_pick(p).type == VertexType::FACE_GROUP)
                                 continue;
                             const auto d = glm::vec2(dx, dy).length();
                             if (d <= best_distance) {
@@ -325,17 +427,11 @@ void Canvas::update_hover_selection()
             }
             pick = best_pick;
         }
-        for (const auto &[ty, it] : m_vertex_type_picks) {
-            if ((pick >= it.offset) && ((pick - it.offset) < it.count)) {
 
-                const VertexRef vref{.type = ty, .index = pick - it.offset};
-                if (m_vertex_to_selectable_map.contains(vref)) {
-                    const auto &sr = m_vertex_to_selectable_map.at(vref);
-                    m_hover_selection = sr;
-                }
-                break;
-            }
-        }
+
+        if (auto sr = get_selectable_ref_for_pick(pick))
+            m_hover_selection = *sr;
+
 
         if (m_hover_selection != last_hover_selection) {
             auto mask = VertexFlags::HOVER;
@@ -372,8 +468,8 @@ void Canvas::update_hover_selection()
 
 uint16_t Canvas::read_pick_buf(int x, int y) const
 {
-    int xi = x * get_scale_factor();
-    int yi = y * get_scale_factor();
+    int xi = x * m_scale_factor;
+    int yi = y * m_scale_factor;
     if (xi >= m_dev_width || yi >= m_dev_height)
         return 0;
     const int idx = ((m_dev_height)-yi - 1) * m_dev_width + xi;
@@ -427,6 +523,7 @@ void Canvas::on_realize()
     m_line_renderer.realize();
     m_glyph_renderer.realize();
     m_icon_renderer.realize();
+    m_box_selection.realize();
     GL_CHECK_ERROR
 
 
@@ -611,6 +708,9 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     glEnable(GL_BLEND);
     m_glyph_renderer.render();
     m_icon_renderer.render();
+    glDisable(GL_DEPTH_TEST);
+    m_box_selection.render();
+    glEnable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     GL_CHECK_ERROR
@@ -672,6 +772,9 @@ void Canvas::on_resize(int width, int height)
                              glm::vec2(2.0 / m_dev_width, -2.0 / m_dev_height));
 
     resize_buffers();
+
+    // get_scale_factor is surprisingly expensive, so do it only once
+    m_scale_factor = get_scale_factor();
 
     Gtk::GLArea::on_resize(width, height);
 }
