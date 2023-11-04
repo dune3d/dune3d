@@ -16,5 +16,6 @@ enum class ColorP {
     SELECTED,
     SELECTED_HOVER,
     HIGHLIGHT,
+    SELECTION_BOX,
 };
 }

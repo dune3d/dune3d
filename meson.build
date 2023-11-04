@@ -35,6 +35,7 @@ src = files(
   'src/canvas/point_renderer.cpp',
   'src/canvas/line_renderer.cpp',
   'src/canvas/glyph_renderer.cpp',
+  'src/canvas/box_selection.cpp',
   'src/canvas/bitmap_font_util.cpp',
   'src/canvas/bitmap_font/bitmap_font_desc.c',
   'src/canvas/bitmap_font/bitmap_font_img.c',

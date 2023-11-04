@@ -133,8 +133,7 @@ void Editor::init_canvas()
                 }
             }
             else if (controller->get_current_button() == 3 && n_press == 1) {
-                const auto dist =
-                        glm::length(glm::vec2(x, y) - glm::vec2(m_rmb_last_x, m_rmb_last_y));
+                const auto dist = glm::length(glm::vec2(x, y) - glm::vec2(m_rmb_last_x, m_rmb_last_y));
                 if (dist > 16)
                     return;
                 if (m_core.tool_is_active())
@@ -197,6 +196,12 @@ void Editor::init_canvas()
 
     get_canvas().signal_selection_mode_changed().connect(sigc::mem_fun(*this, &Editor::update_selection_mode_label));
     update_selection_mode_label();
+
+    /*
+     * we want the canvas click event controllers to run before the one in the editor,
+     * so we need to attach them afterwards since event controllers attached last run first
+     */
+    get_canvas().setup_controllers();
 }
 
 void Editor::update_selection_mode_label()
@@ -873,6 +878,7 @@ void Editor::tool_begin(ToolID id /*bool override_selection, const std::set<Sele
     //        args.selection = sel;
     //   else
     args.selection = get_canvas().get_selection();
+    m_last_selection_mode = get_canvas().get_selection_mode();
     get_canvas().set_selection_mode(Canvas::SelectionMode::NONE);
     ToolResponse r = m_core.tool_begin(id, args);
     tool_process(r);
@@ -933,7 +939,7 @@ void Editor::tool_process_one()
         canvas_update();
     get_canvas().set_selection(m_core.get_tool_selection(), false);
     if (!m_core.tool_is_active())
-        get_canvas().set_selection_mode(Canvas::SelectionMode::HOVER);
+        get_canvas().set_selection_mode(m_last_selection_mode);
 
     /*  if (m_core.tool_is_active()) {
           canvas->set_selection(m_core.get_tool_selection());
@@ -978,6 +984,7 @@ void Editor::handle_cursor_move()
         if (glm::length(delta) > 10) {
             ToolArgs args;
             args.selection = m_selection_for_drag;
+            m_last_selection_mode = get_canvas().get_selection_mode();
             get_canvas().set_selection_mode(Canvas::SelectionMode::NONE);
             ToolResponse r = m_core.tool_begin(m_drag_tool, args, true);
             tool_process(r);
@@ -1027,7 +1034,7 @@ void Editor::handle_click(unsigned int button, unsigned int n)
         if (sel.contains(hover_sel.value())) {
             m_drag_tool = get_tool_for_drag_move(false, sel);
             if (m_drag_tool != ToolID::NONE) {
-                // canvas->inhibit_drag_selection();
+                get_canvas().inhibit_drag_selection();
                 m_cursor_pos_win_drag_begin = get_canvas().get_cursor_pos_win();
                 // cursor_pos_grid_drag_begin = get_canvas().get_cursor_pos();
                 m_selection_for_drag = sel;

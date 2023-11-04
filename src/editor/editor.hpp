@@ -9,12 +9,12 @@
 #include "util/action_label.hpp"
 #include "document/group/group.hpp"
 #include "workspace_browser.hpp"
+#include "canvas/canvas.hpp"
 
 
 namespace dune3d {
 
 class Dune3DApplication;
-class Canvas;
 class Preferences;
 enum class ToolID;
 class ActionLabelInfo;
@@ -178,5 +178,6 @@ private:
     Dune3DAppWindow &m_win;
 
     Core m_core;
+    Canvas::SelectionMode m_last_selection_mode;
 };
 } // namespace dune3d
