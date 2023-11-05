@@ -41,6 +41,9 @@ jobs:
           - container: ubuntu:lunar
             cxx: g++-13
             cc: gcc
+          - container: ubuntu:mantic
+            cxx: g++
+            cc: gcc
         target:
           - all
     runs-on: ubuntu-latest
