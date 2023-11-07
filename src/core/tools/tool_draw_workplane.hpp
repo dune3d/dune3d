@@ -1,9 +1,10 @@
 #include "tool_common.hpp"
+#include "tool_helper_constrain.hpp"
 #include "in_tool_action/in_tool_action.hpp"
 
 namespace dune3d {
 
-class ToolDrawWorkplane : public ToolCommon {
+class ToolDrawWorkplane : public virtual ToolCommon, public ToolHelperConstrain {
 public:
     using ToolCommon::ToolCommon;
 
@@ -16,11 +17,14 @@ public:
                 I::LMB,
                 I::CANCEL,
                 I::RMB,
+                I::TOGGLE_COINCIDENT_CONSTRAINT,
         };
     }
 
 private:
     class EntityWorkplane *m_wrkpl = nullptr;
+
+    bool m_constrain = true;
 
     void update_tip();
 };

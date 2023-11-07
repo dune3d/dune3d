@@ -26,16 +26,20 @@ ToolResponse ToolDrawWorkplane::begin(const ToolArgs &args)
 
 void ToolDrawWorkplane::update_tip()
 {
-    auto pt = entity_and_point_from_hover_selection(get_doc(), m_intf.get_hover_selection());
-    if (pt.has_value())
-        m_intf.tool_bar_set_tool_tip("point");
-    else
-        m_intf.tool_bar_set_tool_tip("");
+    m_intf.tool_bar_set_tool_tip("");
+    if (m_constrain) {
+        set_constrain_tip("origin");
+    }
     std::vector<ActionLabelInfo> actions;
     actions.reserve(9);
     actions.emplace_back(InToolActionID::LMB, "place workplane");
 
     actions.emplace_back(InToolActionID::RMB, "end tool");
+
+    if (m_constrain)
+        actions.emplace_back(InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT, "constraint off");
+    else
+        actions.emplace_back(InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT, "constraint on");
 
     m_intf.tool_bar_set_actions(actions);
 }
@@ -44,25 +48,22 @@ ToolResponse ToolDrawWorkplane::update(const ToolArgs &args)
 {
     if (args.type == ToolEventType::MOVE) {
         m_wrkpl->m_origin = m_intf.get_cursor_pos();
-        update_tip();
-        return ToolResponse();
     }
     else if (args.type == ToolEventType::ACTION) {
         switch (args.action) {
         case InToolActionID::LMB: {
-            auto pte = entity_and_point_from_hover_selection(get_doc(), m_intf.get_hover_selection());
-            if (pte.has_value()) {
-                m_wrkpl->m_origin = get_doc().get_point(*pte);
-                auto &constraint = add_constraint<ConstraintPointsCoincident>();
-                constraint.m_entity1 = {m_wrkpl->m_uuid, 1};
-                constraint.m_entity2 = *pte;
+            if (m_constrain) {
+                const EntityAndPoint origin{m_wrkpl->m_uuid, 1};
+                constrain_point({}, origin);
             }
-
 
             return ToolResponse::commit();
 
         } break;
 
+        case InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT: {
+            m_constrain = !m_constrain;
+        } break;
 
         case InToolActionID::RMB:
         case InToolActionID::CANCEL:
@@ -71,6 +72,7 @@ ToolResponse ToolDrawWorkplane::update(const ToolArgs &args)
         default:;
         }
     }
+    update_tip();
 
     return ToolResponse();
 }
