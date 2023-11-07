@@ -23,6 +23,13 @@ json GroupLocalOperation::serialize() const
     return j;
 }
 
+std::list<GroupStatusMessage> GroupLocalOperation::get_messages() const
+{
+    auto msg = Group::get_messages();
+    msg.insert(msg.end(), m_local_operation_messages.begin(), m_local_operation_messages.end());
+    return msg;
+}
+
 const SolidModel *GroupLocalOperation::get_solid_model() const
 {
     return m_solid_model.get();

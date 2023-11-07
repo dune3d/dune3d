@@ -18,10 +18,10 @@ public:
     face::Faces m_faces;
     std::map<unsigned int, std::vector<glm::dvec3>> m_edges;
 
-    static std::shared_ptr<const SolidModel> create(const Document &doc, const GroupExtrude &group);
-    static std::shared_ptr<const SolidModel> create(const Document &doc, const GroupFillet &group);
-    static std::shared_ptr<const SolidModel> create(const Document &doc, const GroupChamfer &group);
-    static std::shared_ptr<const SolidModel> create(const Document &doc, const GroupLathe &group);
+    static std::shared_ptr<const SolidModel> create(const Document &doc, GroupExtrude &group);
+    static std::shared_ptr<const SolidModel> create(const Document &doc, GroupFillet &group);
+    static std::shared_ptr<const SolidModel> create(const Document &doc, GroupChamfer &group);
+    static std::shared_ptr<const SolidModel> create(const Document &doc, GroupLathe &group);
     virtual void export_stl(const std::filesystem::path &path) const = 0;
     virtual void export_step(const std::filesystem::path &path) const = 0;
 

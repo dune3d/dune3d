@@ -22,6 +22,9 @@ public:
 
     json serialize() const override;
 
+    std::list<GroupStatusMessage> m_local_operation_messages;
+    std::list<GroupStatusMessage> get_messages() const override;
+
     std::shared_ptr<const SolidModel> m_solid_model;
 
     const SolidModel *get_solid_model() const override;

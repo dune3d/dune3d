@@ -59,4 +59,11 @@ std::set<UUID> GroupSweep::get_required_groups(const Document &doc) const
     return {m_source_group};
 }
 
+std::list<GroupStatusMessage> GroupSweep::get_messages() const
+{
+    auto msg = Group::get_messages();
+    msg.insert(msg.end(), m_sweep_messages.begin(), m_sweep_messages.end());
+    return msg;
+}
+
 } // namespace dune3d

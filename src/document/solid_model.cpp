@@ -603,8 +603,9 @@ static FaceBuilder faces_from_document(const Document &doc, const UUID &wrkpl_uu
     return face_builder;
 }
 
-std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, const GroupExtrude &group)
+std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupExtrude &group)
 {
+    group.m_sweep_messages.clear();
     auto mod = std::make_shared<SolidModelOcc>();
 
 
@@ -624,15 +625,34 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, const 
         break;
     }
 
-    FaceBuilder face_builder = faces_from_document(doc, group.m_wrkpl, group.m_source_group, offset);
+    try {
+        FaceBuilder face_builder = faces_from_document(doc, group.m_wrkpl, group.m_source_group, offset);
 
-    if (face_builder.get_n_faces() == 0)
+        if (face_builder.get_n_faces() == 0) {
+            group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "no faces");
+            return nullptr;
+        }
+
+        if (glm::length(dvec) < 1e-6) {
+            group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "zero length extrusion vector");
+            return nullptr;
+        }
+
+        mod->m_shape = BRepPrimAPI_MakePrism(face_builder.get_faces(), gp_Vec(dvec.x, dvec.y, dvec.z));
+    }
+    catch (const Standard_Failure &e) {
+        std::ostringstream os;
+        e.Print(os);
+        group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "exception: " + os.str());
+    }
+    catch (const std::exception &e) {
+        group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, std::string{"exception: "} + e.what());
+    }
+    catch (...) {
+        group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "unknown exception");
+    }
+    if (mod->m_shape.IsNull())
         return nullptr;
-
-    if (glm::length(dvec) < 1e-6)
-        return nullptr;
-
-    mod->m_shape = BRepPrimAPI_MakePrism(face_builder.get_faces(), gp_Vec(dvec.x, dvec.y, dvec.z));
 
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
 
@@ -657,46 +677,63 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, const 
     return mod;
 }
 
-std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, const GroupLathe &group)
+std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupLathe &group)
 {
+    group.m_sweep_messages.clear();
     auto mod = std::make_shared<SolidModelOcc>();
-
 
     glm::dvec3 offset = {0, 0, 0};
 
+    try {
+        FaceBuilder face_builder = faces_from_document(doc, group.m_wrkpl, group.m_source_group, offset);
 
-    FaceBuilder face_builder = faces_from_document(doc, group.m_wrkpl, group.m_source_group, offset);
-
-    if (face_builder.get_n_faces() == 0)
-        return nullptr;
-
-    auto origin = doc.get_entity(group.m_origin).get_point(group.m_origin_point, doc);
-
-    glm::dvec3 dir;
-    {
-        const auto &en_normal = doc.get_entity(group.m_normal);
-        const auto en_type = en_normal.get_type();
-        if (auto wrkpl = dynamic_cast<const EntityWorkplane *>(&en_normal)) {
-            dir = wrkpl->get_normal();
-        }
-        else if (en_type == Entity::Type::LINE_2D || en_type == Entity::Type::LINE_3D) {
-            dir = glm::normalize(en_normal.get_point(2, doc) - en_normal.get_point(1, doc));
-        }
-        else {
+        if (face_builder.get_n_faces() == 0) {
+            group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "no faces");
             return nullptr;
         }
+
+        auto origin = doc.get_entity(group.m_origin).get_point(group.m_origin_point, doc);
+
+        glm::dvec3 dir;
+        {
+            const auto &en_normal = doc.get_entity(group.m_normal);
+            const auto en_type = en_normal.get_type();
+            if (auto wrkpl = dynamic_cast<const EntityWorkplane *>(&en_normal)) {
+                dir = wrkpl->get_normal();
+            }
+            else if (en_type == Entity::Type::LINE_2D || en_type == Entity::Type::LINE_3D) {
+                dir = glm::normalize(en_normal.get_point(2, doc) - en_normal.get_point(1, doc));
+            }
+            else {
+                group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "no axis");
+                return nullptr;
+            }
+        }
+
+        gp_Ax1 ax{gp_Pnt(origin.x, origin.y, origin.z), gp_Dir(dir.x, dir.y, dir.z)};
+
+
+        BRepPrimAPI_MakeRevol mr{face_builder.get_faces(), ax};
+
+        mr.Build();
+        if (!mr.IsDone())
+            return nullptr;
+
+        mod->m_shape = mr.Shape();
     }
-
-    gp_Ax1 ax{gp_Pnt(origin.x, origin.y, origin.z), gp_Dir(dir.x, dir.y, dir.z)};
-
-
-    BRepPrimAPI_MakeRevol mr{face_builder.get_faces(), ax};
-
-    mr.Build();
-    if (!mr.IsDone())
+    catch (const Standard_Failure &e) {
+        std::ostringstream os;
+        e.Print(os);
+        group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "exception: " + os.str());
+    }
+    catch (const std::exception &e) {
+        group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, std::string{"exception: "} + e.what());
+    }
+    catch (...) {
+        group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "unknown exception");
+    }
+    if (mod->m_shape.IsNull())
         return nullptr;
-
-    mod->m_shape = mr.Shape();
 
 
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
@@ -723,80 +760,121 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, const 
 }
 
 
-std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, const GroupFillet &group)
+std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupFillet &group)
 {
-    if (group.m_edges.size() == 0)
+    group.m_local_operation_messages.clear();
+    if (group.m_edges.size() == 0) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no edges");
         return nullptr;
+    }
 
     auto mod = std::make_shared<SolidModelOcc>();
 
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
-    if (!last_solid_model)
+    if (!last_solid_model) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
         return nullptr;
-
-    BRepFilletAPI_MakeFillet mf(last_solid_model->m_shape_acc);
-    {
-        TopExp_Explorer topex(last_solid_model->m_shape_acc, TopAbs_EDGE);
-        std::list<TopoDS_Shape> edges;
-        unsigned int edge_idx = 0;
-        while (topex.More()) {
-            auto edge = TopoDS::Edge(topex.Current());
-
-            if (group.m_edges.contains(edge_idx)) {
-                mf.Add(group.m_radius, edge);
-            }
-
-            topex.Next();
-            edge_idx++;
-        }
     }
 
+    try {
+        BRepFilletAPI_MakeFillet mf(last_solid_model->m_shape_acc);
+        {
+            TopExp_Explorer topex(last_solid_model->m_shape_acc, TopAbs_EDGE);
+            std::list<TopoDS_Shape> edges;
+            unsigned int edge_idx = 0;
+            while (topex.More()) {
+                auto edge = TopoDS::Edge(topex.Current());
 
-    mf.Build();
-    if (!mf.IsDone())
+                if (group.m_edges.contains(edge_idx)) {
+                    mf.Add(group.m_radius, edge);
+                }
+
+                topex.Next();
+                edge_idx++;
+            }
+        }
+
+
+        mf.Build();
+        if (!mf.IsDone())
+            return nullptr;
+
+        mod->m_shape_acc = mf.Shape();
+    }
+    catch (const Standard_Failure &e) {
+        std::ostringstream os;
+        e.Print(os);
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "exception: " + os.str());
+    }
+    catch (const std::exception &e) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR,
+                                                      std::string{"exception: "} + e.what());
+    }
+    catch (...) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "unknown exception");
+    }
+    if (mod->m_shape_acc.IsNull())
         return nullptr;
-
-    mod->m_shape_acc = mf.Shape();
 
     mod->find_edges();
     mod->triangulate();
     return mod;
 }
 
-std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, const GroupChamfer &group)
+std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupChamfer &group)
 {
-    if (group.m_edges.size() == 0)
+    group.m_local_operation_messages.clear();
+    if (group.m_edges.size() == 0) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no edges");
         return nullptr;
+    }
 
     auto mod = std::make_shared<SolidModelOcc>();
 
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
-    if (!last_solid_model)
+    if (!last_solid_model) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
         return nullptr;
-
-    BRepFilletAPI_MakeChamfer mf(last_solid_model->m_shape_acc);
-    {
-        TopExp_Explorer topex(last_solid_model->m_shape_acc, TopAbs_EDGE);
-        std::list<TopoDS_Shape> edges;
-        unsigned int edge_idx = 0;
-        while (topex.More()) {
-            auto edge = TopoDS::Edge(topex.Current());
-
-            if (group.m_edges.contains(edge_idx)) {
-                mf.Add(group.m_radius, edge);
-            }
-
-            topex.Next();
-            edge_idx++;
-        }
     }
+    try {
+        BRepFilletAPI_MakeChamfer mf(last_solid_model->m_shape_acc);
+        {
+            TopExp_Explorer topex(last_solid_model->m_shape_acc, TopAbs_EDGE);
+            std::list<TopoDS_Shape> edges;
+            unsigned int edge_idx = 0;
+            while (topex.More()) {
+                auto edge = TopoDS::Edge(topex.Current());
+
+                if (group.m_edges.contains(edge_idx)) {
+                    mf.Add(group.m_radius, edge);
+                }
+
+                topex.Next();
+                edge_idx++;
+            }
+        }
 
 
-    mf.Build();
-    if (!mf.IsDone())
+        mf.Build();
+        if (!mf.IsDone())
+            return nullptr;
+
+        mod->m_shape_acc = mf.Shape();
+    }
+    catch (const Standard_Failure &e) {
+        std::ostringstream os;
+        e.Print(os);
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "exception: " + os.str());
+    }
+    catch (const std::exception &e) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR,
+                                                      std::string{"exception: "} + e.what());
+    }
+    catch (...) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "unknown exception");
+    }
+    if (mod->m_shape_acc.IsNull())
         return nullptr;
-
-    mod->m_shape_acc = mf.Shape();
 
     mod->find_edges();
     mod->triangulate();

@@ -24,6 +24,9 @@ public:
 
     const SolidModel *get_solid_model() const override;
 
+    std::list<GroupStatusMessage> m_sweep_messages;
+    std::list<GroupStatusMessage> get_messages() const override;
+
     json serialize() const override;
 
     std::set<UUID> get_referenced_entities(const Document &doc) const override;
