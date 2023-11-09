@@ -1018,9 +1018,10 @@ void Editor::handle_click(unsigned int button, unsigned int n)
         }
     }
     else if (is_doubleclick && button == 1) {
-        auto sel = get_canvas().get_selection();
-        if (sel.size() == 1) {
-            if (auto action = get_doubleclick_action(*sel.begin())) {
+        auto sel = get_canvas().get_hover_selection();
+        if (sel) {
+            if (auto action = get_doubleclick_action(*sel)) {
+                get_canvas().set_selection({*sel}, false);
                 trigger_action(*action);
             }
         }
