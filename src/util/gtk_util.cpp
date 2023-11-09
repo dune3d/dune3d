@@ -76,5 +76,13 @@ Gtk::Label &grid_attach_label_and_widget(Gtk::Grid &gr, const std::string &label
     return *la;
 }
 
+void header_func_separator(Gtk::ListBoxRow *row, Gtk::ListBoxRow *before)
+{
+    if (before && !row->get_header()) {
+        auto ret = Gtk::manage(new Gtk::Separator);
+        row->set_header(*ret);
+    }
+}
+
 
 } // namespace dune3d

@@ -7,9 +7,44 @@
     <property name="title">Dune 3D</property>
     <property name="titlebar">
       <object class="GtkHeaderBar" id="titlebar">
-        <child type="start">
-          <object class="GtkButton" id="open_button">
-            <property name="label">Open</property>
+        <child>
+          <object class="GtkBox" id="top_box">
+            <property name="css-classes">linked</property>
+            <child>
+              <object class="GtkButton" id="open_button">
+                <property name="label">Open</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="open_menu_button">
+                <property name="popover">
+                  <object class="GtkPopover" id="open_popover">
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkSearchEntry" id="open_recent_search_entry"/>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow">
+                            <property name="has-frame">True</property>
+                            <property name="hscrollbar-policy">never</property>
+                            <property name="max-content-height">500</property>
+                            <property name="min-content-height">100</property>
+                            <property name="propagate-natural-height">True</property>
+                            <child>
+                              <object class="GtkListBox" id="open_recent_listbox">
+                                <property name="selection-mode">none</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </child>
           </object>
         </child>
         <child type="end">
@@ -48,7 +83,6 @@
             <property name="position-set">True</property>
             <property name="resize-end-child">False</property>
             <property name="shrink-start-child">False</property>
-            <property name="start-child">left_bar</property>
             <child>
               <object class="GtkPaned" id="left_bar">
                 <property name="orientation">vertical</property>

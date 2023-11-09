@@ -1,6 +1,7 @@
 #include "dune3d_application.hpp"
 #include "dune3d_appwindow.hpp"
 #include "util/util.hpp"
+#include "util/fs_util.hpp"
 #include "nlohmann/json.hpp"
 #include "preferences/preferences_window.hpp"
 #include "widgets/about_dialog.hpp"
@@ -83,6 +84,10 @@ void Dune3DApplication::on_startup()
     add_action("about", sigc::mem_fun(*this, &Dune3DApplication::on_action_about));
     // add_action("view_log", [this] { show_log_window(); });
 
+    if (std::filesystem::is_regular_file(get_user_config_filename())) {
+        m_user_config.load(get_user_config_filename());
+    }
+
     auto cssp = Gtk::CssProvider::create();
     cssp->load_from_resource("/org/dune3d/dune3d/dune3d.css");
     Gtk::StyleContext::add_provider_for_display(Gdk::Display::get_default(), cssp,
@@ -91,6 +96,12 @@ void Dune3DApplication::on_startup()
     // Gtk::IconTheme::get_default()->add_resource_path("/org/horizon-eda/horizon/icons");
     Gtk::IconTheme::get_for_display(Gdk::Display::get_default())->add_resource_path("/org/dune3d/dune3d/icons");
     Gtk::Window::set_default_icon_name("dune3d");
+}
+
+void Dune3DApplication::on_shutdown()
+{
+    m_user_config.save(get_user_config_filename());
+    Gtk::Application::on_shutdown();
 }
 
 PreferencesWindow *Dune3DApplication::show_preferences_window(guint32 timestamp)
@@ -122,6 +133,38 @@ const Preferences &Preferences::get()
 {
     assert(the_preferences);
     return *the_preferences;
+}
+
+std::filesystem::path Dune3DApplication::get_user_config_filename()
+{
+    return get_config_dir() / "user_config.json";
+}
+void Dune3DApplication::UserConfig::load(const std::filesystem::path &filename)
+{
+    json j = load_json_from_file(filename);
+    if (j.count("recent")) {
+        const json &o = j["recent"];
+        for (const auto &[fn, v] : o.items()) {
+            auto path = path_from_string(fn);
+            if (std::filesystem::is_regular_file(path))
+                recent_items.emplace(path, Glib::DateTime::create_now_local(v.get<int64_t>()));
+        }
+    }
+}
+
+void Dune3DApplication::UserConfig::save(const std::filesystem::path &filename)
+{
+    json j;
+    for (const auto &[path, mod] : recent_items) {
+        j["recent"][path_to_string(path)] = mod.to_unix();
+    }
+    save_json_to_file(filename, j);
+}
+
+void Dune3DApplication::add_recent_item(const std::filesystem::path &path)
+{
+    m_user_config.recent_items[path] = Glib::DateTime::create_now_local();
+    m_signal_recent_items_changed.emit();
 }
 
 

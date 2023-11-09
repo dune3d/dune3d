@@ -32,7 +32,7 @@ json json_from_resource(const std::string &rsrc)
 
 std::filesystem::path get_config_dir()
 {
-    return std::filesystem::path(Glib::get_user_config_dir()) / "dune3d";
+    return path_from_string(Glib::get_user_config_dir()) / "dune3d";
 }
 
 void create_config_dir()

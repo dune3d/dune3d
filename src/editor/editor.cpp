@@ -310,6 +310,7 @@ void Editor::update_selection_editor()
 void Editor::init_header_bar()
 {
     attach_action_button(m_win.get_open_button(), ActionID::OPEN_DOCUMENT);
+    attach_action_sensitive(m_win.get_open_menu_button(), ActionID::OPEN_DOCUMENT);
     attach_action_button(m_win.get_new_button(), ActionID::NEW_DOCUMENT);
     attach_action_button(m_win.get_save_button(), ActionID::SAVE);
     attach_action_button(m_win.get_save_as_button(), ActionID::SAVE_AS);
@@ -804,10 +805,15 @@ bool Editor::get_action_sensitive(ActionID action) const
 void Editor::attach_action_button(Gtk::Button &button, ActionToolID action)
 {
     button.signal_clicked().connect([this, action] { trigger_action(action); });
+    attach_action_sensitive(button, action);
+}
+
+void Editor::attach_action_sensitive(Gtk::Widget &widget, ActionToolID action)
+{
     if (std::holds_alternative<ActionID>(action)) {
         m_signal_action_sensitive.connect(
-                [this, &button, action] { button.set_sensitive(get_action_sensitive(std::get<ActionID>(action))); });
-        button.set_sensitive(get_action_sensitive(std::get<ActionID>(action)));
+                [this, &widget, action] { widget.set_sensitive(get_action_sensitive(std::get<ActionID>(action))); });
+        widget.set_sensitive(get_action_sensitive(std::get<ActionID>(action)));
     }
 }
 
@@ -1341,6 +1347,7 @@ void Editor::open_file(const std::filesystem::path &path)
 {
     if (m_core.has_documents())
         return;
+    m_win.get_app().add_recent_item(path);
     m_core.add_document(path);
 }
 

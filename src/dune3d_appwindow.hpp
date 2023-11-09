@@ -15,6 +15,11 @@ public:
 
     void open_file_view(const Glib::RefPtr<Gio::File> &file);
 
+    Dune3DApplication &get_app()
+    {
+        return m_app;
+    }
+
     ~Dune3DAppWindow();
 
     Gtk::Paned &get_left_bar()
@@ -45,6 +50,11 @@ public:
     Gtk::Button &get_open_button()
     {
         return *m_open_button;
+    }
+
+    Gtk::MenuButton &get_open_menu_button()
+    {
+        return *m_open_menu_button;
     }
 
     Gtk::Button &get_new_button()
@@ -88,18 +98,23 @@ public:
 
 
 private:
+    Dune3DApplication &m_app;
     Editor m_editor;
 
     Gtk::Button *m_open_button = nullptr;
+    Gtk::MenuButton *m_open_menu_button = nullptr;
     Gtk::Button *m_new_button = nullptr;
     Gtk::Button *m_undo_button = nullptr;
     Gtk::Button *m_redo_button = nullptr;
     Gtk::Button *m_save_button = nullptr;
     Gtk::Button *m_save_as_button = nullptr;
+    Gtk::SearchEntry *m_open_recent_search_entry = nullptr;
 
     Gtk::HeaderBar *m_header_bar = nullptr;
+    Gtk::Popover *m_open_popover = nullptr;
     Gtk::MenuButton *m_hamburger_menu_button = nullptr;
 
+    Gtk::ListBox *m_open_recent_listbox = nullptr;
 
     std::vector<Gtk::Widget *> m_action_widgets;
     void tool_bar_set_vertical(bool vert);

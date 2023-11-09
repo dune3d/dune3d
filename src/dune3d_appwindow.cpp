@@ -2,7 +2,9 @@
 #include "dune3d_appwindow.hpp"
 #include "canvas/canvas.hpp"
 #include "widgets/axes_lollipop.hpp"
+#include "widgets/recent_item_box.hpp"
 #include "util/fs_util.hpp"
+#include "util/gtk_util.hpp"
 
 namespace dune3d {
 
@@ -21,9 +23,57 @@ Dune3DAppWindow *Dune3DAppWindow::create(Dune3DApplication &app)
 
 Dune3DAppWindow::~Dune3DAppWindow() = default;
 
+static std::vector<std::pair<std::filesystem::path, Glib::DateTime>>
+recent_sort(const std::map<std::filesystem::path, Glib::DateTime> &recent_items)
+{
+    std::vector<std::pair<std::filesystem::path, Glib::DateTime>> recent_items_sorted;
+
+    recent_items_sorted.reserve(recent_items.size());
+    for (const auto &it : recent_items) {
+        recent_items_sorted.emplace_back(it.first, it.second);
+    }
+    std::sort(recent_items_sorted.begin(), recent_items_sorted.end(),
+              [](const auto &a, const auto &b) { return a.second.to_unix() > b.second.to_unix(); });
+    return recent_items_sorted;
+}
+
+static void update_recent_listbox(Gtk::ListBox &lb, Dune3DApplication &app)
+{
+    lb.remove_all();
+
+    const auto recent_items_sorted = recent_sort(app.m_user_config.recent_items);
+
+    for (const auto &[path, mtime] : recent_items_sorted) {
+        const auto name = path_to_string(path.filename());
+        auto box = Gtk::make_managed<RecentItemBox>(name, path, mtime);
+        lb.append(*box);
+        box->show();
+        box->signal_remove().connect([box, &app] {
+            app.m_user_config.recent_items.erase(box->m_path);
+            // Glib::signal_idle().connect_once([this] { update_recent_items(); });
+        });
+    }
+}
+
+static void update_recent_search(Gtk::SearchEntry &entry, Gtk::ListBox &lb)
+{
+    std::string needle = entry.get_text();
+    const auto uneedle = Glib::ustring(needle).casefold();
+
+    int i = 0;
+    while (auto row = lb.get_row_at_index(i++)) {
+        if (auto box = dynamic_cast<RecentItemBox *>(row->get_child())) {
+            const bool visible =
+                    (uneedle.size() == 0)
+                    || (Glib::ustring(box->get_name_without_suffix()).casefold().find(needle) != Glib::ustring::npos);
+            row->set_visible(visible);
+        }
+    }
+}
+
 Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &refBuilder,
                                  class Dune3DApplication &app)
-    : Gtk::ApplicationWindow(cobject), m_editor(*this, app.get_preferences())
+    : Gtk::ApplicationWindow(cobject), m_app(app), m_editor(*this, app.get_preferences())
 {
     m_canvas = Gtk::make_managed<Canvas>();
 
@@ -41,9 +91,25 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_header_bar = refBuilder->get_widget<Gtk::HeaderBar>("titlebar");
 
     m_open_button = refBuilder->get_widget<Gtk::Button>("open_button");
+    m_open_popover = refBuilder->get_widget<Gtk::Popover>("open_popover");
+    m_open_menu_button = refBuilder->get_widget<Gtk::MenuButton>("open_menu_button");
     m_new_button = refBuilder->get_widget<Gtk::Button>("new_button");
     m_save_button = refBuilder->get_widget<Gtk::Button>("save_button");
     m_save_as_button = refBuilder->get_widget<Gtk::Button>("save_as_button");
+    m_open_recent_listbox = refBuilder->get_widget<Gtk::ListBox>("open_recent_listbox");
+    m_open_recent_search_entry = refBuilder->get_widget<Gtk::SearchEntry>("open_recent_search_entry");
+    m_open_recent_listbox->set_header_func(sigc::ptr_fun(header_func_separator));
+    m_open_recent_listbox->signal_row_activated().connect([this](Gtk::ListBoxRow *row) {
+        auto &ch = dynamic_cast<RecentItemBox &>(*row->get_child());
+        m_editor.open_file(ch.m_path);
+    });
+    m_open_popover->signal_show().connect([this] {
+        m_open_recent_search_entry->set_text("");
+        update_recent_listbox(*m_open_recent_listbox, m_app);
+    });
+    m_open_recent_search_entry->signal_changed().connect(
+            [this] { update_recent_search(*m_open_recent_search_entry, *m_open_recent_listbox); });
+    m_open_recent_search_entry->signal_stop_search().connect([this] { m_open_popover->popdown(); });
 
 
     m_hamburger_menu_button = refBuilder->get_widget<Gtk::MenuButton>("hamburger_menu_button");
@@ -57,6 +123,7 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_tool_bar_flash_label = refBuilder->get_widget<Gtk::Label>("tool_bar_flash_label");
     m_tool_bar_stack = refBuilder->get_widget<Gtk::Stack>("tool_bar_stack");
     m_tool_bar_stack->set_visible_child(*m_tool_bar_box);
+
 
     refBuilder->get_widget<Gtk::Box>("canvas_box")->insert_child_at_start(*m_canvas);
     get_canvas().set_vexpand(true);

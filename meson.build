@@ -151,6 +151,7 @@ src = files(
   'src/widgets/capture_dialog.cpp',
   'src/widgets/axes_lollipop.cpp',
   'src/widgets/about_dialog.cpp',
+  'src/widgets/recent_item_box.cpp',
   'src/util/version.cpp',
 )
 
