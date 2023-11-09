@@ -106,6 +106,8 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
         remove(*m_editor);
         m_editor = nullptr;
     }
+    if (!m_core.has_documents())
+        return;
 
     auto wrkpl = entity_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE);
     if (wrkpl) {
