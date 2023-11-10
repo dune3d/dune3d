@@ -77,6 +77,7 @@ private:
     void visit(const ConstraintArcArcTangent &constraint) override;
     void visit(const ConstraintLinePointsPerpendicular &constraint) override;
     void add(const GroupExtrude &group);
+    void add(const GroupLathe &group);
     std::unique_ptr<SolveSpace::System> m_sys;
     Document &m_doc;
     const UUID m_solve_group;

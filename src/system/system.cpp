@@ -14,6 +14,7 @@
 #include "document/constraint/all_constraints.hpp"
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
+#include "document/group/group_lathe.hpp"
 #include <array>
 #include <set>
 #include <iostream>
@@ -44,6 +45,9 @@ System::System(Document &doc, const UUID &grp)
             if (auto ps = dynamic_cast<const IConstraintPreSolve *>(constraint.get()))
                 ps->pre_solve(m_doc);
     }
+    if (auto ps = dynamic_cast<const IGroupPreSolve *>(&doc.get_group(m_solve_group))) {
+        ps->pre_solve(m_doc);
+    }
 
     for (const auto &[uu, entity] : m_doc.m_entities) {
         entity->accept(*this);
@@ -59,6 +63,9 @@ System::System(Document &doc, const UUID &grp)
         switch (group->get_type()) {
         case Group::Type::EXTRUDE:
             add(dynamic_cast<const GroupExtrude &>(*group));
+            break;
+        case Group::Type::LATHE:
+            add(dynamic_cast<const GroupLathe &>(*group));
             break;
         default:;
         }
@@ -596,6 +603,43 @@ void System::add(const GroupExtrude &group)
                     AddEq(hg, &m_sys->eq, eqo.vz->Minus(eqn.vz), eqi++);
                 }
             }
+        }
+    }
+}
+
+void System::add(const GroupLathe &group)
+{
+    unsigned int eqi = 0;
+    const auto hg = hGroup{(uint32_t)group.get_index() + 1};
+
+    for (const auto &[uu, en] : m_doc.m_entities) {
+        if (en->m_group != m_solve_group)
+            continue;
+        if (en->m_kind != ItemKind::GENRERATED)
+            continue;
+        if (en->get_type() != Entity::Type::CIRCLE_3D)
+            continue;
+        {
+            auto en_origin = SK.GetEntity({get_entity_ref({uu, 1})});
+            auto origin = en_origin->PointGetNum();
+            auto ex = en_origin->PointGetExprs();
+            AddEq(hg, &m_sys->eq, ex.x->Minus(Expr::From(origin.x)), eqi++);
+            AddEq(hg, &m_sys->eq, ex.y->Minus(Expr::From(origin.y)), eqi++);
+            AddEq(hg, &m_sys->eq, ex.z->Minus(Expr::From(origin.z)), eqi++);
+        }
+        {
+            auto en_dist = SK.GetEntity({get_entity_ref({uu, 2})});
+            auto dist = en_dist->DistanceGetNum();
+            auto ex = en_dist->DistanceGetExpr();
+            AddEq(hg, &m_sys->eq, ex->Minus(Expr::From(dist)), eqi++);
+        }
+        {
+            auto en_normal = SK.GetEntity({get_entity_ref({uu, 3})});
+            auto normal = en_normal->NormalGetNum();
+            auto ex = en_normal->NormalGetExprs();
+            AddEq(hg, &m_sys->eq, ex.vx->Minus(Expr::From(normal.vx)), eqi++);
+            AddEq(hg, &m_sys->eq, ex.vy->Minus(Expr::From(normal.vy)), eqi++);
+            AddEq(hg, &m_sys->eq, ex.vz->Minus(Expr::From(normal.vz)), eqi++);
         }
     }
 }

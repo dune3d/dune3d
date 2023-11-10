@@ -695,19 +695,12 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupL
         auto origin = doc.get_entity(group.m_origin).get_point(group.m_origin_point, doc);
 
         glm::dvec3 dir;
-        {
-            const auto &en_normal = doc.get_entity(group.m_normal);
-            const auto en_type = en_normal.get_type();
-            if (auto wrkpl = dynamic_cast<const EntityWorkplane *>(&en_normal)) {
-                dir = wrkpl->get_normal();
-            }
-            else if (en_type == Entity::Type::LINE_2D || en_type == Entity::Type::LINE_3D) {
-                dir = glm::normalize(en_normal.get_point(2, doc) - en_normal.get_point(1, doc));
-            }
-            else {
-                group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "no axis");
-                return nullptr;
-            }
+        if (auto odir = group.get_direction(doc)) {
+            dir = *odir;
+        }
+        else {
+            group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "no axis");
+            return nullptr;
         }
 
         gp_Ax1 ax{gp_Pnt(origin.x, origin.y, origin.z), gp_Dir(dir.x, dir.y, dir.z)};

@@ -1,5 +1,6 @@
 #pragma once
 #include "group_sweep.hpp"
+#include "igroup_pre_solve.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -7,7 +8,7 @@ namespace dune3d {
 class Document;
 class SolidModel;
 
-class GroupLathe : public GroupSweep {
+class GroupLathe : public GroupSweep, public IGroupPreSolve {
 public:
     explicit GroupLathe(const UUID &uu);
     explicit GroupLathe(const UUID &uu, const json &j);
@@ -21,6 +22,8 @@ public:
     UUID m_origin;
     unsigned int m_origin_point;
 
+    std::optional<glm::dvec3> get_direction(const Document &doc) const;
+
     void update_solid_model(const Document &doc) override;
 
     UUID get_lathe_circle_uuid(const UUID &uu, unsigned int pt) const;
@@ -33,6 +36,12 @@ public:
     std::set<UUID> get_referenced_entities(const Document &doc) const override;
 
     std::set<UUID> get_required_entities(const Document &doc) const override;
+
+    void pre_solve(Document &doc) const override;
+
+private:
+    enum class GenerateOrSolve { GENERATE, SOLVE };
+    void generate_or_solve(Document &doc, GenerateOrSolve gen_or_solve) const;
 };
 
 } // namespace dune3d

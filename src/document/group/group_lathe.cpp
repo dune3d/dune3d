@@ -46,12 +46,45 @@ UUID GroupLathe::get_lathe_circle_uuid(const UUID &uu, unsigned int pt) const
                       {reinterpret_cast<const uint8_t *>(&pt), sizeof(pt)});
 }
 
+std::optional<glm::dvec3> GroupLathe::get_direction(const Document &doc) const
+{
+
+    const auto &en_normal = doc.get_entity(m_normal);
+    const auto en_type = en_normal.get_type();
+    if (auto wrkpl = dynamic_cast<const EntityWorkplane *>(&en_normal)) {
+        return wrkpl->get_normal();
+    }
+    else if (en_type == Entity::Type::LINE_2D || en_type == Entity::Type::LINE_3D) {
+        return glm::normalize(en_normal.get_point(2, doc) - en_normal.get_point(1, doc));
+    }
+    else {
+        return {};
+    }
+}
+
+static glm::dvec3 project_point_onto_line(const glm::dvec3 &pt, const glm::dvec3 &origin, const glm::dvec3 &dir)
+{
+    const auto dvec = glm::normalize(dir);
+    auto delta = pt - origin;
+    auto proj = glm::dot(delta, dvec);
+    return origin + proj * dvec;
+}
+
+void GroupLathe::pre_solve(Document &doc) const
+{
+    generate_or_solve(doc, GenerateOrSolve::SOLVE);
+}
 
 void GroupLathe::generate(Document &doc) const
 {
-    // TBD
-    /*
+    generate_or_solve(doc, GenerateOrSolve::GENERATE);
+}
+
+void GroupLathe::generate_or_solve(Document &doc, GenerateOrSolve gen_or_solve) const
+{
     auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
+    const auto n = get_direction(doc).value();
+    const auto origin = doc.get_point({m_origin, m_origin_point});
 
     for (const auto &[uu, it] : doc.m_entities) {
         if (it->m_group != m_source_group)
@@ -62,24 +95,25 @@ void GroupLathe::generate(Document &doc) const
             const auto &li = dynamic_cast<const EntityLine2D &>(*it);
             if (li.m_wrkpl != m_wrkpl)
                 continue;
-
-
             for (unsigned int pt = 1; pt <= 2; pt++) {
                 auto new_circle_uu = get_lathe_circle_uuid(uu, pt);
+                if (gen_or_solve == GenerateOrSolve::SOLVE && !doc.m_entities.contains(new_circle_uu))
+                    continue;
+                auto &new_circle = gen_or_solve == GenerateOrSolve::SOLVE
+                                           ? doc.get_entity<EntityCircle3D>(new_circle_uu)
+                                           : doc.get_or_add_entity<EntityCircle3D>(new_circle_uu);
+                new_circle.m_normal = quat_from_uv(wrkpl.get_normal(), glm::cross(wrkpl.get_normal(), n));
+                const auto pc = li.get_point(pt, doc);
+                new_circle.m_center = project_point_onto_line(pc, origin, n);
+                new_circle.m_radius = glm::length(new_circle.m_center - pc);
 
-                auto &new_circle = doc.get_or_add_entity<EntityCircle3D>(new_circle_uu);
-                // new_circle.m_normal =
-                // new_circle.new_line.m_p1 = wrkpl.transform(li.get_point(pt, doc));
-                // new_line.m_p2 = wrkpl.transform(li.get_point(pt, doc)) + dvec;
-                new_circle.m_group = m_uuid;
-                // new_line.m_name = "Extrusion" + std::to_string(pt);
-                //   new_line.m_wrkpl = new_wrkpl_uu;
-
-                new_circle.m_kind = ItemKind::GENRERATED;
+                if (gen_or_solve == GenerateOrSolve::GENERATE) {
+                    new_circle.m_group = m_uuid;
+                    new_circle.m_kind = ItemKind::GENRERATED;
+                }
             }
         }
     }
-    */
 }
 
 void GroupLathe::update_solid_model(const Document &doc)
