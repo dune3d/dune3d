@@ -24,8 +24,6 @@ public:
 
     void accept(EntityVisitor &visitor) const override;
 
-    UUID m_source;
-
     glm::dvec3 m_from;
     glm::dvec3 m_to;
     glm::dvec3 m_center;

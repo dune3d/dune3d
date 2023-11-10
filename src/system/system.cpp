@@ -172,15 +172,24 @@ void System::visit(const EntityArc3D &arc)
         SK.entity.Add(&eb);
         points.at(point - 1) = e;
     }
-
-    auto &source_arc = m_doc.get_entity<EntityArc2D>(arc.m_source);
+    auto en_normal = get_entity_ref(EntityRef{arc.m_uuid, 4});
+    {
+        EntityBase eb = {};
+        eb.type = EntityBase::Type::NORMAL_IN_3D;
+        eb.h.v = en_normal;
+        eb.group.v = group;
+        for (unsigned int axis = 0; axis < 4; axis++) {
+            eb.param[axis].v = add_param(arc.m_group, arc.m_uuid, 4, (axis + 3) % 4);
+        }
+        SK.entity.Add(&eb);
+    }
 
     auto e = get_entity_ref(EntityRef{arc.m_uuid, 0});
     EntityBase eb = {};
     eb.type = EntityBase::Type::ARC_OF_CIRCLE;
     eb.h.v = e;
     eb.group.v = group;
-    eb.normal.v = {get_entity_ref(EntityRef{source_arc.m_wrkpl, 2})};
+    eb.normal.v = en_normal;
     eb.point[0].v = points.at(2);
     eb.point[1].v = points.at(0);
     eb.point[2].v = points.at(1);
@@ -515,6 +524,17 @@ void System::add(const GroupExtrude &group)
                     AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(direction.x), eqi++);
                     AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(direction.y), eqi++);
                     AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z)->Minus(direction.z), eqi++);
+                }
+                {
+                    auto en_orig_n = get_entity_ref(EntityRef{arc.m_wrkpl, 2});
+                    auto en_new_n = get_entity_ref(EntityRef{new_arc_uu, 4});
+                    EntityBase *eorig = SK.GetEntity({en_orig_n});
+                    EntityBase *enew = SK.GetEntity({en_new_n});
+                    auto eqo = eorig->NormalGetExprs();
+                    auto eqn = enew->NormalGetExprs();
+                    AddEq(hg, &m_sys->eq, eqo.vx->Minus(eqn.vx), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.vy->Minus(eqn.vy), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.vz->Minus(eqn.vz), eqi++);
                 }
             }
             else if (it->get_type() == Entity::Type::CIRCLE_2D) {

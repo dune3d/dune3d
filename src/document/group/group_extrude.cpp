@@ -175,8 +175,6 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_arc.m_center = wrkpl.transform(arc.m_center) + dvec;
                 new_arc.m_group = m_uuid;
                 new_arc.m_normal = wrkpl.m_normal;
-                new_arc.m_source = arc.m_uuid;
-                // new_line.m_wrkpl = new_wrkpl_uu;
                 new_arc.m_kind = ItemKind::GENRERATED;
             }
         }
