@@ -74,6 +74,7 @@ Document::Document() : m_version(app_version)
     sketch.m_active_wrkpl = grp.get_workplane_xy_uuid();
 
     set_group_generate_pending(grp.m_uuid);
+    update_pending();
 }
 
 Document::Document(const json &j, const std::filesystem::path &containing_dir) : m_version(app_version, j)
