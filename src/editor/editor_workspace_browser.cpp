@@ -119,6 +119,7 @@ void Editor::on_workspace_browser_add_group(Group::Type group_type)
         m_core.set_needs_save();
     }
     if (new_group) {
+        doc.set_group_generate_pending(new_group->m_uuid);
         m_core.set_needs_save();
         m_core.rebuild("add group");
         m_workspace_browser->update_documents(m_document_view);
