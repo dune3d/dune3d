@@ -525,8 +525,9 @@ void Editor::on_save_as(const ActionConnection &conn)
             auto file = dialog->save_finish(result);
             // open_file_view(file);
             //  Notice that this is a std::string, not a Glib::ustring.
-            auto filename = file->get_path();
+            auto filename = path_from_string(file->get_path());
             // std::cout << "File selected: " << filename << std::endl;
+            m_win.get_app().add_recent_item(filename);
             m_core.save_as(filename);
             m_workspace_browser->update_documents(m_document_view);
             update_version_info();
