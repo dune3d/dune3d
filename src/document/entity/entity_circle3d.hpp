@@ -28,8 +28,6 @@ public:
     glm::dvec3 m_center;
     double m_radius;
     glm::dquat m_normal;
-
-    UUID m_source;
 };
 
 } // namespace dune3d

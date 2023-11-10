@@ -190,7 +190,6 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_circle.m_center = wrkpl.transform(circle.m_center) + dvec;
                 new_circle.m_group = m_uuid;
                 new_circle.m_normal = wrkpl.m_normal;
-                new_circle.m_source = circle.m_uuid;
                 new_circle.m_radius = circle.m_radius;
                 new_circle.m_kind = ItemKind::GENRERATED;
             }

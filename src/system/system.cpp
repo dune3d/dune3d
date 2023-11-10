@@ -257,21 +257,27 @@ void System::visit(const EntityCircle3D &circle)
         SK.entity.Add(&eb);
     }
 
-    if (circle.m_source) {
-        auto &source_circle = m_doc.get_entity<EntityCircle2D>(circle.m_source);
-
-        auto e = get_entity_ref(EntityRef{circle.m_uuid, 0});
+    auto en_normal = get_entity_ref(EntityRef{circle.m_uuid, 3});
+    {
         EntityBase eb = {};
-        eb.type = EntityBase::Type::CIRCLE;
-        eb.h.v = e;
+        eb.type = EntityBase::Type::NORMAL_IN_3D;
+        eb.h.v = en_normal;
         eb.group.v = group;
-        eb.normal.v = {get_entity_ref(EntityRef{source_circle.m_wrkpl, 2})};
-        eb.distance.v = edistance;
-        eb.point[0].v = epoint;
+        for (unsigned int axis = 0; axis < 4; axis++) {
+            eb.param[axis].v = add_param(circle.m_group, circle.m_uuid, 2, (axis + 3) % 4);
+        }
         SK.entity.Add(&eb);
     }
 
-    // m_sys->entity.push_back(Slvs_MakeLineSegment(e, group, SLVS_FREE_IN_3D, points.at(0), points.at(1)));
+    auto e = get_entity_ref(EntityRef{circle.m_uuid, 0});
+    EntityBase eb = {};
+    eb.type = EntityBase::Type::CIRCLE;
+    eb.h.v = e;
+    eb.group.v = group;
+    eb.normal.v = en_normal;
+    eb.distance.v = edistance;
+    eb.point[0].v = epoint;
+    SK.entity.Add(&eb);
 }
 
 void System::visit(const EntityWorkplane &wrkpl)
@@ -556,6 +562,18 @@ void System::add(const GroupExtrude &group)
                     EntityBase *eorig = SK.GetEntity({en_orig_p});
                     EntityBase *enew = SK.GetEntity({en_new_p});
                     AddEq(hg, &m_sys->eq, eorig->CircleGetRadiusExpr()->Minus(enew->CircleGetRadiusExpr()), eqi++);
+                }
+
+                {
+                    auto en_orig_n = get_entity_ref(EntityRef{circle.m_wrkpl, 2});
+                    auto en_new_n = get_entity_ref(EntityRef{new_circle_uu, 3});
+                    EntityBase *eorig = SK.GetEntity({en_orig_n});
+                    EntityBase *enew = SK.GetEntity({en_new_n});
+                    auto eqo = eorig->NormalGetExprs();
+                    auto eqn = enew->NormalGetExprs();
+                    AddEq(hg, &m_sys->eq, eqo.vx->Minus(eqn.vx), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.vy->Minus(eqn.vy), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.vz->Minus(eqn.vz), eqi++);
                 }
             }
         }
