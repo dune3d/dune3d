@@ -39,6 +39,7 @@ ConstraintsBox::ConstraintsBox(Core &core) : m_core(core)
                         auto it = std::dynamic_pointer_cast<ConstraintItem>(sel);
                         if (it) {
                             m_core.get_current_document().m_constraints.erase(it->m_uuid);
+                            m_core.get_current_document().set_group_solve_pending(m_core.get_current_group());
                             m_core.set_needs_save();
                             m_core.rebuild("delete constraint");
                             m_signal_changed.emit();
@@ -63,9 +64,10 @@ ConstraintsBox::ConstraintsBox(Core &core) : m_core(core)
 void ConstraintsBox::update()
 {
     auto new_store = Gio::ListStore<ConstraintItem>::create();
-    ;
-    if (!m_core.has_documents())
+    if (!m_core.has_documents()) {
+        m_selection_model->set_model(new_store);
         return;
+    }
     auto group_uu = m_core.get_current_group();
 
     std::vector<Constraint *> constraints;

@@ -283,11 +283,13 @@ void Editor::init_properties_notebook()
     m_constraints_box = Gtk::make_managed<ConstraintsBox>(m_core);
     m_properties_notebook->append_page(*m_constraints_box, "Constraints");
     m_core.signal_rebuilt().connect([this] { m_constraints_box->update(); });
+    m_core.signal_documents_changed().connect([this] { m_constraints_box->update(); });
     m_constraints_box->signal_constraint_selected().connect([this](const UUID &uu) {
         SelectableRef sr{.document = UUID(), .type = SelectableRef::Type::CONSTRAINT, .item = uu};
         get_canvas().set_selection({sr}, true);
         get_canvas().set_selection_mode(Canvas::SelectionMode::NORMAL);
     });
+    m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
 
     m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core);
     m_selection_editor->signal_changed().connect([this] {
