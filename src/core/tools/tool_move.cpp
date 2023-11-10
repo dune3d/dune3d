@@ -6,6 +6,7 @@
 #include "document/entity/entity_arc2d.hpp"
 #include "document/entity/entity_arc3d.hpp"
 #include "document/entity/entity_circle2d.hpp"
+#include "document/entity/entity_circle3d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
 #include "document/constraint/constraint_point_distance.hpp"
@@ -159,6 +160,10 @@ ToolResponse ToolMove::update(const ToolArgs &args)
 
                     en->m_radius = en_last.m_radius + (current_radius - initial_radius);
                 }
+            }
+            if (auto en = dynamic_cast<EntityCircle3D *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityCircle3D &>(*last_doc.m_entities.at(entity->m_uuid));
+                en->m_center = en_last.m_center + delta;
             }
         }
 
