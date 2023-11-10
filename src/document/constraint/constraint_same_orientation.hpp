@@ -1,6 +1,5 @@
 #pragma once
 #include "constraint.hpp"
-#include "util/uuid_ptr.hpp"
 
 namespace dune3d {
 

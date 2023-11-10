@@ -1,5 +1,4 @@
 #pragma once
-#include "util/uuid.hpp"
 
 namespace dune3d {
 class Document;
