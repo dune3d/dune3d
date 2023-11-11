@@ -39,7 +39,8 @@ recent_sort(const std::map<std::filesystem::path, Glib::DateTime> &recent_items)
 
 static void update_recent_listbox(Gtk::ListBox &lb, Dune3DApplication &app)
 {
-    lb.remove_all();
+    while (auto child = lb.get_first_child())
+        lb.remove(*child);
 
     const auto recent_items_sorted = recent_sort(app.m_user_config.recent_items);
 
