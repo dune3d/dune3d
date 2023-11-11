@@ -45,3 +45,8 @@ jobs:
       run: |
         meson setup build
         meson compile -C build
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: windows-binaries
+        path: ./build/**/*
