@@ -54,16 +54,31 @@ void EntityArc2D::set_param(unsigned int point, unsigned int axis, double value)
     }
 }
 
+
+glm::dvec2 EntityArc2D::get_point_in_workplane(unsigned int point) const
+{
+    if (point == 1)
+        return m_from;
+    else if (point == 2)
+        return m_to;
+    else if (point == 3)
+        return m_center;
+    return {NAN, NAN};
+}
+
 glm::dvec3 EntityArc2D::get_point(unsigned int point, const Document &doc) const
 {
     auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
+    return wrkpl.transform(get_point_in_workplane(point));
+}
+
+glm::dvec2 EntityArc2D::get_tangent_at_point(unsigned int point) const
+{
+    const auto r = ((point == 1) ? m_from : m_to) - m_center;
     if (point == 1)
-        return wrkpl.transform(m_from);
-    else if (point == 2)
-        return wrkpl.transform(m_to);
-    else if (point == 3)
-        return wrkpl.transform(m_center);
-    return {NAN, NAN, NAN};
+        return {r.y, -r.x};
+    else
+        return {-r.y, r.x};
 }
 
 double EntityArc2D::get_radius() const

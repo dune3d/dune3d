@@ -22,6 +22,7 @@ public:
 
     glm::dvec3 get_point(unsigned int point, const Document &doc) const override;
     bool is_valid_point(unsigned int point) const override;
+    glm::dvec2 get_point_in_workplane(unsigned int point) const override;
 
     void accept(EntityVisitor &visitor) const override;
 

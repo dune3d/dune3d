@@ -22,11 +22,14 @@ public:
 
     glm::dvec3 get_point(unsigned int point, const Document &doc) const override;
     bool is_valid_point(unsigned int point) const override;
+    glm::dvec2 get_point_in_workplane(unsigned int point) const override;
 
     glm::dvec2 m_from;
     glm::dvec2 m_to;
     glm::dvec2 m_center;
     UUID m_wrkpl;
+
+    glm::dvec2 get_tangent_at_point(unsigned int point) const;
 
     const UUID &get_workplane() const override
     {

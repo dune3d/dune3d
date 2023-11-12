@@ -45,12 +45,17 @@ void EntityCircle2D::set_param(unsigned int point, unsigned int axis, double val
         m_center[axis] = value;
 }
 
+glm::dvec2 EntityCircle2D::get_point_in_workplane(unsigned int point) const
+{
+    if (point == 1)
+        return m_center;
+    return {NAN, NAN};
+}
+
 glm::dvec3 EntityCircle2D::get_point(unsigned int point, const Document &doc) const
 {
     auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
-    if (point == 1)
-        return wrkpl.transform(m_center);
-    return {NAN, NAN, NAN};
+    return wrkpl.transform(get_point_in_workplane(point));
 }
 
 bool EntityCircle2D::is_valid_point(unsigned int point) const
