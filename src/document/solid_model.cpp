@@ -531,6 +531,7 @@ static FaceBuilder faces_from_document(const Document &doc, const UUID &wrkpl_uu
                 else { // next_node.tag != start_node->tag
                     path.clear();
                     node = nullptr;
+                    break;
                     // this should not happen
                 }
             }
