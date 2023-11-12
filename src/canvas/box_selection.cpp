@@ -40,10 +40,10 @@ void BoxSelection::set_active(bool active)
     m_ca.queue_draw();
 }
 
-void BoxSelection::set_box(glm::vec2 a, glm::dvec2 b)
+void BoxSelection::set_box(glm::vec2 a, glm::vec2 b)
 {
-    m_sel_a = a;
-    m_sel_b = b;
+    m_sel_a = a * (float)m_ca.m_scale_factor;
+    m_sel_b = b * (float)m_ca.m_scale_factor;
     m_ca.queue_draw();
 }
 

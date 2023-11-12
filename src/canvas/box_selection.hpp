@@ -13,7 +13,7 @@ public:
     void render();
 
     void set_active(bool active);
-    void set_box(glm::vec2 a, glm::dvec2 b);
+    void set_box(glm::vec2 a, glm::vec2 b);
 
     BoxSelection(Canvas &c) : m_ca(c)
     {
