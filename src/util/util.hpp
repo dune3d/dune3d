@@ -22,4 +22,6 @@ template <typename Map, typename F> static void map_erase_if(Map &m, F pred)
 
 UUID hash_uuids(const UUID &ns, const std::vector<UUID> &uuids, std::span<const uint8_t> extra_data = {});
 
+std::string append_suffix_if_required(const std::string &s, const std::string &suffix);
+
 } // namespace dune3d

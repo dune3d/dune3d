@@ -20,6 +20,7 @@
 #include "logger/logger.hpp"
 #include "document/constraint/constraint.hpp"
 #include "util/fs_util.hpp"
+#include "util/util.hpp"
 #include "selection_editor.hpp"
 #include <iostream>
 
@@ -434,32 +435,35 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
     auto filters = Gio::ListStore<Gtk::FileFilter>::create();
 
     auto filter_any = Gtk::FileFilter::create();
+    std::string suffix;
     if (action == ActionID::EXPORT_SOLID_MODEL_STEP) {
         filter_any->set_name("STEP");
         filter_any->add_pattern("*.step");
         filter_any->add_pattern("*.stp");
+        suffix = ".step";
     }
     else {
         filter_any->set_name("STL");
         filter_any->add_pattern("*.stl");
+        suffix = ".stl";
     }
     filters->append(filter_any);
 
     dialog->set_filters(filters);
 
     // Show the dialog and wait for a user response:
-    dialog->save(m_win, [this, dialog, action](const Glib::RefPtr<Gio::AsyncResult> &result) {
+    dialog->save(m_win, [this, dialog, action, suffix](const Glib::RefPtr<Gio::AsyncResult> &result) {
         try {
             auto file = dialog->save_finish(result);
             // open_file_view(file);
             //  Notice that this is a std::string, not a Glib::ustring.
-            const auto path = path_from_string(file->get_path());
+            const auto path = path_from_string(append_suffix_if_required(file->get_path(), suffix));
             auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
             if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
                 if (action == ActionID::EXPORT_SOLID_MODEL_STEP)
-                    gr->get_solid_model()->export_step(file->get_path());
+                    gr->get_solid_model()->export_step(path);
                 else
-                    gr->get_solid_model()->export_stl(file->get_path());
+                    gr->get_solid_model()->export_stl(path);
             }
         }
         catch (const Gtk::DialogError &err) {
@@ -525,7 +529,7 @@ void Editor::on_save_as(const ActionConnection &conn)
             auto file = dialog->save_finish(result);
             // open_file_view(file);
             //  Notice that this is a std::string, not a Glib::ustring.
-            auto filename = path_from_string(file->get_path());
+            auto filename = path_from_string(append_suffix_if_required(file->get_path(), ".d3ddoc"));
             // std::cout << "File selected: " << filename << std::endl;
             m_win.get_app().add_recent_item(filename);
             m_core.save_as(filename);

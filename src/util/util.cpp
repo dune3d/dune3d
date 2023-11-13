@@ -57,4 +57,12 @@ UUID hash_uuids(const UUID &ns, const std::vector<UUID> &uuids, std::span<const 
     return UUID::UUID5(ns, path_bytes.data(), path_bytes.size());
 }
 
+std::string append_suffix_if_required(const std::string &s, const std::string &suffix)
+{
+    if (s.ends_with(suffix))
+        return s;
+    else
+        return s + suffix;
+}
+
 } // namespace dune3d
