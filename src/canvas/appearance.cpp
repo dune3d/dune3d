@@ -18,6 +18,7 @@ Appearance::Appearance()
     colors[ColorP::SELECTED] = {0.77, 0.00, 0.00};
     colors[ColorP::SELECTED_HOVER] = {1.00, 0.00, 0.00};
     colors[ColorP::SOLID_MODEL] = {0.89, 0.89, 0.89};
+    colors[ColorP::OTHER_BODY_SOLID_MODEL] = {0.76, 0.76, 0.76};
     colors[ColorP::HIGHLIGHT] = {.25, .59, .59};
     colors[ColorP::SELECTION_BOX] = {1, 0, 0};
 }

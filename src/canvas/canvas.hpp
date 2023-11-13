@@ -52,7 +52,8 @@ public:
         m_vertex_construction = c;
     }
 
-    VertexRef add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal) override;
+    VertexRef add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal,
+                             FaceColor face_color) override;
 
     VertexRef draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift) override;
 
@@ -370,6 +371,7 @@ private:
         size_t length;
         glm::vec3 origin;
         glm::quat normal;
+        FaceColor color;
 
         VertexFlags flags = VertexFlags::DEFAULT;
     };

@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
+#include "color_palette.hpp"
 
 namespace dune3d {
 FaceRenderer::FaceRenderer(Canvas &c) : BaseRenderer(c, Canvas::VertexType::FACE_GROUP)
@@ -66,6 +66,7 @@ void FaceRenderer::realize()
     GET_LOC(this, flags);
     GET_LOC(this, origin);
     GET_LOC(this, normal_mat);
+    GET_LOC(this, override_color);
 }
 
 void FaceRenderer::push()
@@ -100,6 +101,15 @@ void FaceRenderer::render()
         glUniform1ui(m_pick_base_loc, m_ca.m_pick_base + group_idx);
         glUniform1ui(m_flags_loc, static_cast<uint32_t>(group.flags));
         glUniform3fv(m_origin_loc, 1, glm::value_ptr(group.origin));
+        if (group.color == ICanvas::FaceColor::AS_IS) {
+            glUniform3f(m_override_color_loc, NAN, NAN, NAN);
+        }
+        else {
+            const auto colorp = (group.color == ICanvas::FaceColor::SOLID_MODEL) ? ColorP::SOLID_MODEL
+                                                                                 : ColorP::OTHER_BODY_SOLID_MODEL;
+            const auto color = m_ca.m_appearance.get_color(colorp);
+            gl_color_to_uniform_3f(m_override_color_loc, color);
+        }
         glm::mat3 normal_mat = glm::transpose(glm::toMat3(group.normal));
 
         glUniformMatrix3fv(m_normal_mat_loc, 1, GL_FALSE, glm::value_ptr(normal_mat));

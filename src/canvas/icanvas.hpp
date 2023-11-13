@@ -31,7 +31,9 @@ public:
                                                     int angle) = 0;
 
     // virtual void add_faces(const face::Faces &faces) = 0;
-    virtual VertexRef add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal) = 0;
+    enum class FaceColor { AS_IS, SOLID_MODEL, OTHER_BODY_SOLID_MODEL };
+    virtual VertexRef add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal,
+                                     FaceColor face_color) = 0;
     virtual VertexRef draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift) = 0;
     virtual void set_vertex_inactive(bool inactive) = 0;
     virtual void set_vertex_constraint(bool c) = 0;

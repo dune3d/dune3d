@@ -46,7 +46,8 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     if (m_solid_model_edge_select_mode) {
         auto last_solid_model = SolidModel::get_last_solid_model(*m_doc, *m_current_group);
         if (last_solid_model) {
-            m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0}, glm::quat_identity<float, glm::defaultp>());
+            m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0}, glm::quat_identity<float, glm::defaultp>(),
+                                ICanvas::FaceColor::SOLID_MODEL);
             for (const auto &[edge_idx, path] : last_solid_model->m_edges) {
                 for (size_t i = 1; i < path.size(); i++) {
                     m_ca.add_selectable(
@@ -83,7 +84,12 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
         }
 
         if (last_solid_model) {
-            m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0}, glm::quat_identity<float, glm::defaultp>());
+            const auto is_current = std::ranges::any_of(
+                    body_groups.groups, [current_group](auto group) { return group->m_uuid == current_group; });
+            const auto color =
+                    is_current ? ICanvas::FaceColor::SOLID_MODEL : ICanvas::FaceColor::OTHER_BODY_SOLID_MODEL;
+            m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0}, glm::quat_identity<float, glm::defaultp>(),
+                                color);
         }
     }
 
@@ -328,8 +334,9 @@ void Renderer::visit(const EntitySTEP &en)
     }
 
     if (en.m_imported) {
-        m_ca.add_selectable(m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal),
-                            SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, en.m_uuid, 0});
+        m_ca.add_selectable(
+                m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal, ICanvas::FaceColor::AS_IS),
+                SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, en.m_uuid, 0});
         if (en.m_show_points) {
             unsigned int idx = 1000;
             for (auto &pt : en.m_imported->result.points) {

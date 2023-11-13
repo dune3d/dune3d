@@ -21,5 +21,6 @@ private:
     GLuint m_flags_loc;
     GLuint m_origin_loc;
     GLuint m_normal_mat_loc;
+    GLuint m_override_color_loc;
 };
 } // namespace dune3d

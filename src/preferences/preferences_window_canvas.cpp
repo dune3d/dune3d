@@ -18,6 +18,7 @@ static const std::map<ColorP, std::string> color_names = {
         {ColorP::POINT, "Point"},
         {ColorP::CONSTRUCTION_POINT, "Construction point"},
         {ColorP::SOLID_MODEL, "Solid model"},
+        {ColorP::OTHER_BODY_SOLID_MODEL, "Solid model (other body)"},
         {ColorP::CONSTRUCTION_ENTITY, "Construction entity"},
         {ColorP::INACTIVE_ENTITY, "Inactive entity"},
         {ColorP::INACTIVE_POINT, "Inactive point"},

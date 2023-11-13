@@ -5,6 +5,7 @@ enum class ColorP {
     BACKGROUND_TOP,
     BACKGROUND_BOTTOM,
     SOLID_MODEL,
+    OTHER_BODY_SOLID_MODEL,
     ENTITY,
     POINT,
     CONSTRAINT,

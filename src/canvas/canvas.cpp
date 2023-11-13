@@ -599,12 +599,19 @@ void Canvas::resize_buffers()
     glBindRenderbuffer(GL_RENDERBUFFER, rb);
 }
 
-ICanvas::VertexRef Canvas::add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal)
+ICanvas::VertexRef Canvas::add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal,
+                                          FaceColor face_color)
 {
     auto offset = m_face_index_buffer.size();
     add_faces(faces);
     auto length = m_face_index_buffer.size() - offset;
-    m_face_groups.push_back(FaceGroup{.offset = offset, .length = length, .origin = origin, .normal = normal});
+    m_face_groups.push_back(FaceGroup{
+            .offset = offset,
+            .length = length,
+            .origin = origin,
+            .normal = normal,
+            .color = face_color,
+    });
 
     return {VertexType::FACE_GROUP, m_face_groups.size() - 1};
 }
