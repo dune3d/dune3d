@@ -70,9 +70,9 @@ void KeySequencesPreferences::append_from_json(const json &j)
         try {
             std::optional<ActionToolID> action_tool_id;
             if (it.contains("action"))
-                action_tool_id = action_lut.lookup(it.at("action"));
+                action_tool_id = action_lut.lookup_opt(it.at("action").get<std::string>());
             else if (it.contains("tool"))
-                action_tool_id = tool_lut.lookup(it.at("tool"));
+                action_tool_id = tool_lut.lookup_opt(it.at("tool").get<std::string>());
             if (action_tool_id.has_value()) {
                 if (keys.count(*action_tool_id) == 0) {
                     for (const auto &it3 : it.at("keys")) {

@@ -159,12 +159,12 @@
                     "mod": 0
                 },
                 {
-                    "key": "l",
+                    "key": "s",
                     "mod": 0
                 }
             ]
         ],
-        "tool": "DRAW_LINE_2D"
+        "tool": "DRAW_CONTOUR"
     },
     {
         "keys": [

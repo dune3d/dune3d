@@ -4,7 +4,6 @@ namespace dune3d {
 enum class ToolID {
     NONE,
     DRAW_LINE_3D,
-    DRAW_LINE_2D,
     DRAW_ARC_2D,
     DRAW_CIRCLE_2D,
     DRAW_WORKPLANE,
