@@ -101,6 +101,7 @@ src = files(
   'src/core/tools/tool_draw_line_2d.cpp',
   'src/core/tools/tool_draw_arc_2d.cpp',
   'src/core/tools/tool_draw_circle_2d.cpp',
+  'src/core/tools/tool_draw_contour.cpp',
   'src/core/tools/tool_delete.cpp',
   'src/core/tools/tool_move.cpp',
   'src/core/tools/tool_move.cpp',

@@ -30,5 +30,29 @@
                 "mod": 0
             }
         ]
+    ],
+    "TOGGLE_HV_CONSTRAINT": [
+        [
+            {
+                "key": "v",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_TANGENT_CONSTRAINT": [
+        [
+            {
+                "key": "t",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_ARC": [
+        [
+            {
+                "key": "a",
+                "mod": 0
+            }
+        ]
     ]
 }

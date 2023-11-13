@@ -47,25 +47,32 @@ Constraint *ToolHelperConstrain::constrain_point(const UUID &wrkpl, const Entity
     return nullptr;
 }
 
-void ToolHelperConstrain::set_constrain_tip(const std::string &what)
+std::string ToolHelperConstrain::get_constrain_tip(const std::string &what)
 {
     if (auto hsel = m_intf.get_hover_selection()) {
         if (hsel->type == SelectableRef::Type::ENTITY) {
             const auto enp = hsel->get_entity_and_point();
             if (get_doc().is_valid_point(enp)) {
-                m_intf.tool_bar_set_tool_tip("constrain " + what + " on point");
+                return "constrain " + what + " on point";
             }
             else if (enp.point == 0) {
                 auto &entity = get_entity(enp.entity);
                 if (entity.get_type() == Entity::Type::LINE_2D || entity.get_type() == Entity::Type::LINE_3D) {
-                    m_intf.tool_bar_set_tool_tip("constrain " + what + " on line");
+                    return "constrain " + what + " on line";
                 }
                 else if (entity.get_type() == Entity::Type::ARC_2D || entity.get_type() == Entity::Type::CIRCLE_2D) {
-                    m_intf.tool_bar_set_tool_tip("constrain " + what + " on circle");
+                    return "constrain " + what + " on circle";
                 }
             }
         }
     }
+    return "";
+}
+
+
+void ToolHelperConstrain::set_constrain_tip(const std::string &what)
+{
+    m_intf.tool_bar_set_tool_tip(get_constrain_tip(what));
 }
 
 } // namespace dune3d
