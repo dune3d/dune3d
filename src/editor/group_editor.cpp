@@ -30,6 +30,13 @@ protected:
             m_signal_changed.emit();
         });
         grid_attach_label_and_widget(*this, "Operation", *m_operation_combo, m_top);
+
+        {
+            auto source_group_name = m_core.get_current_document().get_group(get_group().m_source_group).m_name;
+            auto source_label = Gtk::make_managed<Gtk::Label>(source_group_name);
+            source_label->set_xalign(0);
+            grid_attach_label_and_widget(*this, "Source group", *source_label, m_top);
+        }
     }
 
 
