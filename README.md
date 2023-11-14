@@ -54,5 +54,5 @@ There's no place in Horizon EDA where a 3D CAD would make sense to implement. Al
 
 ### Why not improve Solvespace or FreeCAD?
 
-Making FreeCAD paremteric in 3D or putting Open CASCADE into Solvespace seemed to be too big a change to pull off as an outside contributor to either project. I also really like writing CAD software, so here we are.
+Making FreeCAD parametric in 3D or putting Open CASCADE into Solvespace seemed to be too big a change to pull off as an outside contributor to either project. I also really like writing CAD software, so here we are.
 
