@@ -385,6 +385,16 @@ private:
         uint32_t bits;
 
         VertexFlags flags = VertexFlags::DEFAULT;
+
+        GlyphVertex(float x)
+            : x0(x), y0(0.0f), z0(0.0f), xs(0.0f), ys(0.0f), scale(1.0f), bits(0)
+        {}
+
+        GlyphVertex(float x, float y, float z,
+                    float xs_in, float ys_in,
+                    float scale_in, uint32_t bits_in)
+            : x0(x), y0(y), z0(z), xs(xs_in), ys(ys_in), scale(scale_in), bits(bits_in)
+        {}
     };
 
     std::vector<GlyphVertex> m_glyphs;
@@ -425,6 +435,10 @@ private:
         uint16_t icon_y;
 
         VertexFlags flags = VertexFlags::DEFAULT;
+
+        IconVertex(float x, float y, float z, float xs_in, float ys_in, uint16_t icon_x_in, uint16_t icon_y_in)
+            : x0(x), y0(y), z0(z), xs(xs_in), ys(ys_in), icon_x(icon_x_in), icon_y(icon_y_in)
+        {}
     };
 
     std::vector<IconVertex> m_icons;

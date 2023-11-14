@@ -27,6 +27,8 @@ struct GroupStatusMessage {
     Status status;
     std::string message;
 
+    GroupStatusMessage(Status status_in, std::string message_in) : status(status_in), message(message_in) {}
+
     static GroupStatusMessage::Status summarize(const std::list<GroupStatusMessage> &msgs);
 };
 

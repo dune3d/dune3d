@@ -269,7 +269,13 @@ include_directories = [
 subdir('3rd_party/solvespace')
 subdir('3rd_party/Clipper2Lib')
 
-
+if target_machine.system() == 'darwin'
+  opengl_framework = dependency('appleframeworks', modules : ['OpenGL'], required : false)
+  if not opengl_framework.found()
+    error('OpenGL framework not found')
+  endif
+  build_dependencies += opengl_framework
+endif
 
 dune3d = executable('dune3d',
     [src,resources,icon_texture, color_presets],

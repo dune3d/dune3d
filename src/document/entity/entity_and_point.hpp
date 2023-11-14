@@ -8,9 +8,11 @@ class EntityAndPoint {
 public:
     UUID entity;
     unsigned int point;
-
+    EntityAndPoint() = default;
     friend auto operator<=>(const EntityAndPoint &, const EntityAndPoint &) = default;
     friend bool operator==(const EntityAndPoint &, const EntityAndPoint &) = default;
+    EntityAndPoint(const UUID& item, unsigned int p)
+        : entity(item), point(p) {};
 };
 
 void to_json(nlohmann::json &j, const EntityAndPoint &ep);

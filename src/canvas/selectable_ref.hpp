@@ -11,6 +11,12 @@ public:
     UUID item;
     unsigned int point;
 
+    SelectableRef() = default;
+    SelectableRef(const UUID& doc, Type t, const UUID& itm, unsigned int pt)
+        : document(doc), type(t), item(itm), point(pt) {};
+    SelectableRef(const UUID& doc, Type t, const UUID& itm)
+        : document(doc), type(t), item(itm), point(0) {};
+
     bool is_entity() const
     {
         return type == Type::ENTITY;

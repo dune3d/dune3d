@@ -9,6 +9,7 @@
 #include "logger/log_util.hpp"
 #include "util/fs_util.hpp"
 #include <format>
+#include <sstream>
 
 namespace dune3d {
 
@@ -88,7 +89,10 @@ static void spinbutton_set_px(Gtk::SpinButton &sp)
 {
     sp.signal_output().connect(
             [&sp] {
-                sp.set_text(std::format("{:.1f} px", sp.get_value()));
+                std::stringstream ss;
+                ss << std::fixed << std::setprecision(1) << sp.get_value() << " px";
+                std::string label = ss.str();
+                sp.set_text(label);
                 return true;
             },
             true);

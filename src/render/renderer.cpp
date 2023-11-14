@@ -12,7 +12,7 @@
 #include "icon_texture_id.hpp"
 #include <iostream>
 #include <array>
-#include <format>
+#include <sstream>
 
 namespace dune3d {
 
@@ -413,7 +413,9 @@ void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, co
     m_ca.add_selectable(m_ca.draw_line(from, p1), sr);
     m_ca.add_selectable(m_ca.draw_line(to, p2), sr);
 
-    std::string label = std::format(" {:.3f}", distance);
+    std::stringstream ss;
+    ss << " " << std::fixed << std::setprecision(3) << distance;
+    std::string label = ss.str();
     add_selectables(sr, m_ca.draw_bitmap_text(text_p, 1, label));
 }
 
@@ -485,8 +487,9 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     }
     m_ca.add_selectable(m_ca.draw_screen_line(to, (n + l * 1.5f) * 1.5f * scale), sr);
     m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * 1.5f) * 1.5f * scale), sr);
-
-    std::string label = std::format(" {:.3f}", constr.m_distance);
+    std::stringstream ss;
+    ss << " " << std::fixed << std::setprecision(3) << constr.m_distance;
+    std::string label = ss.str();
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 
     m_ca.set_vertex_constraint(false);
@@ -540,7 +543,9 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
 
     m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(pt), wrkpl.transform(to)), sr);
 
-    std::string label = std::format(" {:.3f}", constr.m_distance);
+    std::stringstream ss;
+    ss << " " << std::fixed << std::setprecision(3) << constr.m_distance;
+    std::string label = ss.str();
     add_selectables(sr, m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label));
 
     m_ca.set_vertex_constraint(false);
@@ -710,7 +715,9 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
         }
     }
 
-    std::string label = std::format(" {:.1f}°", constr.m_angle);
+    std::stringstream ss;
+    ss << " " << std::fixed << std::setprecision(1) << constr.m_angle << "°";
+    std::string label = ss.str();
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 
     m_ca.set_vertex_constraint(false);

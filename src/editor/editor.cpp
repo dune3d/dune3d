@@ -486,7 +486,7 @@ void Editor::init_properties_notebook()
     m_core.signal_rebuilt().connect([this] { m_constraints_box->update(); });
     m_core.signal_documents_changed().connect([this] { m_constraints_box->update(); });
     m_constraints_box->signal_constraint_selected().connect([this](const UUID &uu) {
-        SelectableRef sr{.document = UUID(), .type = SelectableRef::Type::CONSTRAINT, .item = uu};
+        SelectableRef sr(UUID(), SelectableRef::Type::CONSTRAINT, uu);
         get_canvas().set_selection({sr}, true);
         get_canvas().set_selection_mode(SelectionMode::NORMAL);
     });

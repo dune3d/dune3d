@@ -788,8 +788,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     glReadBuffer(GL_COLOR_ATTACHMENT1);
-    glBlitFramebuffer(0, 0, m_dev_width, m_dev_height, 0, 0, m_dev_width, m_dev_height, GL_COLOR_BUFFER_BIT,
-                      GL_NEAREST);
+    // glBlitFramebuffer(0, 0, m_dev_width, m_dev_height, 0, 0, m_dev_width, m_dev_height, GL_COLOR_BUFFER_BIT,
+    //                   GL_NEAREST);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_downsampled);
     glReadBuffer(GL_COLOR_ATTACHMENT0);

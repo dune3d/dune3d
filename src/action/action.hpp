@@ -32,6 +32,7 @@ enum class ActionSource {
 struct KeySequenceItem {
     unsigned int key;
     Gdk::ModifierType mod;
+    KeySequenceItem(unsigned int k, Gdk::ModifierType m) : key(k), mod(m) {}
     friend bool operator==(const KeySequenceItem &, const KeySequenceItem &) = default;
 };
 using KeySequence = std::vector<KeySequenceItem>;
