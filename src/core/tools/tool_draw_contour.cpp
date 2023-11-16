@@ -468,6 +468,8 @@ void ToolDrawContour::update_tip()
         else if (*ct == Constraint::Type::VERTICAL)
             tip += " vertical";
     }
+    if (!tip.size())
+        tip = " ";
     m_intf.tool_bar_set_tool_tip(tip);
 
     m_intf.tool_bar_set_actions(actions);

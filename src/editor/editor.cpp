@@ -748,6 +748,7 @@ void Editor::apply_preferences()
 
     get_canvas().set_appearance(m_preferences.canvas.appearance);
 
+    m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     /*
         key_sequence_dialog->clear();
         for (const auto &it : action_connections) {
@@ -762,7 +763,6 @@ void Editor::apply_preferences()
             it->set_keep_primary_action(!preferences.action_bar.remember);
         }
         main_window->set_use_action_bar(preferences.action_bar.enable);
-        main_window->tool_bar_set_vertical(preferences.tool_bar.vertical_layout);
         m_core.set_history_max(preferences.undo_redo.max_depth);
         m_core.set_history_never_forgets(preferences.undo_redo.never_forgets);
         selection_history_manager.set_never_forgets(preferences.undo_redo.never_forgets);

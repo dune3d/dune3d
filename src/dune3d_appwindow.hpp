@@ -92,6 +92,7 @@ public:
     void tool_bar_set_tool_tip(const std::string &s);
     void tool_bar_flash(const std::string &s);
     void tool_bar_flash_replace(const std::string &s);
+    void tool_bar_set_vertical(bool vert);
 
     void set_version_info(const std::string &s);
     void set_selection_mode_label_text(const std::string &s);
@@ -117,8 +118,6 @@ private:
     Gtk::ListBox *m_open_recent_listbox = nullptr;
 
     std::vector<Gtk::Widget *> m_action_widgets;
-    void tool_bar_set_vertical(bool vert);
-
 
     Gtk::Revealer *m_tool_bar = nullptr;
     Gtk::Label *m_tool_bar_name_label = nullptr;

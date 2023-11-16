@@ -4,6 +4,7 @@
 #include "preferences_window_keys.hpp"
 #include "preferences_window_in_tool_keys.hpp"
 #include "preferences_window_canvas.hpp"
+#include "preferences_window_misc.hpp"
 #include <map>
 
 namespace dune3d {
@@ -30,6 +31,10 @@ PreferencesWindow::PreferencesWindow(Preferences &prefs) : Gtk::Window(), m_pref
         auto ed = CanvasPreferencesEditor::create(m_preferences);
         m_stack->add(*ed, "canvas", "Appearance");
         ed->unreference();
+    }
+    {
+        auto ed = Gtk::make_managed<MiscPreferencesEditor>(m_preferences);
+        m_stack->add(*ed, "editor", "Editor");
     }
     {
         auto ed = KeySequencesPreferencesEditor::create(m_preferences);

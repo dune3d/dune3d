@@ -148,6 +148,8 @@ src = files(
   'src/preferences/preferences_window_in_tool_keys.cpp',
   'src/preferences/preferences_window_keys_base.cpp',
   'src/preferences/preferences_window_canvas.cpp',
+  'src/preferences/preferences_row.cpp',
+  'src/preferences/preferences_window_misc.cpp',
   'src/widgets/capture_dialog.cpp',
   'src/widgets/axes_lollipop.cpp',
   'src/widgets/about_dialog.cpp',
