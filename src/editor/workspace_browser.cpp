@@ -2,6 +2,7 @@
 #include "core/core.hpp"
 #include "document/document.hpp"
 #include "document/group/group.hpp"
+#include "document/group/group_sweep.hpp"
 #include "document_view.hpp"
 #include <iostream>
 
@@ -22,6 +23,7 @@ public:
     Glib::Property<int> m_dof;
     Glib::Property<GroupStatusMessage::Status> m_status;
     Glib::Property<Glib::ustring> m_status_message;
+    Glib::Property<bool> m_source_group;
     UUID m_uuid;
     UUID m_doc;
 
@@ -41,7 +43,7 @@ private:
         : Glib::ObjectBase("GroupItem"), m_name(*this, "name"), m_active(*this, "active", false),
           m_check_active(*this, "check_active", false), m_check_sensitive(*this, "check_sensitive", true),
           m_dof(*this, "dof"), m_status(*this, "status", GroupStatusMessage::Status::NONE),
-          m_status_message(*this, "status_message")
+          m_status_message(*this, "status_message"), m_source_group(*this, "source_group")
     {
     }
 
@@ -183,7 +185,11 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
         auto &it_doc = *m_document_store->get_item(i_doc);
         auto &doci = m_core.get_idocument_info(it_doc.m_uuid);
         it_doc.m_name = doci.get_basename();
-        auto body = doci.get_document().get_group(doci.get_current_group()).find_body(doci.get_document());
+        const auto &current_group = doci.get_document().get_group(doci.get_current_group());
+        UUID source_group;
+        if (auto group_sweep = dynamic_cast<const GroupSweep *>(&current_group))
+            source_group = group_sweep->m_source_group;
+        auto body = current_group.find_body(doci.get_document());
         UUID body_uu = body.group.m_uuid;
         bool after_active = false;
         for (size_t i_body = 0; i_body < it_doc.m_body_store->get_n_items(); i_body++) {
@@ -204,6 +210,7 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
                 auto &gr = doci.get_document().get_group(it_group.m_uuid);
                 it_group.m_dof = gr.m_dof;
                 it_group.m_name = gr.m_name;
+                it_group.m_source_group = it_group.m_uuid == source_group;
                 if (is_current) {
                     it_group.m_check_active = true;
                     it_group.m_check_sensitive = false;
@@ -271,8 +278,13 @@ public:
         });
 
         m_label = Gtk::make_managed<Gtk::Label>();
-        m_label->set_hexpand(true);
         m_label->set_halign(Gtk::Align::START);
+
+        m_source_group_image = Gtk::make_managed<Gtk::Image>();
+        m_source_group_image->set_hexpand(true);
+        m_source_group_image->set_from_icon_name("action-link-symbolic");
+        m_source_group_image->set_halign(Gtk::Align::START);
+        m_source_group_image->set_tooltip_text("Source of current group");
 
         m_status_button = Gtk::make_managed<Gtk::MenuButton>();
         m_status_button->set_icon_name("dialog-information-symbolic");
@@ -311,9 +323,14 @@ public:
         m_dof_label->set_width_chars(2);
 
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 5);
+        auto box2 = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 5);
+        box2->set_hexpand(true);
         box->append(*m_checkbutton);
         box->append(*m_solid_toggle);
-        box->append(*m_label);
+        box2->append(*m_label);
+        box2->append(*m_source_group_image);
+        box->append(*box2);
+
         box->append(*m_status_button);
         box->append(*m_close_button);
         box->append(*m_dof_label);
@@ -330,6 +347,7 @@ public:
         m_dof_label->set_visible(false);
         m_status_button->set_visible(false);
         m_close_button->set_visible(true);
+        m_source_group_image->set_visible(false);
         m_label->set_attributes(m_attrs_normal);
         m_bindings.push_back(Glib::Binding::bind_property_value(it.m_name.get_proxy(), m_label->property_label(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
@@ -345,6 +363,7 @@ public:
         m_dof_label->set_visible(false);
         m_status_button->set_visible(false);
         m_close_button->set_visible(false);
+        m_source_group_image->set_visible(false);
         m_label->set_attributes(m_attrs_normal);
         m_bindings.push_back(Glib::Binding::bind_property_value(it.m_name.get_proxy(), m_label->property_label(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
@@ -381,6 +400,9 @@ public:
         m_bindings.push_back(Glib::Binding::bind_property_value(it.m_check_sensitive.get_proxy(),
                                                                 m_checkbutton->property_sensitive(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
+        m_bindings.push_back(Glib::Binding::bind_property_value(it.m_source_group.get_proxy(),
+                                                                m_source_group_image->property_visible(),
+                                                                Glib::Binding::Flags::SYNC_CREATE));
         m_dof_label->set_text(std::to_string(it.m_dof.get_value()));
         m_connections.push_back(it.m_dof.get_proxy().signal_changed().connect(
                 [this, &it] { m_dof_label->set_text(std::to_string(it.m_dof.get_value())); }));
@@ -415,6 +437,7 @@ private:
     Gtk::CheckButton *m_checkbutton = nullptr;
     Gtk::ToggleButton *m_solid_toggle = nullptr;
     Gtk::Label *m_label = nullptr;
+    Gtk::Image *m_source_group_image = nullptr;
     Gtk::Label *m_dof_label = nullptr;
     Gtk::MenuButton *m_status_button = nullptr;
     Gtk::Label *m_status_label = nullptr;
