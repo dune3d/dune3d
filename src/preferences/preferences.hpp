@@ -19,6 +19,7 @@ public:
     Appearance appearance;
 
     bool enable_animations = true;
+    bool dark_theme = false;
 
     void load_from_json(const json &j);
     void load_colors_from_json(const json &j);

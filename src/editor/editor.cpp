@@ -757,6 +757,8 @@ void Editor::apply_preferences()
 
     get_canvas().set_appearance(m_preferences.canvas.appearance);
     get_canvas().set_enable_animations(m_preferences.canvas.enable_animations);
+    Gtk::Settings::get_default()->property_gtk_application_prefer_dark_theme().set_value(
+            m_preferences.canvas.dark_theme);
 
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     /*

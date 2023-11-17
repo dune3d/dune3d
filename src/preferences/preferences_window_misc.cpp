@@ -17,7 +17,6 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
     {
         auto gr = Gtk::make_managed<PreferencesGroup>("Canvas");
         box->append(*gr);
-        gr->show();
         {
             auto r = Gtk::make_managed<PreferencesRowBool>(
                     "Enable animations",
@@ -29,11 +28,19 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
     {
         auto gr = Gtk::make_managed<PreferencesGroup>("Tool Bar");
         box->append(*gr);
-        gr->show();
         {
             auto r = Gtk::make_managed<PreferencesRowBool>(
                     "Vertical layout", "Show tool tip in a separate row rather than right to the action keys",
                     m_preferences, m_preferences.tool_bar.vertical_layout);
+            gr->add_row(*r);
+        }
+    }
+    {
+        auto gr = Gtk::make_managed<PreferencesGroup>("Appearance");
+        box->append(*gr);
+        {
+            auto r = Gtk::make_managed<PreferencesRowBool>("Dark theme", "Use dark theme variant if available",
+                                                           m_preferences, m_preferences.canvas.dark_theme);
             gr->add_row(*r);
         }
     }
