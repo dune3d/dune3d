@@ -155,6 +155,8 @@ src = files(
   'src/widgets/about_dialog.cpp',
   'src/widgets/recent_item_box.cpp',
   'src/util/version.cpp',
+  'src/util/msd.cpp',
+  'src/util/msd_animator.cpp',
 )
 
 prog_python = find_program('python3')

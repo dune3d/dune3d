@@ -14,7 +14,18 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
     box->set_margin(24);
     set_child(*box);
 
-
+    {
+        auto gr = Gtk::make_managed<PreferencesGroup>("Canvas");
+        box->append(*gr);
+        gr->show();
+        {
+            auto r = Gtk::make_managed<PreferencesRowBool>(
+                    "Enable animations",
+                    "Use mass spring damper model to smooth zooming and other transitions such as rotation",
+                    m_preferences, m_preferences.canvas.enable_animations);
+            gr->add_row(*r);
+        }
+    }
     {
         auto gr = Gtk::make_managed<PreferencesGroup>("Tool Bar");
         box->append(*gr);

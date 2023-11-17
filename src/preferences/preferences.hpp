@@ -17,6 +17,9 @@ enum class InToolActionID;
 class CanvasPreferences {
 public:
     Appearance appearance;
+
+    bool enable_animations = true;
+
     void load_from_json(const json &j);
     void load_colors_from_json(const json &j);
     json serialize() const;

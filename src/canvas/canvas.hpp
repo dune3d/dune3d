@@ -13,6 +13,7 @@
 #include "selectable_ref.hpp"
 #include "face.hpp"
 #include "appearance.hpp"
+#include "util/msd_animator.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -114,6 +115,14 @@ public:
         return m_projection;
     }
 
+    void set_enable_animations(bool e)
+    {
+        m_enable_animations = e;
+    }
+    bool get_enable_animations()
+    {
+        return m_enable_animations;
+    }
 
     typedef sigc::signal<void()> type_signal_view_changed;
     type_signal_view_changed signal_view_changed()
@@ -239,6 +248,19 @@ private:
     float m_cam_fov = 45;
     glm::vec3 m_center = {0, 0, 0};
     Projection m_projection = Projection::ORTHO;
+
+    MSDAnimator m_azimuth_animator;
+    MSDAnimator m_elevation_animator;
+    MSDAnimator m_zoom_animator;
+    MSDAnimator m_cx_animator;
+    MSDAnimator m_cy_animator;
+    MSDAnimator m_cz_animator;
+
+    std::vector<MSDAnimator *> m_animators;
+    int animate_step(GdkFrameClock *frame_clock);
+    static int anim_tick_cb(GtkWidget *cwidget, GdkFrameClock *frame_clock, gpointer user_data);
+    void start_anim();
+    bool m_enable_animations = true;
 
     void scroll_zoom(double dx, double dy, Gtk::EventController &ctrl);
     void scroll_move(double dx, double dy, Gtk::EventController &ctrl);

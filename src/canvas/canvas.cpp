@@ -21,6 +21,13 @@ Canvas::Canvas()
 {
     set_can_focus(true);
     set_focusable(true);
+
+    m_animators.push_back(&m_azimuth_animator);
+    m_animators.push_back(&m_elevation_animator);
+    m_animators.push_back(&m_zoom_animator);
+    m_animators.push_back(&m_cx_animator);
+    m_animators.push_back(&m_cy_animator);
+    m_animators.push_back(&m_cz_animator);
 }
 
 void Canvas::setup_controllers()
@@ -246,8 +253,15 @@ void Canvas::end_pan()
 void Canvas::scroll_zoom(double dx, double dy, Gtk::EventController &ctrl)
 {
     const float zoom_base = 1.5;
-    m_cam_distance = m_cam_distance * pow(zoom_base, dy);
-    queue_draw();
+    if (m_enable_animations) {
+        if (dy == 0)
+            return;
+        start_anim();
+        m_zoom_animator.target += dy;
+    }
+    else {
+        set_cam_distance(m_cam_distance * pow(zoom_base, dy));
+    }
 }
 
 void Canvas::scroll_move(double dx, double dy, Gtk::EventController &ctrl)
@@ -1099,5 +1113,71 @@ void Canvas::set_projection(Projection proj)
     m_projection = proj;
     queue_draw();
 }
+
+static const float zoom_base = 1.5;
+
+static float cam_dist_to_anim(float d)
+{
+    return log(d) / log(zoom_base);
+}
+
+static float cam_dist_from_anim(float d)
+{
+    return pow(zoom_base, d);
+}
+
+
+int Canvas::animate_step(GdkFrameClock *frame_clock)
+{
+    bool stop = true;
+    for (auto anim : m_animators) {
+        if (anim->step(gdk_frame_clock_get_frame_time(frame_clock) / 1e6))
+            stop = false;
+    }
+
+    set_cam_azimuth(m_azimuth_animator.get_s());
+    set_cam_elevation(m_elevation_animator.get_s());
+    set_cam_distance(cam_dist_from_anim(m_zoom_animator.get_s()));
+    set_center({m_cx_animator.get_s(), m_cy_animator.get_s(), m_cz_animator.get_s()});
+
+    if (stop)
+        return G_SOURCE_REMOVE;
+    else
+        return G_SOURCE_CONTINUE;
+}
+
+int Canvas::anim_tick_cb(GtkWidget *cwidget, GdkFrameClock *frame_clock, gpointer user_data)
+{
+    Gtk::Widget *widget = Glib::wrap(cwidget);
+    auto canvas = dynamic_cast<Canvas *>(widget);
+    return canvas->animate_step(frame_clock);
+}
+
+
+void Canvas::start_anim()
+{
+    const bool was_stopped =
+            !std::any_of(m_animators.begin(), m_animators.end(), [](auto x) { return x->is_running(); });
+
+    if (!m_azimuth_animator.is_running())
+        m_azimuth_animator.start(m_cam_azimuth);
+
+    if (!m_elevation_animator.is_running())
+        m_elevation_animator.start(m_cam_elevation);
+
+    if (!m_zoom_animator.is_running())
+        m_zoom_animator.start(cam_dist_to_anim(m_cam_distance));
+
+    if (!m_cx_animator.is_running())
+        m_cx_animator.start(m_center.x);
+    if (!m_cy_animator.is_running())
+        m_cy_animator.start(m_center.y);
+    if (!m_cz_animator.is_running())
+        m_cz_animator.start(m_center.z);
+
+    if (was_stopped)
+        gtk_widget_add_tick_callback(GTK_WIDGET(gobj()), &Canvas::anim_tick_cb, nullptr, nullptr);
+}
+
 
 } // namespace dune3d

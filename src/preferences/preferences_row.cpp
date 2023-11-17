@@ -47,6 +47,7 @@ PreferencesRow::PreferencesRow(const std::string &title, const std::string &subt
     set_valign(Gtk::Align::CENTER);
     set_margin(10);
     auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL, 2);
+    box->set_hexpand(true);
 
     {
         auto la = Gtk::make_managed<Gtk::Label>();
