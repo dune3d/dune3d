@@ -422,6 +422,15 @@ void Editor::init_actions()
         get_canvas().set_center({0, 0, 0});
     });
 
+    connect_action(ActionID::VIEW_PERSP, [this](auto &a) { get_canvas().set_projection(Canvas::Projection::PERSP); });
+    connect_action(ActionID::VIEW_ORTHO, [this](auto &a) { get_canvas().set_projection(Canvas::Projection::ORTHO); });
+    connect_action(ActionID::VIEW_TOGGLE_PERSP_ORTHO, [this](auto &a) {
+        if (get_canvas().get_projection() == Canvas::Projection::PERSP)
+            get_canvas().set_projection(Canvas::Projection::ORTHO);
+        else
+            get_canvas().set_projection(Canvas::Projection::PERSP);
+    });
+
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
 }

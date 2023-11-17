@@ -19,5 +19,8 @@ enum class ActionID {
     PREFERENCES,
     TOGGLE_SOLID_MODEL,
     VIEW_ALL,
+    VIEW_PERSP,
+    VIEW_ORTHO,
+    VIEW_TOGGLE_PERSP_ORTHO,
 };
 }

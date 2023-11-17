@@ -64,7 +64,11 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::NEXT_GROUP, {"Next group", ActionGroup::VIEW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::PREFERENCES, {"Preferences", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::TOGGLE_SOLID_MODEL, {"Toggle solid model", ActionGroup::VIEW, ActionCatalogItem::FLAGS_DEFAULT}},
-        {ActionID::VIEW_ALL, {"Reset view", ActionGroup::VIEW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::VIEW_ALL, {"Reset view", ActionGroup::VIEW, ActionCatalogItem::FLAGS_IN_TOOL}},
+        {ActionID::VIEW_PERSP, {"View perspective", ActionGroup::VIEW, ActionCatalogItem::FLAGS_IN_TOOL}},
+        {ActionID::VIEW_ORTHO, {"View orthographic", ActionGroup::VIEW, ActionCatalogItem::FLAGS_IN_TOOL}},
+        {ActionID::VIEW_TOGGLE_PERSP_ORTHO,
+         {"Toggle persp/ortho", ActionGroup::VIEW, ActionCatalogItem::FLAGS_IN_TOOL}},
 };
 
 
@@ -96,6 +100,9 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(PREFERENCES),
         ACTION_LUT_ITEM(TOGGLE_SOLID_MODEL),
         ACTION_LUT_ITEM(VIEW_ALL),
+        ACTION_LUT_ITEM(VIEW_PERSP),
+        ACTION_LUT_ITEM(VIEW_ORTHO),
+        ACTION_LUT_ITEM(VIEW_TOGGLE_PERSP_ORTHO),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \

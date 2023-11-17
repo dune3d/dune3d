@@ -699,11 +699,13 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
         float m = tan(0.5 * glm::radians(m_cam_fov)) / m_dev_height * m_cam_distance;
         float d = cam_dist_max * 2;
 
-        m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_dev_width / m_dev_height, cam_dist_min,
-                                     cam_dist_max);
-
-        m_projmat = glm::ortho(-m_dev_width * m, m_dev_width * m, -m_dev_height * m, m_dev_height * m, -d, d);
-        //   }
+        if (m_projection == Projection::PERSP) {
+            m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_dev_width / m_dev_height, cam_dist_min,
+                                         cam_dist_max);
+        }
+        else {
+            m_projmat = glm::ortho(-m_dev_width * m, m_dev_width * m, -m_dev_height * m, m_dev_height * m, -d, d);
+        }
         m_cam_normal = glm::normalize(cam_offset);
 
         m_projmat_viewmat_inv = glm::inverse(m_projmat * m_viewmat);
@@ -1092,5 +1094,10 @@ void Canvas::set_appearance(const Appearance &appearance)
     queue_draw();
 }
 
+void Canvas::set_projection(Projection proj)
+{
+    m_projection = proj;
+    queue_draw();
+}
 
 } // namespace dune3d

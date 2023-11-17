@@ -107,6 +107,13 @@ public:
     }
     void set_center(glm::vec3 center);
 
+    enum class Projection { PERSP, ORTHO };
+    void set_projection(Projection proj);
+    Projection get_projection() const
+    {
+        return m_projection;
+    }
+
 
     typedef sigc::signal<void()> type_signal_view_changed;
     type_signal_view_changed signal_view_changed()
@@ -231,6 +238,7 @@ private:
     float m_cam_distance = 10;
     float m_cam_fov = 45;
     glm::vec3 m_center = {0, 0, 0};
+    Projection m_projection = Projection::ORTHO;
 
     void scroll_zoom(double dx, double dy, Gtk::EventController &ctrl);
     void scroll_move(double dx, double dy, Gtk::EventController &ctrl);
