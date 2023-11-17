@@ -11,6 +11,7 @@ uniform uint pick_base;
 
 uniform mat4 view;
 uniform mat4 proj;
+uniform float screen_scale;
 
 ##ubo
 
@@ -30,7 +31,7 @@ void main() {
 		tz /= tz.w;
 		tz.xyz -= p1_to_geom.xyz;
 		float s = max(length(tx.xyz), max(length(ty.xyz), length(tz.xyz)));
-		vec3 d = (tx.xyz*p2.x + ty.xyz*p2.y + tz.xyz*p2.z)/s;
+		vec3 d = (tx.xyz*p2.x + ty.xyz*p2.y + tz.xyz*p2.z)/s * screen_scale;
 		p2_to_geom = vec4(p1_to_geom.xyz + d, 1);
 		//p2_to_geom = (proj*view*vec4(p2, 1));
 	}

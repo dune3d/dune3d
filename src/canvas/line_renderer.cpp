@@ -64,6 +64,7 @@ void LineRenderer::realize()
     m_vao = create_vao(m_program, m_vbo);
 
     realize_base();
+    GET_LOC(this, screen_scale);
 }
 
 void LineRenderer::push()
@@ -86,6 +87,10 @@ void LineRenderer::render()
     glUseProgram(m_program);
     glBindVertexArray(m_vao);
 
+    {
+        const auto m = std::min(m_ca.m_width, m_ca.m_height);
+        glUniform1f(m_screen_scale_loc, 1e3 / m);
+    }
     load_uniforms();
 
     glLineWidth(m_ca.m_appearance.line_width);

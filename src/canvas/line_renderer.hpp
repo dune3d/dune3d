@@ -14,6 +14,8 @@ private:
 
     GLuint m_vao;
     GLuint m_vbo;
+    GLuint m_screen_scale_loc;
+
 
     static GLuint create_vao(GLuint program, GLuint &vbo_out);
 };
