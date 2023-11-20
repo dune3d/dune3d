@@ -287,7 +287,13 @@ void Canvas::drag_gesture_begin_cb(Gdk::EventSequence *seq)
     }
     else {
         m_gesture_drag_center_orig = m_center;
-        m_gesture_drag->set_state(Gtk::EventSequenceState::CLAIMED);
+        const auto source = m_gesture_drag->get_current_event_device()->get_source();
+        if (source == Gdk::InputSource::TOUCHSCREEN) {
+            m_gesture_drag->set_state(Gtk::EventSequenceState::NONE);
+        }
+        else {
+            m_gesture_drag->set_state(Gtk::EventSequenceState::CLAIMED);
+        }
     }
 }
 
