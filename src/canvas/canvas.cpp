@@ -707,7 +707,7 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
         m_viewmat = glm::lookAt(cam_pos, m_center, glm::vec3(0, 0, std::abs(m_cam_elevation) < 90 ? 1 : -1));
 
         float cam_dist_min = 1;
-        float cam_dist_max = 500;
+        float cam_dist_max = 500000;
 
 
         float m = tan(0.5 * glm::radians(m_cam_fov)) / m_dev_height * m_cam_distance;
