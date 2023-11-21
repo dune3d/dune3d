@@ -20,6 +20,10 @@ public:
 
     bool enable_animations = true;
     bool dark_theme = false;
+    std::string theme = "Default";
+    enum class ThemeVariant { AUTO, DARK, LIGHT };
+    ThemeVariant theme_variant = ThemeVariant::AUTO;
+
 
     void load_from_json(const json &j);
     void load_colors_from_json(const json &j);

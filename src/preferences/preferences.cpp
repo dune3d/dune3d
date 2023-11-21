@@ -212,6 +212,7 @@ json CanvasPreferences::serialize() const
     j["msaa"] = appearance.msaa;
     j["line_width"] = appearance.line_width;
     j["enable_animations"] = enable_animations;
+    j["theme"] = theme;
     return j;
 }
 
@@ -256,6 +257,7 @@ void CanvasPreferences::load_from_json(const json &j)
     appearance.msaa = j.value("msaa", 0);
     appearance.line_width = j.value("line_width", 2.0);
     enable_animations = j.value("enable_animations", true);
+    theme = j.value("theme", "Default");
     load_colors_from_json(j);
 }
 

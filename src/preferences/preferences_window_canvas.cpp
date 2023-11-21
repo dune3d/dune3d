@@ -5,6 +5,7 @@
 #include "util/changeable.hpp"
 #include "nlohmann/json.hpp"
 #include "canvas/color_palette.hpp"
+#include "color_presets.hpp"
 #include <format>
 
 namespace dune3d {
@@ -99,6 +100,11 @@ CanvasPreferencesEditor::CanvasPreferencesEditor(BaseObjectType *cobject, const 
     // m_color_chooser = GTK_COLOR_CHOOSER_WIDGET(x->get_widget<Gtk::Widget>("color_chooser")->gobj());
     // m_color_chooser = x->get_object<Gtk::ColorChooser>("color_chooser");
     m_color_chooser = Glib::wrap(GTK_COLOR_CHOOSER(gtk_builder_get_object(x->gobj(), "color_chooser")), true);
+    m_colors_revealer = x->get_widget<Gtk::Revealer>("colors_revealer");
+    m_theme_variant_auto_button = x->get_widget<Gtk::ToggleButton>("theme_variant_auto_button");
+    m_theme_variant_light_button = x->get_widget<Gtk::ToggleButton>("theme_variant_light_button");
+    m_theme_variant_dark_button = x->get_widget<Gtk::ToggleButton>("theme_variant_dark_button");
+    m_theme_customize_button = x->get_widget<Gtk::Button>("theme_customize_button");
 
     {
         auto line_width_sp = x->get_widget<Gtk::SpinButton>("line_width_sp");
@@ -130,10 +136,68 @@ CanvasPreferencesEditor::CanvasPreferencesEditor(BaseObjectType *cobject, const 
         });
     }
 
+    {
+        m_theme_dropdown = x->get_widget<Gtk::DropDown>("theme_dropdown");
+        //
+        auto items = Gtk::StringList::create();
+
+        for (const auto &[theme_name, theme] : color_themes) {
+            items->append(theme_name);
+            m_themes.push_back(theme_name);
+        }
+
+        items->append("Custom");
+        m_themes.push_back("Custom");
+        m_theme_dropdown->set_model(items);
+        {
+            auto theme = m_canvas_preferences.theme;
+            if (!color_themes.contains(theme))
+                theme = "Default";
+            m_theme_dropdown->set_selected(std::ranges::find(m_themes, m_canvas_preferences.theme) - m_themes.begin());
+        }
+        m_theme_dropdown->property_selected().signal_changed().connect([this] {
+            const auto &theme = m_themes.at(m_theme_dropdown->get_selected());
+            m_canvas_preferences.theme = theme;
+            update_colors_revealer();
+            m_preferences.signal_changed().emit();
+        });
+        update_colors_revealer();
+    }
+    m_theme_customize_button->signal_clicked().connect([this] {
+        auto dark = Gtk::Settings::get_default()->property_gtk_application_prefer_dark_theme().get_value();
+        switch (m_preferences.canvas.theme_variant) {
+        case CanvasPreferences::ThemeVariant::AUTO:
+            break;
+        case CanvasPreferences::ThemeVariant::DARK:
+            dark = true;
+            break;
+        case CanvasPreferences::ThemeVariant::LIGHT:
+            dark = false;
+            break;
+        }
+
+        auto &colors = color_themes.at(m_preferences.canvas.theme).get(dark);
+        for (auto &[color_name, color] : colors) {
+            if (m_color_editors.contains(color_name))
+                m_color_editors.at(color_name)->set_color(color);
+        }
+        m_theme_dropdown->set_selected(m_themes.size() - 1); // custom
+        update_color_chooser();
+    });
+    {
+        std::map<CanvasPreferences::ThemeVariant, Gtk::ToggleButton *> buttons = {
+                {CanvasPreferences::ThemeVariant::AUTO, m_theme_variant_auto_button},
+                {CanvasPreferences::ThemeVariant::LIGHT, m_theme_variant_light_button},
+                {CanvasPreferences::ThemeVariant::DARK, m_theme_variant_dark_button},
+        };
+        bind_widget<CanvasPreferences::ThemeVariant>(buttons, m_canvas_preferences.theme_variant,
+                                                     [this](auto v) { m_preferences.signal_changed().emit(); });
+    }
 
     for (const auto &[color, name] : color_names) {
-        m_colors_box->append(
-                *Gtk::make_managed<ColorEditorPalette>(m_canvas_preferences.appearance, m_preferences, color));
+        auto ed = Gtk::make_managed<ColorEditorPalette>(m_canvas_preferences.appearance, m_preferences, color);
+        m_colors_box->append(*ed);
+        m_color_editors.emplace(color, ed);
     }
 
     m_color_chooser_conn = m_color_chooser->property_rgba().signal_changed().connect([this] {
@@ -153,6 +217,17 @@ CanvasPreferencesEditor::CanvasPreferencesEditor(BaseObjectType *cobject, const 
             sigc::mem_fun(*this, &CanvasPreferencesEditor::update_color_chooser));
 
     m_colors_box->select_child(*m_colors_box->get_child_at_index(0));
+}
+
+void CanvasPreferencesEditor::update_colors_revealer()
+{
+    const auto &theme = m_themes.at(m_theme_dropdown->get_selected());
+    const auto is_custom = theme == "Custom";
+    m_colors_revealer->set_reveal_child(is_custom);
+    m_theme_variant_auto_button->set_sensitive(!is_custom);
+    m_theme_variant_light_button->set_sensitive(!is_custom);
+    m_theme_variant_dark_button->set_sensitive(!is_custom);
+    m_theme_customize_button->set_sensitive(!is_custom);
 }
 
 void CanvasPreferencesEditor::update_color_chooser()

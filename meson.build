@@ -168,6 +168,17 @@ icon_texture = custom_target(
     command : [prog_python, '@INPUT@', '@OUTPUT@'],
 )
 
+color_presets = custom_target(
+    'color_presets',
+    output : ['color_presets.cpp'],
+    input : [
+      'make_color_presets.py',
+      'src/preferences/color_presets/Default.dark.json',
+      'src/preferences/color_presets/Default.light.json'
+    ],
+    command : [prog_python, '@INPUT@', '@OUTPUT@'],
+)
+
 fs = import('fs')
 has_git_dir = fs.is_dir('.git')
 if has_git_dir
@@ -230,7 +241,7 @@ subdir('3rd_party/Clipper2Lib')
 
 
 dune3d = executable('dune3d',
-    [src,resources,icon_texture],
+    [src,resources,icon_texture, color_presets],
     dependencies: [build_dependencies],
     link_with: [solvespace, clipper],
     cpp_args: cpp_args,

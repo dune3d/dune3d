@@ -24,6 +24,7 @@ PreferencesWindow::PreferencesWindow(Preferences &prefs) : Gtk::Window(), m_pref
     box->append(*sidebar);
 
     m_stack = Gtk::make_managed<Gtk::Stack>();
+    m_stack->set_hhomogeneous(false);
     sidebar->set_stack(*m_stack);
     box->append(*m_stack);
 

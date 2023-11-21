@@ -22,6 +22,7 @@
 #include "util/fs_util.hpp"
 #include "util/util.hpp"
 #include "selection_editor.hpp"
+#include "preferences/color_presets.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -755,10 +756,30 @@ void Editor::apply_preferences()
         }
     }
 
-    get_canvas().set_appearance(m_preferences.canvas.appearance);
+    auto dark = Gtk::Settings::get_default()->property_gtk_application_prefer_dark_theme().get_value();
+    if (dark != m_preferences.canvas.dark_theme)
+        Gtk::Settings::get_default()->property_gtk_application_prefer_dark_theme().set_value(
+                m_preferences.canvas.dark_theme);
+    dark = Gtk::Settings::get_default()->property_gtk_application_prefer_dark_theme().get_value();
+    switch (m_preferences.canvas.theme_variant) {
+    case CanvasPreferences::ThemeVariant::AUTO:
+        break;
+    case CanvasPreferences::ThemeVariant::DARK:
+        dark = true;
+        break;
+    case CanvasPreferences::ThemeVariant::LIGHT:
+        dark = false;
+        break;
+    }
+    if (color_themes.contains(m_preferences.canvas.theme)) {
+        Appearance appearance = m_preferences.canvas.appearance;
+        appearance.colors = color_themes.at(m_preferences.canvas.theme).get(dark);
+        get_canvas().set_appearance(appearance);
+    }
+    else {
+        get_canvas().set_appearance(m_preferences.canvas.appearance);
+    }
     get_canvas().set_enable_animations(m_preferences.canvas.enable_animations);
-    Gtk::Settings::get_default()->property_gtk_application_prefer_dark_theme().set_value(
-            m_preferences.canvas.dark_theme);
 
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     /*

@@ -54,6 +54,13 @@
                 <property name="css-classes">dim-label</property>
                 <property name="halign">end</property>
                 <property name="label">Antialiasing</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="css-classes">dim-label</property>
+                    <property name="halign">end</property>
+                    <property name="label">Antialiasing</property>
+                  </object>
+                </child>
                 <layout>
                   <property name="column">0</property>
                   <property name="column-span">1</property>
@@ -72,33 +79,119 @@
                 </layout>
               </object>
             </child>
+            <child>
+              <object class="GtkBox">
+                <property name="spacing">5</property>
+                <child>
+                  <object class="GtkDropDown" id="theme_dropdown">
+                    <property name="hexpand">True</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="theme_customize_button">
+                    <property name="icon-name">document-edit-symbolic</property>
+                    <property name="tooltip-text">Customize</property>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="column-span">1</property>
+                  <property name="row">2</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="css-classes">linked</property>
+                <property name="hexpand">True</property>
+                <child>
+                  <object class="GtkToggleButton" id="theme_variant_auto_button">
+                    <property name="hexpand">True</property>
+                    <property name="label">Auto</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="theme_variant_light_button">
+                    <property name="group">theme_variant_auto_button</property>
+                    <property name="hexpand">True</property>
+                    <property name="label">Light</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="theme_variant_dark_button">
+                    <property name="group">theme_variant_auto_button</property>
+                    <property name="hexpand">True</property>
+                    <property name="label">Dark</property>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="column-span">1</property>
+                  <property name="row">3</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="css-classes">dim-label</property>
+                <property name="halign">end</property>
+                <property name="label">Color Theme</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="css-classes">dim-label</property>
+                <property name="halign">end</property>
+                <property name="label">Variant</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
           </object>
         </child>
       </object>
     </child>
     <child>
-      <object class="GtkSeparator"/>
-    </child>
-    <child>
-      <object class="GtkScrolledWindow">
-        <property name="hexpand">True</property>
-        <property name="hscrollbar-policy">never</property>
+      <object class="GtkRevealer" id="colors_revealer">
+        <property name="reveal-child">True</property>
+        <property name="transition-type">swing-right</property>
         <child>
-          <object class="GtkFlowBox" id="colors_box"/>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkSeparator"/>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="hexpand">True</property>
+                <property name="hscrollbar-policy">never</property>
+                <child>
+                  <object class="GtkFlowBox" id="colors_box"/>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"/>
+            </child>
+            <child>
+              <object class="GtkColorChooserWidget" id="color_chooser">
+                <property name="margin-bottom">20</property>
+                <property name="margin-end">20</property>
+                <property name="margin-start">20</property>
+                <property name="margin-top">20</property>
+                <property name="show-editor">True</property>
+                <property name="use-alpha">False</property>
+              </object>
+            </child>
+          </object>
         </child>
-      </object>
-    </child>
-    <child>
-      <object class="GtkSeparator"/>
-    </child>
-    <child>
-      <object class="GtkColorChooserWidget" id="color_chooser">
-        <property name="margin-bottom">20</property>
-        <property name="margin-end">20</property>
-        <property name="margin-start">20</property>
-        <property name="margin-top">20</property>
-        <property name="show-editor">True</property>
-        <property name="use-alpha">False</property>
       </object>
     </child>
   </object>
