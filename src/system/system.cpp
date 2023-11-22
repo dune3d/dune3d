@@ -1164,6 +1164,7 @@ System::~System()
     SK.param.Clear();
     SK.entity.Clear();
     SK.constraint.Clear();
+    m_sys->Clear();
     FreeAllTemporary();
 }
 
