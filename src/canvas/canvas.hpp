@@ -164,6 +164,8 @@ public:
 
     void setup_controllers();
 
+    void update_bbox() override;
+
 private:
     BackgroundRenderer m_background_renderer;
     FaceRenderer m_face_renderer;
@@ -248,6 +250,8 @@ private:
     float m_cam_fov = 45;
     glm::vec3 m_center = {0, 0, 0};
     Projection m_projection = Projection::ORTHO;
+
+    std::pair<glm::vec3, glm::vec3> m_bbox;
 
     MSDAnimator m_azimuth_animator;
     MSDAnimator m_elevation_animator;

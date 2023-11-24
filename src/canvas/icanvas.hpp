@@ -41,5 +41,7 @@ public:
 
     virtual void add_selectable(const VertexRef &vref, const SelectableRef &sref) = 0;
     virtual void set_selection_invisible(bool selection_invisible) = 0;
+
+    virtual void update_bbox() = 0;
 };
 } // namespace dune3d

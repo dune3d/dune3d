@@ -102,6 +102,8 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
 
     draw_constraints();
 
+    m_ca.update_bbox();
+
     m_doc = nullptr;
     m_doc_view = nullptr;
     m_current_group = nullptr;

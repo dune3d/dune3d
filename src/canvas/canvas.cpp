@@ -4,6 +4,7 @@
 #include "import_step/import.hpp"
 #include "bitmap_font_util.hpp"
 #include "icon_texture_map.hpp"
+#include "util/min_max_accumulator.hpp"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -712,16 +713,30 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
 
         m_viewmat = glm::lookAt(cam_pos, m_center, glm::vec3(0, 0, std::abs(m_cam_elevation) < 90 ? 1 : -1));
 
-        float cam_dist_min = 1;
-        float cam_dist_max = 500;
+        float cam_dist_min = 1e6;
+        float cam_dist_max = -1e6;
 
+        std::array<glm::vec3, 8> bbs = {glm::vec3(m_bbox.first.x, m_bbox.first.y, m_bbox.first.z),
+                                        glm::vec3(m_bbox.first.x, m_bbox.second.y, m_bbox.first.z),
+                                        glm::vec3(m_bbox.second.x, m_bbox.first.y, m_bbox.first.z),
+                                        glm::vec3(m_bbox.second.x, m_bbox.second.y, m_bbox.first.z),
+                                        glm::vec3(m_bbox.first.x, m_bbox.first.y, m_bbox.second.z),
+                                        glm::vec3(m_bbox.first.x, m_bbox.second.y, m_bbox.second.z),
+                                        glm::vec3(m_bbox.second.x, m_bbox.first.y, m_bbox.second.z),
+                                        glm::vec3(m_bbox.second.x, m_bbox.second.y, m_bbox.second.z)};
+
+        for (const auto &bb : bbs) {
+            float dist = glm::length(bb - cam_pos);
+            cam_dist_max = std::max(dist, cam_dist_max);
+            cam_dist_min = std::min(dist, cam_dist_min);
+        }
 
         float m = tan(0.5 * glm::radians(m_cam_fov)) / m_dev_height * m_cam_distance;
         float d = cam_dist_max * 2;
 
         if (m_projection == Projection::PERSP) {
-            m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_dev_width / m_dev_height, cam_dist_min,
-                                         cam_dist_max);
+            m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_dev_width / m_dev_height, cam_dist_min / 2,
+                                         cam_dist_max * 2);
         }
         else {
             m_projmat = glm::ortho(-m_dev_width * m, m_dev_width * m, -m_dev_height * m, m_dev_height * m, -d, d);
@@ -1183,6 +1198,26 @@ void Canvas::start_anim()
 
     if (was_stopped)
         gtk_widget_add_tick_callback(GTK_WIDGET(gobj()), &Canvas::anim_tick_cb, nullptr, nullptr);
+}
+
+void Canvas::update_bbox()
+{
+    MinMaxAccumulator<float> acc_x, acc_y, acc_z;
+    for (const auto &li : m_lines) {
+        acc_x.accumulate(li.x1);
+        acc_x.accumulate(li.x2);
+        acc_y.accumulate(li.y1);
+        acc_y.accumulate(li.y2);
+        acc_z.accumulate(li.z1);
+        acc_z.accumulate(li.z2);
+    }
+    for (const auto &fv : m_face_vertex_buffer) {
+        acc_x.accumulate(fv.x);
+        acc_y.accumulate(fv.y);
+        acc_z.accumulate(fv.z);
+    }
+    m_bbox.first = {acc_x.get_min(), acc_y.get_min(), acc_z.get_min()};
+    m_bbox.second = {acc_x.get_max(), acc_y.get_max(), acc_z.get_max()};
 }
 
 
