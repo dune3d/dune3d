@@ -1,6 +1,5 @@
 
 eigen = dependency('eigen3')
-mimalloc = dependency('mimalloc')
 
 is_windows = target_machine.system() == 'windows'
 slvs_cpp_args = ['-DLIBRARY', '-D_USE_MATH_DEFINES']
@@ -20,6 +19,6 @@ solvespace = static_library('solvespace',
     ),
     cpp_args: slvs_cpp_args,
     include_directories: [include_directories('src')],
-    dependencies: [eigen, mimalloc],
+    dependencies: [eigen],
     pic: false
 )

@@ -10,7 +10,6 @@
 #   include <CoreFoundation/CFBundle.h>
 #endif
 #include "solvespace.h"
-#include <mimalloc.h>
 #include "config.h"
 #if defined(WIN32)
 // Conversely, include Microsoft headers after solvespace.h to avoid clashes.
@@ -20,6 +19,8 @@
 #   include <unistd.h>
 #   include <sys/stat.h>
 #endif
+#include <list>
+#include <iostream>
 
 namespace SolveSpace {
 namespace Platform {
@@ -76,31 +77,56 @@ void DebugPrint(const char *fmt, ...) {
 // Temporary arena.
 //-----------------------------------------------------------------------------
 
-struct MimallocHeap {
-    mi_heap_t *heap = NULL;
-
-    ~MimallocHeap() {
-        if(heap != NULL)
-            mi_heap_destroy(heap);
+struct Chunk {
+    Chunk()
+    {
+        data.resize(4096, 0);
+        ptr = data.data();
+        endptr = ptr + data.size();
     }
+    std::vector<uint8_t> data;
+    uint8_t *ptr = nullptr;
+    uint8_t *endptr = nullptr;
 };
 
-static thread_local MimallocHeap TempArena;
+static std::list<Chunk> chunks;
+static Chunk *last_chunk = nullptr;
 
-void *AllocTemporary(size_t size) {
-    if(TempArena.heap == NULL) {
-        TempArena.heap = mi_heap_new();
-        ssassert(TempArena.heap != NULL, "out of memory");
+void *AllocTemporary(size_t size)
+{
+    if(!last_chunk) {
+        last_chunk = &chunks.emplace_back();
     }
-    void *ptr = mi_heap_zalloc(TempArena.heap, size);
-    ssassert(ptr != NULL, "out of memory");
-    return ptr;
+    else {
+        if(last_chunk->ptr + size > last_chunk->endptr) {
+            last_chunk = &chunks.emplace_back();
+        }
+    }
+    auto p = (void*)last_chunk->ptr;
+    size += 0x10-(size%0x10); // 16 byte alignment
+    last_chunk->ptr += size;
+    return p;
 }
 
-void FreeAllTemporary() {
-    MimallocHeap temp;
-    std::swap(TempArena.heap, temp.heap);
+void FreeAllTemporary()
+{
+    size_t total_size = 0;
+    for(auto &chunk:chunks) {
+        total_size += chunk.data.size();
+    }
+    while(chunks.size() > 1) {
+        chunks.pop_back();
+    }
+    if(chunks.size() == 0)
+        return;
+    auto &chunk = chunks.front();
+    chunk.data.resize(total_size);
+    memset(chunk.data.data(), 0, total_size);
+    chunk.ptr = chunk.data.data();
+    chunk.endptr = chunk.ptr + chunk.data.size();
+    last_chunk = &chunk;
 }
 
 }
 }
+
