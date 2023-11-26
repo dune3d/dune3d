@@ -393,7 +393,7 @@ Document::ItemsToDelete Document::get_additional_items_to_delete(const ItemsToDe
             if (items.constraints.contains(uu))
                 continue;
             if (items.groups.contains(it->m_group)) {
-                items.entities.insert(uu);
+                items.constraints.insert(uu);
                 continue;
             }
             auto refs = it->get_referenced_entities();
