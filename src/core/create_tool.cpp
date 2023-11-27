@@ -104,6 +104,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolSelectEdges>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_PERPENDICULAR:
+    case ToolID::CONSTRAIN_ANGLE:
         return std::make_unique<ToolConstrainPerpendicular>(tool_id, *this, m_intf, flags);
 
     case ToolID::SET_WORKPLANE:

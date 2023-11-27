@@ -20,5 +20,7 @@ public:
     virtual void visit(const ConstraintArcLineTangent &constraint) = 0;
     virtual void visit(const ConstraintArcArcTangent &constraint) = 0;
     virtual void visit(const ConstraintLinePointsPerpendicular &constraint) = 0;
+    virtual void visit(const ConstraintLinesPerpendicular &constraint) = 0;
+    virtual void visit(const ConstraintLinesAngle &constraint) = 0;
 };
 } // namespace dune3d

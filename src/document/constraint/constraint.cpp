@@ -55,6 +55,10 @@ std::string Constraint::get_type_name(Type type)
         return "Arc/Arc tangent";
     case Type::LINE_POINTS_PERPENDICULAR:
         return "Line/points perpendicular";
+    case Type::LINES_PERPENDICULAR:
+        return "Perpendicular";
+    case Type::LINES_ANGLE:
+        return "Angle";
     default:
         return "Constraint";
     }
@@ -92,6 +96,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                      {Constraint::Type::ARC_ARC_TANGENT, "arc_arc_tangent"},
                                      {Constraint::Type::ARC_LINE_TANGENT, "arc_line_tangent"},
                                      {Constraint::Type::LINE_POINTS_PERPENDICULAR, "line_points_perpendicular"},
+                                     {Constraint::Type::LINES_PERPENDICULAR, "lines_perpendicular"},
+                                     {Constraint::Type::LINES_ANGLE, "lines_angle"},
                              })
 
 json Constraint::serialize() const
@@ -141,6 +147,10 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintArcArcTangent>(uu, j);
     case Type::LINE_POINTS_PERPENDICULAR:
         return std::make_unique<ConstraintLinePointsPerpendicular>(uu, j);
+    case Type::LINES_PERPENDICULAR:
+        return std::make_unique<ConstraintLinesPerpendicular>(uu, j);
+    case Type::LINES_ANGLE:
+        return std::make_unique<ConstraintLinesAngle>(uu, j);
     }
     throw std::runtime_error("unknown constraint type");
 }

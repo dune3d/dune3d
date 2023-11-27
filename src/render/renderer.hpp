@@ -51,6 +51,8 @@ private:
     void visit(const ConstraintArcArcTangent &constr) override;
     void visit(const ConstraintArcLineTangent &constr) override;
     void visit(const ConstraintLinePointsPerpendicular &constr) override;
+    void visit(const ConstraintLinesPerpendicular &constr) override;
+    void visit(const ConstraintLinesAngle &constr) override;
     ICanvas &m_ca;
     const Document *m_doc = nullptr;
     const IDocumentView *m_doc_view = nullptr;

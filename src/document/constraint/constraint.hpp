@@ -35,6 +35,8 @@ public:
         ARC_LINE_TANGENT,
         ARC_ARC_TANGENT,
         LINE_POINTS_PERPENDICULAR,
+        LINES_PERPENDICULAR,
+        LINES_ANGLE,
     };
     virtual Type get_type() const = 0;
     static std::string get_type_name(Type type);

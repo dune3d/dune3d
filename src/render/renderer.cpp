@@ -10,6 +10,7 @@
 #include "util/util.hpp"
 #include "util/glm_util.hpp"
 #include "icon_texture_id.hpp"
+#include <iostream>
 #include <array>
 #include <format>
 
@@ -592,6 +593,75 @@ void Renderer::visit(const ConstraintLinePointsPerpendicular &constraint)
 {
     auto p1 = m_doc->get_point(constraint.m_point_line);
     add_constraint(p1, IconID::CONSTRAINT_PERPENDICULAR, constraint.m_uuid);
+}
+
+void Renderer::visit(const ConstraintLinesPerpendicular &constraint)
+{
+    auto c1 = get_center(m_doc->get_entity(constraint.m_entity1), *m_doc);
+    auto c2 = get_center(m_doc->get_entity(constraint.m_entity2), *m_doc);
+    add_constraint(c1, IconID::CONSTRAINT_PERPENDICULAR, constraint.m_uuid);
+    add_constraint(c2, IconID::CONSTRAINT_PERPENDICULAR, constraint.m_uuid);
+}
+
+
+void Renderer::visit(const ConstraintLinesAngle &constr)
+{
+    m_ca.set_vertex_constraint(true);
+
+    auto is = constr.get_origin(*m_doc);
+    auto p = is + constr.m_offset;
+    if (constr.m_wrkpl) {
+        auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constr.m_wrkpl);
+        p = wrkpl.project3(p);
+    }
+
+    const auto l1p1 = m_doc->get_point({constr.m_entity1, 1});
+    const auto l1p2 = m_doc->get_point({constr.m_entity1, 2});
+    const auto l1v = l1p2 - l1p1;
+    const auto l2p1 = m_doc->get_point({constr.m_entity2, 1});
+    const auto l2p2 = m_doc->get_point({constr.m_entity2, 2});
+    const auto l2v = (l2p2 - l2p1) * (constr.m_negative ? -1. : 1.);
+
+    auto n = glm::normalize(glm::cross(l1v, l2v));
+    auto u = glm::normalize(l1v);
+    auto v = glm::normalize(glm::cross(n, u));
+    auto vp = p - is;
+    auto r = glm::length(vp);
+    auto vpu = glm::dot(u, vp);
+
+    auto transform = [&](const glm::dvec2 &p) { return is + p.x * u + p.y * v; };
+
+    SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
+
+    {
+        float a0 = 0;
+        if (vpu < 0)
+            a0 = M_PI;
+        unsigned int segments = 64;
+
+        auto l1vp = glm::dvec2(glm::dot(u, l1v), glm::dot(v, l1v));
+        auto l2vp = glm::dvec2(glm::dot(u, l2v), glm::dot(v, l2v));
+
+        float dphi = angle(l2vp) - angle(l1vp);
+        if (dphi > M_PI)
+            dphi = 2 * M_PI - dphi;
+
+        dphi /= segments;
+        float a = a0;
+        while (segments--) {
+            const auto p0 = euler(r, a);
+            const auto p1 = euler(r, a + dphi);
+            m_ca.add_selectable(m_ca.draw_line(transform(p0), transform(p1)), sr);
+            a += dphi;
+        }
+    }
+
+    std::string label = std::format(" {:.1f}°", constr.m_angle);
+    for (auto vr : m_ca.draw_bitmap_text(p, 1, label, 0)) {
+        m_ca.add_selectable(vr, sr);
+    }
+
+    m_ca.set_vertex_constraint(false);
 }
 
 void Renderer::visit(const ConstraintArcLineTangent &constraint)

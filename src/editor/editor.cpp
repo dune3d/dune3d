@@ -1100,6 +1100,7 @@ std::optional<ActionToolID> Editor::get_doubleclick_action(const SelectableRef &
         case Constraint::Type::POINT_DISTANCE:
         case Constraint::Type::POINT_DISTANCE_HORIZONTAL:
         case Constraint::Type::POINT_DISTANCE_VERTICAL:
+        case Constraint::Type::LINES_ANGLE:
             return ToolID::ENTER_DATUM;
             break;
         default:;

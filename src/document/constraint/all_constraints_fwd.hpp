@@ -18,4 +18,6 @@ class ConstraintEqualRadius;
 class ConstraintArcArcTangent;
 class ConstraintArcLineTangent;
 class ConstraintLinePointsPerpendicular;
+class ConstraintLinesPerpendicular;
+class ConstraintLinesAngle;
 } // namespace dune3d

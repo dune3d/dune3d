@@ -663,14 +663,24 @@ void System::update_document()
         }
     }
     for (auto &[idx, uu] : m_constraint_refs) {
-        const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
-        if (auto c = m_doc.get_constraint_ptr<ConstraintSameOrientation>(uu))
+        if (auto c = m_doc.get_constraint_ptr<ConstraintSameOrientation>(uu)) {
+            const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
             c->m_val = val;
-        else if (auto c = m_doc.get_constraint_ptr<ConstraintParallel>(uu))
+        }
+        else if (auto c = m_doc.get_constraint_ptr<ConstraintParallel>(uu)) {
+            const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
             c->m_val = val;
+        }
         else if (auto c = m_doc.get_constraint_ptr<ConstraintPointOnLine>(uu)) {
+            const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
             c->m_val = val;
             c->m_modify_to_satisfy = false;
+        }
+        else if (auto c = m_doc.get_constraint_ptr<ConstraintLinesAngle>(uu)) {
+            if (c->m_modify_to_satisfy) {
+                c->m_angle = SK.constraint.FindById(hConstraint{idx})->valA;
+                c->m_modify_to_satisfy = false;
+            }
         }
     }
 }
@@ -1141,6 +1151,52 @@ void System::visit(const ConstraintLinePointsPerpendicular &constraint)
     auto xpd = xp1.Minus(xp2);
 
     AddEq(hConstraint{c}, &m_sys->eq, xpd.Dot(xl), 0);
+}
+
+void System::visit(const ConstraintLinesPerpendicular &constraint)
+{
+    const auto group = get_group_index(constraint);
+
+    const auto c = n_constraint++;
+
+    ConstraintBase cb = {};
+    cb.type = ConstraintBase::Type::PERPENDICULAR;
+    cb.h.v = c;
+    cb.group.v = group;
+    cb.entityA.v = m_entity_refs_r.at(EntityRef{constraint.m_entity1, 0});
+    cb.entityB.v = m_entity_refs_r.at(EntityRef{constraint.m_entity2, 0});
+    if (constraint.m_wrkpl)
+        cb.workplane.v = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
+    else
+        cb.workplane.v = 0;
+
+    SK.constraint.Add(&cb);
+}
+
+void System::visit(const ConstraintLinesAngle &constraint)
+{
+    const auto group = get_group_index(constraint);
+
+    const auto c = n_constraint++;
+
+    m_constraint_refs.emplace(c, constraint.m_uuid);
+
+    ConstraintBase cb = {};
+    cb.type = ConstraintBase::Type::ANGLE;
+    cb.h.v = c;
+    cb.group.v = group;
+    cb.valA = constraint.m_angle;
+    cb.entityA.v = m_entity_refs_r.at(EntityRef{constraint.m_entity1, 0});
+    cb.entityB.v = m_entity_refs_r.at(EntityRef{constraint.m_entity2, 0});
+    if (constraint.m_wrkpl)
+        cb.workplane.v = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
+    else
+        cb.workplane.v = 0;
+    cb.other = constraint.m_negative;
+
+    if (constraint.m_modify_to_satisfy)
+        cb.ModifyToSatisfy();
+    SK.constraint.Add(&cb);
 }
 
 int System::get_group_index(const UUID &uu) const
