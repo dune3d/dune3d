@@ -14,7 +14,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Draw contour", ActionGroup::DRAW,
           ActionCatalogItem::FLAGS_NO_MENU | ActionCatalogItem::FLAGS_NO_POPOVER
                   | ActionCatalogItem::FLAGS_NO_PREFERENCES}},
-        {ToolID::DRAW_LINE_3D, {"Draw line", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::DRAW_LINE_3D, {"Draw line in 3D", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_ARC_2D, {"Draw arc in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_CIRCLE_2D, {"Draw circle in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_WORKPLANE, {"Draw workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
