@@ -34,6 +34,16 @@ public:
         m_distance = d;
     }
 
+    DatumUnit get_datum_unit() const override
+    {
+        return DatumUnit::MM;
+    }
+
+    std::pair<double, double> get_datum_range() const override
+    {
+        return {0, 1e3};
+    }
+
     bool is_movable() const override
     {
         return true;

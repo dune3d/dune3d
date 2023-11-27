@@ -35,6 +35,11 @@ public:
         m_distance = d;
     }
 
+    DatumUnit get_datum_unit() const override
+    {
+        return DatumUnit::MM;
+    }
+
     bool is_movable() const override
     {
         return true;
@@ -60,6 +65,11 @@ public:
     std::string get_datum_name() const override
     {
         return "Distance";
+    }
+
+    std::pair<double, double> get_datum_range() const override
+    {
+        return {0, 1e3};
     }
 
     std::unique_ptr<Constraint> clone() const override;

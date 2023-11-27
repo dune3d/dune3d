@@ -10,6 +10,11 @@ class ConstraintPointDistanceHV : public ConstraintPointDistanceBase {
 public:
     using ConstraintPointDistanceBase::ConstraintPointDistanceBase;
 
+    std::pair<double, double> get_datum_range() const override
+    {
+        return {-1e3, 1e3};
+    }
+
     std::set<UUID> get_referenced_entities() const override;
 
     void accept(ConstraintVisitor &visitor) const override;

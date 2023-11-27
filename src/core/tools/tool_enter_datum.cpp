@@ -51,12 +51,12 @@ ToolResponse ToolEnterDatum::begin(const ToolArgs &args)
 
     double def = m_constraint->get_datum();
 
-    auto win = m_intf.get_dialogs().show_enter_datum_window("Enter " + m_constraint->get_datum_name(), def);
+    auto win = m_intf.get_dialogs().show_enter_datum_window("Enter " + m_constraint->get_datum_name(),
+                                                            m_constraint->get_datum_unit(), def);
 
-    if (dynamic_cast<ConstraintPointDistanceHV *>(m_constraint))
-        win->set_range(-1e3, 1e3);
-    else
-        win->set_range(0, 1e3);
+
+    auto rng = m_constraint->get_datum_range();
+    win->set_range(rng.first, rng.second);
 
 
     return ToolResponse();
