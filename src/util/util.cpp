@@ -3,6 +3,10 @@
 #include "nlohmann/json.hpp"
 #include <fstream>
 #include <giomm.h>
+#ifdef G_OS_WIN32
+#include <windows.h>
+#include <iostream>
+#endif
 
 namespace dune3d {
 json load_json_from_file(const std::filesystem::path &filename)
