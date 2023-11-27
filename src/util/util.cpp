@@ -65,4 +65,51 @@ std::string append_suffix_if_required(const std::string &s, const std::string &s
         return s + suffix;
 }
 
+
+static std::locale setup_locale()
+{
+    std::locale::global(std::locale::classic());
+    char decimal_sep = '.';
+#ifdef G_OS_WIN32
+    TCHAR szSep[8];
+    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, szSep, 8);
+    if (szSep[0] == ',') {
+        decimal_sep = ',';
+    }
+#else
+    try {
+        // Try setting the "native locale", in order to retain
+        // things like decimal separator.  This might fail in
+        // case the user has no notion of a native locale.
+        auto user_locale = std::locale("");
+        decimal_sep = std::use_facet<std::numpunct<char>>(user_locale).decimal_point();
+    }
+    catch (...) {
+        // just proceed
+    }
+#endif
+
+    class comma : public std::numpunct<char> {
+    public:
+        comma(char c) : dp(c)
+        {
+        }
+        char do_decimal_point() const override
+        {
+            return dp;
+        } // comma
+
+    private:
+        const char dp;
+    };
+
+    return std::locale(std::locale::classic(), new comma(decimal_sep));
+}
+
+const std::locale &get_locale()
+{
+    static std::locale the_locale = setup_locale();
+    return the_locale;
+}
+
 } // namespace dune3d

@@ -24,4 +24,6 @@ UUID hash_uuids(const UUID &ns, const std::vector<UUID> &uuids, std::span<const 
 
 std::string append_suffix_if_required(const std::string &s, const std::string &suffix);
 
+const std::locale &get_locale();
+
 } // namespace dune3d

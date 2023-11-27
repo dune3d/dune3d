@@ -33,7 +33,7 @@ bool SpinButtonDim::on_output()
     double min, max;
     get_range(min, max);
     std::stringstream stream;
-    // stream.imbue(get_locale());
+    stream.imbue(get_locale());
     if (value < 0)
         stream << "−"; // this is U+2212 MINUS SIGN, has same width as +
     else if (value >= 0 && min < 0)
