@@ -137,6 +137,7 @@
 	(1,54,"GtkLabel","xalign","0.0",None,None,None,None,None,None,None,None,None),
 	(1,55,"GtkLabel","label","lalala",None,None,None,None,None,None,None,None,None),
 	(1,55,"GtkLabel","wrap","True",None,None,None,None,None,None,None,None,None),
+	(1,55,"GtkLabel","xalign","0.0",None,None,None,None,None,None,None,None,None),
 	(1,55,"GtkWidget","hexpand","True",None,None,None,None,None,None,None,None,None),
 	(1,56,"GtkLabel","label","selection mode",None,None,None,None,None,None,None,None,None),
 	(1,56,"GtkLabel","width-chars","10",None,None,None,None,None,None,None,None,None),

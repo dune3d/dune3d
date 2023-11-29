@@ -105,6 +105,7 @@
                         <property name="hexpand">True</property>
                         <property name="label">lalala</property>
                         <property name="wrap">True</property>
+                        <property name="xalign">0.0</property>
                       </object>
                     </child>
                   </object>
