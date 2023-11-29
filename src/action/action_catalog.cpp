@@ -70,13 +70,28 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::VIEW_ORTHO, {"View orthographic", ActionGroup::VIEW, ActionCatalogItem::FLAGS_IN_TOOL}},
         {ActionID::VIEW_TOGGLE_PERSP_ORTHO,
          {"Toggle persp/ortho", ActionGroup::VIEW, ActionCatalogItem::FLAGS_IN_TOOL}},
+        {ActionID::DELETE_CURRENT_GROUP,
+         {"Delete current group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::CREATE_GROUP_SKETCH, {"Create sketch group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::CREATE_GROUP_EXTRUDE,
+         {"Create extrude group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::CREATE_GROUP_LATHE, {"Create lathe group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::CREATE_GROUP_FILLET, {"Create fillet group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::CREATE_GROUP_CHAMFER,
+         {"Create chamfer group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::MOVE_GROUP_UP, {"Move current group up", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::MOVE_GROUP_DOWN, {"Move current group down", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::MOVE_GROUP_TO_END_OF_BODY,
+         {"Move current group to end of body/next body", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT,
+         {"Move current group to end of document", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
 const std::vector<std::pair<ActionGroup, std::string>> action_group_catalog = {
-        {ActionGroup::CONSTRAIN, "Constrain"}, {ActionGroup::DRAW, "Draw"},         {ActionGroup::MOVE, "Move"},
-        {ActionGroup::UNDO, "Undo"},           {ActionGroup::DOCUMENT, "Document"}, {ActionGroup::VIEW, "View"},
-        {ActionGroup::UNKNOWN, "Misc"},
+        {ActionGroup::CONSTRAIN, "Constrain"}, {ActionGroup::DRAW, "Draw"},    {ActionGroup::MOVE, "Move"},
+        {ActionGroup::UNDO, "Undo"},           {ActionGroup::GROUP, "Group"},  {ActionGroup::DOCUMENT, "Document"},
+        {ActionGroup::VIEW, "View"},           {ActionGroup::UNKNOWN, "Misc"},
 };
 
 #define ACTION_LUT_ITEM(x)                                                                                             \
@@ -104,6 +119,16 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(VIEW_PERSP),
         ACTION_LUT_ITEM(VIEW_ORTHO),
         ACTION_LUT_ITEM(VIEW_TOGGLE_PERSP_ORTHO),
+        ACTION_LUT_ITEM(DELETE_CURRENT_GROUP),
+        ACTION_LUT_ITEM(MOVE_GROUP_UP),
+        ACTION_LUT_ITEM(MOVE_GROUP_DOWN),
+        ACTION_LUT_ITEM(MOVE_GROUP_TO_END_OF_BODY),
+        ACTION_LUT_ITEM(MOVE_GROUP_TO_END_OF_DOCUMENT),
+        ACTION_LUT_ITEM(CREATE_GROUP_SKETCH),
+        ACTION_LUT_ITEM(CREATE_GROUP_EXTRUDE),
+        ACTION_LUT_ITEM(CREATE_GROUP_LATHE),
+        ACTION_LUT_ITEM(CREATE_GROUP_CHAMFER),
+        ACTION_LUT_ITEM(CREATE_GROUP_FILLET),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \

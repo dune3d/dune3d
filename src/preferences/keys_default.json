@@ -356,5 +356,71 @@
                 }
             ]
         ]
+    },
+    {
+        "action": "DELETE_CURRENT_GROUP",
+        "keys": [
+            [
+                {
+                    "key": "Delete",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "MOVE_GROUP_UP",
+        "keys": [
+            [
+                {
+                    "key": "Page_Up",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "MOVE_GROUP_DOWN",
+        "keys": [
+            [
+                {
+                    "key": "Page_Down",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "MOVE_GROUP_TO_END_OF_BODY",
+        "keys": [
+            [
+                {
+                    "key": "End",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "CREATE_GROUP_SKETCH",
+        "keys": [
+            [
+                {
+                    "key": "k",
+                    "mod": 4
+                }
+            ]
+        ]
+    },
+    {
+        "action": "CREATE_GROUP_EXTRUDE",
+        "keys": [
+            [
+                {
+                    "key": "e",
+                    "mod": 4
+                }
+            ]
+        ]
     }
 ]

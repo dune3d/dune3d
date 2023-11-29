@@ -145,6 +145,9 @@ public:
     void set_group_solve_pending(const UUID &group);
     void set_group_update_solid_model_pending(const UUID &group);
 
+    enum class MoveGroup { UP, DOWN, END_OF_BODY, END_OF_DOCUMENT };
+    UUID get_group_after(const UUID &group, MoveGroup dir) const;
+
     bool reorder_group(const UUID &group, const UUID &after);
 
     struct ItemsToDelete {

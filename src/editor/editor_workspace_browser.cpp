@@ -6,6 +6,7 @@
 #include "document/entity/entity_workplane.hpp"
 #include "util/selection_util.hpp"
 #include "canvas/canvas.hpp"
+#include "workspace_browser.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -19,10 +20,9 @@ void Editor::init_workspace_browser()
 
     m_workspace_browser->signal_group_selected().connect(
             sigc::mem_fun(*this, &Editor::on_workspace_browser_group_selected));
-    m_workspace_browser->signal_add_group().connect(sigc::mem_fun(*this, &Editor::on_workspace_browser_add_group));
-    m_workspace_browser->signal_delete_current_group().connect(
-            sigc::mem_fun(*this, &Editor::on_workspace_browser_delete_current_group));
-    m_workspace_browser->signal_move_group().connect(sigc::mem_fun(*this, &Editor::on_workspace_browser_move_group));
+    m_workspace_browser->signal_add_group().connect(sigc::mem_fun(*this, &Editor::on_add_group));
+    m_workspace_browser->signal_delete_current_group().connect(sigc::mem_fun(*this, &Editor::on_delete_current_group));
+    m_workspace_browser->signal_move_group().connect(sigc::mem_fun(*this, &Editor::on_move_group));
     m_workspace_browser->signal_group_checked().connect(
             sigc::mem_fun(*this, &Editor::on_workspace_browser_group_checked));
     m_workspace_browser->signal_body_checked().connect(
@@ -58,7 +58,7 @@ void Editor::on_workspace_browser_group_selected(const UUID &uu_doc, const UUID 
     }
 }
 
-void Editor::on_workspace_browser_add_group(Group::Type group_type)
+void Editor::on_add_group(Group::Type group_type)
 {
     if (m_core.tool_is_active())
         return;
@@ -128,7 +128,7 @@ void Editor::on_workspace_browser_add_group(Group::Type group_type)
     }
 }
 
-void Editor::on_workspace_browser_delete_current_group()
+void Editor::on_delete_current_group()
 {
     if (m_core.tool_is_active())
         return;
@@ -163,54 +163,18 @@ void Editor::on_workspace_browser_delete_current_group()
     m_workspace_browser->update_documents(m_document_view);
 }
 
-void Editor::on_workspace_browser_move_group(WorkspaceBrowser::MoveGroup op)
+void Editor::on_move_group(Document::MoveGroup op)
 {
     if (m_core.tool_is_active())
         return;
     auto &doc = m_core.get_current_document();
+    auto group = m_core.get_current_group();
 
-    auto &group = doc.get_group(m_core.get_current_group());
-    auto groups_by_body = doc.get_groups_by_body();
-
-    UUID group_after;
-    using Op = WorkspaceBrowser::MoveGroup;
-    switch (op) {
-    case Op::UP:
-        group_after = doc.get_group_rel(group.m_uuid, -2);
-        break;
-    case Op::DOWN:
-        group_after = doc.get_group_rel(group.m_uuid, 1);
-        break;
-    case Op::END_OF_DOCUMENT:
-        group_after = groups_by_body.back().groups.back()->m_uuid;
-        break;
-    case Op::END_OF_BODY: {
-        for (auto it_body = groups_by_body.begin(); it_body != groups_by_body.end(); it_body++) {
-            auto it_group = std::ranges::find(it_body->groups, &group);
-            if (it_group == it_body->groups.end())
-                continue;
-
-            if (it_group == (it_body->groups.end() - 1)) {
-                // is at end of body, move to end of next body
-                auto it_next_body = it_body + 1;
-                if (it_next_body == groups_by_body.end()) {
-                    it_next_body = it_body;
-                }
-                group_after = it_next_body->groups.back()->m_uuid;
-            }
-            else {
-                group_after = it_body->groups.back()->m_uuid;
-            }
-        }
-
-    } break;
-    }
+    UUID group_after = doc.get_group_after(group, op);
     if (!group_after)
         return;
 
-    std::cout << "move after " << doc.get_group(group_after).m_name << std::endl;
-
-    if (!doc.reorder_group(group.m_uuid, group_after))
+    if (!doc.reorder_group(group, group_after))
         return;
     m_core.set_needs_save();
     m_core.rebuild("reorder_group");

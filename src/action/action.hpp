@@ -20,6 +20,7 @@ enum class ActionGroup {
     UNDO,
     MOVE,
     DOCUMENT,
+    GROUP,
     VIEW,
 };
 

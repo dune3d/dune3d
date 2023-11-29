@@ -597,28 +597,29 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
             auto button = Gtk::make_managed<Gtk::Button>();
             button->set_icon_name("go-up-symbolic");
             button->set_tooltip_text("Move group up");
-            button->signal_clicked().connect([this] { m_signal_move_group.emit(MoveGroup::UP); });
+            button->signal_clicked().connect([this] { m_signal_move_group.emit(Document::MoveGroup::UP); });
             box->append(*button);
         }
         {
             auto button = Gtk::make_managed<Gtk::Button>();
             button->set_icon_name("go-down-symbolic");
             button->set_tooltip_text("Move group down");
-            button->signal_clicked().connect([this] { m_signal_move_group.emit(MoveGroup::DOWN); });
+            button->signal_clicked().connect([this] { m_signal_move_group.emit(Document::MoveGroup::DOWN); });
             box->append(*button);
         }
         {
             auto button = Gtk::make_managed<Gtk::Button>();
             button->set_icon_name("action-move-group-down2-symbolic");
             button->set_tooltip_text("Move group to end of body / next body");
-            button->signal_clicked().connect([this] { m_signal_move_group.emit(MoveGroup::END_OF_BODY); });
+            button->signal_clicked().connect([this] { m_signal_move_group.emit(Document::MoveGroup::END_OF_BODY); });
             box->append(*button);
         }
         {
             auto button = Gtk::make_managed<Gtk::Button>();
             button->set_icon_name("action-move-group-down3-symbolic");
             button->set_tooltip_text("Move group to end of document");
-            button->signal_clicked().connect([this] { m_signal_move_group.emit(MoveGroup::END_OF_DOCUMENT); });
+            button->signal_clicked().connect(
+                    [this] { m_signal_move_group.emit(Document::MoveGroup::END_OF_DOCUMENT); });
             box->append(*button);
         }
         append(*box);

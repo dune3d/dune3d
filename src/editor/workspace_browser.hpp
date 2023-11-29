@@ -2,6 +2,7 @@
 #include <gtkmm.h>
 #include "util/uuid.hpp"
 #include "document/group/group.hpp"
+#include "document/document.hpp"
 
 namespace dune3d {
 
@@ -51,8 +52,7 @@ public:
         return m_signal_add_group;
     }
 
-    enum class MoveGroup { UP, DOWN, END_OF_BODY, END_OF_DOCUMENT };
-    using type_signal_move_group = sigc::signal<void(MoveGroup)>;
+    using type_signal_move_group = sigc::signal<void(Document::MoveGroup)>;
     type_signal_move_group signal_move_group()
     {
         return m_signal_move_group;

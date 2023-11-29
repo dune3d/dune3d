@@ -497,6 +497,47 @@ void Document::set_group_update_solid_model_pending(const UUID &group)
     update_group_if_less(m_first_group_update_solid_model, group);
 }
 
+UUID Document::get_group_after(const UUID &group_uu, MoveGroup dir) const
+{
+    auto &group = get_group(group_uu);
+    auto groups_by_body = get_groups_by_body();
+
+    UUID group_after;
+    using Op = MoveGroup;
+    switch (dir) {
+    case Op::UP:
+        group_after = get_group_rel(group.m_uuid, -2);
+        break;
+    case Op::DOWN:
+        group_after = get_group_rel(group.m_uuid, 1);
+        break;
+    case Op::END_OF_DOCUMENT:
+        group_after = groups_by_body.back().groups.back()->m_uuid;
+        break;
+    case Op::END_OF_BODY: {
+        for (auto it_body = groups_by_body.begin(); it_body != groups_by_body.end(); it_body++) {
+            auto it_group = std::ranges::find(it_body->groups, &group);
+            if (it_group == it_body->groups.end())
+                continue;
+
+            if (it_group == (it_body->groups.end() - 1)) {
+                // is at end of body, move to end of next body
+                auto it_next_body = it_body + 1;
+                if (it_next_body == groups_by_body.end()) {
+                    it_next_body = it_body;
+                }
+                group_after = it_next_body->groups.back()->m_uuid;
+            }
+            else {
+                group_after = it_body->groups.back()->m_uuid;
+            }
+        }
+
+    } break;
+    }
+    return group_after;
+}
+
 Document::~Document() = default;
 
 } // namespace dune3d

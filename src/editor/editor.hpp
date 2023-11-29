@@ -8,7 +8,6 @@
 #include "dialogs/dialogs.hpp"
 #include "util/action_label.hpp"
 #include "document/group/group.hpp"
-#include "workspace_browser.hpp"
 #include "canvas/canvas.hpp"
 
 
@@ -22,7 +21,7 @@ class ToolPopover;
 class ConstraintsBox;
 class GroupEditor;
 class SelectionEditor;
-
+class WorkspaceBrowser;
 class Dune3DAppWindow;
 
 class Editor : private EditorInterface {
@@ -64,9 +63,9 @@ private:
     void init_canvas();
 
     void on_workspace_browser_group_selected(const UUID &uu_doc, const UUID &uu_group);
-    void on_workspace_browser_add_group(Group::Type group_type);
-    void on_workspace_browser_delete_current_group();
-    void on_workspace_browser_move_group(WorkspaceBrowser::MoveGroup op);
+    void on_add_group(Group::Type group_type);
+    void on_delete_current_group();
+    void on_move_group(Document::MoveGroup op);
     void on_workspace_browser_group_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
     void on_workspace_browser_body_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
     void on_workspace_browser_body_solid_model_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
@@ -74,6 +73,8 @@ private:
     void on_export_solid_model(const ActionConnection &conn);
     void on_open_document(const ActionConnection &conn);
     void on_save_as(const ActionConnection &conn);
+    void on_create_group_action(const ActionConnection &conn);
+    void on_move_group_action(const ActionConnection &conn);
 
 
     Canvas &get_canvas();

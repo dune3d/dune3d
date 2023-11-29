@@ -23,6 +23,7 @@
 #include "util/util.hpp"
 #include "selection_editor.hpp"
 #include "preferences/color_presets.hpp"
+#include "workspace_browser.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -346,6 +347,18 @@ void Editor::init_header_bar()
     }
 }
 
+static const std::set<ActionID> create_group_actions = {
+        ActionID::CREATE_GROUP_CHAMFER, ActionID::CREATE_GROUP_FILLET, ActionID::CREATE_GROUP_SKETCH,
+        ActionID::CREATE_GROUP_EXTRUDE, ActionID::CREATE_GROUP_LATHE,
+};
+
+static const std::set<ActionID> move_group_actions = {
+        ActionID::MOVE_GROUP_UP,
+        ActionID::MOVE_GROUP_DOWN,
+        ActionID::MOVE_GROUP_TO_END_OF_BODY,
+        ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT,
+};
+
 void Editor::init_actions()
 {
     connect_action(ActionID::SAVE_ALL, [this](auto &a) { m_core.save_all(); });
@@ -432,6 +445,15 @@ void Editor::init_actions()
             get_canvas().set_projection(Canvas::Projection::PERSP);
     });
 
+    connect_action(ActionID::DELETE_CURRENT_GROUP, [this](auto &a) { on_delete_current_group(); });
+
+    for (const auto act : create_group_actions) {
+        connect_action(act, sigc::mem_fun(*this, &Editor::on_create_group_action));
+    }
+    for (const auto act : move_group_actions) {
+        connect_action(act, sigc::mem_fun(*this, &Editor::on_move_group_action));
+    }
+
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
 }
@@ -517,6 +539,30 @@ void Editor::on_open_document(const ActionConnection &conn)
             std::cout << "Unexpected exception. " << err.what() << std::endl;
         }
     });
+}
+
+void Editor::on_create_group_action(const ActionConnection &conn)
+{
+    static const std::map<ActionID, Group::Type> group_types = {
+            {ActionID::CREATE_GROUP_CHAMFER, Group::Type::CHAMFER},
+            {ActionID::CREATE_GROUP_FILLET, Group::Type::FILLET},
+            {ActionID::CREATE_GROUP_EXTRUDE, Group::Type::EXTRUDE},
+            {ActionID::CREATE_GROUP_LATHE, Group::Type::LATHE},
+            {ActionID::CREATE_GROUP_SKETCH, Group::Type::SKETCH},
+    };
+    on_add_group(group_types.at(std::get<ActionID>(conn.id)));
+}
+
+static const std::map<ActionID, Document::MoveGroup> move_types = {
+        {ActionID::MOVE_GROUP_UP, Document::MoveGroup::UP},
+        {ActionID::MOVE_GROUP_DOWN, Document::MoveGroup::DOWN},
+        {ActionID::MOVE_GROUP_TO_END_OF_BODY, Document::MoveGroup::END_OF_BODY},
+        {ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT, Document::MoveGroup::END_OF_DOCUMENT},
+};
+
+void Editor::on_move_group_action(const ActionConnection &conn)
+{
+    on_move_group(move_types.at(std::get<ActionID>(conn.id)));
 }
 
 void Editor::on_save_as(const ActionConnection &conn)
@@ -712,6 +758,13 @@ void Editor::update_action_sensitivity()
     m_action_sensitivity[ActionID::TOGGLE_SOLID_MODEL] = m_core.has_documents();
     m_action_sensitivity[ActionID::NEW_DOCUMENT] = !m_core.has_documents();
 
+    for (const auto act : create_group_actions) {
+        m_action_sensitivity[act] = m_core.has_documents();
+    }
+
+    for (const auto act : move_group_actions) {
+        m_action_sensitivity[act] = m_core.has_documents();
+    }
     if (m_core.has_documents()) {
         auto &current_group = m_core.get_current_document().get_group(m_core.get_current_group());
         auto groups_sorted = m_core.get_current_document().get_groups_sorted();
@@ -720,11 +773,21 @@ void Editor::update_action_sensitivity()
         const bool is_last = groups_sorted.back() == &current_group;
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = !is_first;
         m_action_sensitivity[ActionID::NEXT_GROUP] = !is_last;
+        m_action_sensitivity[ActionID::DELETE_CURRENT_GROUP] = !is_first;
+        const auto has_current_wrkpl = current_group.m_active_wrkpl != UUID();
+        m_action_sensitivity[ActionID::CREATE_GROUP_EXTRUDE] = has_current_wrkpl;
+        m_action_sensitivity[ActionID::CREATE_GROUP_LATHE] = has_current_wrkpl;
+        for (const auto &[act, mg] : move_types) {
+            m_action_sensitivity[act] =
+                    m_core.get_current_document().get_group_after(current_group.m_uuid, mg) != UUID();
+        }
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
         m_action_sensitivity[ActionID::NEXT_GROUP] = false;
+        m_action_sensitivity[ActionID::DELETE_CURRENT_GROUP] = false;
     }
+
 
     m_signal_action_sensitive.emit();
 }
