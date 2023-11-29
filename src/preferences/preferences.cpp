@@ -206,6 +206,12 @@ static const LutEnumStr<ColorP> colorp_lut = {
 
 #undef COLORP_LUT_ITEM
 
+static const LutEnumStr<CanvasPreferences::ThemeVariant> theme_variant_lut = {
+        {"auto", CanvasPreferences::ThemeVariant::AUTO},
+        {"light", CanvasPreferences::ThemeVariant::LIGHT},
+        {"dark", CanvasPreferences::ThemeVariant::DARK},
+};
+
 json CanvasPreferences::serialize() const
 {
     json j = serialize_colors();
@@ -213,6 +219,8 @@ json CanvasPreferences::serialize() const
     j["line_width"] = appearance.line_width;
     j["enable_animations"] = enable_animations;
     j["theme"] = theme;
+    j["theme_variant"] = theme_variant_lut.lookup_reverse(theme_variant);
+    j["dark_theme"] = dark_theme;
     return j;
 }
 
@@ -258,9 +266,11 @@ void CanvasPreferences::load_from_json(const json &j)
     appearance.line_width = j.value("line_width", 2.0);
     enable_animations = j.value("enable_animations", true);
     theme = j.value("theme", "Default");
+    if (j.contains("theme_variant"))
+        theme_variant = theme_variant_lut.lookup(j.at("theme_variant"), ThemeVariant::AUTO);
+    dark_theme = j.value("dark_theme", false);
     load_colors_from_json(j);
 }
-
 
 json Preferences::serialize() const
 {
