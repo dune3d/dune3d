@@ -2,6 +2,7 @@
 #include "document/entity/entity_workplane.hpp"
 #include "tool_common_impl.hpp"
 #include "document/group/group.hpp"
+#include "editor/editor_interface.hpp"
 
 namespace dune3d {
 Document &ToolCommon::get_doc()
@@ -16,7 +17,10 @@ Group &ToolCommon::get_group()
 
 UUID ToolCommon::get_workplane_uuid()
 {
-    return m_core.get_current_workplane();
+    if (m_intf.get_use_workplane())
+        return m_core.get_current_workplane();
+    else
+        return UUID();
 }
 
 EntityWorkplane *ToolCommon::get_workplane()

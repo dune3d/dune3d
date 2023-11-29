@@ -72,6 +72,11 @@ public:
         return *m_hamburger_menu_button;
     }
 
+    Gtk::CheckButton &get_workplane_checkbutton()
+    {
+        return *m_workplane_checkbutton;
+    }
+
     Canvas &get_canvas()
     {
         return *m_canvas;
@@ -82,7 +87,6 @@ public:
         return *m_canvas;
     }
 
-    void set_workplane_label_text(const std::string &s);
     void set_key_hint_label_text(const std::string &s);
 
     void tool_bar_clear_actions();
@@ -136,7 +140,7 @@ private:
 
     Canvas *m_canvas = nullptr;
     Gtk::Label *m_key_hint_label = nullptr;
-    Gtk::Label *m_workplane_label = nullptr;
+    Gtk::CheckButton *m_workplane_checkbutton = nullptr;
 
 
     Gtk::InfoBar *m_version_info_bar = nullptr;

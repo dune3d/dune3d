@@ -52,6 +52,8 @@ public:
         m_solid_model_edge_select_mode = v;
     }
 
+    bool get_use_workplane() const override;
+
     void open_file(const std::filesystem::path &path);
 
 private:

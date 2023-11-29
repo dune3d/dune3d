@@ -130,7 +130,7 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     get_canvas().set_vexpand(true);
     get_canvas().set_hexpand(true);
     m_key_hint_label = refBuilder->get_widget<Gtk::Label>("key_hint_label");
-    m_workplane_label = refBuilder->get_widget<Gtk::Label>("workplane_label");
+    m_workplane_checkbutton = refBuilder->get_widget<Gtk::CheckButton>("workplane_checkbutton");
 
 
     {
@@ -157,11 +157,6 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     set_icon_name("dune3d");
 
     m_editor.init();
-}
-
-void Dune3DAppWindow::set_workplane_label_text(const std::string &s)
-{
-    m_workplane_label->set_text(s);
 }
 
 void Dune3DAppWindow::set_key_hint_label_text(const std::string &s)

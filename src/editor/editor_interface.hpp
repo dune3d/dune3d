@@ -30,6 +30,8 @@ public:
     virtual void canvas_update_from_tool() = 0;
     virtual void set_solid_model_edge_select_mode(bool v) = 0;
 
+    virtual bool get_use_workplane() const = 0;
+
     virtual Dialogs &get_dialogs() = 0;
 };
 } // namespace dune3d

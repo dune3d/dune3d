@@ -453,6 +453,10 @@ void Editor::init_actions()
     for (const auto act : move_group_actions) {
         connect_action(act, sigc::mem_fun(*this, &Editor::on_move_group_action));
     }
+    connect_action(ActionID::TOGGLE_WORKPLANE, [this](auto &a) {
+        auto &cb = m_win.get_workplane_checkbutton();
+        cb.set_active(!cb.get_active());
+    });
 
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
@@ -714,17 +718,17 @@ void Editor::update_group_editor()
 void Editor::update_workplane_label()
 {
     if (!m_core.has_documents()) {
-        m_win.set_workplane_label_text("No documents");
+        m_win.get_workplane_checkbutton().set_label("No documents");
         return;
     }
     auto wrkpl_uu = m_core.get_current_workplane();
     if (!wrkpl_uu) {
-        m_win.set_workplane_label_text("No Workplane");
+        m_win.get_workplane_checkbutton().set_label("No Workplane");
     }
     else {
         auto &wrkpl = m_core.get_current_document().get_entity<EntityWorkplane>(wrkpl_uu);
         auto &wrkpl_group = m_core.get_current_document().get_group<Group>(wrkpl.m_group);
-        m_win.set_workplane_label_text("Workplane in group " + wrkpl_group.m_name);
+        m_win.get_workplane_checkbutton().set_label("Workplane in group " + wrkpl_group.m_name);
     }
 }
 
@@ -757,6 +761,7 @@ void Editor::update_action_sensitivity()
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STL] = m_core.has_documents();
     m_action_sensitivity[ActionID::TOGGLE_SOLID_MODEL] = m_core.has_documents();
     m_action_sensitivity[ActionID::NEW_DOCUMENT] = !m_core.has_documents();
+    m_action_sensitivity[ActionID::TOGGLE_WORKPLANE] = m_core.has_documents();
 
     for (const auto act : create_group_actions) {
         m_action_sensitivity[act] = m_core.has_documents();
@@ -1479,6 +1484,11 @@ void Editor::tool_bar_flash(const std::string &s)
 void Editor::tool_bar_flash_replace(const std::string &s)
 {
     m_win.tool_bar_flash_replace(s);
+}
+
+bool Editor::get_use_workplane() const
+{
+    return m_win.get_workplane_checkbutton().get_active();
 }
 
 } // namespace dune3d

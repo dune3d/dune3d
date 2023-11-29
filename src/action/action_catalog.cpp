@@ -85,6 +85,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Move current group to end of body/next body", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT,
          {"Move current group to end of document", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::TOGGLE_WORKPLANE, {"Toggle workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -129,6 +130,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(CREATE_GROUP_LATHE),
         ACTION_LUT_ITEM(CREATE_GROUP_CHAMFER),
         ACTION_LUT_ITEM(CREATE_GROUP_FILLET),
+        ACTION_LUT_ITEM(TOGGLE_WORKPLANE),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \
