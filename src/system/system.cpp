@@ -668,8 +668,10 @@ void System::update_document()
             c->m_val = val;
         }
         else if (auto c = m_doc.get_constraint_ptr<ConstraintParallel>(uu)) {
-            const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
-            c->m_val = val;
+            if (!c->m_wrkpl) {
+                const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
+                c->m_val = val;
+            }
         }
         else if (auto c = m_doc.get_constraint_ptr<ConstraintPointOnLine>(uu)) {
             const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
