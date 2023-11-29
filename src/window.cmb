@@ -1,11 +1,16 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<cambalache-project version="0.12.0" target_tk="gtk-4.0">
+<cambalache-project version="0.13.1" target_tk="gtk-4.0">
   <ui>
 	(1,None,"window.ui","window.ui",None,None,None,None,None,None,None),
 	(2,None,None,"preferences/key_sequences.ui",None,None,None,None,None,None,None),
 	(3,None,None,"preferences/canvas.ui",None,None,None,None,None,None,None)
   </ui>
+  <ui_library>
+	(1,"gtk","4.10",None),
+	(2,"gtk","4.10",None),
+	(3,"gtk","4.10",None)
+  </ui_library>
   <object>
 	(1,1,"GtkApplicationWindow","window",None,None,None,None,None,None),
 	(1,2,"GtkHeaderBar","titlebar",1,None,None,None,None,None),
@@ -252,11 +257,11 @@
 	(3,8,29,"GtkGridLayoutChild","row-span","1",None,None,None,None)
   </object_layout_property>
   <object_data>
-	(1,33,"GtkWidget",1,1,None,None,None),
-	(1,49,"GtkWidget",1,1,None,None,None),
-	(1,49,"GtkWidget",2,2,None,1,None),
-	(1,47,"GtkWidget",1,1,None,None,None),
-	(1,47,"GtkWidget",2,2,None,1,None)
+	(1,33,"GtkWidget",1,1,None,None,None,None,None,None),
+	(1,49,"GtkWidget",1,1,None,None,None,None,None,None),
+	(1,49,"GtkWidget",2,2,None,1,None,None,None,None),
+	(1,47,"GtkWidget",1,1,None,None,None,None,None,None),
+	(1,47,"GtkWidget",2,2,None,1,None,None,None,None)
   </object_data>
   <object_data_arg>
 	(1,49,"GtkWidget",2,2,"name","dune3d-tool-bar-name-label"),
