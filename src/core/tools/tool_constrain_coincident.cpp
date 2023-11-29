@@ -55,7 +55,7 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
         auto &constraint = add_constraint<ConstraintPointsCoincident>();
         constraint.m_entity1 = {tp->entity1, tp->point1};
         constraint.m_entity2 = {tp->entity2, tp->point2};
-        constraint.m_wrkpl = m_core.get_current_workplane();
+        constraint.m_wrkpl = get_workplane_uuid();
     }
     else if (is_point_on_line()) {
         auto tp = line_and_point_from_selection(get_doc(), m_selection);
@@ -66,7 +66,7 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
         auto &constraint = add_constraint<ConstraintPointOnLine>();
         constraint.m_line = tp->line;
         constraint.m_point = {tp->point, tp->point_point};
-        constraint.m_wrkpl = m_core.get_current_workplane();
+        constraint.m_wrkpl = get_workplane_uuid();
         constraint.m_modify_to_satisfy = true;
     }
     else if (is_point_on_circle()) {
@@ -78,7 +78,7 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
         auto &constraint = add_constraint<ConstraintPointOnCircle>();
         constraint.m_circle = tp->line;
         constraint.m_point = {tp->point, tp->point_point};
-        constraint.m_wrkpl = m_core.get_current_workplane();
+        constraint.m_wrkpl = get_workplane_uuid();
     }
     else {
         return ToolResponse::end();

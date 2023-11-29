@@ -24,7 +24,7 @@ ToolResponse ToolConstrainMidpoint::begin(const ToolArgs &args)
     auto &constraint = add_constraint<ConstraintMidpoint>();
     constraint.m_line = tp->line;
     constraint.m_point = {tp->point, tp->point_point};
-    constraint.m_wrkpl = m_core.get_current_workplane();
+    constraint.m_wrkpl = get_workplane_uuid();
 
     return ToolResponse::commit();
 }

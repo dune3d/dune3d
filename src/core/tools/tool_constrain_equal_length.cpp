@@ -39,7 +39,7 @@ ToolResponse ToolConstrainEqualLength::begin(const ToolArgs &args)
         auto &constraint = add_constraint<ConstraintEqualLength>();
         constraint.m_entity1 = *first;
         constraint.m_entity2 = *it;
-        constraint.m_wrkpl = m_core.get_current_workplane();
+        constraint.m_wrkpl = get_workplane_uuid();
     }
 
 

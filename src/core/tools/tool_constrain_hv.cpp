@@ -13,7 +13,7 @@ namespace dune3d {
 
 bool ToolConstrainHV::can_begin()
 {
-    if (!m_core.get_current_workplane())
+    if (!get_workplane_uuid())
         return false;
 
     auto tp = two_points_from_selection(get_doc(), m_selection);
@@ -34,7 +34,7 @@ ToolResponse ToolConstrainHV::begin(const ToolArgs &args)
         constraint = &add_constraint<ConstraintVertical>();
     constraint->m_entity1 = {tp->entity1, tp->point1};
     constraint->m_entity2 = {tp->entity2, tp->point2};
-    constraint->m_wrkpl = m_core.get_current_workplane();
+    constraint->m_wrkpl = get_workplane_uuid();
 
     return ToolResponse::commit();
 }

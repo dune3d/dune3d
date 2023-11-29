@@ -13,7 +13,7 @@ namespace dune3d {
 bool ToolConstrainDistance::can_begin()
 {
     if ((m_tool_id == ToolID::CONSTRAIN_DISTANCE_HORIZONTAL || m_tool_id == ToolID::CONSTRAIN_DISTANCE_VERTICAL)
-        && !m_core.get_current_workplane())
+        && !get_workplane_uuid())
         return false;
 
     return two_points_from_selection(get_doc(), m_selection).has_value();
@@ -41,7 +41,7 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
 
     constraint->m_entity1 = {tp->entity1, tp->point1};
     constraint->m_entity2 = {tp->entity2, tp->point2};
-    constraint->m_wrkpl = m_core.get_current_workplane();
+    constraint->m_wrkpl = get_workplane_uuid();
     auto dist = constraint->measure_distance(get_doc());
     if (dist < 0)
         constraint->flip();

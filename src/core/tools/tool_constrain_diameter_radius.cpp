@@ -11,7 +11,7 @@ namespace dune3d {
 
 bool ToolConstrainDiameterRadius::can_begin()
 {
-    if (!m_core.get_current_workplane())
+    if (!get_workplane_uuid())
         return false;
 
     auto uu = entity_from_selection(get_doc(), m_selection);

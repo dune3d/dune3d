@@ -54,7 +54,7 @@ ToolResponse ToolDrawContour::begin(const ToolArgs &args)
 
 bool ToolDrawContour::can_begin()
 {
-    return m_core.get_current_workplane() != UUID();
+    return get_workplane_uuid() != UUID();
 }
 
 glm::dvec2 ToolDrawContour::get_cursor_pos_in_plane() const

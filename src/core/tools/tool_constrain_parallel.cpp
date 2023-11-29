@@ -115,7 +115,7 @@ ToolResponse ToolConstrainParallel::begin(const ToolArgs &args)
         auto &constraint = add_constraint<ConstraintParallel>();
         constraint.m_entity1 = tp->first;
         constraint.m_entity2 = tp->second;
-        constraint.m_wrkpl = m_core.get_current_workplane();
+        constraint.m_wrkpl = get_workplane_uuid();
         return ToolResponse::commit();
     }
     if (auto tp = arc_and_line_from_selection(get_doc(), m_selection)) {

@@ -14,9 +14,14 @@ Group &ToolCommon::get_group()
     return get_doc().get_group(m_core.get_current_group());
 }
 
+UUID ToolCommon::get_workplane_uuid()
+{
+    return m_core.get_current_workplane();
+}
+
 EntityWorkplane *ToolCommon::get_workplane()
 {
-    auto uu = m_core.get_current_workplane();
+    auto uu = get_workplane_uuid();
     if (uu)
         return &get_entity<EntityWorkplane>(uu);
     else

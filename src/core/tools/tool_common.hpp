@@ -32,6 +32,7 @@ protected:
     void set_current_group_generate_pending();
     void set_current_group_update_solid_model_pending();
 
+    UUID get_workplane_uuid();
     EntityWorkplane *get_workplane();
 
     Document &get_doc();

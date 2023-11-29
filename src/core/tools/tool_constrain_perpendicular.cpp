@@ -129,7 +129,7 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
             c.m_negative = (l1p1 == l2p2 || l1p2 == l2p1);
             constraint->m_modify_to_satisfy = true;
         }
-        constraint->m_wrkpl = m_core.get_current_workplane();
+        constraint->m_wrkpl = get_workplane_uuid();
         constraint->m_entity1 = tl->first;
         constraint->m_entity2 = tl->second;
         return ToolResponse::commit();

@@ -21,7 +21,7 @@ ToolResponse ToolDrawCircle2D::begin(const ToolArgs &args)
 
 bool ToolDrawCircle2D::can_begin()
 {
-    return m_core.get_current_workplane() != UUID();
+    return get_workplane_uuid() != UUID();
 }
 
 glm::dvec2 ToolDrawCircle2D::get_cursor_pos_in_plane() const
