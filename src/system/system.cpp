@@ -11,6 +11,7 @@
 #include "document/entity/entity_arc3d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
+#include "document/entity/entity_point2d.hpp"
 #include "document/constraint/all_constraints.hpp"
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
@@ -132,6 +133,22 @@ void System::visit(const EntityLine2D &line)
     eb.point[1].v = points.at(1);
     SK.entity.Add(&eb);
     // m_sys->entity.push_back(Slvs_MakeLineSegment(e, group, SLVS_FREE_IN_3D, points.at(0), points.at(1)));
+}
+
+void System::visit(const EntityPoint2D &epoint)
+{
+    const auto group = get_group_index(epoint);
+
+    auto e = get_entity_ref(EntityRef{epoint.m_uuid, 0});
+    EntityBase eb = {};
+    eb.type = EntityBase::Type::POINT_IN_2D;
+    eb.h.v = e;
+    eb.group.v = group;
+    eb.workplane.v = get_entity_ref(EntityRef{epoint.m_wrkpl, 0});
+    for (unsigned int axis = 0; axis < 2; axis++) {
+        eb.param[axis].v = add_param(epoint.m_group, epoint.m_uuid, 0, axis);
+    }
+    SK.entity.Add(&eb);
 }
 
 void System::visit(const EntityArc2D &arc)

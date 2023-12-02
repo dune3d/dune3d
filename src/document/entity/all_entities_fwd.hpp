@@ -10,4 +10,5 @@ class EntityCircle3D;
 class EntityArc3D;
 class EntityWorkplane;
 class EntitySTEP;
+class EntityPoint2D;
 } // namespace dune3d

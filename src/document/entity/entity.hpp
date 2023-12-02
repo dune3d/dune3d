@@ -26,6 +26,7 @@ public:
         CIRCLE_2D,
         CIRCLE_3D,
         STEP,
+        POINT_2D,
     };
     virtual Type get_type() const = 0;
     static std::string get_type_name(Type type);

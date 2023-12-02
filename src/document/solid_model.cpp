@@ -492,6 +492,8 @@ static FaceBuilder faces_from_document(const Document &doc, const UUID &wrkpl_uu
             continue;
         if (en->get_type() == Entity::Type::CIRCLE_2D)
             continue;
+        if (en->get_type() == Entity::Type::POINT_2D)
+            continue;
         if (auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(en.get())) {
             if (en_wrkpl->get_workplane() != wrkpl_uu)
                 continue;

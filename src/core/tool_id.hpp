@@ -36,5 +36,6 @@ enum class ToolID {
     SELECT_EDGES,
     SET_WORKPLANE,
     UNSET_WORKPLANE,
+    DRAW_POINT_2D,
 };
 }

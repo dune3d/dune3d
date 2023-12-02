@@ -154,6 +154,13 @@ void Renderer::visit(const EntityLine2D &line)
                         SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, line.m_uuid, 2});
 }
 
+void Renderer::visit(const EntityPoint2D &point)
+{
+    auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(point.m_wrkpl));
+    const auto p = wrkpl.transform(point.m_p);
+    m_ca.add_selectable(m_ca.draw_point(p),
+                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, point.m_uuid, 0});
+}
 static double angle(const glm::dvec2 &v)
 {
     return glm::atan(v.y, v.x);

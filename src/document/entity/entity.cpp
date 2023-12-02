@@ -30,6 +30,8 @@ std::string Entity::get_type_name(Type type)
         return "STEP model";
     case Type::WORKPLANE:
         return "Workplane";
+    case Type::POINT_2D:
+        return "Point in workplane";
     default:
         return "Entity";
     }
@@ -55,6 +57,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Entity::Type, {
                                                    {Entity::Type::CIRCLE_3D, "circle_3d"},
                                                    {Entity::Type::WORKPLANE, "workplane"},
                                                    {Entity::Type::STEP, "step"},
+                                                   {Entity::Type::POINT_2D, "point_2d"},
                                            })
 
 json Entity::serialize() const
@@ -82,6 +85,8 @@ std::unique_ptr<Entity> Entity::new_from_json(const UUID &uu, const json &j,
         return std::make_unique<EntityWorkplane>(uu, j);
     case Type::STEP:
         return std::make_unique<EntitySTEP>(uu, j, containing_dir);
+    case Type::POINT_2D:
+        return std::make_unique<EntityPoint2D>(uu, j);
     }
     throw std::runtime_error("unknown entity type");
 }

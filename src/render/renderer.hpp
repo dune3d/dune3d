@@ -35,6 +35,7 @@ private:
     void visit(const EntityCircle3D &en) override;
     void visit(const EntityWorkplane &en) override;
     void visit(const EntitySTEP &en) override;
+    void visit(const EntityPoint2D &en) override;
     void visit(const ConstraintPointDistance &constr) override;
     void visit(const ConstraintPointDistanceHV &constr) override;
     void visit(const ConstraintPointsCoincident &constr) override;

@@ -9,6 +9,7 @@
 #include "document/entity/entity_circle3d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
+#include "document/entity/entity_point2d.hpp"
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_diameter_radius.hpp"
 #include "document/constraint/constraint_angle.hpp"
@@ -165,6 +166,17 @@ ToolResponse ToolMove::update(const ToolArgs &args)
             if (auto en = dynamic_cast<EntityCircle3D *>(entity)) {
                 auto &en_last = dynamic_cast<const EntityCircle3D &>(*last_doc.m_entities.at(entity->m_uuid));
                 en->m_center = en_last.m_center + delta;
+            }
+            if (auto en = dynamic_cast<EntityPoint2D *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityPoint2D &>(*last_doc.m_entities.at(entity->m_uuid));
+                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
+
+                if (point == 0) {
+                    const auto delta2d =
+                            wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal()))
+                            - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                    en->m_p = en_last.m_p + delta2d;
+                }
             }
         }
 
