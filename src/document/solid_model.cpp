@@ -447,9 +447,9 @@ static bool path_is_valid(const Path &path)
     return false;
 }
 
-const SolidModel *SolidModel::get_last_solid_model(const Document &doc, const Group &group)
+const IGroupSolidModel *SolidModel::get_last_solid_model_group(const Document &doc, const Group &group)
 {
-    const SolidModelOcc *last_solid_model = nullptr;
+    const IGroupSolidModel *last_solid_model_group = nullptr;
 
     auto this_body = &group.find_body(doc).body;
 
@@ -462,14 +462,22 @@ const SolidModel *SolidModel::get_last_solid_model(const Document &doc, const Gr
                 if (body != this_body)
                     continue;
                 if (!solid_model->m_shape_acc.IsNull())
-                    last_solid_model = solid_model;
+                    last_solid_model_group = gr_solid;
             }
         }
     }
 
-    return last_solid_model;
+    return last_solid_model_group;
 }
 
+const SolidModel *SolidModel::get_last_solid_model(const Document &doc, const Group &group)
+{
+    auto gr = get_last_solid_model_group(doc, group);
+    if (gr)
+        return gr->get_solid_model();
+    else
+        return nullptr;
+}
 
 static FaceBuilder faces_from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
                                        const glm::dvec3 &offset)
@@ -764,7 +772,12 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupF
 
     auto mod = std::make_shared<SolidModelOcc>();
 
-    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
+    const auto last_solid_model_group = get_last_solid_model_group(doc, group);
+    if (!last_solid_model_group) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model group");
+        return nullptr;
+    }
+    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(last_solid_model_group->get_solid_model());
     if (!last_solid_model) {
         group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
         return nullptr;
@@ -825,7 +838,12 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupC
 
     auto mod = std::make_shared<SolidModelOcc>();
 
-    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
+    const auto last_solid_model_group = get_last_solid_model_group(doc, group);
+    if (!last_solid_model_group) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model group");
+        return nullptr;
+    }
+    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(last_solid_model_group->get_solid_model());
     if (!last_solid_model) {
         group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
         return nullptr;

@@ -28,6 +28,7 @@ public:
     virtual ~SolidModel();
 
     static const SolidModel *get_last_solid_model(const Document &doc, const Group &group);
+    static const IGroupSolidModel *get_last_solid_model_group(const Document &doc, const Group &group);
 };
 
 } // namespace dune3d
