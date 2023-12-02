@@ -1297,7 +1297,7 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
 
             return true;
         }
-        else if (connections_matched.size() > 1 || in_tool_actions_matched.size() > 1) { // still ambigous
+        else if (connections_matched.size() > 1 || in_tool_actions_matched.size() > 1) { // still ambiguous
             std::list<std::pair<std::string, KeySequence>> conflicts;
             bool have_conflict = false;
             for (const auto &[conn, it] : connections_matched) {
