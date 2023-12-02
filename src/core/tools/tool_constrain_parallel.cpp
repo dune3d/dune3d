@@ -30,7 +30,7 @@ static std::optional<std::pair<UUID, UUID>> two_entities_from_selection(const Do
     auto &en1 = doc.get_entity(sr1.item);
     auto &en2 = doc.get_entity(sr2.item);
     const auto t1 = en1.get_type();
-    const auto t2 = en1.get_type();
+    const auto t2 = en2.get_type();
     if ((t1 == Entity::Type::LINE_3D && t2 == Entity::Type::WORKPLANE)
         || (t1 == Entity::Type::WORKPLANE && t2 == Entity::Type::LINE_3D)
         || ((t1 == Entity::Type::LINE_2D || t1 == Entity::Type::LINE_3D)
