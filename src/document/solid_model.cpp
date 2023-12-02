@@ -10,6 +10,7 @@
 #include "group/group_fillet.hpp"
 #include "group/group_chamfer.hpp"
 #include "group/group_lathe.hpp"
+#include "group/group_linear_array.hpp"
 #include "util/glm_util.hpp"
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepBuilderAPI.hxx>
@@ -777,6 +778,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupF
         group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model group");
         return nullptr;
     }
+    group.m_operation = last_solid_model_group->get_operation();
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(last_solid_model_group->get_solid_model());
     if (!last_solid_model) {
         group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
@@ -843,6 +845,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupC
         group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model group");
         return nullptr;
     }
+    group.m_operation = last_solid_model_group->get_operation();
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(last_solid_model_group->get_solid_model());
     if (!last_solid_model) {
         group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
@@ -892,5 +895,54 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupC
     mod->triangulate();
     return mod;
 }
+
+std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupLinearArray &group)
+{
+    auto mod = std::make_shared<SolidModelOcc>();
+
+    const auto last_solid_model_group = get_last_solid_model_group(doc, group);
+    if (!last_solid_model_group) {
+        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model group");
+        return nullptr;
+    }
+    group.m_operation = last_solid_model_group->get_operation();
+    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(last_solid_model_group->get_solid_model());
+    if (!last_solid_model) {
+        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
+        return nullptr;
+    }
+    if (last_solid_model->m_shape.IsNull()) {
+        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no shape");
+        return nullptr;
+    }
+
+    for (unsigned int instance = 0; instance < group.m_count; instance++) {
+        const auto shift = group.get_shift3(doc, instance);
+        gp_Trsf trsf;
+        trsf.SetTranslation(gp_Vec(shift.x, shift.y, shift.z));
+        TopoDS_Shape sh = BRepBuilderAPI_Transform(last_solid_model->m_shape, trsf);
+        if (mod->m_shape.IsNull())
+            mod->m_shape = sh;
+        else
+            mod->m_shape = BRepAlgoAPI_Fuse(mod->m_shape, sh);
+    }
+
+    switch (group.m_operation) {
+    case IGroupSolidModel::Operation::UNION:
+        mod->m_shape_acc = BRepAlgoAPI_Fuse(last_solid_model->m_shape_acc, mod->m_shape);
+        break;
+    case IGroupSolidModel::Operation::DIFFERENCE:
+        mod->m_shape_acc = BRepAlgoAPI_Cut(last_solid_model->m_shape_acc, mod->m_shape);
+        break;
+    }
+
+    if (mod->m_shape_acc.IsNull())
+        return nullptr;
+
+    mod->find_edges();
+    mod->triangulate();
+    return mod;
+}
+
 
 } // namespace dune3d

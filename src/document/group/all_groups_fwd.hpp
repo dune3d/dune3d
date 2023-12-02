@@ -7,4 +7,5 @@ class GroupLathe;
 class GroupFillet;
 class GroupChamfer;
 class GroupReference;
+class GroupLinearArray;
 } // namespace dune3d

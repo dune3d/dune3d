@@ -77,6 +77,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Create extrude group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::CREATE_GROUP_LATHE, {"Create lathe group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::CREATE_GROUP_FILLET, {"Create fillet group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::CREATE_GROUP_LINEAR_ARRAY,
+         {"Create linear array group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::CREATE_GROUP_CHAMFER,
          {"Create chamfer group", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::MOVE_GROUP_UP, {"Move current group up", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
@@ -130,6 +132,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(CREATE_GROUP_LATHE),
         ACTION_LUT_ITEM(CREATE_GROUP_CHAMFER),
         ACTION_LUT_ITEM(CREATE_GROUP_FILLET),
+        ACTION_LUT_ITEM(CREATE_GROUP_LINEAR_ARRAY),
         ACTION_LUT_ITEM(TOGGLE_WORKPLANE),
 };
 

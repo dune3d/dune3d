@@ -19,8 +19,11 @@ public:
 
     std::shared_ptr<const SolidModel> m_solid_model;
 
-    enum class Operation { UNION, DIFFERENCE };
     Operation m_operation = Operation::DIFFERENCE;
+    Operation get_operation() const override
+    {
+        return m_operation;
+    }
 
     const SolidModel *get_solid_model() const override;
 

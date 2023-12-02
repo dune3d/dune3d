@@ -1,3 +1,4 @@
 versions:
   document:
     1: add angle/perpendicular constraints
+    2: add linear array group

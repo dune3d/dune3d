@@ -20,6 +20,12 @@ public:
     std::set<unsigned int> m_edges;
     double m_radius = 0.1;
 
+    Operation m_operation = Operation::DIFFERENCE;
+    Operation get_operation() const override
+    {
+        return m_operation;
+    }
+
     json serialize() const override;
 
     std::list<GroupStatusMessage> m_local_operation_messages;

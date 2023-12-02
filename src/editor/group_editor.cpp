@@ -4,6 +4,7 @@
 #include "document/group/group_lathe.hpp"
 #include "document/group/group_fillet.hpp"
 #include "document/group/group_reference.hpp"
+#include "document/group/group_linear_array.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include "core/core.hpp"
 #include "util/gtk_util.hpp"
@@ -213,6 +214,57 @@ private:
     Gtk::Switch *m_switch_zx = nullptr;
 };
 
+class GroupEditorLinearArray : public GroupEditor {
+public:
+    GroupEditorLinearArray(Core &core, const UUID &group_uu) : GroupEditor(core, group_uu)
+    {
+        auto &group = get_group();
+
+        m_sp_count = Gtk::make_managed<Gtk::SpinButton>();
+        m_sp_count->set_range(1, 100);
+        m_sp_count->set_increments(1, 10);
+        grid_attach_label_and_widget(*this, "Count", *m_sp_count, m_top);
+        m_sp_count->set_value(group.m_count);
+        spinbutton_connect_activate_immediate(*m_sp_count, [this] {
+            get_group().m_count = m_sp_count->get_value_as_int();
+            m_core.get_current_document().set_group_generate_pending(get_group().m_uuid);
+            m_signal_changed.emit();
+        });
+
+
+        auto items = Gtk::StringList::create();
+        items->append("Original");
+        items->append("First copy");
+        items->append("Arbitrary");
+
+        m_offset_combo = Gtk::make_managed<Gtk::DropDown>(items);
+        m_offset_combo->set_selected(static_cast<guint>(group.m_offset));
+        m_offset_combo->property_selected().signal_changed().connect([this] {
+            auto &group = get_group();
+            group.m_offset = static_cast<GroupLinearArray::Offset>(m_offset_combo->get_selected());
+            m_core.get_current_document().set_group_generate_pending(group.m_uuid);
+            m_signal_changed.emit();
+        });
+        grid_attach_label_and_widget(*this, "Offset", *m_offset_combo, m_top);
+    }
+
+    void reload() override
+    {
+        GroupEditor::reload();
+        auto &group = get_group();
+        m_sp_count->set_value(group.m_count);
+    }
+
+private:
+    GroupLinearArray &get_group()
+    {
+        return m_core.get_current_document().get_group<GroupLinearArray>(m_group_uu);
+    }
+
+    Gtk::SpinButton *m_sp_count = nullptr;
+    Gtk::DropDown *m_offset_combo = nullptr;
+};
+
 GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_group_uu(group_uu)
 {
     set_valign(Gtk::Align::START);
@@ -241,6 +293,9 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
         break;
     case Group::Type::LATHE:
         m_type_label->set_text("Lathe");
+        break;
+    case Group::Type::LINEAR_ARRAY:
+        m_type_label->set_text("Linear array");
         break;
     }
     grid_attach_label_and_widget(*this, "Type", *m_type_label, m_top);
@@ -299,6 +354,8 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
         return Gtk::make_managed<GroupEditorFillet>(core, group_uu);
     case Group::Type::REFERENCE:
         return Gtk::make_managed<GroupEditorReference>(core, group_uu);
+    case Group::Type::LINEAR_ARRAY:
+        return Gtk::make_managed<GroupEditorLinearArray>(core, group_uu);
     default:
         return Gtk::make_managed<GroupEditor>(core, group_uu);
     }

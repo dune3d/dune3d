@@ -12,6 +12,7 @@ namespace dune3d {
 class Document;
 class SolidModelOcc;
 class Group;
+class IGroupSolidModel;
 
 class SolidModel {
 public:
@@ -22,6 +23,7 @@ public:
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupFillet &group);
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupChamfer &group);
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupLathe &group);
+    static std::shared_ptr<const SolidModel> create(const Document &doc, GroupLinearArray &group);
     virtual void export_stl(const std::filesystem::path &path) const = 0;
     virtual void export_step(const std::filesystem::path &path) const = 0;
 

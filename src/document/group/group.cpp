@@ -56,6 +56,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Group::Type, {
                                                   {Group::Type::FILLET, "fillet"},
                                                   {Group::Type::CHAMFER, "chamfer"},
                                                   {Group::Type::LATHE, "lathe"},
+                                                  {Group::Type::LINEAR_ARRAY, "linear_array"},
                                           })
 
 json Group::serialize() const
@@ -85,6 +86,8 @@ std::unique_ptr<Group> Group::new_from_json(const UUID &uu, const json &j)
         return std::make_unique<GroupChamfer>(uu, j);
     case Type::LATHE:
         return std::make_unique<GroupLathe>(uu, j);
+    case Type::LINEAR_ARRAY:
+        return std::make_unique<GroupLinearArray>(uu, j);
     }
     throw std::runtime_error("unknown entity type");
 }

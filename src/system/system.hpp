@@ -79,6 +79,7 @@ private:
     void visit(const ConstraintLinesPerpendicular &constr) override;
     void visit(const ConstraintLinesAngle &constr) override;
     void add(const GroupExtrude &group);
+    void add(const GroupLinearArray &group);
     void add(const GroupLathe &group);
     std::unique_ptr<SolveSpace::System> m_sys;
     Document &m_doc;

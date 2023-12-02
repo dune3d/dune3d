@@ -85,6 +85,7 @@ src = files(
   'src/document/group/group_chamfer.cpp',
   'src/document/group/group_lathe.cpp',
   'src/document/group/group_sweep.cpp',
+  'src/document/group/group_linear_array.cpp',
   'src/system/system.cpp',
   'src/logger/logger.cpp',
   'src/render/renderer.cpp',

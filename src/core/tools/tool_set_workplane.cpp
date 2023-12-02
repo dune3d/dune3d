@@ -33,6 +33,8 @@ ToolResponse ToolSetWorkplane::begin(const ToolArgs &args)
     else {
         get_group().m_active_wrkpl = UUID();
     }
+    // array groups do different things depending on wheter there's a workplane or not
+    get_doc().set_group_generate_pending(m_core.get_current_group());
     return ToolResponse::commit();
 }
 

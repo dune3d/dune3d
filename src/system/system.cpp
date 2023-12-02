@@ -15,6 +15,7 @@
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
 #include "document/group/group_lathe.hpp"
+#include "document/group/group_linear_array.hpp"
 #include <array>
 #include <set>
 #include <iostream>
@@ -66,6 +67,9 @@ System::System(Document &doc, const UUID &grp)
             break;
         case Group::Type::LATHE:
             add(dynamic_cast<const GroupLathe &>(*group));
+            break;
+        case Group::Type::LINEAR_ARRAY:
+            add(dynamic_cast<const GroupLinearArray &>(*group));
             break;
         default:;
         }
@@ -644,6 +648,215 @@ void System::add(const GroupLathe &group)
     }
 }
 
+void System::add(const GroupLinearArray &group)
+{
+    ExprVector direction;
+    ExprVector offset;
+
+    auto dx = add_param(group.m_uuid, group.m_dvec.x);
+    auto dy = add_param(group.m_uuid, group.m_dvec.y);
+
+    m_param_refs.emplace(dx, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 0, 0});
+    m_param_refs.emplace(dy, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 0, 1});
+
+    if (!group.m_active_wrkpl) {
+        auto dz = add_param(group.m_uuid, group.m_dvec.z);
+        m_param_refs.emplace(dz, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 0, 2});
+        direction = ExprVector::From(hParam{dx}, hParam{dy}, hParam{dz});
+    }
+    else {
+        direction = ExprVector::From(Expr::From(hParam{dx}), Expr::From(hParam{dy}), Expr::From(0));
+    }
+
+    switch (group.m_offset) {
+    case GroupLinearArray::Offset::ZERO:
+        offset.x = Expr::From(0);
+        offset.y = Expr::From(0);
+        offset.z = Expr::From(0);
+        break;
+    case GroupLinearArray::Offset::ONE:
+        offset = direction;
+        break;
+    case GroupLinearArray::Offset::PARAM: {
+        auto ox = add_param(group.m_uuid, group.m_offset_vec.x);
+        auto oy = add_param(group.m_uuid, group.m_offset_vec.y);
+
+        m_param_refs.emplace(ox, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 1, 0});
+        m_param_refs.emplace(oy, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 1, 1});
+
+        if (!group.m_active_wrkpl) {
+            auto oz = add_param(group.m_uuid, group.m_offset_vec.z);
+            m_param_refs.emplace(oz, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 1, 2});
+            offset = ExprVector::From(hParam{ox}, hParam{oy}, hParam{oz});
+        }
+        else {
+            offset = ExprVector::From(Expr::From(hParam{ox}), Expr::From(hParam{oy}), Expr::From(0));
+        }
+
+    } break;
+    }
+
+    auto hg = hGroup{(uint32_t)group.get_index() + 1};
+    unsigned int eqi = 0;
+
+    for (const auto &[uu, it] : m_doc.m_entities) {
+        if (it->m_group != group.m_source_group)
+            continue;
+        if (it->m_construction)
+            continue;
+        for (unsigned int instance = 0; instance < group.m_count; instance++) {
+            auto direction_scaled = direction.ScaledBy(Expr::From(instance));
+            ExprVector shift2 = direction_scaled.Plus(offset);
+            ExprVector shift3 = shift2;
+            if (group.m_active_wrkpl) {
+                // transform shift
+                auto en_normal = SK.GetEntity({get_entity_ref(EntityRef{group.m_active_wrkpl, 2})});
+                shift3 = en_normal->NormalGetExprs().Rotate(shift2);
+            }
+
+            if (it->get_type() == Entity::Type::LINE_2D) {
+                const auto &li = dynamic_cast<const EntityLine2D &>(*it);
+                if (li.m_wrkpl != group.m_active_wrkpl)
+                    continue;
+                auto new_line_uu = group.get_entity_uuid(uu, instance);
+                auto en_wrkpl = hEntity{get_entity_ref(EntityRef{li.m_wrkpl, 0})};
+
+                for (unsigned int pt = 1; pt <= 2; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_line_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprsInWorkplane(en_wrkpl);
+                    ExprVector exnew = enew->PointGetExprsInWorkplane(en_wrkpl);
+                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift2.x), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift2.y), eqi++);
+                }
+            }
+            else if (it->get_type() == Entity::Type::CIRCLE_2D) {
+                const auto &circle = dynamic_cast<const EntityCircle2D &>(*it);
+                if (circle.m_wrkpl != group.m_active_wrkpl)
+                    continue;
+                auto new_circle_uu = group.get_entity_uuid(uu, instance);
+                auto en_wrkpl = hEntity{get_entity_ref(EntityRef{circle.m_wrkpl, 0})};
+
+
+                {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, 1});
+                    auto en_new_p = get_entity_ref(EntityRef{new_circle_uu, 1});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprsInWorkplane(en_wrkpl);
+                    ExprVector exnew = enew->PointGetExprsInWorkplane(en_wrkpl);
+                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift2.x), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift2.y), eqi++);
+                }
+                {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, 0});
+                    auto en_new_p = get_entity_ref(EntityRef{new_circle_uu, 0});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    AddEq(hg, &m_sys->eq, eorig->CircleGetRadiusExpr()->Minus(enew->CircleGetRadiusExpr()), eqi++);
+                }
+            }
+            else if (it->get_type() == Entity::Type::ARC_2D) {
+                const auto &arc = dynamic_cast<const EntityArc2D &>(*it);
+                if (arc.m_wrkpl != group.m_active_wrkpl)
+                    continue;
+                auto new_arc_uu = group.get_entity_uuid(uu, instance);
+                auto en_wrkpl = hEntity{get_entity_ref(EntityRef{arc.m_wrkpl, 0})};
+
+                for (unsigned int pt = 1; pt <= 2; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_arc_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprsInWorkplane(en_wrkpl);
+                    ExprVector exnew = enew->PointGetExprsInWorkplane(en_wrkpl);
+                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift2.x), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift2.y), eqi++);
+                }
+
+                // constrain radius instead of center point to avoid redundant constraints
+                {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, 0});
+                    auto en_new_p = get_entity_ref(EntityRef{new_arc_uu, 0});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    AddEq(hg, &m_sys->eq, eorig->CircleGetRadiusExpr()->Minus(enew->CircleGetRadiusExpr()), eqi++);
+                }
+            }
+            else if (it->get_type() == Entity::Type::LINE_3D) {
+                auto new_line_uu = group.get_entity_uuid(uu, instance);
+
+                for (unsigned int pt = 1; pt <= 2; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_line_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprs();
+                    ExprVector exnew = enew->PointGetExprs();
+                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift3.x), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift3.y), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z)->Minus(shift3.z), eqi++);
+                }
+            }
+            else if (it->get_type() == Entity::Type::CIRCLE_3D) {
+                auto new_circle_uu = group.get_entity_uuid(uu, instance);
+                {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, 1});
+                    auto en_new_p = get_entity_ref(EntityRef{new_circle_uu, 1});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprs();
+                    ExprVector exnew = enew->PointGetExprs();
+                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift3.x), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift3.y), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z)->Minus(shift3.z), eqi++);
+                }
+                {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, 0});
+                    auto en_new_p = get_entity_ref(EntityRef{new_circle_uu, 0});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    AddEq(hg, &m_sys->eq, eorig->CircleGetRadiusExpr()->Minus(enew->CircleGetRadiusExpr()), eqi++);
+                }
+                {
+                    auto en_orig_n = SK.GetEntity({get_entity_ref(EntityRef{uu, 3})});
+                    auto en_new_n = SK.GetEntity({get_entity_ref({new_circle_uu, 3})});
+                    auto normal_orig = en_orig_n->NormalGetExprs();
+                    auto normal_new = en_new_n->NormalGetExprs();
+                    AddEq(hg, &m_sys->eq, normal_new.vx->Minus(normal_orig.vx), eqi++);
+                    AddEq(hg, &m_sys->eq, normal_new.vy->Minus(normal_orig.vy), eqi++);
+                    AddEq(hg, &m_sys->eq, normal_new.vz->Minus(normal_orig.vz), eqi++);
+                }
+            }
+            else if (it->get_type() == Entity::Type::ARC_3D) {
+                auto new_arc_uu = group.get_entity_uuid(uu, instance);
+                for (unsigned int pt = 1; pt <= 3; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_arc_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprs();
+                    ExprVector exnew = enew->PointGetExprs();
+                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift3.x), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift3.y), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z)->Minus(shift3.z), eqi++);
+                }
+                {
+                    auto en_orig_n = SK.GetEntity({get_entity_ref(EntityRef{uu, 4})});
+                    auto en_new_n = SK.GetEntity({get_entity_ref({new_arc_uu, 4})});
+                    auto normal_orig = en_orig_n->NormalGetExprs();
+                    auto normal_new = en_new_n->NormalGetExprs();
+                    AddEq(hg, &m_sys->eq, normal_new.vx->Minus(normal_orig.vx), eqi++);
+                    AddEq(hg, &m_sys->eq, normal_new.vy->Minus(normal_orig.vy), eqi++);
+                    AddEq(hg, &m_sys->eq, normal_new.vz->Minus(normal_orig.vz), eqi++);
+                }
+            }
+        }
+    }
+}
+
 void System::update_document()
 {
     for (const auto &[idx, param_ref] : m_param_refs) {
@@ -658,6 +871,12 @@ void System::update_document()
                     m_doc.get_group<GroupExtrude>(param_ref.item).m_dvec[param_ref.axis] = val;
                 else if (param_ref.point == 1)
                     m_doc.get_group<GroupExtrude>(param_ref.item).m_offset_mul = val;
+            }
+            else if (m_doc.get_group(param_ref.item).get_type() == Group::Type::LINEAR_ARRAY) {
+                if (param_ref.point == 0)
+                    m_doc.get_group<GroupLinearArray>(param_ref.item).m_dvec[param_ref.axis] = val;
+                if (param_ref.point == 1)
+                    m_doc.get_group<GroupLinearArray>(param_ref.item).m_offset_vec[param_ref.axis] = val;
             }
             break;
         }

@@ -118,6 +118,14 @@ void Editor::on_add_group(Group::Type group_type)
         group.m_name = "Chamfer";
         m_core.set_needs_save();
     }
+    else if (group_type == Group::Type::LINEAR_ARRAY) {
+        auto &group = doc.insert_group<GroupLinearArray>(UUID::random(), current_group.m_uuid);
+        new_group = &group;
+        group.m_name = "Linear array";
+        group.m_active_wrkpl = current_group.m_active_wrkpl;
+        group.m_source_group = current_group.m_uuid;
+        m_core.set_needs_save();
+    }
     if (new_group) {
         doc.set_group_generate_pending(new_group->m_uuid);
         m_core.set_needs_save();
