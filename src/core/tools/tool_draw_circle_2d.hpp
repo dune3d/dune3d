@@ -1,3 +1,4 @@
+#pragma once
 #include "tool_helper_constrain.hpp"
 #include "in_tool_action/in_tool_action.hpp"
 #include <optional>
