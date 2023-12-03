@@ -140,6 +140,7 @@ void GroupLinearArray::generate(Document &doc) const
                 {
                     auto new_arc_uu = get_entity_uuid(uu, instance);
                     auto &new_arc = doc.get_or_add_entity<EntityArc2D>(new_arc_uu);
+                    new_arc.m_no_radius_constraint = true;
                     new_arc.m_from = arc.m_from + shift2;
                     new_arc.m_to = arc.m_to + shift2;
                     new_arc.m_center = arc.m_center + shift2;

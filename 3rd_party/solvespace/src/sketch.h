@@ -454,6 +454,8 @@ public:
     std::string font;
     Platform::Path file;
     double      aspectRatio;
+    
+    bool noEquation;
 
     // For entities that are derived by a transformation, the number of
     // times to apply the transformation.

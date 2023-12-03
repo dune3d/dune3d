@@ -925,6 +925,8 @@ void EntityBase::AddEq(IdList<Equation,hEquation> *l, Expr *expr, int index) con
 }
 
 void EntityBase::GenerateEquations(IdList<Equation,hEquation> *l) const {
+    if(noEquation)
+        return;
     switch(type) {
         case Type::NORMAL_IN_3D: {
             ExprQuaternion q = NormalGetExprs();

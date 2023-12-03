@@ -179,6 +179,7 @@ void System::visit(const EntityArc2D &arc)
     eb.point[0].v = points.at(2); // center
     eb.point[1].v = points.at(0); // from
     eb.point[2].v = points.at(1); // to
+    eb.noEquation = arc.m_no_radius_constraint;
     SK.entity.Add(&eb);
     // m_sys->entity.push_back(Slvs_MakeLineSegment(e, group, SLVS_FREE_IN_3D, points.at(0), points.at(1)));
 }
@@ -782,7 +783,7 @@ void System::add(const GroupLinearArray &group)
                 auto new_arc_uu = group.get_entity_uuid(uu, instance);
                 auto en_wrkpl = hEntity{get_entity_ref(EntityRef{arc.m_wrkpl, 0})};
 
-                for (unsigned int pt = 1; pt <= 2; pt++) {
+                for (unsigned int pt = 1; pt <= 3; pt++) {
                     auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
                     auto en_new_p = get_entity_ref(EntityRef{new_arc_uu, pt});
                     EntityBase *eorig = SK.GetEntity({en_orig_p});
@@ -791,15 +792,6 @@ void System::add(const GroupLinearArray &group)
                     ExprVector exnew = enew->PointGetExprsInWorkplane(en_wrkpl);
                     AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift2.x), eqi++);
                     AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift2.y), eqi++);
-                }
-
-                // constrain radius instead of center point to avoid redundant constraints
-                {
-                    auto en_orig_p = get_entity_ref(EntityRef{uu, 0});
-                    auto en_new_p = get_entity_ref(EntityRef{new_arc_uu, 0});
-                    EntityBase *eorig = SK.GetEntity({en_orig_p});
-                    EntityBase *enew = SK.GetEntity({en_new_p});
-                    AddEq(hg, &m_sys->eq, eorig->CircleGetRadiusExpr()->Minus(enew->CircleGetRadiusExpr()), eqi++);
                 }
             }
             else if (it->get_type() == Entity::Type::LINE_3D) {

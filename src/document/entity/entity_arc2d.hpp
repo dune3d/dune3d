@@ -28,6 +28,7 @@ public:
     glm::dvec2 m_to;
     glm::dvec2 m_center;
     UUID m_wrkpl;
+    bool m_no_radius_constraint = false;
 
     glm::dvec2 get_tangent_at_point(unsigned int point) const;
 
