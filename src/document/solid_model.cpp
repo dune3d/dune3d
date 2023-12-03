@@ -901,16 +901,16 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupC
 std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupLinearArray &group)
 {
     auto mod = std::make_shared<SolidModelOcc>();
+    group.m_array_messages.clear();
+
 
     const auto last_solid_model_group = get_last_solid_model_group(doc, group);
     if (!last_solid_model_group) {
-        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model group");
         return nullptr;
     }
     group.m_operation = last_solid_model_group->get_operation();
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(last_solid_model_group->get_solid_model());
     if (!last_solid_model) {
-        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
         return nullptr;
     }
     if (last_solid_model->m_shape.IsNull()) {
