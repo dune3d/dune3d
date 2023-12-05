@@ -17,6 +17,7 @@
 #include "document/group/group_extrude.hpp"
 #include "document/group/group_lathe.hpp"
 #include "document/group/group_linear_array.hpp"
+#include "document/group/group_polar_array.hpp"
 #include <array>
 #include <set>
 #include <iostream>
@@ -71,6 +72,9 @@ System::System(Document &doc, const UUID &grp)
             break;
         case Group::Type::LINEAR_ARRAY:
             add(dynamic_cast<const GroupLinearArray &>(*group));
+            break;
+        case Group::Type::POLAR_ARRAY:
+            add(dynamic_cast<const GroupPolarArray &>(*group));
             break;
         default:;
         }
@@ -879,6 +883,103 @@ void System::add(const GroupLinearArray &group)
 
     add_array(group, create_eq2, create_eq3, create_eq_n, eqi);
 }
+
+static ExprQuaternion quat_from_axis_angle(ExprVector axis, Expr *dtheta)
+{
+    ExprQuaternion q;
+    auto c = dtheta->Times(Expr::From(0.5))->Cos();
+    auto s = dtheta->Times(Expr::From(0.5))->Sin();
+    axis = axis.WithMagnitude(s);
+    q.w = c;
+    q.vx = axis.x;
+    q.vy = axis.y;
+    q.vz = axis.z;
+    return q;
+}
+
+void System::add(const GroupPolarArray &group)
+{
+    if (!group.m_active_wrkpl)
+        return;
+    auto en_wrkpl = hEntity{get_entity_ref(EntityRef{group.m_active_wrkpl, 0})};
+    auto wrkpl = SK.GetEntity(en_wrkpl);
+
+    auto center_point = SK.GetEntity(hEntity{get_entity_ref(EntityRef{group.get_center_point_uuid(), 0})});
+    auto angle = add_param(group.m_uuid, group.m_delta_angle / 180 * M_PI);
+
+    ExprVector excenter = center_point->PointGetExprsInWorkplane(en_wrkpl);
+    m_param_refs.emplace(angle, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 0, 0});
+
+
+    Expr *offset_angle = Expr::From(0.);
+
+    switch (group.m_offset) {
+    case GroupLinearArray::Offset::ZERO:
+        break;
+    case GroupLinearArray::Offset::ONE:
+        offset_angle = Expr::From(hParam{angle});
+        break;
+    case GroupLinearArray::Offset::PARAM: {
+        auto offset_angle_p = add_param(group.m_uuid, group.m_offset_angle / 180 * M_PI);
+        m_param_refs.emplace(offset_angle_p, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 1, 0});
+        offset_angle = Expr::From(hParam{offset_angle_p});
+    } break;
+    }
+
+    auto hg = hGroup{(uint32_t)group.get_index() + 1};
+    unsigned int eqi = 0;
+
+    auto create_eq2 = [this, &hg, &eqi, &excenter, &offset_angle,
+                       &angle](const ExprVector &exorig, const ExprVector &exnew, unsigned int instance) {
+        auto exangle = offset_angle->Plus(Expr::From(hParam{angle})->Times(Expr::From(instance)));
+        auto exsin = exangle->Sin();
+        auto excos = exangle->Cos();
+        auto pc = exorig.Minus(excenter);
+        auto prx = pc.x->Times(excos)->Minus(pc.y->Times(exsin));
+        auto pry = pc.x->Times(exsin)->Plus(pc.y->Times(excos));
+        AddEq(hg, &m_sys->eq, exnew.x->Minus(excenter.x->Plus(prx)), eqi++);
+        AddEq(hg, &m_sys->eq, exnew.y->Minus(excenter.y->Plus(pry)), eqi++);
+    };
+
+
+    ExprVector wp = wrkpl->WorkplaneGetOffsetExprs();
+    ExprVector wu = wrkpl->Normal()->NormalExprsU();
+    ExprVector wv = wrkpl->Normal()->NormalExprsV();
+    ExprVector wn = wrkpl->Normal()->NormalExprsN();
+
+    auto create_eq3 = [this, &hg, &eqi, &wp, &wu, &wv, &wn, &excenter, &offset_angle,
+                       &angle](const ExprVector &exorig, const ExprVector &exnew, unsigned int instance) {
+        auto ev = exorig.Minus(wp);
+        auto u = ev.Dot(wu);
+        auto v = ev.Dot(wv);
+        auto n = ev.Dot(wn);
+
+        auto exangle = offset_angle->Plus(Expr::From(hParam{angle})->Times(Expr::From(instance)));
+        auto exsin = exangle->Sin();
+        auto excos = exangle->Cos();
+        auto pc = ExprVector::From(u, v, Expr::From(0.0)).Minus(excenter);
+        auto prx = pc.x->Times(excos)->Minus(pc.y->Times(exsin))->Plus(excenter.x);
+        auto pry = pc.x->Times(exsin)->Plus(pc.y->Times(excos))->Plus(excenter.y);
+        auto pnew = wp.Plus(wu.ScaledBy(prx)).Plus(wv.ScaledBy(pry)).Plus(wn.ScaledBy(n));
+        AddEq(hg, &m_sys->eq, exnew.x->Minus(pnew.x), eqi++);
+        AddEq(hg, &m_sys->eq, exnew.y->Minus(pnew.y), eqi++);
+        AddEq(hg, &m_sys->eq, exnew.z->Minus(pnew.z), eqi++);
+    };
+
+    auto create_eq_n = [this, &hg, &eqi, &offset_angle, &angle, &wn](const ExprQuaternion &normal_orig,
+                                                                     const ExprQuaternion &normal_new,
+                                                                     unsigned int instance) {
+        auto exangle = offset_angle->Plus(Expr::From(hParam{angle})->Times(Expr::From(instance)));
+        auto rq = quat_from_axis_angle(wn, exangle);
+        auto rot = normal_orig.Times(rq);
+        AddEq(hg, &m_sys->eq, normal_new.vx->Minus(rot.vx), eqi++);
+        AddEq(hg, &m_sys->eq, normal_new.vy->Minus(rot.vy), eqi++);
+        AddEq(hg, &m_sys->eq, normal_new.vz->Minus(rot.vz), eqi++);
+    };
+
+    add_array(group, create_eq2, create_eq3, create_eq_n, eqi);
+}
+
 void System::update_document()
 {
     for (const auto &[idx, param_ref] : m_param_refs) {
@@ -899,6 +1000,17 @@ void System::update_document()
                     m_doc.get_group<GroupLinearArray>(param_ref.item).m_dvec[param_ref.axis] = val;
                 else if (param_ref.point == 1)
                     m_doc.get_group<GroupLinearArray>(param_ref.item).m_offset_vec[param_ref.axis] = val;
+            }
+            else if (m_doc.get_group(param_ref.item).get_type() == Group::Type::POLAR_ARRAY) {
+                auto a = val / M_PI * 180.;
+                while (a > 360)
+                    a -= 360;
+                while (a < -360)
+                    a += 360;
+                if (param_ref.point == 0)
+                    m_doc.get_group<GroupPolarArray>(param_ref.item).m_delta_angle = a;
+                else if (param_ref.point == 1)
+                    m_doc.get_group<GroupPolarArray>(param_ref.item).m_offset_angle = a;
             }
             break;
         }
@@ -924,6 +1036,12 @@ void System::update_document()
                 c->m_angle = SK.constraint.FindById(hConstraint{idx})->valA;
                 c->m_modify_to_satisfy = false;
             }
+        }
+    }
+    for (auto &[uu, group] : m_doc.get_groups()) {
+        if (auto gp = dynamic_cast<GroupPolarArray *>(group.get())) {
+            auto &en_center = m_doc.get_entity<EntityPoint2D>(gp->get_center_point_uuid());
+            gp->m_center = en_center.m_p;
         }
     }
 }

@@ -5,6 +5,7 @@
 #include "document/group/group_fillet.hpp"
 #include "document/group/group_reference.hpp"
 #include "document/group/group_linear_array.hpp"
+#include "document/group/group_polar_array.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include "core/core.hpp"
 #include "util/gtk_util.hpp"
@@ -297,6 +298,9 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
     case Group::Type::LINEAR_ARRAY:
         m_type_label->set_text("Linear array");
         break;
+    case Group::Type::POLAR_ARRAY:
+        m_type_label->set_text("Polar array");
+        break;
     }
     grid_attach_label_and_widget(*this, "Type", *m_type_label, m_top);
 
@@ -355,6 +359,7 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
     case Group::Type::REFERENCE:
         return Gtk::make_managed<GroupEditorReference>(core, group_uu);
     case Group::Type::LINEAR_ARRAY:
+    case Group::Type::POLAR_ARRAY:
         return Gtk::make_managed<GroupEditorArray>(core, group_uu);
     default:
         return Gtk::make_managed<GroupEditor>(core, group_uu);

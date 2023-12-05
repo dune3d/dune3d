@@ -126,6 +126,26 @@ void Editor::on_add_group(Group::Type group_type)
         group.m_source_group = current_group.m_uuid;
         m_core.set_needs_save();
     }
+    else if (group_type == Group::Type::POLAR_ARRAY) {
+        UUID wrkpl;
+        if (current_group.m_active_wrkpl) {
+            wrkpl = current_group.m_active_wrkpl;
+        }
+        else {
+            auto sel = get_canvas().get_selection();
+            std::optional<UUID> owrkpl = entity_from_selection(doc, sel, Entity::Type::WORKPLANE);
+            if (owrkpl)
+                wrkpl = owrkpl.value();
+        }
+        if (!wrkpl)
+            return;
+        auto &group = doc.insert_group<GroupPolarArray>(UUID::random(), current_group.m_uuid);
+        new_group = &group;
+        group.m_name = "Polar array";
+        group.m_active_wrkpl = wrkpl;
+        group.m_source_group = current_group.m_uuid;
+        m_core.set_needs_save();
+    }
     if (new_group) {
         doc.set_group_generate_pending(new_group->m_uuid);
         m_core.set_needs_save();

@@ -24,6 +24,7 @@ public:
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupChamfer &group);
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupLathe &group);
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupLinearArray &group);
+    static std::shared_ptr<const SolidModel> create(const Document &doc, GroupPolarArray &group);
     virtual void export_stl(const std::filesystem::path &path) const = 0;
     virtual void export_step(const std::filesystem::path &path) const = 0;
 

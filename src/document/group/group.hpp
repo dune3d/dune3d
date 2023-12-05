@@ -33,7 +33,7 @@ struct GroupStatusMessage {
 class Group {
 public:
     UUID m_uuid;
-    enum class Type { REFERENCE, SKETCH, EXTRUDE, LATHE, FILLET, CHAMFER, LINEAR_ARRAY };
+    enum class Type { REFERENCE, SKETCH, EXTRUDE, LATHE, FILLET, CHAMFER, LINEAR_ARRAY, POLAR_ARRAY };
     virtual Type get_type() const = 0;
 
     virtual ~Group();

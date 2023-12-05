@@ -11,6 +11,7 @@
 #include "group/group_chamfer.hpp"
 #include "group/group_lathe.hpp"
 #include "group/group_linear_array.hpp"
+#include "group/group_polar_array.hpp"
 #include "util/glm_util.hpp"
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepBuilderAPI.hxx>
@@ -956,5 +957,28 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupL
 
     return create_array(doc, group, make_trsf);
 }
+
+std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupPolarArray &group)
+{
+    group.m_array_messages.clear();
+    if (!group.m_active_wrkpl) {
+        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no workplane");
+        return nullptr;
+    }
+
+    auto &wrkpl = doc.get_entity<EntityWorkplane>(group.m_active_wrkpl);
+    auto norm = wrkpl.get_normal();
+    auto center = wrkpl.transform(group.m_center);
+    auto ax = gp_Ax1(gp_Pnt(center.x, center.y, center.z), gp_Dir(norm.x, norm.y, norm.z));
+
+    auto make_trsf = [&group, &ax](unsigned int instance) {
+        gp_Trsf trsf;
+        trsf.SetRotation(ax, glm::radians(group.get_angle(instance)));
+        return trsf;
+    };
+
+    return create_array(doc, group, make_trsf);
+}
+
 
 } // namespace dune3d

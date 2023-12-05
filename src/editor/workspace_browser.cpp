@@ -574,10 +574,12 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
                 actions->add_action("fillet", [this] { m_signal_add_group.emit(Group::Type::FILLET); });
                 actions->add_action("chamfer", [this] { m_signal_add_group.emit(Group::Type::CHAMFER); });
                 actions->add_action("linear_array", [this] { m_signal_add_group.emit(Group::Type::LINEAR_ARRAY); });
+                actions->add_action("polar_array", [this] { m_signal_add_group.emit(Group::Type::POLAR_ARRAY); });
                 top->append_item(Gio::MenuItem::create("Sketch", "groups.sketch"));
                 top->append_item(Gio::MenuItem::create("Extrude", "groups.extrude"));
                 top->append_item(Gio::MenuItem::create("Lathe", "groups.lathe"));
                 top->append_item(Gio::MenuItem::create("Linear array", "groups.linear_array"));
+                top->append_item(Gio::MenuItem::create("Polar array", "groups.polar_array"));
                 top->append_item(Gio::MenuItem::create("Fillet", "groups.fillet"));
                 top->append_item(Gio::MenuItem::create("Chamfer", "groups.chamfer"));
 

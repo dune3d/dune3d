@@ -8,5 +8,6 @@ class GroupFillet;
 class GroupChamfer;
 class GroupReference;
 class GroupLinearArray;
+class GroupPolarArray;
 class GroupArray;
 } // namespace dune3d

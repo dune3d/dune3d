@@ -84,6 +84,7 @@ private:
     void visit(const ConstraintLinesAngle &constr) override;
     void add(const GroupExtrude &group);
     void add(const GroupLinearArray &group);
+    void add(const GroupPolarArray &group);
     void add(const GroupLathe &group);
     using CreateEq = std::function<void(const SolveSpace::ExprVector &exorig, const SolveSpace::ExprVector &exnew,
                                         unsigned int instance)>;
