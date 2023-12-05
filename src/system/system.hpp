@@ -2,6 +2,7 @@
 #include <memory>
 #include <map>
 #include <mutex>
+#include <functional>
 #include "util/uuid.hpp"
 #include "document/constraint/all_constraints_fwd.hpp"
 #include "document/entity/all_entities_fwd.hpp"
@@ -13,7 +14,9 @@
 
 namespace SolveSpace {
 class System;
-}
+class ExprVector;
+class ExprQuaternion;
+} // namespace SolveSpace
 
 namespace dune3d {
 
@@ -82,6 +85,12 @@ private:
     void add(const GroupExtrude &group);
     void add(const GroupLinearArray &group);
     void add(const GroupLathe &group);
+    using CreateEq = std::function<void(const SolveSpace::ExprVector &exorig, const SolveSpace::ExprVector &exnew,
+                                        unsigned int instance)>;
+    using CreateEqN = std::function<void(const SolveSpace::ExprQuaternion &exorig,
+                                         const SolveSpace::ExprQuaternion &exnew, unsigned int instance)>;
+    void add_array(const GroupArray &group, CreateEq create_eq2, CreateEq create_eq3, CreateEqN create_eq_n,
+                   unsigned int &eqi);
     std::unique_ptr<SolveSpace::System> m_sys;
     Document &m_doc;
     const UUID m_solve_group;

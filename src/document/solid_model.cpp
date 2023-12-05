@@ -898,13 +898,14 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupC
     return mod;
 }
 
-std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupLinearArray &group)
+static std::shared_ptr<const SolidModel> create_array(const Document &doc, GroupArray &group,
+                                                      std::function<gp_Trsf(unsigned int)> make_trsf)
 {
     auto mod = std::make_shared<SolidModelOcc>();
     group.m_array_messages.clear();
 
 
-    const auto last_solid_model_group = get_last_solid_model_group(doc, group);
+    const auto last_solid_model_group = SolidModel::get_last_solid_model_group(doc, group);
     if (!last_solid_model_group) {
         return nullptr;
     }
@@ -919,9 +920,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupL
     }
 
     for (unsigned int instance = 0; instance < group.m_count; instance++) {
-        const auto shift = group.get_shift3(doc, instance);
-        gp_Trsf trsf;
-        trsf.SetTranslation(gp_Vec(shift.x, shift.y, shift.z));
+        auto trsf = make_trsf(instance);
         TopoDS_Shape sh = BRepBuilderAPI_Transform(last_solid_model->m_shape, trsf);
         if (mod->m_shape.IsNull())
             mod->m_shape = sh;
@@ -946,5 +945,16 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupL
     return mod;
 }
 
+std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupLinearArray &group)
+{
+    auto make_trsf = [&group, &doc](unsigned int instance) {
+        const auto shift = group.get_shift3(doc, instance);
+        gp_Trsf trsf;
+        trsf.SetTranslation(gp_Vec(shift.x, shift.y, shift.z));
+        return trsf;
+    };
+
+    return create_array(doc, group, make_trsf);
+}
 
 } // namespace dune3d

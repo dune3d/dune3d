@@ -214,9 +214,9 @@ private:
     Gtk::Switch *m_switch_zx = nullptr;
 };
 
-class GroupEditorLinearArray : public GroupEditor {
+class GroupEditorArray : public GroupEditor {
 public:
-    GroupEditorLinearArray(Core &core, const UUID &group_uu) : GroupEditor(core, group_uu)
+    GroupEditorArray(Core &core, const UUID &group_uu) : GroupEditor(core, group_uu)
     {
         auto &group = get_group();
 
@@ -256,9 +256,9 @@ public:
     }
 
 private:
-    GroupLinearArray &get_group()
+    GroupArray &get_group()
     {
-        return m_core.get_current_document().get_group<GroupLinearArray>(m_group_uu);
+        return m_core.get_current_document().get_group<GroupArray>(m_group_uu);
     }
 
     Gtk::SpinButton *m_sp_count = nullptr;
@@ -355,7 +355,7 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
     case Group::Type::REFERENCE:
         return Gtk::make_managed<GroupEditorReference>(core, group_uu);
     case Group::Type::LINEAR_ARRAY:
-        return Gtk::make_managed<GroupEditorLinearArray>(core, group_uu);
+        return Gtk::make_managed<GroupEditorArray>(core, group_uu);
     default:
         return Gtk::make_managed<GroupEditor>(core, group_uu);
     }
