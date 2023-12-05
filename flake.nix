@@ -33,7 +33,6 @@
         pkgs.gtkmm4
         pkgs.libepoxy
         pkgs.libuuid
-        pkgs.mimalloc
         pkgs.opencascade-occt
         pkgs.range-v3
       ];

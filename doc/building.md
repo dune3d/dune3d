@@ -7,7 +7,6 @@ You're going to need these dependencies:
  - gtkmm-4.0
  - cairomm
  - opencascade
- - mimalloc
  - uuid
  - pkg-config (build-time only)
  - librsvg (build-time only)
@@ -77,7 +76,6 @@ pacman -S \
 	mingw-w64-x86_64-gtkmm4 \
 	mingw-w64-x86_64-glm \
 	mingw-w64-x86_64-opencascade \
-	mingw-w64-x86_64-mimalloc \
 	mingw-w64-x86_64-eigen3 \
 	mingw-w64-x86_64-meson \
 	mingw-w64-x86_64-cmake \
