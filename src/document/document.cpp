@@ -4,10 +4,13 @@
 #include "constraint/constraint.hpp"
 #include "group/group.hpp"
 #include "util/util.hpp"
+#include "util/fs_util.hpp"
 #include "group/group_extrude.hpp"
 #include "group/group_reference.hpp"
 #include "group/group_sketch.hpp"
 #include "system/system.hpp"
+#include "logger/logger.hpp"
+#include "logger/log_util.hpp"
 #include <ranges>
 #include <set>
 #include <algorithm>
@@ -119,7 +122,11 @@ Document::Document(const Document &other) : m_version(other.m_version)
 
 Document Document::new_from_file(const std::filesystem::path &path)
 {
-    return Document{load_json_from_file(path), path.parent_path()};
+    try {
+        return Document{load_json_from_file(path), path.parent_path()};
+    }
+    CATCH_LOG(Logger::Level::WARNING, "error opening document" + path_to_string(path), Logger::Domain::DOCUMENT)
+    return {};
 }
 
 std::vector<Group *> Document::get_groups_sorted()
@@ -159,62 +166,65 @@ std::vector<Document::BodyGroups> Document::get_groups_by_body() const
 
 void Document::update_pending(const UUID &last_group_to_update, const std::vector<EntityAndPoint> &dragged)
 {
-    auto groups_sorted = get_groups_sorted();
-    auto get_first_index = [this](const UUID &uu) {
-        if (m_groups.contains(uu))
-            return get_group(uu).get_index();
-        else
-            return INT_MAX;
-    };
+    try {
+        auto groups_sorted = get_groups_sorted();
+        auto get_first_index = [this](const UUID &uu) {
+            if (m_groups.contains(uu))
+                return get_group(uu).get_index();
+            else
+                return INT_MAX;
+        };
 
-    const auto first_generate_index = get_first_index(m_first_group_generate);
-    const auto first_solve_index = get_first_index(m_first_group_solve);
-    const auto first_update_solid_model_index = get_first_index(m_first_group_update_solid_model);
-    const Group *last_group = nullptr;
-    // first pass: generate
-    if (m_first_group_generate) {
+        const auto first_generate_index = get_first_index(m_first_group_generate);
+        const auto first_solve_index = get_first_index(m_first_group_solve);
+        const auto first_update_solid_model_index = get_first_index(m_first_group_update_solid_model);
+        const Group *last_group = nullptr;
+        // first pass: generate
+        if (m_first_group_generate) {
+            for (auto group : groups_sorted) {
+                if (last_group && last_group->m_uuid == last_group_to_update) {
+                    // we've seen all groups we needed to see, update to the rest
+                    if (m_first_group_generate)
+                        m_first_group_generate = group->m_uuid;
+                    break;
+                }
+                const auto index = group->get_index();
+                if (index >= first_generate_index) {
+                    generate_group(*group);
+                }
+                last_group = group;
+            }
+        }
+        if (!last_group_to_update)
+            m_first_group_generate = UUID();
+
+        erase_invalid();
+
+        last_group = nullptr;
         for (auto group : groups_sorted) {
             if (last_group && last_group->m_uuid == last_group_to_update) {
                 // we've seen all groups we needed to see, update to the rest
-                if (m_first_group_generate)
-                    m_first_group_generate = group->m_uuid;
-                break;
+                if (m_first_group_solve)
+                    m_first_group_solve = group->m_uuid;
+                if (m_first_group_update_solid_model)
+                    m_first_group_update_solid_model = group->m_uuid;
+                return;
             }
             const auto index = group->get_index();
-            if (index >= first_generate_index) {
-                generate_group(*group);
+            if (index >= first_solve_index) {
+                solve_group(*group, dragged);
             }
+            if (index >= first_update_solid_model_index) {
+                update_solid_model(*group);
+            }
+
             last_group = group;
         }
+        // we've seen all groups, reset all pendings
+        m_first_group_solve = UUID();
+        m_first_group_update_solid_model = UUID();
     }
-    if (!last_group_to_update)
-        m_first_group_generate = UUID();
-
-    erase_invalid();
-
-    last_group = nullptr;
-    for (auto group : groups_sorted) {
-        if (last_group && last_group->m_uuid == last_group_to_update) {
-            // we've seen all groups we needed to see, update to the rest
-            if (m_first_group_solve)
-                m_first_group_solve = group->m_uuid;
-            if (m_first_group_update_solid_model)
-                m_first_group_update_solid_model = group->m_uuid;
-            return;
-        }
-        const auto index = group->get_index();
-        if (index >= first_solve_index) {
-            solve_group(*group, dragged);
-        }
-        if (index >= first_update_solid_model_index) {
-            update_solid_model(*group);
-        }
-
-        last_group = group;
-    }
-    // we've seen all groups, reset all pendings
-    m_first_group_solve = UUID();
-    m_first_group_update_solid_model = UUID();
+    CATCH_LOG(Logger::Level::CRITICAL, "error updating document", Logger::Domain::DOCUMENT)
 }
 
 void Document::generate_group(Group &group)
