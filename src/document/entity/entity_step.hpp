@@ -26,7 +26,7 @@ public:
 
     void accept(EntityVisitor &visitor) const override;
 
-    glm::dvec3 m_origin;
+    glm::dvec3 m_origin = {0, 0, 0};
     glm::dquat m_normal;
 
     glm::dvec3 transform(glm::dvec3 p) const;
@@ -44,6 +44,8 @@ public:
     bool m_show_points = false;
 
     std::shared_ptr<const ImportedSTEP> m_imported;
+
+    void update_imported(const std::filesystem::path &containing_dir);
 };
 
 } // namespace dune3d

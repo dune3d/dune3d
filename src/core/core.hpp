@@ -132,6 +132,11 @@ public:
         return get_current_document_info().get_current_workplane();
     }
 
+    std::filesystem::path get_current_document_directory() const override
+    {
+        return get_current_document_info().m_path.parent_path();
+    }
+
     void solve_current(const DraggedList &dragged) override;
 
 

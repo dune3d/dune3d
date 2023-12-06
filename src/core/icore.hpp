@@ -1,6 +1,7 @@
 #pragma once
 #include "util/uuid.hpp"
 #include "document/entity/entity_and_point.hpp"
+#include <filesystem>
 #include <vector>
 
 namespace dune3d {
@@ -12,6 +13,7 @@ public:
     virtual const Document &get_current_last_document() const = 0;
     virtual UUID get_current_group() const = 0;
     virtual UUID get_current_workplane() const = 0;
+    virtual std::filesystem::path get_current_document_directory() const = 0;
 
     using DraggedList = std::vector<EntityAndPoint>;
 

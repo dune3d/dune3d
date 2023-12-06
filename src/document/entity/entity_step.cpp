@@ -13,11 +13,16 @@ EntitySTEP::EntitySTEP(const UUID &uu, const json &j, const std::filesystem::pat
     : Entity(uu, j), m_origin(j.at("origin").get<glm::dvec3>()), m_normal(j.at("normal").get<glm::dquat>()),
       m_path(j.at("path").get<std::filesystem::path>())
 {
-    m_imported = STEPImportManager::get().import_step(get_path(containing_dir));
+    update_imported(containing_dir);
     for (const auto &[k, v] : j.at("anchors").items()) {
         m_anchors.emplace(std::stoi(k), v.get<glm::dvec3>());
         m_anchors_transformed.emplace(std::stoi(k), transform(v.get<glm::dvec3>()));
     }
+}
+
+void EntitySTEP::update_imported(const std::filesystem::path &containing_dir)
+{
+    m_imported = STEPImportManager::get().import_step(get_path(containing_dir));
 }
 
 std::filesystem::path EntitySTEP::get_path(const std::filesystem::path &containing_dir) const

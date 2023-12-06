@@ -22,4 +22,14 @@ std::filesystem::path path_from_string(const std::string &path)
     return std::filesystem::path(string_to_u8string(path));
 }
 
+std::optional<std::filesystem::path> get_relative_filename(const std::filesystem::path &p,
+                                                           const std::filesystem::path &b)
+{
+    for (auto ip = p.begin(), ib = b.begin(); ib != b.end(); ip++, ib++) {
+        if (ip == p.end() || *ip != *ib)
+            return {};
+    }
+    return std::filesystem::relative(p, b);
+}
+
 } // namespace dune3d

@@ -5,7 +5,7 @@
 #include "dialogs/dialogs.hpp"
 #include "import_step/step_import_manager.hpp"
 #include <gtkmm.h>
-#include <iostream>
+#include "util/fs_util.hpp"
 #include "tool_common_impl.hpp"
 
 namespace dune3d {
@@ -42,16 +42,13 @@ ToolResponse ToolImportSTEP::begin(const ToolArgs &args)
             auto file = dialog->open_finish(result);
             // Notice that this is a std::string, not a Glib::ustring.
             auto filename = file->get_path();
-            m_intf.tool_update_data(std::make_unique<ToolDataPath>(filename));
-            std::cout << "File selected: " << filename << std::endl;
+            m_intf.tool_update_data(std::make_unique<ToolDataPath>(path_from_string(filename)));
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
-            std::cout << "No file selected. " << err.what() << std::endl;
             m_intf.tool_update_data(std::make_unique<ToolDataPath>());
         }
         catch (const Glib::Error &err) {
-            std::cout << "Unexpected exception. " << err.what() << std::endl;
             m_intf.tool_update_data(std::make_unique<ToolDataPath>());
         }
     });
@@ -67,8 +64,12 @@ ToolResponse ToolImportSTEP::update(const ToolArgs &args)
         if (auto data = dynamic_cast<const ToolDataPath *>(args.data.get())) {
             if (data->path != std::filesystem::path{}) {
                 auto &step = add_entity<EntitySTEP>();
-                step.m_path = data->path;
-                step.m_imported = STEPImportManager::get().import_step(step.m_path);
+                auto dir = m_core.get_current_document_directory();
+                if (auto rel = get_relative_filename(data->path, dir))
+                    step.m_path = *rel;
+                else
+                    step.m_path = data->path;
+                step.update_imported(dir);
                 return ToolResponse::commit();
             }
             else {
