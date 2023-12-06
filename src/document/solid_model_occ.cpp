@@ -441,11 +441,11 @@ void SolidModelOcc::export_step(const std::filesystem::path &path) const
     }
 
     APIHeaderSection_MakeHeader hdr(writer.ChangeWriter().Model());
-    hdr.SetName(new TCollection_HAsciiString("Board"));
+    hdr.SetName(new TCollection_HAsciiString("Body"));
     hdr.SetAuthorValue(1, new TCollection_HAsciiString("An Author"));
     hdr.SetOrganizationValue(1, new TCollection_HAsciiString("A Company"));
-    hdr.SetOriginatingSystem(new TCollection_HAsciiString("horizon EDA"));
-    hdr.SetDescriptionValue(1, new TCollection_HAsciiString("Electronic assembly"));
+    hdr.SetOriginatingSystem(new TCollection_HAsciiString("Dune 3D"));
+    hdr.SetDescriptionValue(1, new TCollection_HAsciiString("Body"));
 
     if (Standard_False == writer.Write(path_to_string(path).c_str()))
         throw std::runtime_error("write error");
