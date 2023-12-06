@@ -1039,7 +1039,7 @@ void System::update_document()
         }
     }
     for (auto &[uu, group] : m_doc.get_groups()) {
-        if (auto gp = dynamic_cast<GroupPolarArray *>(group.get())) {
+        if (auto gp = dynamic_cast<GroupPolarArray *>(group.get()); gp && gp->m_active_wrkpl) {
             auto &en_center = m_doc.get_entity<EntityPoint2D>(gp->get_center_point_uuid());
             gp->m_center = en_center.m_p;
         }
