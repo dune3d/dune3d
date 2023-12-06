@@ -1,6 +1,7 @@
 #pragma once
 #include <gtkmm.h>
 #include "preferences/preferences.hpp"
+#include "logger/log_dispatcher.hpp"
 #include <filesystem>
 
 namespace dune3d {
@@ -40,6 +41,7 @@ public:
     }
 
     class PreferencesWindow *show_preferences_window(guint32 timestamp = 0);
+    class LogWindow *show_log_window(guint32 timestamp = 0);
 
 
 protected:
@@ -55,6 +57,9 @@ private:
     Preferences m_preferences;
 
     class PreferencesWindow *m_preferences_window = nullptr;
+
+    LogDispatcher m_log_dispatcher;
+    class LogWindow *m_log_window = nullptr;
 
     static std::filesystem::path get_user_config_filename();
 

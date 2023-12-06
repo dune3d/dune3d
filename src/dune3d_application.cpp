@@ -5,6 +5,10 @@
 #include "nlohmann/json.hpp"
 #include "preferences/preferences_window.hpp"
 #include "widgets/about_dialog.hpp"
+#include "logger/logger.hpp"
+#include "widgets/log_window.hpp"
+#include "widgets/log_view.hpp"
+#include "logger/log_util.hpp"
 #include <iostream>
 #include <iomanip>
 
@@ -68,9 +72,15 @@ void Dune3DApplication::on_startup()
 {
     Gtk::Application::on_startup();
     create_config_dir();
-    m_preferences.load();
-    // std::cout << std::setw(4) << m_preferences.serialize() << std::endl;
+    m_preferences.load_default();
     the_preferences = &m_preferences;
+    try {
+        m_preferences.load();
+    }
+    CATCH_LOG(Logger::Level::CRITICAL, "error loading preferences", Logger::Domain::UNSPECIFIED)
+
+    // std::cout << std::setw(4) << m_preferences.serialize() << std::endl;
+
 
     add_action("preferences", [this] {
         auto pwin = show_preferences_window();
@@ -78,7 +88,7 @@ void Dune3DApplication::on_startup()
             pwin->set_transient_for(*win);
         }
     });
-    // add_action("logger", [this] { show_log_window(); });
+    add_action("logger", [this] { show_log_window(); });
     // add_action("quit", sigc::mem_fun(*this, &PoolProjectManagerApplication::on_action_quit));
     // add_action("new_window", sigc::mem_fun(*this, &PoolProjectManagerApplication::on_action_new_window));
     add_action("about", sigc::mem_fun(*this, &Dune3DApplication::on_action_about));
@@ -87,6 +97,10 @@ void Dune3DApplication::on_startup()
     if (std::filesystem::is_regular_file(get_user_config_filename())) {
         m_user_config.load(get_user_config_filename());
     }
+
+    m_log_window = new LogWindow();
+    m_log_dispatcher.set_handler([this](const auto &it) { m_log_window->get_view().push_log(it); });
+    Logger::get().set_log_handler([this](const Logger::Item &it) { m_log_dispatcher.log(it); });
 
     auto cssp = Gtk::CssProvider::create();
     cssp->load_from_resource("/org/dune3d/dune3d/dune3d.css");
@@ -117,6 +131,12 @@ PreferencesWindow *Dune3DApplication::show_preferences_window(guint32 timestamp)
     }
     m_preferences_window->present(timestamp);
     return m_preferences_window;
+}
+
+LogWindow *Dune3DApplication::show_log_window(guint32 timestamp)
+{
+    m_log_window->present(timestamp);
+    return m_log_window;
 }
 
 void Dune3DApplication::on_action_about()

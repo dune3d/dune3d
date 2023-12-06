@@ -341,6 +341,7 @@ void Editor::init_header_bar()
         auto top = Gio::Menu::create();
 
         top->append_item(Gio::MenuItem::create("Preferences", "app.preferences"));
+        top->append_item(Gio::MenuItem::create("Logger", "app.logger"));
         top->append_item(Gio::MenuItem::create("About", "app.about"));
 
         m_win.get_hamburger_menu_button().set_menu_model(top);
@@ -982,7 +983,7 @@ void Editor::tool_begin(ToolID id /*bool override_selection, const std::set<Sele
                          std::unique_ptr<ToolData> data*/)
 {
     if (m_core.tool_is_active()) {
-        Logger::log_critical("can't begin tool while tool is active", Logger::Domain::IMP);
+        Logger::log_critical("can't begin tool while tool is active", Logger::Domain::EDITOR);
         return;
     }
 
@@ -1363,7 +1364,7 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
             return false;
         }
         else {
-            Logger::log_warning("Key sequence??", Logger::Domain::IMP,
+            Logger::log_warning("Key sequence??", Logger::Domain::EDITOR,
                                 std::to_string(connections_matched.size()) + " "
                                         + std::to_string(in_tool_actions_matched.size()));
             return false;
@@ -1468,8 +1469,8 @@ void Editor::open_file(const std::filesystem::path &path)
 {
     if (m_core.has_documents())
         return;
-    m_win.get_app().add_recent_item(path);
     m_core.add_document(path);
+    m_win.get_app().add_recent_item(path);
 }
 
 void Editor::tool_bar_set_tool_tip(const std::string &s)

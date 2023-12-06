@@ -15,7 +15,6 @@ Logger &Logger::get()
 
 void Logger::log(Logger::Level l, const std::string &m, Logger::Domain d, const std::string &detail)
 {
-    std::cout << m << " " << detail << std::endl;
     if (handler) {
         handler(Item(seq++, l, m, d, detail));
     }
@@ -52,39 +51,26 @@ void Logger::set_log_handler(Logger::log_handler_t h)
     for (const auto &it : buffer) {
         handler(it);
     }
+    buffer.clear();
 }
 
 std::string Logger::domain_to_string(Logger::Domain dom)
 {
     switch (dom) {
-    case Logger::Domain::BLOCK:
-        return "Block";
-    case Logger::Domain::BOARD:
-        return "Board";
-    case Logger::Domain::SCHEMATIC:
-        return "Schematic";
     case Logger::Domain::TOOL:
         return "Tool";
     case Logger::Domain::CORE:
         return "Core";
     case Logger::Domain::CANVAS:
         return "Canvas";
-    case Logger::Domain::IMP:
-        return "Interactive manipulator";
     case Logger::Domain::IMPORT:
         return "Import";
     case Logger::Domain::VERSION:
         return "Version";
-    case Logger::Domain::POOL_UPDATE:
-        return "Pool update";
-    case Logger::Domain::PICTURE:
-        return "Picture";
-    case Logger::Domain::PART:
-        return "Part";
-    case Logger::Domain::PROJECT:
-        return "Project";
-    case Logger::Domain::BLOCKS:
-        return "Blocks";
+    case Logger::Domain::EDITOR:
+        return "Editor";
+    case Logger::Domain::DOCUMENT:
+        return "Document";
     default:
         return "Unspecified";
     }

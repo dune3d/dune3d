@@ -11,20 +11,13 @@ public:
     enum class Level { DEBUG, INFO, WARNING, CRITICAL };
     enum class Domain {
         UNSPECIFIED,
-        BOARD,
-        SCHEMATIC,
-        BLOCK,
+        DOCUMENT,
+        EDITOR,
         TOOL,
         CORE,
         CANVAS,
-        IMP,
         IMPORT,
         VERSION,
-        POOL_UPDATE,
-        PICTURE,
-        PART,
-        PROJECT,
-        BLOCKS,
     };
 
     Logger();
