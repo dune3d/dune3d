@@ -1050,6 +1050,7 @@ void Editor::tool_process_one()
         m_no_canvas_update = false;
         m_solid_model_edge_select_mode = false;
         update_workplane_label();
+        update_selection_editor();
     }
     if (!m_no_canvas_update)
         canvas_update();
