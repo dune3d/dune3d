@@ -77,7 +77,7 @@ void Editor::on_add_group(Group::Type group_type)
         new_group = &group;
         group.m_name = "Extrude";
         group.m_wrkpl = current_group.m_active_wrkpl;
-        group.m_dvec = doc.get_entity<EntityWorkplane>(group.m_wrkpl).get_normal();
+        group.m_dvec = doc.get_entity<EntityWorkplane>(group.m_wrkpl).get_normal_vector();
         group.m_source_group = current_group.m_uuid;
     }
     else if (group_type == Group::Type::LATHE) {

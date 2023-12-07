@@ -319,7 +319,7 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
         const auto p2 = wrkpl.transform(pts.at((i + 1) % (pts.size())));
         m_ca.add_selectable(m_ca.draw_line(p1, p2), sr);
     }
-    auto normal = wrkpl.get_normal() * .05;
+    auto normal = wrkpl.get_normal_vector() * .05;
     m_ca.add_selectable(m_ca.draw_screen_line(wrkpl.m_origin, normal), sr);
 
     // draw bottom left chamfer

@@ -359,7 +359,7 @@ private:
             auto &rad = dynamic_cast<const IEntityRadius &>(orig_path.front().second.entity);
             const auto center = m_wrkpl.transform(rad.get_center()) + m_offset;
 
-            auto normal = m_wrkpl.get_normal();
+            auto normal = m_wrkpl.get_normal_vector();
             if (hole)
                 normal *= -1;
 
@@ -410,7 +410,7 @@ private:
             const auto pbt = m_wrkpl.transform(pb) + m_offset;
 
             if (auto arc = dynamic_cast<const EntityArc2D *>(&edge.entity)) {
-                auto normal = m_wrkpl.get_normal();
+                auto normal = m_wrkpl.get_normal_vector();
 
                 gp_Pnt sa(pat.x, pat.y, pat.z);
                 gp_Pnt ea(pbt.x, pbt.y, pbt.z);
@@ -967,7 +967,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupP
     }
 
     auto &wrkpl = doc.get_entity<EntityWorkplane>(group.m_active_wrkpl);
-    auto norm = wrkpl.get_normal();
+    auto norm = wrkpl.get_normal_vector();
     auto center = wrkpl.transform(group.m_center);
     auto ax = gp_Ax1(gp_Pnt(center.x, center.y, center.z), gp_Dir(norm.x, norm.y, norm.z));
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "entity.hpp"
+#include "ientity_normal.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
@@ -28,7 +29,7 @@ public:
     glm::dvec3 transform_relative(glm::dvec2 p) const;
     glm::dvec2 project(glm::dvec3 p) const;
     glm::dvec3 project3(glm::dvec3 p) const;
-    glm::dvec3 get_normal() const;
+    glm::dvec3 get_normal_vector() const;
 
     glm::dvec3 m_origin;
     glm::dquat m_normal;

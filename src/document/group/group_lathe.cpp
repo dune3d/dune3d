@@ -52,7 +52,7 @@ std::optional<glm::dvec3> GroupLathe::get_direction(const Document &doc) const
     const auto &en_normal = doc.get_entity(m_normal);
     const auto en_type = en_normal.get_type();
     if (auto wrkpl = dynamic_cast<const EntityWorkplane *>(&en_normal)) {
-        return wrkpl->get_normal();
+        return wrkpl->get_normal_vector();
     }
     else if (en_type == Entity::Type::LINE_2D || en_type == Entity::Type::LINE_3D) {
         return glm::normalize(en_normal.get_point(2, doc) - en_normal.get_point(1, doc));
@@ -102,7 +102,7 @@ void GroupLathe::generate_or_solve(Document &doc, GenerateOrSolve gen_or_solve) 
                 auto &new_circle = gen_or_solve == GenerateOrSolve::SOLVE
                                            ? doc.get_entity<EntityCircle3D>(new_circle_uu)
                                            : doc.get_or_add_entity<EntityCircle3D>(new_circle_uu);
-                new_circle.m_normal = quat_from_uv(wrkpl.get_normal(), glm::cross(wrkpl.get_normal(), n));
+                new_circle.m_normal = quat_from_uv(wrkpl.get_normal_vector(), glm::cross(wrkpl.get_normal_vector(), n));
                 const auto pc = li.get_point(pt, doc);
                 new_circle.m_center = project_point_onto_line(pc, origin, n);
                 new_circle.m_radius = glm::length(new_circle.m_center - pc);

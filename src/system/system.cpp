@@ -449,7 +449,7 @@ void System::add(const GroupExtrude &group)
 
         if (group.m_direction == GroupExtrude::Direction::NORMAL) {
             auto &wrkpl = m_doc.get_entity<EntityWorkplane>(group.m_wrkpl);
-            auto dl = add_param(group.m_uuid, glm::dot(group.m_dvec, wrkpl.get_normal()));
+            auto dl = add_param(group.m_uuid, glm::dot(group.m_dvec, wrkpl.get_normal_vector()));
             auto en_wrkpl_normal = get_entity_ref(EntityRef{group.m_wrkpl, 2});
             EntityBase *a = SK.GetEntity({en_wrkpl_normal});
             ExprVector plane_normal = a->NormalExprsN();

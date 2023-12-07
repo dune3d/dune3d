@@ -51,7 +51,7 @@ std::unique_ptr<Entity> EntityWorkplane::clone() const
     return std::make_unique<EntityWorkplane>(*this);
 }
 
-glm::dvec3 EntityWorkplane::get_normal() const
+glm::dvec3 EntityWorkplane::get_normal_vector() const
 {
     return glm::rotate(m_normal, glm::dvec3(0, 0, 1));
 }
