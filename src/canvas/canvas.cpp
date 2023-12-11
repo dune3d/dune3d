@@ -494,7 +494,7 @@ uint16_t Canvas::read_pick_buf(int x, int y) const
 {
     int xi = x * m_scale_factor;
     int yi = y * m_scale_factor;
-    if (xi >= m_dev_width || yi >= m_dev_height)
+    if (xi >= m_dev_width || yi >= m_dev_height || x < 0 || y < 0)
         return 0;
     const int idx = ((m_dev_height)-yi - 1) * m_dev_width + xi;
     return m_pick_buf.at(idx);
