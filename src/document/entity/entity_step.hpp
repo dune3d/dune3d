@@ -1,12 +1,12 @@
 #pragma once
 #include "entity.hpp"
 #include <glm/glm.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include "ientity_normal.hpp"
 #include <filesystem>
 #include "import_step/imported_step.hpp"
 
 namespace dune3d {
-class EntitySTEP : public Entity {
+class EntitySTEP : public Entity, public IEntityNormal {
 public:
     explicit EntitySTEP(const UUID &uu);
     explicit EntitySTEP(const UUID &uu, const json &j, const std::filesystem::path &containing_dir);
@@ -46,6 +46,16 @@ public:
     std::shared_ptr<const ImportedSTEP> m_imported;
 
     void update_imported(const std::filesystem::path &containing_dir);
+
+
+    void set_normal(const glm::dquat &q) override
+    {
+        m_normal = q;
+    }
+    glm::dquat get_normal() const override
+    {
+        return m_normal;
+    }
 };
 
 } // namespace dune3d

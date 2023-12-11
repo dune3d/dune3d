@@ -1,10 +1,10 @@
 #pragma once
 #include "entity.hpp"
 #include <glm/glm.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include "ientity_normal.hpp"
 
 namespace dune3d {
-class EntityWorkplane : public Entity {
+class EntityWorkplane : public Entity, public IEntityNormal {
 public:
     explicit EntityWorkplane(const UUID &uu);
     explicit EntityWorkplane(const UUID &uu, const json &j);
@@ -33,6 +33,15 @@ public:
     glm::dvec3 m_origin;
     glm::dquat m_normal;
     glm::dvec2 m_size;
+
+    void set_normal(const glm::dquat &q) override
+    {
+        m_normal = q;
+    }
+    glm::dquat get_normal() const override
+    {
+        return m_normal;
+    }
 };
 
 } // namespace dune3d
