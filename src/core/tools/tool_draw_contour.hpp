@@ -64,6 +64,7 @@ private:
     bool m_placing_center = false;
 
     void update_arc_center();
+    void update_constrain_tangent();
 
     std::optional<Constraint::Type> get_auto_constraint() const;
 };

@@ -7,6 +7,7 @@
 #include "document/constraint/constraint_hv.hpp"
 #include "document/constraint/constraint_arc_arc_tangent.hpp"
 #include "document/constraint/constraint_arc_line_tangent.hpp"
+#include "document/constraint/constraint_parallel.hpp"
 #include "editor/editor_interface.hpp"
 #include "util/selection_util.hpp"
 #include "util/action_label.hpp"
@@ -47,6 +48,7 @@ ToolResponse ToolDrawContour::begin(const ToolArgs &args)
             constraint.m_entity2 = {m_temp_line->m_uuid, 1};
             m_constraints.insert(&constraint);
         }
+        update_constrain_tangent();
     }
 
     return ToolResponse();
@@ -182,25 +184,19 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             }
 
             auto last_point = get_last_point();
-            if (m_constrain && m_entities.size()) {
-                if (constrain_point(m_wrkpl->m_uuid, {m_entities.back()->m_uuid, last_point})) {
-                    return ToolResponse::commit();
-                }
-            }
+
 
             if (m_temp_line) {
                 if (m_last_tangent_point && m_constrain_tangent) {
                     auto &last_tangent_entity = get_entity(m_last_tangent_point->entity);
-                    // line-line parallel TBD
-                    /*if (last_tangent_entity.get_type() == Entity::Type::LINE_2D) {
-                        auto &constraint = add_constraint<ConstraintArcLineTangent>();
-                        constraint.m_line = last_tangent_entity.m_uuid;
-                        constraint.m_arc.entity = m_temp_arc->m_uuid;
-                        constraint.m_arc.point = get_arc_tail_point();
+                    if (last_tangent_entity.get_type() == Entity::Type::LINE_2D) {
+                        auto &constraint = add_constraint<ConstraintParallel>();
+                        constraint.m_entity1 = last_tangent_entity.m_uuid;
+                        constraint.m_entity2 = m_temp_line->m_uuid;
+                        constraint.m_wrkpl = m_wrkpl->m_uuid;
                         m_constraints.insert(&constraint);
                     }
-                    else*/
-                    if (last_tangent_entity.get_type() == Entity::Type::ARC_2D) {
+                    else if (last_tangent_entity.get_type() == Entity::Type::ARC_2D) {
                         auto &constraint = add_constraint<ConstraintArcLineTangent>();
                         constraint.m_arc = m_last_tangent_point.value();
                         constraint.m_line = m_temp_line->m_uuid;
@@ -231,7 +227,13 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
 
                 m_last_tangent_point = {m_temp_arc->m_uuid, get_arc_head_point()};
             }
-            m_constrain_tangent = false;
+
+            if (m_constrain && m_entities.size()) {
+                if (constrain_point(m_wrkpl->m_uuid, {m_entities.back()->m_uuid, last_point})) {
+                    return ToolResponse::commit();
+                }
+            }
+
             m_temp_line = &add_entity<EntityLine2D>();
             m_temp_arc = nullptr;
             m_temp_line->m_selection_invisible = true;
@@ -261,6 +263,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                     }
                 }
             }
+            update_constrain_tangent();
 
             if (m_entities.size()) {
                 auto &last_ent = *m_entities.back();
@@ -369,6 +372,12 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
     }
     update_tip();
     return ToolResponse();
+}
+
+void ToolDrawContour::update_constrain_tangent()
+{
+    if (m_last_tangent_point && get_entity(m_last_tangent_point->entity).get_type() == Entity::Type::LINE_2D)
+        m_constrain_tangent = false;
 }
 
 void ToolDrawContour::set_flip_arc(bool flip)
