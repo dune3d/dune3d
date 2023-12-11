@@ -1,6 +1,5 @@
 #pragma once
 #include "entity.hpp"
-#include "ientity_normal.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
