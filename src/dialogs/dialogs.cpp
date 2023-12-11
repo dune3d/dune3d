@@ -1,5 +1,6 @@
 #include "dialogs.hpp"
 #include "enter_datum_window.hpp"
+#include "rotate_window.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include <gtkmm.h>
 
@@ -12,6 +13,19 @@ EnterDatumWindow *Dialogs::show_enter_datum_window(const std::string &label, Dat
         return win;
     }
     auto win = new EnterDatumWindow(m_parent, m_interface, label, unit, def);
+    m_window_nonmodal = win;
+    win->signal_hide().connect(sigc::mem_fun(*this, &Dialogs::close_nonmodal));
+    win->present();
+    return win;
+}
+
+RotateWindow *Dialogs::show_rotate_window(const std::string &label, const glm::dquat &def)
+{
+    if (auto win = dynamic_cast<RotateWindow *>(m_window_nonmodal)) {
+        win->present();
+        return win;
+    }
+    auto win = new RotateWindow(m_parent, m_interface, label, def);
     m_window_nonmodal = win;
     win->signal_hide().connect(sigc::mem_fun(*this, &Dialogs::close_nonmodal));
     win->present();

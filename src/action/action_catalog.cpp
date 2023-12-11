@@ -20,6 +20,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::DRAW_CIRCLE_2D, {"Draw circle in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_WORKPLANE, {"Draw workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::MOVE, {"Move", ActionGroup::MOVE, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::ROTATE, {"Rotate", ActionGroup::MOVE, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DELETE, {"Delete", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::POPOVER, {"Popover", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_NO_POPOVER}},
         {ToolID::SET_WORKPLANE, {"Set workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
@@ -178,6 +179,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(SELECT_EDGES),
         TOOL_LUT_ITEM(SET_WORKPLANE),
         TOOL_LUT_ITEM(UNSET_WORKPLANE),
+        TOOL_LUT_ITEM(ROTATE),
 };
 
 
