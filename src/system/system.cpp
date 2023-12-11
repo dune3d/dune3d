@@ -1073,6 +1073,7 @@ void System::add_dragged(const UUID &entity, unsigned int point)
                 params.insert(idx);
         }
     } break;
+    case Entity::Type::WORKPLANE:
     case Entity::Type::STEP: {
         if (point == 0)
             point = 1;
