@@ -108,6 +108,9 @@ public:
     }
     void set_center(glm::vec3 center);
 
+    void animate_to_azimuth_elevation_abs(float az, float el);
+    void animate_to_azimuth_elevation_rel(float az, float el);
+
     enum class Projection { PERSP, ORTHO };
     void set_projection(Projection proj);
     Projection get_projection() const

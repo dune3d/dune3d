@@ -350,7 +350,7 @@ void Canvas::rotate_gesture_update_cb(Gdk::EventSequence *seq)
     set_cam_elevation(m_gesture_rotate_cam_elevation_orig + (dy / m_dev_height) * 180);
 }
 
-static float fix_cam_elevation(float cam_elevation)
+static float wrap_cam_elevation(float cam_elevation)
 {
     while (cam_elevation >= 360)
         cam_elevation -= 360;
@@ -361,22 +361,27 @@ static float fix_cam_elevation(float cam_elevation)
     return cam_elevation;
 }
 
+static float wrap_cam_azimuth(float cam_azimuth)
+{
+    while (cam_azimuth < 0)
+        cam_azimuth += 360;
+
+    while (cam_azimuth > 360)
+        cam_azimuth -= 360;
+    return cam_azimuth;
+}
+
 
 void Canvas::set_cam_elevation(float ele)
 {
-    m_cam_elevation = fix_cam_elevation(ele);
+    m_cam_elevation = wrap_cam_elevation(ele);
     queue_draw();
     m_signal_view_changed.emit();
 }
 
 void Canvas::set_cam_azimuth(float az)
 {
-    m_cam_azimuth = az;
-    while (m_cam_azimuth < 0)
-        m_cam_azimuth += 360;
-
-    while (m_cam_azimuth > 360)
-        m_cam_azimuth -= 360;
+    m_cam_azimuth = wrap_cam_azimuth(az);
     queue_draw();
     m_signal_view_changed.emit();
 }
@@ -393,6 +398,34 @@ void Canvas::set_center(glm::vec3 center)
     m_center = center;
     queue_draw();
     m_signal_view_changed.emit();
+}
+
+static double get_angle_delta(double d)
+{
+    while (d > 180)
+        d -= 360;
+    while (d < -180)
+        d += 360;
+    return d;
+}
+
+
+void Canvas::animate_to_azimuth_elevation_abs(float az, float el)
+{
+    animate_to_azimuth_elevation_rel(get_angle_delta(az - m_cam_azimuth), get_angle_delta(el - m_cam_elevation));
+}
+
+void Canvas::animate_to_azimuth_elevation_rel(float az, float el)
+{
+    if (!m_enable_animations) {
+        set_cam_azimuth(get_cam_azimuth() + az);
+        set_cam_elevation(get_cam_elevation() + el);
+        return;
+    }
+    start_anim();
+
+    m_azimuth_animator.target += az;
+    m_elevation_animator.target += el;
 }
 
 Canvas::VertexRef Canvas::get_vertex_ref_for_pick(unsigned int pick) const
