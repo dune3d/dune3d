@@ -40,7 +40,7 @@ ToolResponse ToolDrawContour::begin(const ToolArgs &args)
         m_temp_line = &add_entity<EntityLine2D>();
         m_temp_line->m_selection_invisible = true;
         m_temp_line->m_wrkpl = m_wrkpl->m_uuid;
-        m_temp_line->m_p1 = get_doc().get_point(enp);
+        m_temp_line->m_p1 = m_wrkpl->project(get_doc().get_point(enp));
         m_temp_line->m_p2 = get_cursor_pos_in_plane();
         m_entities.push_back(m_temp_line);
         {
