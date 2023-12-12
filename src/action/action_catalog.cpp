@@ -90,6 +90,11 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT,
          {"Move current group to end of document", ActionGroup::GROUP, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::TOGGLE_WORKPLANE, {"Toggle workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::ALIGN_VIEW_TO_WORKPLANE,
+         {"Align view to workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_SPECIFIC}},
+        {ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE,
+         {"Align view to current workplane", ActionGroup::UNKNOWN,
+          ActionCatalogItem::FLAGS_IN_TOOL | ActionCatalogItem::FLAGS_IN_TOOL}},
 };
 
 
@@ -136,6 +141,8 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(CREATE_GROUP_FILLET),
         ACTION_LUT_ITEM(CREATE_GROUP_LINEAR_ARRAY),
         ACTION_LUT_ITEM(TOGGLE_WORKPLANE),
+        ACTION_LUT_ITEM(ALIGN_VIEW_TO_WORKPLANE),
+        ACTION_LUT_ITEM(ALIGN_VIEW_TO_CURRENT_WORKPLANE),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \
