@@ -13,11 +13,11 @@ std::optional<TwoPoints> two_points_from_selection(const Document &doc, const st
         if (sr.type != SelectableRef::Type::ENTITY)
             return {};
         auto &en = doc.get_entity(sr.item);
-        if (en.get_type() == Entity::Type::LINE_2D) {
+        if (en.get_type() == Entity::Type::LINE_2D && sr.point == 0) {
             auto &en2 = dynamic_cast<const EntityLine2D &>(en);
             return TwoPoints{en2.m_uuid, 1, en2.m_uuid, 2};
         }
-        else if (en.get_type() == Entity::Type::LINE_3D) {
+        else if (en.get_type() == Entity::Type::LINE_3D && sr.point == 0) {
             auto &en3 = dynamic_cast<const EntityLine3D &>(en);
             return TwoPoints{en3.m_uuid, 1, en3.m_uuid, 2};
         }
