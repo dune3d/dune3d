@@ -34,17 +34,19 @@ ToolResponse ToolDrawContour::begin(const ToolArgs &args)
             return ToolResponse();
         if (sr.point == 0)
             return ToolResponse();
-        m_last_tangent_point = sr.get_entity_and_point();
+        auto enp = sr.get_entity_and_point();
+        if (is_valid_tangent_point(enp))
+            m_last_tangent_point = enp;
         m_temp_line = &add_entity<EntityLine2D>();
         m_temp_line->m_selection_invisible = true;
         m_temp_line->m_wrkpl = m_wrkpl->m_uuid;
-        m_temp_line->m_p1 = get_doc().get_point({sr.get_entity_and_point()});
+        m_temp_line->m_p1 = get_doc().get_point(enp);
         m_temp_line->m_p2 = get_cursor_pos_in_plane();
         m_entities.push_back(m_temp_line);
         {
             auto &constraint = add_constraint<ConstraintPointsCoincident>();
             constraint.m_wrkpl = m_wrkpl->m_uuid;
-            constraint.m_entity1 = sr.get_entity_and_point();
+            constraint.m_entity1 = enp;
             constraint.m_entity2 = {m_temp_line->m_uuid, 1};
             m_constraints.insert(&constraint);
         }
@@ -68,11 +70,8 @@ glm::dvec2 ToolDrawContour::get_last_tangent()
 {
     auto &enp = m_last_tangent_point.value();
     auto &en = get_entity(enp.entity);
-    if (auto en_arc = dynamic_cast<EntityArc2D *>(&en)) {
-        return en_arc->get_tangent_at_point(enp.point);
-    }
-    else if (auto en_line = dynamic_cast<EntityLine2D *>(&en)) {
-        return en_line->get_tangent_at_point(enp.point);
+    if (auto en_tangent = dynamic_cast<const IEntityTangent *>(&en)) {
+        return en_tangent->get_tangent_at_point(enp.point);
     }
     else {
         throw std::runtime_error("entity has no tangent");
@@ -114,6 +113,14 @@ void ToolDrawContour::update_arc_center()
     else {
         m_temp_arc->m_center = (m_temp_arc->m_from + m_temp_arc->m_to) / 2.;
     }
+}
+
+bool ToolDrawContour::is_valid_tangent_point(const EntityAndPoint &enp)
+{
+    const auto &en = get_doc().get_entity(enp.entity);
+    if (!en.is_valid_point(enp.point))
+        return false;
+    return dynamic_cast<const IEntityTangent *>(&en);
 }
 
 ToolResponse ToolDrawContour::update(const ToolArgs &args)
@@ -256,7 +263,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 if (m_entities.size() == 0) {
                     if (auto constraint = constrain_point(m_wrkpl->m_uuid, {m_temp_line->m_uuid, 1})) {
                         auto enp = m_intf.get_hover_selection().value().get_entity_and_point();
-                        if (get_doc().is_valid_point(enp)) {
+                        if (is_valid_tangent_point(enp)) {
                             m_last_tangent_point = enp;
                         }
                         m_constraints.insert(constraint);

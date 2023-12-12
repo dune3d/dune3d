@@ -65,6 +65,7 @@ private:
 
     void update_arc_center();
     void update_constrain_tangent();
+    bool is_valid_tangent_point(const EntityAndPoint &enp);
 
     std::optional<Constraint::Type> get_auto_constraint() const;
 };
