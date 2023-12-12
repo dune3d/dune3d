@@ -43,6 +43,7 @@ void Editor::init()
     init_canvas();
 
     m_core.signal_needs_save().connect([this] { update_action_sensitivity(); });
+    get_canvas().signal_selection_changed().connect([this] { update_action_sensitivity(); });
 
     m_win.signal_close_request().connect(
             [this] {
@@ -238,6 +239,7 @@ void Editor::open_context_menu()
     if (!sel.contains(*hover_sel))
         sel = {*hover_sel};
     m_context_menu_selection = sel;
+    update_action_sensitivity(sel);
     for (const auto &[action_group, action_group_name] : action_group_catalog) {
         for (const auto &[id, it_cat] : action_catalog) {
             if (it_cat.group == action_group && !(it_cat.flags & ActionCatalogItem::FLAGS_NO_MENU)) {
@@ -741,17 +743,11 @@ KeyMatchResult Editor::keys_match(const KeySequence &keys) const
 
 void Editor::update_action_sensitivity()
 {
-    auto sel = get_canvas().get_selection();
-    bool has_workplane = false;
-    for (const auto &it : sel) {
-        if (it.type == SelectableRef::Type::ENTITY) {
-            if (m_core.get_current_document().m_entities.count(it.item)
-                && m_core.get_current_document().m_entities.at(it.item)->get_type() == Entity::Type::WORKPLANE) {
-                has_workplane = true;
-                break;
-            }
-        }
-    }
+    update_action_sensitivity(get_canvas().get_selection());
+}
+
+void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
+{
     m_action_sensitivity[ActionID::UNDO] = m_core.can_undo();
     m_action_sensitivity[ActionID::REDO] = m_core.can_redo();
     m_action_sensitivity[ActionID::SAVE_ALL] = m_core.get_needs_save_any();

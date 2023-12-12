@@ -124,6 +124,7 @@ private:
     bool get_action_sensitive(ActionID action) const;
 
     void update_action_sensitivity();
+    void update_action_sensitivity(const std::set<SelectableRef> &sel);
 
     std::map<ActionID, bool> m_action_sensitivity;
 
