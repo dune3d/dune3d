@@ -341,7 +341,7 @@ void Canvas::rotate_gesture_begin_cb(Gdk::EventSequence *seq)
 void Canvas::rotate_gesture_update_cb(Gdk::EventSequence *seq)
 {
     auto delta = m_gesture_rotate->get_angle_delta();
-    if (m_cam_elevation < 0)
+    if (m_gesture_rotate_cam_elevation_orig < 0)
         delta *= -1;
     set_cam_azimuth(m_gesture_rotate_cam_azimuth_orig + glm::degrees(delta));
     double cx, cy;
