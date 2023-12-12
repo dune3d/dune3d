@@ -2,10 +2,11 @@
 #include "entity.hpp"
 #include "ientity_in_workplane.hpp"
 #include "ientity_radius.hpp"
+#include "ientity_tangent.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityArc2D : public Entity, public IEntityInWorkplane, public IEntityRadius {
+class EntityArc2D : public Entity, public IEntityInWorkplane, public IEntityRadius, public IEntityTangent {
 public:
     explicit EntityArc2D(const UUID &uu);
     explicit EntityArc2D(const UUID &uu, const json &j);
@@ -30,7 +31,7 @@ public:
     UUID m_wrkpl;
     bool m_no_radius_constraint = false;
 
-    glm::dvec2 get_tangent_at_point(unsigned int point) const;
+    glm::dvec2 get_tangent_at_point(unsigned int point) const override;
 
     const UUID &get_workplane() const override
     {

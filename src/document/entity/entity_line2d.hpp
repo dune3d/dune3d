@@ -1,10 +1,11 @@
 #pragma once
 #include "entity.hpp"
 #include "ientity_in_workplane.hpp"
+#include "ientity_tangent.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityLine2D : public Entity, public IEntityInWorkplane {
+class EntityLine2D : public Entity, public IEntityInWorkplane, public IEntityTangent {
 public:
     explicit EntityLine2D(const UUID &uu);
     explicit EntityLine2D(const UUID &uu, const json &j);
@@ -23,7 +24,7 @@ public:
     bool is_valid_point(unsigned int point) const override;
     glm::dvec2 get_point_in_workplane(unsigned int point) const override;
 
-    glm::dvec2 get_tangent_at_point(unsigned int point) const;
+    glm::dvec2 get_tangent_at_point(unsigned int point) const override;
 
     void accept(EntityVisitor &visitor) const override;
 
