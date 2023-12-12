@@ -1327,6 +1327,7 @@ System::EntityRef System::get_entity_ref_for_parallel(const UUID &uu) const
     unsigned int idx = 0;
     switch (en.get_type()) {
     case Entity::Type::WORKPLANE:
+    case Entity::Type::STEP:
         idx = 2;
         break;
 

@@ -584,8 +584,8 @@ void Renderer::visit(const ConstraintEqualRadius &constraint)
 
 void Renderer::visit(const ConstraintSameOrientation &constraint)
 {
-    auto pt1 = m_doc->get_entity<EntityWorkplane>(constraint.m_entity1).m_origin;
-    auto pt2 = m_doc->get_entity<EntityWorkplane>(constraint.m_entity2).m_origin;
+    auto pt1 = m_doc->get_point({constraint.m_entity1, 1});
+    auto pt2 = m_doc->get_point({constraint.m_entity2, 1});
     add_constraint(pt1, IconID::CONSTRAINT_SAME_ORIENTATION, constraint.m_uuid);
     add_constraint(pt2, IconID::CONSTRAINT_SAME_ORIENTATION, constraint.m_uuid);
 }

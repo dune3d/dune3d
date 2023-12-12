@@ -24,7 +24,10 @@ std::optional<std::pair<UUID, UUID>> two_wrkpl_from_selection(const Document &do
 
     auto &en1 = doc.get_entity(sr1.item);
     auto &en2 = doc.get_entity(sr2.item);
-    if (en1.get_type() == Entity::Type::WORKPLANE && en2.get_type() == Entity::Type::WORKPLANE)
+    auto t1 = en1.get_type();
+    auto t2 = en2.get_type();
+    if ((t1 == Entity::Type::WORKPLANE || t1 == Entity::Type::STEP)
+        && (t2 == Entity::Type::WORKPLANE || t2 == Entity::Type::STEP))
         return {{en1.m_uuid, en2.m_uuid}};
 
     return {};
