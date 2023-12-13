@@ -428,6 +428,19 @@ void Canvas::animate_to_azimuth_elevation_rel(float az, float el)
     m_elevation_animator.target += el;
 }
 
+void Canvas::animate_to_center_abs(const glm::vec3 &center)
+{
+    if (!m_enable_animations) {
+        set_center(center);
+        return;
+    }
+    start_anim();
+
+    m_cx_animator.target = center.x;
+    m_cy_animator.target = center.y;
+    m_cz_animator.target = center.z;
+}
+
 Canvas::VertexRef Canvas::get_vertex_ref_for_pick(unsigned int pick) const
 {
     for (const auto &[ty, it] : m_vertex_type_picks) {
