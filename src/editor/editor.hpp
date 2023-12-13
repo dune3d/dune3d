@@ -78,6 +78,7 @@ private:
     void on_create_group_action(const ActionConnection &conn);
     void on_move_group_action(const ActionConnection &conn);
     void on_align_to_workplane(const ActionConnection &conn);
+    void on_center_to_workplane(const ActionConnection &conn);
 
 
     Canvas &get_canvas();

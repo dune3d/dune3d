@@ -441,6 +441,12 @@ void Editor::init_actions()
 
     connect_action(ActionID::ALIGN_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
     connect_action(ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
+    connect_action(ActionID::CENTER_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_center_to_workplane));
+    connect_action(ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE, sigc::mem_fun(*this, &Editor::on_center_to_workplane));
+    connect_action(ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE, [this](const auto &a) {
+        trigger_action(ActionID::ALIGN_VIEW_TO_WORKPLANE);
+        trigger_action(ActionID::CENTER_VIEW_TO_WORKPLANE);
+    });
 
     connect_action(ActionID::VIEW_PERSP, [this](auto &a) { get_canvas().set_projection(Canvas::Projection::PERSP); });
     connect_action(ActionID::VIEW_ORTHO, [this](auto &a) { get_canvas().set_projection(Canvas::Projection::ORTHO); });
@@ -495,6 +501,30 @@ void Editor::on_align_to_workplane(const ActionConnection &conn)
         ele += .01;
     get_canvas().animate_to_azimuth_elevation_abs(az, ele);
 }
+
+void Editor::on_center_to_workplane(const ActionConnection &conn)
+{
+    if (!m_core.has_documents())
+        return;
+    UUID wrkpl_uu;
+    const auto action = std::get<ActionID>(conn.id);
+
+    if (action == ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE) {
+        wrkpl_uu = m_core.get_current_workplane();
+    }
+    else {
+        if (auto wrkpl_opt = entity_from_selection(m_core.get_current_document(), get_canvas().get_selection(),
+                                                   Entity::Type::WORKPLANE))
+            wrkpl_uu = *wrkpl_opt;
+    }
+    if (!wrkpl_uu)
+        return;
+
+    auto &wrkpl = m_core.get_current_document().get_entity<EntityWorkplane>(wrkpl_uu);
+    get_canvas().animate_to_center_abs(wrkpl.m_origin);
+}
+
+
 void Editor::on_export_solid_model(const ActionConnection &conn)
 {
     const auto action = std::get<ActionID>(conn.id);
@@ -815,9 +845,12 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
                     m_core.get_current_document().get_group_after(current_group.m_uuid, mg) != UUID();
         }
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE] = has_current_wrkpl;
+        m_action_sensitivity[ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE] = has_current_wrkpl;
         const auto sel_is_workplane =
                 entity_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE).has_value();
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_WORKPLANE] = sel_is_workplane;
+        m_action_sensitivity[ActionID::CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
+        m_action_sensitivity[ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
@@ -825,6 +858,8 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::DELETE_CURRENT_GROUP] = false;
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_WORKPLANE] = false;
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE] = false;
+        m_action_sensitivity[ActionID::CENTER_VIEW_TO_WORKPLANE] = false;
+        m_action_sensitivity[ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE] = false;
     }
 
 
@@ -1218,7 +1253,7 @@ std::optional<ActionToolID> Editor::get_doubleclick_action(const SelectableRef &
                 return ToolID::DRAW_CONTOUR_FROM_POINT;
             break;
         case Entity::Type::WORKPLANE:
-            return ActionID::ALIGN_VIEW_TO_WORKPLANE;
+            return ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE;
         default:;
         }
     }
