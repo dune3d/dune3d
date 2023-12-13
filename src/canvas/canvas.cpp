@@ -22,6 +22,14 @@ Canvas::Canvas()
 {
     set_can_focus(true);
     set_focusable(true);
+    const MSD::Params slow_params{
+            .mass = .0123,
+            .damping = .2020,
+            .springyness = 0.986,
+    };
+    for (auto anim : {&m_azimuth_animator, &m_elevation_animator, &m_cx_animator, &m_cy_animator, &m_cz_animator}) {
+        anim->set_params(slow_params);
+    }
 
     m_animators.push_back(&m_azimuth_animator);
     m_animators.push_back(&m_elevation_animator);
