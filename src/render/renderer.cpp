@@ -306,11 +306,11 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
     m_ca.add_selectable(m_ca.draw_point(wrkpl.m_origin),
                         SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, wrkpl.m_uuid, 1});
     glm::vec2 sz = wrkpl.m_size / 2.;
-    std::array<glm::vec3, 4> pts = {
-            glm::vec3(-sz, 0),
-            glm::vec3(sz * glm::vec2(1, -1), 0),
-            glm::vec3(sz, 0),
-            glm::vec3(sz * glm::vec2(-1, 1), 0),
+    std::array<glm::vec2, 4> pts = {
+            glm::vec2(-sz),
+            glm::vec2(sz * glm::vec2(1, -1)),
+            glm::vec2(sz),
+            glm::vec2(sz * glm::vec2(-1, 1)),
     };
 
     const auto sr = SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, wrkpl.m_uuid, 0};
@@ -319,6 +319,15 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
         const auto p2 = wrkpl.transform(pts.at((i + 1) % (pts.size())));
         m_ca.add_selectable(m_ca.draw_line(p1, p2), sr);
     }
+
+    if (wrkpl.m_uuid == m_current_group->m_active_wrkpl) {
+        for (size_t i = 0; i < pts.size(); i++) {
+            const auto p1 = wrkpl.transform(pts.at(i) * .99f);
+            const auto p2 = wrkpl.transform(pts.at((i + 1) % (pts.size())) * .99f);
+            m_ca.add_selectable(m_ca.draw_line(p1, p2), sr);
+        }
+    }
+
     auto normal = wrkpl.get_normal_vector() * .05;
     m_ca.add_selectable(m_ca.draw_screen_line(wrkpl.m_origin, normal), sr);
 
