@@ -1,9 +1,10 @@
 #pragma once
 #include <gtkmm.h>
 #include "action/action.hpp"
+#include "nlohmann/json_fwd.hpp"
 
 namespace dune3d {
-
+using json = nlohmann::json;
 class KeySequencesPreferencesEditorBase : public Gtk::Box {
 public:
     KeySequencesPreferencesEditorBase(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &x,
@@ -46,6 +47,7 @@ protected:
     Glib::RefPtr<Gio::ListStore<ActionItem>> m_store;
     Gtk::FlowBox *m_action_editors = nullptr;
 
+    virtual void handle_load_default();
 
 private:
     Gtk::ColumnView *m_view = nullptr;
@@ -58,7 +60,10 @@ private:
     void update_action_editors();
     void handle_save();
     void handle_load();
-    virtual void handle_load_default() = 0;
+    void handle_import();
+    void handle_export();
+    virtual json get_json() const = 0;
+    virtual void load_json(const json &j) = 0;
 };
 
 } // namespace dune3d

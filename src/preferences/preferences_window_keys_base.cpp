@@ -6,6 +6,8 @@
 #include "nlohmann/json.hpp"
 #include "core/tool_id.hpp"
 #include "widgets/capture_dialog.hpp"
+#include "util/fs_util.hpp"
+#include "logger/log_util.hpp"
 #include <iostream>
 namespace dune3d {
 
@@ -46,6 +48,17 @@ KeySequencesPreferencesEditorBase::KeySequencesPreferencesEditorBase(BaseObjectT
                                        /* passthrough */ false, /* autoexpand */ true);
     m_selection_model = Gtk::SingleSelection::create(m_model);
 
+    {
+        auto load_default_button = x->get_widget<Gtk::Button>("load_default_button");
+        auto import_button = x->get_widget<Gtk::Button>("import_button");
+        auto export_button = x->get_widget<Gtk::Button>("export_button");
+        load_default_button->signal_clicked().connect(
+                sigc::mem_fun(*this, &KeySequencesPreferencesEditorBase::handle_load_default));
+        import_button->signal_clicked().connect(
+                sigc::mem_fun(*this, &KeySequencesPreferencesEditorBase::handle_import));
+        export_button->signal_clicked().connect(
+                sigc::mem_fun(*this, &KeySequencesPreferencesEditorBase::handle_export));
+    }
 
     m_action_editors = x->get_widget<Gtk::FlowBox>("action_editors");
 
@@ -139,14 +152,77 @@ void KeySequencesPreferencesEditorBase::update_action_editors()
     update_action_editors(*col);
 }
 
-/*
-KeySequencesPreferencesEditorBase *KeySequencesPreferencesEditorBase::create(Preferences &prefs)
+void KeySequencesPreferencesEditorBase::handle_import()
 {
-    Glib::RefPtr<Gtk::Builder> x = Gtk::Builder::create();
-    x->add_from_resource("/org/dune3d/dune3d/preferences/key_sequences.ui");
-    auto w = Gtk::Builder::get_widget_derived<KeySequencesPreferencesEditorBase>(x, "key_sequences_box", prefs);
-    w->reference();
-    return w;
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("JSON");
+    filter_any->add_pattern("*.json");
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    auto top = dynamic_cast<Gtk::Window *>(get_ancestor(GTK_TYPE_WINDOW));
+
+    dialog->open(*top, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->open_finish(result);
+            // open_file_view(file);
+            //  Notice that this is a std::string, not a Glib::ustring.
+            const auto path = path_from_string(file->get_path());
+            load_json(load_json_from_file(path));
+            update_action_editors();
+            m_preferences.signal_changed().emit();
+        }
+        catch (Gtk::DialogError &err) {
+            // it's okay
+        }
+        CATCH_LOG(Logger::Level::WARNING, "error loading key preferences", Logger::Domain::UNSPECIFIED);
+    });
 }
-*/
+
+void KeySequencesPreferencesEditorBase::handle_export()
+{
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("JSON");
+    filter_any->add_pattern("*.json");
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    auto top = dynamic_cast<Gtk::Window *>(get_ancestor(GTK_TYPE_WINDOW));
+
+    dialog->save(*top, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->save_finish(result);
+            // open_file_view(file);
+            //  Notice that this is a std::string, not a Glib::ustring.
+            const auto path = path_from_string(file->get_path());
+            save_json_to_file(path, get_json());
+        }
+        catch (Gtk::DialogError &err) {
+            // it's okay
+        }
+        CATCH_LOG(Logger::Level::WARNING, "error saving key preferences", Logger::Domain::UNSPECIFIED);
+    });
+}
+
+void KeySequencesPreferencesEditorBase::handle_load_default()
+{
+    update_action_editors();
+    m_preferences.signal_changed().emit();
+}
+
+
 } // namespace dune3d

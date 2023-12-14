@@ -31,13 +31,22 @@ protected:
 
 void InToolKeySequencesPreferencesEditor::handle_load_default()
 {
-    /*
-    m_keyseq_preferences.load_from_json(json_from_resource("/org/horizon-eda/horizon/imp/keys_default.json"));
-    update_action_editors();
+    m_keyseq_preferences.load_from_json(json_from_resource("/org/dune3d/dune3d/preferences/in_tool_keys_default.json"));
     update_keys();
-    m_preferences.signal_changed().emit();
-    */
+    KeySequencesPreferencesEditorBase::handle_load_default();
 }
+
+json InToolKeySequencesPreferencesEditor::get_json() const
+{
+    return m_keyseq_preferences.serialize();
+}
+
+void InToolKeySequencesPreferencesEditor::load_json(const json &j)
+{
+    m_keyseq_preferences.load_from_json(j);
+    update_keys();
+}
+
 
 InToolKeySequencesPreferencesEditor::InToolKeySequencesPreferencesEditor(BaseObjectType *cobject,
                                                                          const Glib::RefPtr<Gtk::Builder> &x,

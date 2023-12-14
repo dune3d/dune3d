@@ -29,8 +29,18 @@
             <property name="margin-top">10</property>
             <property name="spacing">10</property>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="load_default_button">
                 <property name="label">Load default</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="import_button">
+                <property name="label">Import…</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="export_button">
+                <property name="label">Export…</property>
               </object>
             </child>
           </object>

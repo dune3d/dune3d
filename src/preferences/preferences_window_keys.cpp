@@ -27,15 +27,22 @@ protected:
     }
 };
 
-
 void KeySequencesPreferencesEditor::handle_load_default()
 {
-    /*
-    m_keyseq_preferences.load_from_json(json_from_resource("/org/horizon-eda/horizon/imp/keys_default.json"));
-    update_action_editors();
+    m_keyseq_preferences.load_from_json(json_from_resource("/org/dune3d/dune3d/preferences/keys_default.json"));
     update_keys();
-    m_preferences.signal_changed().emit();
-    */
+    KeySequencesPreferencesEditorBase::handle_load_default();
+}
+
+json KeySequencesPreferencesEditor::get_json() const
+{
+    return m_keyseq_preferences.serialize();
+}
+
+void KeySequencesPreferencesEditor::load_json(const json &j)
+{
+    m_keyseq_preferences.load_from_json(j);
+    update_keys();
 }
 
 KeySequencesPreferencesEditor::KeySequencesPreferencesEditor(BaseObjectType *cobject,

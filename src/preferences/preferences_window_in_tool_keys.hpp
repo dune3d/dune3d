@@ -16,6 +16,8 @@ private:
     void update_item(ActionItem &it) override;
     void update_action_editors(const ActionItem &it) override;
     void handle_load_default() override;
+    json get_json() const override;
+    void load_json(const json &j) override;
 };
 
 } // namespace dune3d
