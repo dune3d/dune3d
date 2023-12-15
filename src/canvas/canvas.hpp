@@ -286,7 +286,7 @@ private:
     void rotate_gesture_update_cb(Gdk::EventSequence *seq);
 
 
-    enum class PanMode { NONE, MOVE, ROTATE };
+    enum class PanMode { NONE, MOVE, ROTATE, TILT };
     PanMode m_pan_mode = PanMode::NONE;
 
     void handle_click_release();

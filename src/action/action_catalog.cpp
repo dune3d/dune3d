@@ -102,6 +102,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
           ActionCatalogItem::FLAGS_IN_TOOL | ActionCatalogItem::FLAGS_IN_TOOL}},
         {ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE,
          {"Align&center view to workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_SPECIFIC}},
+        {ActionID::VIEW_RESET_TILT, {"Reset tilt", ActionGroup::VIEW, ActionCatalogItem::FLAGS_IN_TOOL}},
 };
 
 
@@ -153,6 +154,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(CENTER_VIEW_TO_WORKPLANE),
         ACTION_LUT_ITEM(CENTER_VIEW_TO_CURRENT_WORKPLANE),
         ACTION_LUT_ITEM(ALIGN_AND_CENTER_VIEW_TO_WORKPLANE),
+        ACTION_LUT_ITEM(VIEW_RESET_TILT),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \

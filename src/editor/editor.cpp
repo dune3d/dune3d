@@ -113,6 +113,10 @@ void Editor::init_canvas()
         controller->set_button(0);
         controller->signal_pressed().connect([this, controller](int n_press, double x, double y) {
             auto button = controller->get_current_button();
+            if (n_press == 2 && button == 2) {
+                trigger_action(ActionID::VIEW_RESET_TILT);
+                return;
+            }
             if (button == 3) {
                 m_rmb_last_x = x;
                 m_rmb_last_y = y;
@@ -436,6 +440,14 @@ void Editor::init_actions()
         get_canvas().set_cam_quat(glm::quat_identity<float, glm::defaultp>());
         get_canvas().set_cam_distance(10);
         get_canvas().set_center({0, 0, 0});
+    });
+
+    connect_action(ActionID::VIEW_RESET_TILT, [this](auto &a) {
+        const auto q = get_canvas().get_cam_quat();
+        const auto z = glm::rotate(glm::inverse(q), glm::vec3(0, 0, 1));
+        const auto phi = atan2(z.y, z.x);
+        const auto ry = glm::angleAxis(-(M_PIf / 2 - phi), glm::rotate(q, glm::vec3(0, 0, 1)));
+        get_canvas().animate_to_cam_quat(ry * q);
     });
 
     connect_action(ActionID::ALIGN_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));

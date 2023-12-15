@@ -116,10 +116,16 @@ void Canvas::setup_controllers()
         controller->set_button(0);
         controller->signal_pressed().connect([this, controller](int n_press, double x, double y) {
             const auto shift = static_cast<bool>(controller->get_current_event_state() & Gdk::ModifierType::SHIFT_MASK);
+            const auto ctrl =
+                    static_cast<bool>(controller->get_current_event_state() & Gdk::ModifierType::CONTROL_MASK);
             const auto button = controller->get_current_button();
             if (button == 2 || button == 3) {
                 m_pointer_pos_orig = {x, y};
-                if (shift == (button == 2)) {
+                if (button == 3 && ctrl) {
+                    m_pan_mode = PanMode::TILT;
+                    m_cam_quat_orig = m_cam_quat;
+                }
+                else if (shift == (button == 2)) {
                     m_pan_mode = PanMode::ROTATE;
                     m_cam_quat_orig = m_cam_quat;
                 }
@@ -173,6 +179,11 @@ void Canvas::setup_controllers()
             auto rx = glm::angleAxis(glm::radians((delta.y / m_height) * 90),
                                      glm::rotate(m_cam_quat_orig, glm::vec3(1, 0, 0)));
             set_cam_quat(rz * rx * m_cam_quat_orig);
+        }
+        else if (m_pan_mode == PanMode::TILT) {
+            auto ry = glm::angleAxis(glm::radians((delta.x / m_width) * 90),
+                                     glm::rotate(m_cam_quat_orig, glm::vec3(0, 0, 1)));
+            set_cam_quat(ry * m_cam_quat_orig);
         }
         else if (m_pan_mode == PanMode::MOVE) {
             m_center = m_center_orig + get_center_shift(delta);
