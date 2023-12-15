@@ -446,7 +446,7 @@ void Editor::init_actions()
         const auto q = get_canvas().get_cam_quat();
         const auto z = glm::rotate(glm::inverse(q), glm::vec3(0, 0, 1));
         const auto phi = atan2(z.y, z.x);
-        const auto ry = glm::angleAxis(-(M_PIf / 2 - phi), glm::rotate(q, glm::vec3(0, 0, 1)));
+        const auto ry = glm::angleAxis(-(float)(M_PI / 2 - phi), glm::rotate(q, glm::vec3(0, 0, 1)));
         get_canvas().animate_to_cam_quat(ry * q);
     });
 
