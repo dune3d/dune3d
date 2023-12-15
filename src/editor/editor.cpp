@@ -433,8 +433,7 @@ void Editor::init_actions()
 
 
     connect_action(ActionID::VIEW_ALL, [this](auto &a) {
-        get_canvas().set_cam_azimuth(270);
-        get_canvas().set_cam_elevation(80);
+        get_canvas().set_cam_quat(glm::quat_identity<float, glm::defaultp>());
         get_canvas().set_cam_distance(10);
         get_canvas().set_center({0, 0, 0});
     });
@@ -494,12 +493,7 @@ void Editor::on_align_to_workplane(const ActionConnection &conn)
         return;
 
     auto &wrkpl = m_core.get_current_document().get_entity<EntityWorkplane>(wrkpl_uu);
-    const auto n = wrkpl.get_normal_vector();
-    auto az = glm::degrees(atan2(n.y, n.x));
-    auto ele = glm::degrees(atan2(n.z, glm::length(glm::dvec2(n.x, n.y))));
-    if (abs(ele) - 90 < .01)
-        ele += .01;
-    get_canvas().animate_to_azimuth_elevation_abs(az, ele);
+    get_canvas().animate_to_cam_quat(wrkpl.m_normal);
 }
 
 void Editor::on_center_to_workplane(const ActionConnection &conn)

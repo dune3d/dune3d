@@ -84,17 +84,12 @@ public:
         m_selection_invisible = selection_invisible;
     }
 
-    float get_cam_elevation() const
-    {
-        return m_cam_elevation;
-    }
-    void set_cam_elevation(float ele);
+    void set_cam_quat(const glm::quat &q);
 
-    float get_cam_azimuth() const
+    const glm::quat &get_cam_quat() const
     {
-        return m_cam_azimuth;
+        return m_cam_quat;
     }
-    void set_cam_azimuth(float az);
 
     float get_cam_distance() const
     {
@@ -108,8 +103,7 @@ public:
     }
     void set_center(glm::vec3 center);
 
-    void animate_to_azimuth_elevation_abs(float az, float el);
-    void animate_to_azimuth_elevation_rel(float az, float el);
+    void animate_to_cam_quat(const glm::quat &quat);
     void animate_to_center_abs(const glm::vec3 &center);
 
     enum class Projection { PERSP, ORTHO };
@@ -248,8 +242,7 @@ private:
     int m_height = 100;
     bool m_needs_resize = false;
 
-    float m_cam_azimuth = 90;
-    float m_cam_elevation = 45;
+    glm::quat m_cam_quat;
     float m_cam_distance = 10;
     float m_cam_fov = 45;
     glm::vec3 m_center = {0, 0, 0};
@@ -257,8 +250,10 @@ private:
 
     std::pair<glm::vec3, glm::vec3> m_bbox;
 
-    MSDAnimator m_azimuth_animator;
-    MSDAnimator m_elevation_animator;
+    MSDAnimator m_quat_x_animator;
+    MSDAnimator m_quat_y_animator;
+    MSDAnimator m_quat_z_animator;
+    MSDAnimator m_quat_w_animator;
     MSDAnimator m_zoom_animator;
     MSDAnimator m_cx_animator;
     MSDAnimator m_cy_animator;
@@ -285,8 +280,7 @@ private:
     void zoom_gesture_update_cb(Gdk::EventSequence *seq);
 
     Glib::RefPtr<Gtk::GestureRotate> m_gesture_rotate;
-    float m_gesture_rotate_cam_azimuth_orig = 0;
-    float m_gesture_rotate_cam_elevation_orig = 0;
+    glm::quat m_gesture_rotate_cam_quat_orig;
     glm::vec2 m_gesture_rotate_pos_orig;
     void rotate_gesture_begin_cb(Gdk::EventSequence *seq);
     void rotate_gesture_update_cb(Gdk::EventSequence *seq);
@@ -298,8 +292,7 @@ private:
     void handle_click_release();
 
     glm::vec2 m_pointer_pos_orig;
-    float m_cam_azimuth_orig;
-    float m_cam_elevation_orig;
+    glm::quat m_cam_quat_orig;
 
     glm::vec3 m_center_orig;
     glm::vec3 get_center_shift(const glm::vec2 &shift) const;

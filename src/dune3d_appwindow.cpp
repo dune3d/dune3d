@@ -138,15 +138,9 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
         auto axes_lollipop = Gtk::make_managed<AxesLollipop>();
         lollipop_box->append(*axes_lollipop);
         get_canvas().signal_view_changed().connect(sigc::track_obj(
-                [this, axes_lollipop] {
-                    const float alpha = -glm::radians(get_canvas().get_cam_azimuth() + 90);
-                    const float beta = glm::radians(get_canvas().get_cam_elevation() - 90);
-                    axes_lollipop->set_angles(alpha, beta);
-                },
-                *axes_lollipop));
+                [this, axes_lollipop] { axes_lollipop->set_quat(get_canvas().get_cam_quat()); }, *axes_lollipop));
+        axes_lollipop->set_quat(get_canvas().get_cam_quat());
     }
-    get_canvas().set_cam_azimuth(270);
-    get_canvas().set_cam_elevation(80);
 
 
     m_version_info_bar = refBuilder->get_widget<Gtk::InfoBar>("version_info_bar");

@@ -27,12 +27,17 @@ Canvas::Canvas()
             .damping = .2020,
             .springyness = 0.986,
     };
-    for (auto anim : {&m_azimuth_animator, &m_elevation_animator, &m_cx_animator, &m_cy_animator, &m_cz_animator}) {
+    for (auto anim : {&m_quat_w_animator, &m_quat_x_animator, &m_quat_y_animator, &m_quat_z_animator, &m_cx_animator,
+                      &m_cy_animator, &m_cz_animator}) {
         anim->set_params(slow_params);
     }
 
-    m_animators.push_back(&m_azimuth_animator);
-    m_animators.push_back(&m_elevation_animator);
+    m_cam_quat = glm::quat_identity<float, glm::defaultp>();
+
+    m_animators.push_back(&m_quat_w_animator);
+    m_animators.push_back(&m_quat_x_animator);
+    m_animators.push_back(&m_quat_y_animator);
+    m_animators.push_back(&m_quat_z_animator);
     m_animators.push_back(&m_zoom_animator);
     m_animators.push_back(&m_cx_animator);
     m_animators.push_back(&m_cy_animator);
@@ -116,8 +121,7 @@ void Canvas::setup_controllers()
                 m_pointer_pos_orig = {x, y};
                 if (shift == (button == 2)) {
                     m_pan_mode = PanMode::ROTATE;
-                    m_cam_elevation_orig = m_cam_elevation;
-                    m_cam_azimuth_orig = m_cam_azimuth;
+                    m_cam_quat_orig = m_cam_quat;
                 }
                 else {
                     m_pan_mode = PanMode::MOVE;
@@ -165,8 +169,10 @@ void Canvas::setup_controllers()
         }
         const auto delta = glm::mat2(1, 0, 0, -1) * (glm::vec2(x, y) - m_pointer_pos_orig);
         if (m_pan_mode == PanMode::ROTATE) {
-            set_cam_azimuth(m_cam_azimuth_orig - (delta.x / m_width) * 360);
-            set_cam_elevation(m_cam_elevation_orig - (delta.y / m_height) * 90);
+            auto rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360), glm::vec3(0, 0, 1));
+            auto rx = glm::angleAxis(glm::radians((delta.y / m_height) * 90),
+                                     glm::rotate(m_cam_quat_orig, glm::vec3(1, 0, 0)));
+            set_cam_quat(rz * rx * m_cam_quat_orig);
         }
         else if (m_pan_mode == PanMode::MOVE) {
             m_center = m_center_orig + get_center_shift(delta);
@@ -284,8 +290,9 @@ void Canvas::scroll_rotate(double dx, double dy, Gtk::EventController &ctrl)
 {
     auto delta = -glm::vec2(dx, dy);
 
-    set_cam_azimuth(get_cam_azimuth() - delta.x * 9);
-    set_cam_elevation(get_cam_elevation() - delta.y * 9);
+    auto rz = glm::angleAxis(glm::radians(delta.x * -.9f), glm::vec3(0, 0, 1));
+    auto rx = glm::angleAxis(glm::radians(delta.y * -.9f), glm::rotate(m_cam_quat, glm::vec3(1, 0, 0)));
+    set_cam_quat(rz * rx * m_cam_quat);
 }
 
 
@@ -338,8 +345,7 @@ void Canvas::rotate_gesture_begin_cb(Gdk::EventSequence *seq)
         m_gesture_rotate->set_state(Gtk::EventSequenceState::DENIED);
         return;
     }
-    m_gesture_rotate_cam_azimuth_orig = m_cam_azimuth;
-    m_gesture_rotate_cam_elevation_orig = m_cam_elevation;
+    m_gesture_rotate_cam_quat_orig = m_cam_quat;
     double cx, cy;
     m_gesture_rotate->get_bounding_box_center(cx, cy);
     m_gesture_rotate_pos_orig = glm::vec2(cx, cy);
@@ -349,47 +355,18 @@ void Canvas::rotate_gesture_begin_cb(Gdk::EventSequence *seq)
 void Canvas::rotate_gesture_update_cb(Gdk::EventSequence *seq)
 {
     auto delta = m_gesture_rotate->get_angle_delta();
-    if (m_gesture_rotate_cam_elevation_orig < 0)
-        delta *= -1;
-    set_cam_azimuth(m_gesture_rotate_cam_azimuth_orig + glm::degrees(delta));
     double cx, cy;
     m_gesture_rotate->get_bounding_box_center(cx, cy);
-    auto dy = cy - m_gesture_rotate_pos_orig.y;
-    set_cam_elevation(m_gesture_rotate_cam_elevation_orig + (dy / m_dev_height) * 180);
+    float dy = cy - m_gesture_rotate_pos_orig.y;
+    auto rz = glm::angleAxis((float)delta, glm::vec3(0, 0, 1));
+    auto rx = glm::angleAxis(glm::radians((dy / m_height) * -180),
+                             glm::rotate(m_gesture_rotate_cam_quat_orig, glm::vec3(1, 0, 0)));
+    set_cam_quat(rz * rx * m_gesture_rotate_cam_quat_orig);
 }
 
-static float wrap_cam_elevation(float cam_elevation)
+void Canvas::set_cam_quat(const glm::quat &q)
 {
-    while (cam_elevation >= 360)
-        cam_elevation -= 360;
-    while (cam_elevation < 0)
-        cam_elevation += 360;
-    if (cam_elevation > 180)
-        cam_elevation -= 360;
-    return cam_elevation;
-}
-
-static float wrap_cam_azimuth(float cam_azimuth)
-{
-    while (cam_azimuth < 0)
-        cam_azimuth += 360;
-
-    while (cam_azimuth > 360)
-        cam_azimuth -= 360;
-    return cam_azimuth;
-}
-
-
-void Canvas::set_cam_elevation(float ele)
-{
-    m_cam_elevation = wrap_cam_elevation(ele);
-    queue_draw();
-    m_signal_view_changed.emit();
-}
-
-void Canvas::set_cam_azimuth(float az)
-{
-    m_cam_azimuth = wrap_cam_azimuth(az);
+    m_cam_quat = glm::normalize(q);
     queue_draw();
     m_signal_view_changed.emit();
 }
@@ -408,32 +385,18 @@ void Canvas::set_center(glm::vec3 center)
     m_signal_view_changed.emit();
 }
 
-static double get_angle_delta(double d)
-{
-    while (d > 180)
-        d -= 360;
-    while (d < -180)
-        d += 360;
-    return d;
-}
-
-
-void Canvas::animate_to_azimuth_elevation_abs(float az, float el)
-{
-    animate_to_azimuth_elevation_rel(get_angle_delta(az - m_cam_azimuth), get_angle_delta(el - m_cam_elevation));
-}
-
-void Canvas::animate_to_azimuth_elevation_rel(float az, float el)
+void Canvas::animate_to_cam_quat(const glm::quat &q)
 {
     if (!m_enable_animations) {
-        set_cam_azimuth(get_cam_azimuth() + az);
-        set_cam_elevation(get_cam_elevation() + el);
+        set_cam_quat(q);
         return;
     }
     start_anim();
 
-    m_azimuth_animator.target += az;
-    m_elevation_animator.target += el;
+    m_quat_w_animator.target = q.w;
+    m_quat_x_animator.target = q.x;
+    m_quat_y_animator.target = q.y;
+    m_quat_z_animator.target = q.z;
 }
 
 void Canvas::animate_to_center_abs(const glm::vec3 &center)
@@ -584,9 +547,8 @@ glm::dvec2 Canvas::get_cursor_pos_win() const
 glm::vec3 Canvas::get_center_shift(const glm::vec2 &shift) const
 {
     const float m = 0.1218f * m_cam_distance / 105.f;
-    return {glm::rotate(glm::mat2(1, 0, 0, sin(glm::radians(m_cam_elevation))) * shift * m,
-                        glm::radians(m_cam_azimuth - 90)),
-            -cos(glm::radians(m_cam_elevation)) * shift.y * m};
+    auto s = -shift * m;
+    return glm::rotate(m_cam_quat, glm::vec3(s, 0));
 }
 
 
@@ -758,14 +720,11 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
 
     {
         float r = m_cam_distance;
-        float phi = glm::radians(m_cam_azimuth);
-        float theta = glm::radians(90 - m_cam_elevation);
-        auto cam_offset = glm::vec3(r * sin(theta) * cos(phi), r * sin(theta) * sin(phi), r * cos(theta));
+        auto cam_offset = glm::rotate(m_cam_quat, glm::vec3(0, 0, r));
         auto cam_pos = cam_offset + m_center;
 
-        glm::vec3 right(sin(phi - 3.14f / 2.0f), cos(phi - 3.14f / 2.0f), 0);
 
-        m_viewmat = glm::lookAt(cam_pos, m_center, glm::vec3(0, 0, std::abs(m_cam_elevation) < 90 ? 1 : -1));
+        m_viewmat = glm::lookAt(cam_pos, m_center, glm::rotate(m_cam_quat, glm::vec3(0, 1, 0)));
 
         float cam_dist_min = 1e6;
         float cam_dist_max = -1e6;
@@ -1210,8 +1169,8 @@ int Canvas::animate_step(GdkFrameClock *frame_clock)
             stop = false;
     }
 
-    set_cam_azimuth(m_azimuth_animator.get_s());
-    set_cam_elevation(m_elevation_animator.get_s());
+    set_cam_quat(glm::quat(m_quat_w_animator.get_s(), m_quat_x_animator.get_s(), m_quat_y_animator.get_s(),
+                           m_quat_z_animator.get_s()));
     set_cam_distance(cam_dist_from_anim(m_zoom_animator.get_s()));
     set_center({m_cx_animator.get_s(), m_cy_animator.get_s(), m_cz_animator.get_s()});
 
@@ -1234,11 +1193,14 @@ void Canvas::start_anim()
     const bool was_stopped =
             !std::any_of(m_animators.begin(), m_animators.end(), [](auto x) { return x->is_running(); });
 
-    if (!m_azimuth_animator.is_running())
-        m_azimuth_animator.start(m_cam_azimuth);
-
-    if (!m_elevation_animator.is_running())
-        m_elevation_animator.start(m_cam_elevation);
+    if (!m_quat_w_animator.is_running())
+        m_quat_w_animator.start(m_cam_quat.w);
+    if (!m_quat_x_animator.is_running())
+        m_quat_x_animator.start(m_cam_quat.x);
+    if (!m_quat_y_animator.is_running())
+        m_quat_y_animator.start(m_cam_quat.y);
+    if (!m_quat_z_animator.is_running())
+        m_quat_z_animator.start(m_cam_quat.z);
 
     if (!m_zoom_animator.is_running())
         m_zoom_animator.start(cam_dist_to_anim(m_cam_distance));

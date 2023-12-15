@@ -28,10 +28,10 @@ AxesLollipop::AxesLollipop()
 {
     create_layout();
     for (unsigned int ax = 0; ax < 3; ax++) {
-        layout->set_text(s_xyz.at(ax));
-        auto ext = layout->get_pixel_logical_extents();
-        size = std::max(size, (float)ext.get_width());
-        size = std::max(size, (float)ext.get_height());
+        m_layout->set_text(s_xyz.at(ax));
+        auto ext = m_layout->get_pixel_logical_extents();
+        m_size = std::max(m_size, (float)ext.get_width());
+        m_size = std::max(m_size, (float)ext.get_height());
     }
     set_content_height(100);
     set_content_width(100);
@@ -41,29 +41,28 @@ AxesLollipop::AxesLollipop()
 
 void AxesLollipop::create_layout()
 {
-    layout = create_pango_layout("");
+    m_layout = create_pango_layout("");
     Pango::AttrList attrs;
     auto attr = Pango::Attribute::create_attr_weight(Pango::Weight::BOLD);
     attrs.insert(attr);
-    layout->set_attributes(attrs);
+    m_layout->set_attributes(attrs);
 }
 
-void AxesLollipop::set_angles(float a, float b)
+void AxesLollipop::set_quat(const glm::quat &q)
 {
-    alpha = a;
-    beta = b;
+    m_quat = q;
     queue_draw();
 }
 
 void AxesLollipop::render(const Cairo::RefPtr<Cairo::Context> &cr, int w, int h)
 {
-    const float sc = (std::min(w, h) / 2) - size;
+    const float sc = (std::min(w, h) / 2) - m_size;
     cr->translate(w / 2, h / 2);
     cr->set_line_width(2);
     std::vector<std::pair<unsigned int, glm::vec3>> pts;
     for (unsigned int ax = 0; ax < 3; ax++) {
         const glm::vec3 v(ax == 0, ax == 1, ax == 2);
-        const auto vt = glm::rotateX(glm::rotateZ(v, alpha), beta) * sc;
+        const auto vt = glm::rotate(glm::inverse(m_quat), v) * sc;
         pts.emplace_back(ax, vt);
     }
 
@@ -80,14 +79,14 @@ void AxesLollipop::render(const Cairo::RefPtr<Cairo::Context> &cr, int w, int h)
         const auto &c = dune3d::get_color(ax, vt.z / sc);
         cr->set_source_rgb(c.r, c.g, c.b);
 
-        cr->arc(vt.x, -vt.y, size * .6, 0.0, 2.0 * M_PI);
+        cr->arc(vt.x, -vt.y, m_size * .6, 0.0, 2.0 * M_PI);
         cr->fill();
 
-        layout->set_text(s_xyz.at(ax));
-        auto ext = layout->get_pixel_logical_extents();
+        m_layout->set_text(s_xyz.at(ax));
+        auto ext = m_layout->get_pixel_logical_extents();
         cr->set_source_rgb(0, 0, 0);
         cr->move_to(vt.x - ext.get_width() / 2, -vt.y - ext.get_height() / 2);
-        layout->show_in_cairo_context(cr);
+        m_layout->show_in_cairo_context(cr);
     }
 }
 
