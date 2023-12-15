@@ -395,6 +395,8 @@ private:
     std::vector<IconVertex> m_icons;
     size_t m_n_icons = 0;
 
+    void clear_flags(VertexFlags flags);
+
     void add_faces(const face::Faces &faces);
     class FaceGroup {
     public:

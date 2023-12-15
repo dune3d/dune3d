@@ -154,21 +154,7 @@ void Canvas::setup_controllers()
                 set_selection_mode(SelectionMode::DRAG);
                 m_box_selection.set_active(true);
                 auto mask = VertexFlags::HOVER;
-                for (auto &x : m_lines) {
-                    x.flags &= ~mask;
-                }
-                for (auto &x : m_points) {
-                    x.flags &= ~mask;
-                }
-                for (auto &x : m_glyphs) {
-                    x.flags &= ~mask;
-                }
-                for (auto &x : m_face_groups) {
-                    x.flags &= ~mask;
-                }
-                for (auto &x : m_icons) {
-                    x.flags &= ~mask;
-                }
+                clear_flags(mask);
                 update_drag_selection({x, y});
                 return;
             }
@@ -447,6 +433,24 @@ std::optional<SelectableRef> Canvas::get_selectable_ref_for_pick(unsigned int pi
     return get_selectable_ref_for_vertex_ref(get_vertex_ref_for_pick(pick));
 }
 
+void Canvas::clear_flags(VertexFlags mask)
+{
+    for (auto &x : m_lines) {
+        x.flags &= ~mask;
+    }
+    for (auto &x : m_points) {
+        x.flags &= ~mask;
+    }
+    for (auto &x : m_glyphs) {
+        x.flags &= ~mask;
+    }
+    for (auto &x : m_face_groups) {
+        x.flags &= ~mask;
+    }
+    for (auto &x : m_icons) {
+        x.flags &= ~mask;
+    }
+}
 
 void Canvas::update_hover_selection()
 {
@@ -490,21 +494,7 @@ void Canvas::update_hover_selection()
             if (m_selection_mode == SelectionMode::HOVER || m_selection_mode == SelectionMode::HOVER_ONLY) {
                 mask |= VertexFlags::SELECTED;
             }
-            for (auto &x : m_lines) {
-                x.flags &= ~mask;
-            }
-            for (auto &x : m_points) {
-                x.flags &= ~mask;
-            }
-            for (auto &x : m_glyphs) {
-                x.flags &= ~mask;
-            }
-            for (auto &x : m_face_groups) {
-                x.flags &= ~mask;
-            }
-            for (auto &x : m_icons) {
-                x.flags &= ~mask;
-            }
+            clear_flags(mask);
             if (m_hover_selection.has_value()) {
                 for (const auto &vref : m_selectable_to_vertex_map.at(m_hover_selection.value())) {
                     auto &flags = get_vertex_flags(vref);
@@ -1032,21 +1022,7 @@ void Canvas::set_highlight(const std::set<SelectableRef> &sel)
 
 void Canvas::set_flag_for_selectables(const std::set<SelectableRef> &sel, VertexFlags flag)
 {
-    for (auto &x : m_lines) {
-        x.flags &= ~flag;
-    }
-    for (auto &x : m_points) {
-        x.flags &= ~flag;
-    }
-    for (auto &x : m_glyphs) {
-        x.flags &= ~flag;
-    }
-    for (auto &x : m_face_groups) {
-        x.flags &= ~flag;
-    }
-    for (auto &x : m_icons) {
-        x.flags &= ~flag;
-    }
+    clear_flags(flag);
     for (auto &sr : sel) {
         if (!m_selectable_to_vertex_map.contains(sr))
             continue;
@@ -1125,21 +1101,7 @@ void Canvas::set_selection_mode(SelectionMode mode)
             set_selection({}, true);
     }
     else if (m_selection_mode == SelectionMode::NONE) {
-        for (auto &x : m_lines) {
-            x.flags &= ~(VertexFlags::SELECTED | VertexFlags::HOVER);
-        }
-        for (auto &x : m_points) {
-            x.flags &= ~(VertexFlags::SELECTED | VertexFlags::HOVER);
-        }
-        for (auto &x : m_glyphs) {
-            x.flags &= ~(VertexFlags::SELECTED | VertexFlags::HOVER);
-        }
-        for (auto &x : m_face_groups) {
-            x.flags &= ~(VertexFlags::SELECTED | VertexFlags::HOVER);
-        }
-        for (auto &x : m_icons) {
-            x.flags &= ~(VertexFlags::SELECTED | VertexFlags::HOVER);
-        }
+        clear_flags(VertexFlags::SELECTED | VertexFlags::HOVER);
         m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_ICONS);
         queue_draw();
     }
