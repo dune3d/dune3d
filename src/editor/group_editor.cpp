@@ -8,6 +8,7 @@
 #include "document/group/group_polar_array.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include "core/core.hpp"
+#include "core/tool_id.hpp"
 #include "util/gtk_util.hpp"
 #include <iostream>
 
@@ -137,6 +138,12 @@ public:
         });
 
         grid_attach_label_and_widget(*this, "Radius", *m_radius_sp, m_top);
+
+        {
+            auto button = Gtk::make_managed<Gtk::Button>("Select edges…");
+            button->signal_clicked().connect([this] { m_signal_trigger_action.emit(ToolID::SELECT_EDGES); });
+            attach(*button, 0, m_top++, 2, 1);
+        }
     }
 
     void reload() override

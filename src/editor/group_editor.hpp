@@ -2,6 +2,7 @@
 #include <gtkmm.h>
 #include "util/changeable.hpp"
 #include "util/uuid.hpp"
+#include "action/action.hpp"
 
 namespace dune3d {
 
@@ -20,6 +21,12 @@ public:
 
     virtual ~GroupEditor();
 
+    typedef sigc::signal<void(ActionToolID)> type_signal_trigger_action;
+    type_signal_trigger_action signal_trigger_action()
+    {
+        return m_signal_trigger_action;
+    }
+
 private:
     Gtk::Label *m_type_label = nullptr;
     Gtk::Entry *m_name_entry = nullptr;
@@ -33,5 +40,7 @@ protected:
     Core &m_core;
     const UUID m_group_uu;
     int m_top = 0;
+
+    type_signal_trigger_action m_signal_trigger_action;
 };
 } // namespace dune3d

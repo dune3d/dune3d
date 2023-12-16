@@ -781,6 +781,7 @@ void Editor::update_group_editor()
         m_core.rebuild("group edited");
         canvas_update_keep_selection();
     });
+    m_group_editor->signal_trigger_action().connect([this](auto act) { trigger_action(act); });
     m_group_editor_box->append(*m_group_editor);
 }
 
