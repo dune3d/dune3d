@@ -116,14 +116,14 @@ Core::DocumentInfo::DocumentInfo(const UUID &uu) : m_uuid(uu)
 {
     m_doc.emplace();
     history_push("init");
-    m_current_group = m_doc->get_groups_sorted().front()->m_uuid;
+    m_current_group = m_doc->get_groups_sorted().back()->m_uuid;
 }
 
 Core::DocumentInfo::DocumentInfo(const UUID &uu, const std::filesystem::path &path)
     : m_uuid(uu), m_path(path), m_doc(Document::new_from_file(path))
 {
     history_push("init");
-    m_current_group = m_doc->get_groups_sorted().front()->m_uuid;
+    m_current_group = m_doc->get_groups_sorted().back()->m_uuid;
 }
 
 
