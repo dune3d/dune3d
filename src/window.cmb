@@ -104,7 +104,7 @@
 	(1,32,"GtkBox","spacing","10",None,None,None,None,None,None,None,None,None),
 	(1,32,"GtkWidget","margin-start","6",None,None,None,None,None,None,None,None,None),
 	(1,33,"GtkLabel","label","fixme",None,None,None,None,None,None,None,None,None),
-	(1,33,"GtkLabel","width-chars","15",None,None,None,None,None,None,None,None,None),
+	(1,33,"GtkLabel","width-chars","20",None,None,None,None,None,None,None,None,None),
 	(1,33,"GtkLabel","xalign","0.0",None,None,None,None,None,None,None,None,None),
 	(1,33,"GtkWidget","margin-bottom","4",None,None,None,None,None,None,None,None,None),
 	(1,33,"GtkWidget","margin-end","4",None,None,None,None,None,None,None,None,None),

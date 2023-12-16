@@ -205,7 +205,7 @@
                 <property name="margin-end">4</property>
                 <property name="margin-start">4</property>
                 <property name="margin-top">4</property>
-                <property name="width-chars">15</property>
+                <property name="width-chars">20</property>
                 <property name="xalign">0.0</property>
                 <style/>
               </object>

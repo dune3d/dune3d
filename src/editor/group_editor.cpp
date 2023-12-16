@@ -271,7 +271,7 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
     set_valign(Gtk::Align::START);
     set_row_spacing(5);
     set_column_spacing(5);
-    set_margin(5);
+    set_margin(10);
     set_row_homogeneous(true);
     m_type_label = Gtk::manage(new Gtk::Label);
     m_type_label->set_xalign(0);
