@@ -916,14 +916,17 @@ void Canvas::apply_flags(VertexFlags &flags)
 
 static const float char_space = 1;
 
+static uint32_t pack_bits(const bitmap_font::GlyphInfo &info)
+{
+    return (info.get_h() & 0x3f) | ((info.get_w() & 0x3f) << 6) | ((info.get_y() & 0x3ff) << 12)
+           | ((info.get_x() & 0x3ff) << 22);
+}
 
 std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext,
                                                          int angle)
 {
     std::vector<ICanvas::VertexRef> vrefs;
     Glib::ustring text(rtext);
-    auto smooth_px = bitmap_font::get_smooth_pixels();
-
     float sc = size * .75;
 
     glm::vec2 point = {0, 0};
@@ -936,13 +939,7 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(const glm::vec3 p, floa
                 info = bitmap_font::get_glyph_info('?');
             }
 
-            unsigned int glyph_x = info.atlas_x + smooth_px;
-            unsigned int glyph_y = info.atlas_y + smooth_px;
-            unsigned int glyph_w = info.atlas_w - smooth_px * 2;
-            unsigned int glyph_h = info.atlas_h - smooth_px * 2;
-
-            uint32_t bits =
-                    (glyph_h & 0x3f) | ((glyph_w & 0x3f) << 6) | ((glyph_y & 0x3ff) << 12) | ((glyph_x & 0x3ff) << 22);
+            const uint32_t bits = pack_bits(info);
 
             glm::vec2 shift(info.minx, -info.miny);
 
@@ -951,12 +948,8 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(const glm::vec3 p, floa
             auto &gl = m_glyphs.emplace_back(p.x, p.y, p.z, ps.x, ps.y, sc, bits);
             apply_flags(gl.flags);
 
-
             vrefs.push_back({VertexType::GLYPH, m_glyphs.size() - 1});
 
-            // add_triangle(layer, point + tr.transform(shift) * 1e6 * sc, v * (glyph_w * 1e6 * sc), Coordf(aspect,
-            // *fl),
-            //              color, TriangleInfo::FLAG_GLYPH);
             point += v * (info.advance * char_space * sc);
         }
         else {

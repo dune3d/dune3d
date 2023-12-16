@@ -30,6 +30,26 @@ GlyphInfo get_glyph_info(unsigned int glyph)
     return info;
 }
 
+unsigned int GlyphInfo::get_x() const
+{
+    return atlas_x + font_information.smooth_pixels;
+}
+
+unsigned int GlyphInfo::get_y() const
+{
+    return atlas_y + font_information.smooth_pixels;
+}
+
+unsigned int GlyphInfo::get_w() const
+{
+    return atlas_w - font_information.smooth_pixels * 2;
+}
+
+unsigned int GlyphInfo::get_h() const
+{
+    return atlas_h - font_information.smooth_pixels * 2;
+}
+
 unsigned int get_smooth_pixels()
 {
     return font_information.smooth_pixels;

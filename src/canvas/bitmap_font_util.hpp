@@ -14,6 +14,11 @@ public:
     {
         return atlas_w && atlas_h;
     }
+
+    unsigned int get_x() const;
+    unsigned int get_y() const;
+    unsigned int get_w() const;
+    unsigned int get_h() const;
 };
 
 GlyphInfo get_glyph_info(unsigned int glyph);

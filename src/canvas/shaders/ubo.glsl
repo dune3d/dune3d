@@ -20,3 +20,21 @@ vec3 get_color(uint flags)
 {
     return colors[flags & VERTEX_FLAG_COLOR_MASK];
 }
+
+struct GlyphInfo
+{
+  float x;
+  float y;
+  float w;
+  float h;  
+};
+
+GlyphInfo unpack_glyph_info(uint bits)
+{
+    GlyphInfo info;
+    info.x = (bits>>22)&uint(0x3ff);
+	info.y = (bits>>12)&uint(0x3ff);
+	info.w = (bits>>6)&uint(0x3f);
+	info.h = (bits>>0)&uint(0x3f);
+    return info;
+}

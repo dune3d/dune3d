@@ -23,33 +23,29 @@ void main() {
     o /= o.w;
    
     vec4 shift = vec4(screen * vec3(shift_to_geom[0], 0), 0);
-    
-    
+
     uint bits = bits_to_geom[0];
-    float glyph_x = (bits>>22)&uint(0x3ff);
-	float glyph_y = (bits>>12)&uint(0x3ff);
-	float glyph_w = (bits>>6)&uint(0x3f);
-	float glyph_h = (bits>>0)&uint(0x3f);
+    GlyphInfo glyph = unpack_glyph_info(bits);
     
-    vec3 sz = vec3(glyph_w, -glyph_h, 0)*scale_to_geom[0];
+    vec3 sz = vec3(glyph.w, -glyph.h, 0)*scale_to_geom[0];
     vec3 sz_scaled = screen * sz;
     vec4 size = vec4(sz_scaled, 0);
     
 	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+shift;
-    texcoord_to_fragment = vec2(glyph_x,glyph_y)/1024;
+    texcoord_to_fragment = vec2(glyph.x,glyph.y)/1024;
 	EmitVertex();
 	
 	gl_Position = o+shift+vec4(size.x, 0,0,0);
-    texcoord_to_fragment = vec2(glyph_x+glyph_w,glyph_y)/1024;
+    texcoord_to_fragment = vec2(glyph.x+glyph.w,glyph.y)/1024;
 	EmitVertex();
 	
 	gl_Position = o+shift+vec4(0, size.y,0,0);
-    texcoord_to_fragment = vec2(glyph_x,glyph_y+glyph_h)/1024;
+    texcoord_to_fragment = vec2(glyph.x,glyph.y+glyph.h)/1024;
 	EmitVertex();
     
 	gl_Position = o+shift+vec4(size.x, size.y,0,0);
-    texcoord_to_fragment = vec2(glyph_x+glyph_w,glyph_y+glyph_h)/1024;
+    texcoord_to_fragment = vec2(glyph.x+glyph.w,glyph.y+glyph.h)/1024;
 	EmitVertex();
 	
 	EndPrimitive();
