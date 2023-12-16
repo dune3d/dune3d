@@ -14,8 +14,7 @@
 #include <gp_Circ.hxx>
 
 
-namespace dune3d {
-
+namespace dune3d::solid_model_util {
 
 Node::Node(const glm::dvec2 &ap) : p(ap)
 {
@@ -525,4 +524,4 @@ FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu
 
     return face_builder;
 }
-} // namespace dune3d
+} // namespace dune3d::solid_model_util

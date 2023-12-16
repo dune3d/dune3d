@@ -14,6 +14,8 @@ class Document;
 class EntityWorkplane;
 class EntityCircle2D;
 class Entity;
+namespace solid_model_util {
+
 
 class Node {
 public:
@@ -63,6 +65,8 @@ private:
 
     TopoDS_Wire path_to_wire(const Clipper2Lib::PathD &path, bool hole);
 };
+} // namespace solid_model_util
 
+using FaceBuilder = solid_model_util::FaceBuilder;
 
 } // namespace dune3d
