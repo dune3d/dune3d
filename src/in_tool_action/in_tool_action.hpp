@@ -19,6 +19,8 @@ enum class InToolActionID {
 
     TOGGLE_ARC,
 
+    CLEAR_EDGES,
+
     CANCEL,
     COMMIT
 };

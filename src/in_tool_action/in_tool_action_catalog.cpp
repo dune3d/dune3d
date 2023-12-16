@@ -17,6 +17,7 @@ const std::map<InToolActionID, InToolActionCatalogItem> in_tool_action_catalog =
          {"toggle horizontal/vertical constraint", ToolID::DRAW_CONTOUR, InToolActionCatalogItem::FLAGS_DEFAULT}},
         {InToolActionID::TOGGLE_TANGENT_CONSTRAINT,
          {"toggle tangent constraint", ToolID::DRAW_CONTOUR, InToolActionCatalogItem::FLAGS_DEFAULT}},
+        {InToolActionID::CLEAR_EDGES, {"clear edges", ToolID::SELECT_EDGES, InToolActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -36,6 +37,7 @@ const LutEnumStr<InToolActionID> in_tool_action_lut = {
         LUT_ITEM(TOGGLE_COINCIDENT_CONSTRAINT),
         LUT_ITEM(TOGGLE_HV_CONSTRAINT),
         LUT_ITEM(TOGGLE_TANGENT_CONSTRAINT),
+        LUT_ITEM(CLEAR_EDGES),
 };
 
 

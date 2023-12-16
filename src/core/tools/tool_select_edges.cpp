@@ -7,7 +7,7 @@
 #include "util/selection_util.hpp"
 #include "editor/editor_interface.hpp"
 #include "tool_common_impl.hpp"
-
+#include "util/action_label.hpp"
 
 namespace dune3d {
 
@@ -27,7 +27,14 @@ ToolResponse ToolSelectEdges::begin(const ToolArgs &args)
         m_selection.insert(SelectableRef{UUID(), SelectableRef::Type::SOLID_MODEL_EDGE, UUID(), idx});
     }
     m_intf.enable_hover_selection();
-
+    {
+        std::vector<ActionLabelInfo> actions;
+        actions.emplace_back(InToolActionID::LMB, "select/deselect edge");
+        actions.emplace_back(InToolActionID::RMB, "finish");
+        actions.emplace_back(InToolActionID::CANCEL, "cancel");
+        actions.emplace_back(InToolActionID::CLEAR_EDGES);
+        m_intf.tool_bar_set_actions(actions);
+    }
 
     return ToolResponse();
 }
@@ -70,6 +77,10 @@ ToolResponse ToolSelectEdges::update(const ToolArgs &args)
             return ToolResponse::commit();
         }
 
+        case InToolActionID::CLEAR_EDGES:
+            m_group->m_edges.clear();
+            m_selection.clear();
+            break;
 
         case InToolActionID::CANCEL:
             return ToolResponse::revert();

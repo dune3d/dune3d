@@ -57,6 +57,8 @@ static std::string keyval_to_string(unsigned int kv)
         return ">";
     case GDK_KEY_BackSpace:
         return "⌫";
+    case GDK_KEY_Escape:
+        return "Esc";
     default:
         return gdk_keyval_name(kv);
     }
