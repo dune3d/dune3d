@@ -41,16 +41,19 @@ using Path = std::deque<std::pair<Node &, Edge &>>;
 
 class FaceBuilder {
 public:
+    static FaceBuilder from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
+                                     const glm::dvec3 &offset);
+
+    const TopoDS_Compound &get_faces() const;
+    unsigned int get_n_faces() const;
+
+private:
     FaceBuilder(const EntityWorkplane &wrkpl, const std::deque<Path> &paths, const glm::dvec3 &offset);
 
     static bool check_path(const Clipper2Lib::PathD &contour);
 
     void visit_poly_path(const Clipper2Lib::PolyPathD &path);
 
-    const TopoDS_Compound &get_faces() const;
-    unsigned int get_n_faces() const;
-
-private:
     const EntityWorkplane &m_wrkpl;
     const std::deque<Path> &m_paths;
     const glm::dvec3 m_offset;
@@ -61,6 +64,5 @@ private:
     TopoDS_Wire path_to_wire(const Clipper2Lib::PathD &path, bool hole);
 };
 
-FaceBuilder faces_from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
-                                const glm::dvec3 &offset);
+
 } // namespace dune3d

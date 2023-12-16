@@ -391,8 +391,8 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
     return wire;
 }
 
-FaceBuilder faces_from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
-                                const glm::dvec3 &offset)
+FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
+                                       const glm::dvec3 &offset)
 {
     std::list<Node> nodes;
     std::list<Edge> edges;

@@ -32,7 +32,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupE
     }
 
     try {
-        FaceBuilder face_builder = faces_from_document(doc, group.m_wrkpl, group.m_source_group, offset);
+        auto face_builder = FaceBuilder::from_document(doc, group.m_wrkpl, group.m_source_group, offset);
 
         if (face_builder.get_n_faces() == 0) {
             group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "no faces");
