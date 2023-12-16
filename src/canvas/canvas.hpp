@@ -39,8 +39,7 @@ public:
     VertexRef draw_point(glm::vec3 p) override;
     VertexRef draw_line(glm::vec3 from, glm::vec3 to) override;
     VertexRef draw_screen_line(glm::vec3 origin, glm::vec3 direction) override;
-    std::vector<VertexRef> draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext,
-                                            int angle) override;
+    std::vector<VertexRef> draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext) override;
     std::vector<VertexRef> draw_bitmap_text_3d(const glm::vec3 p, const glm::quat &norm, float size,
                                                const std::string &rtext) override;
     void add_selectable(const VertexRef &vref, const SelectableRef &sref) override;

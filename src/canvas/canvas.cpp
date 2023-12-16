@@ -931,8 +931,7 @@ static uint32_t pack_bits(const bitmap_font::GlyphInfo &info)
            | ((info.get_x() & 0x3ff) << 22);
 }
 
-std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext,
-                                                         int angle)
+std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext)
 {
     std::vector<ICanvas::VertexRef> vrefs;
     Glib::ustring text(rtext);

@@ -27,8 +27,7 @@ public:
     virtual VertexRef draw_point(glm::vec3 p) = 0;
     virtual VertexRef draw_line(glm::vec3 from, glm::vec3 to) = 0;
     virtual VertexRef draw_screen_line(glm::vec3 origin, glm::vec3 direction) = 0;
-    virtual std::vector<VertexRef> draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext,
-                                                    int angle) = 0;
+    virtual std::vector<VertexRef> draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext) = 0;
     virtual std::vector<VertexRef> draw_bitmap_text_3d(const glm::vec3 p, const glm::quat &norm, float size,
                                                        const std::string &rtext) = 0;
 

@@ -409,7 +409,7 @@ void Renderer::visit(const ConstraintPointDistance &constr)
     m_ca.add_selectable(m_ca.draw_line(to, p2), sr);
 
     std::string label = std::format(" {:.3f}", constr.m_distance);
-    for (auto vr : m_ca.draw_bitmap_text(p, 1, label, 0)) {
+    for (auto vr : m_ca.draw_bitmap_text(p, 1, label)) {
         m_ca.add_selectable(vr, sr);
     }
 
@@ -450,7 +450,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * 1.5f) * 1.5f * scale), sr);
 
     std::string label = std::format(" {:.3f}", constr.m_distance);
-    for (auto vr : m_ca.draw_bitmap_text(p, 1, label, 0)) {
+    for (auto vr : m_ca.draw_bitmap_text(p, 1, label)) {
         m_ca.add_selectable(vr, sr);
     }
 
@@ -507,7 +507,7 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
     m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(pt), wrkpl.transform(to)), sr);
 
     std::string label = std::format(" {:.3f}", constr.m_distance);
-    for (auto vr : m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label, 0)) {
+    for (auto vr : m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label)) {
         m_ca.add_selectable(vr, sr);
     }
 
@@ -678,7 +678,7 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
     }
 
     std::string label = std::format(" {:.1f}°", constr.m_angle);
-    for (auto vr : m_ca.draw_bitmap_text(p, 1, label, 0)) {
+    for (auto vr : m_ca.draw_bitmap_text(p, 1, label)) {
         m_ca.add_selectable(vr, sr);
     }
 
