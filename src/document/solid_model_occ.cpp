@@ -10,15 +10,6 @@
 #include <XCAFApp_Application.hxx>
 #include <Standard_Version.hxx>
 
-#include <AIS_Shape.hxx>
-
-#include <IGESCAFControl_Reader.hxx>
-#include <IGESControl_Reader.hxx>
-#include <Interface_Static.hxx>
-
-#include <STEPCAFControl_Reader.hxx>
-#include <STEPControl_Reader.hxx>
-
 #include <XCAFDoc_ColorTool.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
