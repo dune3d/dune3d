@@ -174,6 +174,7 @@ void Editor::on_delete_current_group()
 
     if (!previous_group)
         return;
+    doc.set_group_generate_pending(previous_group);
 
     {
         Document::ItemsToDelete items;
