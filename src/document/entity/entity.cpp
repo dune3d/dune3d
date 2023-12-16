@@ -42,7 +42,8 @@ std::string Entity::get_type_name() const
     return get_type_name(get_type());
 }
 
-Entity::Entity(const UUID &uu, const json &j) : m_uuid(uu), m_construction(j.value("construction", false))
+Entity::Entity(const UUID &uu, const json &j)
+    : m_uuid(uu), m_name(j.value("name", "")), m_construction(j.value("construction", false))
 {
     if (j.contains("group"))
         j.at("group").get_to(m_group);
@@ -62,7 +63,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Entity::Type, {
 
 json Entity::serialize() const
 {
-    return json{{"type", get_type()}, {"group", m_group}, {"construction", m_construction}};
+    return json{{"type", get_type()}, {"group", m_group}, {"construction", m_construction}, {"name", m_name}};
 }
 
 std::unique_ptr<Entity> Entity::new_from_json(const UUID &uu, const json &j,
