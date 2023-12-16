@@ -38,6 +38,7 @@ struct UBOBuffer {
         case T::LINE:
         case T::ICON:
         case T::GLYPH:
+        case T::GLYPH_3D:
             set_color(F::DEFAULT, appearance, ColorP::ENTITY);
             set_color(F::INACTIVE, appearance, ColorP::INACTIVE_ENTITY);
             set_color(F::CONSTRUCTION, appearance, ColorP::CONSTRUCTION_ENTITY);

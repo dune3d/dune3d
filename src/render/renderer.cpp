@@ -312,8 +312,8 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
             glm::vec2(sz),
             glm::vec2(sz * glm::vec2(-1, 1)),
     };
-
     const auto sr = SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, wrkpl.m_uuid, 0};
+
     for (size_t i = 0; i < pts.size(); i++) {
         const auto p1 = wrkpl.transform(pts.at(i));
         const auto p2 = wrkpl.transform(pts.at((i + 1) % (pts.size())));
@@ -337,6 +337,11 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
         auto p1 = wrkpl.transform(-sz + glm::vec2(s, 0));
         auto p2 = wrkpl.transform(-sz + glm::vec2(0, s));
         m_ca.add_selectable(m_ca.draw_line(p1, p2), sr);
+
+        for (const auto &vr : m_ca.draw_bitmap_text_3d(wrkpl.transform(-sz + glm::vec2(s, s * .25)), wrkpl.m_normal,
+                                                       s / 2, wrkpl.m_name)) {
+            m_ca.add_selectable(vr, sr);
+        }
     }
 }
 

@@ -18,7 +18,7 @@ namespace dune3d {
 
 Canvas::Canvas()
     : m_background_renderer(*this), m_face_renderer(*this), m_point_renderer(*this), m_line_renderer(*this),
-      m_glyph_renderer(*this), m_icon_renderer(*this), m_box_selection(*this)
+      m_glyph_renderer(*this), m_glyph_3d_renderer(*this), m_icon_renderer(*this), m_box_selection(*this)
 {
     set_can_focus(true);
     set_focusable(true);
@@ -444,6 +444,9 @@ void Canvas::clear_flags(VertexFlags mask)
     for (auto &x : m_glyphs) {
         x.flags &= ~mask;
     }
+    for (auto &x : m_glyphs_3d) {
+        x.flags &= ~mask;
+    }
     for (auto &x : m_face_groups) {
         x.flags &= ~mask;
     }
@@ -501,7 +504,8 @@ void Canvas::update_hover_selection()
                     flags |= mask;
                 }
             }
-            m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_ICONS);
+            m_push_flags =
+                    static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS);
             queue_draw();
             m_signal_hover_selection_changed.emit();
         }
@@ -563,6 +567,7 @@ void Canvas::on_realize()
     m_point_renderer.realize();
     m_line_renderer.realize();
     m_glyph_renderer.realize();
+    m_glyph_3d_renderer.realize();
     m_icon_renderer.realize();
     m_box_selection.realize();
     GL_CHECK_ERROR
@@ -714,6 +719,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
         m_line_renderer.push();
     if (m_push_flags & PF_GLYPHS)
         m_glyph_renderer.push();
+    if (m_push_flags & PF_GLYPHS_3D)
+        m_glyph_3d_renderer.push();
     if (m_push_flags & PF_ICONS)
         m_icon_renderer.push();
 
@@ -768,6 +775,7 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     m_line_renderer.render();
     glEnable(GL_BLEND);
     m_glyph_renderer.render();
+    m_glyph_3d_renderer.render();
     m_icon_renderer.render();
     glDisable(GL_DEPTH_TEST);
     m_box_selection.render();
@@ -863,6 +871,7 @@ void Canvas::clear()
     m_lines.clear();
     m_lines_selection_invisible.clear();
     m_glyphs.clear();
+    m_glyphs_3d.clear();
     m_icons.clear();
     m_selectable_to_vertex_map.clear();
     m_vertex_to_selectable_map.clear();
@@ -948,7 +957,52 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(const glm::vec3 p, floa
             auto &gl = m_glyphs.emplace_back(p.x, p.y, p.z, ps.x, ps.y, sc, bits);
             apply_flags(gl.flags);
 
+
             vrefs.push_back({VertexType::GLYPH, m_glyphs.size() - 1});
+
+            point += v * (info.advance * char_space * sc);
+        }
+        else {
+            point += v * (7 * char_space * sc);
+        }
+    }
+
+
+    return vrefs;
+}
+
+std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(const glm::vec3 p, const glm::quat &norm, float size,
+                                                            const std::string &rtext)
+{
+    std::vector<ICanvas::VertexRef> vrefs;
+    Glib::ustring text(rtext);
+
+    float sc = size * .0546;
+
+    glm::vec3 point = {0, 0, 0};
+
+    glm::vec3 right = glm::rotate(norm, glm::vec3(1, 0, 0));
+    glm::vec3 up = glm::rotate(norm, glm::vec3(0, 1, 0));
+    glm::vec3 v = {1, 0, 0};
+    for (auto codepoint : text) {
+        if (codepoint != ' ') {
+            auto info = bitmap_font::get_glyph_info(codepoint);
+            if (!info.is_valid()) {
+                info = bitmap_font::get_glyph_info('?');
+            }
+
+            const uint32_t bits = pack_bits(info);
+
+            const glm::vec3 shift(info.minx, info.miny, 0);
+
+            const auto ps = point + shift * sc;
+            const auto pt = p + glm::rotate(norm, ps);
+            const auto r = right * (float)info.get_w() * sc;
+            const auto u = up * (float)info.get_h() * sc;
+            auto &gl = m_glyphs_3d.emplace_back(pt.x, pt.y, pt.z, r.x, r.y, r.z, u.x, u.y, u.z, bits);
+            apply_flags(gl.flags);
+
+            vrefs.push_back({VertexType::GLYPH_3D, m_glyphs_3d.size() - 1});
 
             point += v * (info.advance * char_space * sc);
         }
@@ -990,6 +1044,9 @@ Canvas::VertexFlags &Canvas::get_vertex_flags(const VertexRef &vref)
     case VertexType::GLYPH:
         return m_glyphs.at(vref.index).flags;
 
+    case VertexType::GLYPH_3D:
+        return m_glyphs_3d.at(vref.index).flags;
+
     case VertexType::FACE_GROUP:
         return m_face_groups.at(vref.index).flags;
 
@@ -1026,7 +1083,7 @@ void Canvas::set_flag_for_selectables(const std::set<SelectableRef> &sel, Vertex
         }
         // auto &flags = get_vertex_flags()
     }
-    m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_ICONS);
+    m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS);
     queue_draw();
 }
 
@@ -1067,6 +1124,13 @@ std::set<SelectableRef> Canvas::get_selection() const
                 r.insert(m_vertex_to_selectable_map.at(vref));
         }
     }
+    for (size_t i = 0; i < m_glyphs_3d.size(); i++) {
+        if ((m_glyphs_3d.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
+            const VertexRef vref{.type = VertexType::GLYPH_3D, .index = i};
+            if (m_vertex_to_selectable_map.count(vref))
+                r.insert(m_vertex_to_selectable_map.at(vref));
+        }
+    }
     for (size_t i = 0; i < m_face_groups.size(); i++) {
         if ((m_face_groups.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
             const VertexRef vref{.type = VertexType::FACE_GROUP, .index = i};
@@ -1095,7 +1159,8 @@ void Canvas::set_selection_mode(SelectionMode mode)
     }
     else if (m_selection_mode == SelectionMode::NONE) {
         clear_flags(VertexFlags::SELECTED | VertexFlags::HOVER);
-        m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_ICONS);
+        m_push_flags =
+                static_cast<PushFlags>(m_push_flags | PF_LINES | PF_POINTS | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS);
         queue_draw();
     }
     m_signal_selection_mode_changed.emit();

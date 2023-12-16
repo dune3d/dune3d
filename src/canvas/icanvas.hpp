@@ -14,7 +14,7 @@ enum class IconTextureID;
 
 class ICanvas {
 public:
-    enum class VertexType { POINT, LINE, GLYPH, ICON, FACE_GROUP, SELECTION_INVISIBLE };
+    enum class VertexType { POINT, LINE, GLYPH, GLYPH_3D, ICON, FACE_GROUP, SELECTION_INVISIBLE };
     struct VertexRef {
         VertexType type;
         size_t index;
@@ -29,6 +29,8 @@ public:
     virtual VertexRef draw_screen_line(glm::vec3 origin, glm::vec3 direction) = 0;
     virtual std::vector<VertexRef> draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext,
                                                     int angle) = 0;
+    virtual std::vector<VertexRef> draw_bitmap_text_3d(const glm::vec3 p, const glm::quat &norm, float size,
+                                                       const std::string &rtext) = 0;
 
     // virtual void add_faces(const face::Faces &faces) = 0;
     enum class FaceColor { AS_IS, SOLID_MODEL, OTHER_BODY_SOLID_MODEL };

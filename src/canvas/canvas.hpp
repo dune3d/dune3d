@@ -5,6 +5,7 @@
 #include "point_renderer.hpp"
 #include "line_renderer.hpp"
 #include "glyph_renderer.hpp"
+#include "glyph_3d_renderer.hpp"
 #include "icon_renderer.hpp"
 #include "box_selection.hpp"
 #include "icanvas.hpp"
@@ -24,6 +25,7 @@ public:
     friend PointRenderer;
     friend LineRenderer;
     friend GlyphRenderer;
+    friend Glyph3DRenderer;
     friend IconRenderer;
     friend BaseRenderer;
     friend struct UBOBuffer;
@@ -39,6 +41,8 @@ public:
     VertexRef draw_screen_line(glm::vec3 origin, glm::vec3 direction) override;
     std::vector<VertexRef> draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext,
                                             int angle) override;
+    std::vector<VertexRef> draw_bitmap_text_3d(const glm::vec3 p, const glm::quat &norm, float size,
+                                               const std::string &rtext) override;
     void add_selectable(const VertexRef &vref, const SelectableRef &sref) override;
     void set_vertex_inactive(bool inactive) override
     {
@@ -170,6 +174,7 @@ private:
     PointRenderer m_point_renderer;
     LineRenderer m_line_renderer;
     GlyphRenderer m_glyph_renderer;
+    Glyph3DRenderer m_glyph_3d_renderer;
     IconRenderer m_icon_renderer;
     BoxSelection m_box_selection;
     unsigned int m_pick_base = 1;
@@ -231,7 +236,8 @@ private:
         PF_POINTS = (1 << 1),
         PF_LINES = (1 << 2),
         PF_GLYPHS = (1 << 3),
-        PF_ICONS = (1 << 4),
+        PF_GLYPHS_3D = (1 << 4),
+        PF_ICONS = (1 << 5),
         PF_ALL = 0xff,
     };
     PushFlags m_push_flags = PF_ALL;
@@ -376,6 +382,28 @@ private:
 
     std::vector<GlyphVertex> m_glyphs;
     size_t m_n_glyphs = 0;
+
+    class Glyph3DVertex {
+    public:
+        float x0;
+        float y0;
+        float z0;
+
+        float xr;
+        float yr;
+        float zr;
+
+        float xu;
+        float yu;
+        float zu;
+
+        uint32_t bits;
+
+        VertexFlags flags = VertexFlags::DEFAULT;
+    };
+
+    std::vector<Glyph3DVertex> m_glyphs_3d;
+    size_t m_n_glyphs_3d = 0;
 
     class IconVertex {
     public:
