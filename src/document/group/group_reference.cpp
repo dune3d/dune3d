@@ -55,9 +55,21 @@ void GroupReference::generate(Document &doc) const
     const auto ax = glm::dvec3(1, 0, 0);
     const auto ay = glm::dvec3(0, 1, 0);
     const auto az = glm::dvec3(0, 0, 1);
-    add_workplane(doc, get_workplane_xy_uuid(), quat_from_uv(ax, ay), m_xy_size).m_visible = m_show_xy;
-    add_workplane(doc, get_workplane_yz_uuid(), quat_from_uv(ay, az), m_yz_size).m_visible = m_show_yz;
-    add_workplane(doc, get_workplane_zx_uuid(), quat_from_uv(az, ax), m_zx_size).m_visible = m_show_zx;
+    {
+        auto &w = add_workplane(doc, get_workplane_xy_uuid(), quat_from_uv(ax, ay), m_xy_size);
+        w.m_name = "XY";
+        w.m_visible = m_show_xy;
+    }
+    {
+        auto &w = add_workplane(doc, get_workplane_yz_uuid(), quat_from_uv(ay, az), m_yz_size);
+        w.m_name = "YZ";
+        w.m_visible = m_show_yz;
+    }
+    {
+        auto &w = add_workplane(doc, get_workplane_zx_uuid(), quat_from_uv(az, ax), m_zx_size);
+        w.m_name = "ZX";
+        w.m_visible = m_show_zx;
+    }
 }
 
 EntityWorkplane &GroupReference::add_workplane(Document &doc, const UUID &uu, const glm::dquat &normal,

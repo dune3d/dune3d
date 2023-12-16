@@ -798,7 +798,11 @@ void Editor::update_workplane_label()
     else {
         auto &wrkpl = m_core.get_current_document().get_entity<EntityWorkplane>(wrkpl_uu);
         auto &wrkpl_group = m_core.get_current_document().get_group<Group>(wrkpl.m_group);
-        m_win.get_workplane_checkbutton().set_label("Workplane in group " + wrkpl_group.m_name);
+        std::string s = "Workplane ";
+        if (wrkpl.m_name.size())
+            s += wrkpl.m_name + " ";
+        s += "in group " + wrkpl_group.m_name;
+        m_win.get_workplane_checkbutton().set_label(s);
     }
 }
 

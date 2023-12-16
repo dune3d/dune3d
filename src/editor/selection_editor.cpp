@@ -72,6 +72,22 @@ public:
     {
         set_row_spacing(5);
         set_column_spacing(5);
+        int top = 0;
+
+
+        m_name_entry = Gtk::make_managed<Gtk::Entry>();
+        m_name_entry->set_text(m_wrkpl.m_name);
+        if (m_wrkpl.m_kind != ItemKind::USER) {
+            m_name_entry->set_sensitive(false);
+        }
+        else {
+            m_name_entry->signal_activate().connect([this] {
+                m_wrkpl.m_name = m_name_entry->get_text();
+                m_signal_changed.emit();
+            });
+        }
+        grid_attach_label_and_widget(*this, "Name", *m_name_entry, top);
+
 
         m_width_sp = Gtk::make_managed<SpinButtonDim>();
         m_width_sp->set_hexpand(true);
@@ -81,7 +97,6 @@ public:
             m_wrkpl.m_size.x = m_width_sp->get_value();
             m_signal_changed.emit();
         });
-        int top = 0;
         grid_attach_label_and_widget(*this, "Width", *m_width_sp, top);
 
         m_height_sp = Gtk::make_managed<SpinButtonDim>();
@@ -98,6 +113,7 @@ private:
     Document &m_doc;
     EntityWorkplane &m_wrkpl;
 
+    Gtk::Entry *m_name_entry = nullptr;
     SpinButtonDim *m_width_sp = nullptr;
     SpinButtonDim *m_height_sp = nullptr;
 };
