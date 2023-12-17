@@ -83,6 +83,17 @@ public:
         return "Angle";
     }
 
+    struct Vectors {
+        glm::dvec3 l1p1;
+        glm::dvec3 l2p1;
+        glm::dvec3 l1v;
+        glm::dvec3 l2v;
+        glm::dvec3 n;
+        glm::dvec3 u;
+        glm::dvec3 v;
+    };
+    Vectors get_vectors(const Document &doc) const;
+
     std::unique_ptr<Constraint> clone() const override;
     void accept(ConstraintVisitor &visitor) const override;
 };

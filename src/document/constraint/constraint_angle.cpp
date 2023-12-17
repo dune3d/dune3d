@@ -76,18 +76,29 @@ static std::pair<double, double> closest_point_between_lines(const glm::dvec3 &a
 }
 
 
-glm::dvec3 ConstraintLinesAngle::get_origin(const Document &doc) const
+ConstraintLinesAngle::Vectors ConstraintLinesAngle::get_vectors(const Document &doc) const
 {
     const auto l1p1 = doc.get_point({m_entity1, 1});
     const auto l1p2 = doc.get_point({m_entity1, 2});
     const auto l1v = l1p2 - l1p1;
     const auto l2p1 = doc.get_point({m_entity2, 1});
     const auto l2p2 = doc.get_point({m_entity2, 2});
-    const auto l2v = l2p2 - l2p1;
+    const auto l2v = (l2p2 - l2p1) * (m_negative ? -1. : 1.);
+    const auto n = glm::normalize(glm::cross(l1v, l2v));
+    const auto u = glm::normalize(l1v);
+    const auto v = glm::normalize(glm::cross(n, u));
 
-    const auto [u1, u2] = closest_point_between_lines(l1p1, l1v, l2p1, l2v);
-    const auto i1 = l1p1 + l1v * u1;
-    const auto i2 = l2p1 + l2v * u2;
+    return {.l1p1 = l1p1, .l2p1 = l2p1, .l1v = l1v, .l2v = l2v, .n = n, .u = u, .v = v};
+}
+
+
+glm::dvec3 ConstraintLinesAngle::get_origin(const Document &doc) const
+{
+    auto vecs = get_vectors(doc);
+
+    const auto [u1, u2] = closest_point_between_lines(vecs.l1p1, vecs.l1v, vecs.l2p1, vecs.l2v);
+    const auto i1 = vecs.l1p1 + vecs.l1v * u1;
+    const auto i2 = vecs.l2p1 + vecs.l2v * u2;
 
     auto is = (i1 + i2) / 2.;
     return is;

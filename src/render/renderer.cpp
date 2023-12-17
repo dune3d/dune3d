@@ -630,27 +630,23 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
     m_ca.set_vertex_constraint(true);
 
     auto is = constr.get_origin(*m_doc);
+
+    const auto vecs = constr.get_vectors(*m_doc);
+
     auto p = is + constr.m_offset;
     if (constr.m_wrkpl) {
         auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constr.m_wrkpl);
         p = wrkpl.project3(p);
     }
+    else {
+        p = project_point_onto_plane(is, vecs.n, p);
+    }
 
-    const auto l1p1 = m_doc->get_point({constr.m_entity1, 1});
-    const auto l1p2 = m_doc->get_point({constr.m_entity1, 2});
-    const auto l1v = l1p2 - l1p1;
-    const auto l2p1 = m_doc->get_point({constr.m_entity2, 1});
-    const auto l2p2 = m_doc->get_point({constr.m_entity2, 2});
-    const auto l2v = (l2p2 - l2p1) * (constr.m_negative ? -1. : 1.);
-
-    auto n = glm::normalize(glm::cross(l1v, l2v));
-    auto u = glm::normalize(l1v);
-    auto v = glm::normalize(glm::cross(n, u));
     auto vp = p - is;
     auto r = glm::length(vp);
-    auto vpu = glm::dot(u, vp);
+    auto vpu = glm::dot(vecs.u, vp);
 
-    auto transform = [&](const glm::dvec2 &p) { return is + p.x * u + p.y * v; };
+    auto transform = [&](const glm::dvec2 &p) { return is + p.x * vecs.u + p.y * vecs.v; };
 
     SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
 
@@ -660,8 +656,8 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
             a0 = M_PI;
         unsigned int segments = 64;
 
-        auto l1vp = glm::dvec2(glm::dot(u, l1v), glm::dot(v, l1v));
-        auto l2vp = glm::dvec2(glm::dot(u, l2v), glm::dot(v, l2v));
+        auto l1vp = glm::dvec2(glm::dot(vecs.u, vecs.l1v), glm::dot(vecs.v, vecs.l1v));
+        auto l2vp = glm::dvec2(glm::dot(vecs.u, vecs.l2v), glm::dot(vecs.v, vecs.l2v));
 
         float dphi = angle(l2vp) - angle(l1vp);
         if (dphi > M_PI)
