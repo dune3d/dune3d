@@ -83,6 +83,9 @@ private:
     Glib::RefPtr<Gtk::TreeListModel> m_model;
     Glib::RefPtr<Gtk::SingleSelection> m_selection_model;
     Gtk::ScrolledWindow *m_sc = nullptr;
+    Gtk::InfoBar *m_info_bar = nullptr;
+    Gtk::Image *m_info_bar_icon = nullptr;
+    Gtk::Label *m_info_bar_label = nullptr;
 
     Core &m_core;
 

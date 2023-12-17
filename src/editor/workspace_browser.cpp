@@ -178,6 +178,23 @@ void WorkspaceBrowser::unblock_signals()
     m_signal_body_solid_model_checked.unblock();
 }
 
+static std::string icon_name_from_status(GroupStatusMessage::Status st)
+{
+    using S = GroupStatusMessage::Status;
+    switch (st) {
+    case S::NONE:
+        return "";
+    case S::INFO:
+        return "dialog-information-symbolic";
+
+    case S::WARN:
+        return "dialog-warning-symbolic";
+
+    case S::ERR:
+        return "dialog-error-symbolic";
+    }
+}
+
 void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
 {
     block_signals();
@@ -228,7 +245,9 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
                     it_group.m_status = GroupStatusMessage::summarize(msgs);
                     Glib::ustring txt;
                     for (auto &msg : msgs) {
-                        txt += msg.message + "\n";
+                        if (txt.size())
+                            txt += "\n";
+                        txt += msg.message;
                     }
                     it_group.m_status_message = txt;
                 }
@@ -237,6 +256,28 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
             }
         }
         select_group(doci.get_current_group());
+    }
+    if (m_core.has_documents()) {
+        auto &current_group = m_core.get_current_document().get_group(m_core.get_current_group());
+        auto msgs = current_group.get_messages();
+        auto st = GroupStatusMessage::summarize(msgs);
+        if (st != GroupStatusMessage::Status::NONE) {
+            m_info_bar->set_revealed(true);
+            m_info_bar_icon->set_from_icon_name(icon_name_from_status(st));
+            Glib::ustring txt;
+            for (auto &msg : msgs) {
+                if (txt.size())
+                    txt += "\n";
+                txt += msg.message;
+            }
+            m_info_bar_label->set_text(txt);
+        }
+        else {
+            m_info_bar->set_revealed(false);
+        }
+    }
+    else {
+        m_info_bar->set_revealed(false);
     }
 
     unblock_signals();
@@ -460,19 +501,7 @@ private:
     {
         using S = GroupStatusMessage::Status;
         m_status_button->set_visible(st != S::NONE);
-        switch (st) {
-        case S::NONE:
-            break;
-        case S::INFO:
-            m_status_button->set_icon_name("dialog-information-symbolic");
-            break;
-        case S::WARN:
-            m_status_button->set_icon_name("dialog-warning-symbolic");
-            break;
-        case S::ERR:
-            m_status_button->set_icon_name("dialog-error-symbolic");
-            break;
-        }
+        m_status_button->set_icon_name(icon_name_from_status(st));
     }
 };
 
@@ -559,6 +588,21 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
     m_sc->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::AUTOMATIC);
     m_sc->set_vexpand(true);
     append(*m_sc);
+
+    m_info_bar = Gtk::make_managed<Gtk::InfoBar>();
+    m_info_bar->set_revealed(true);
+    m_info_bar->set_message_type(Gtk::MessageType::ERROR);
+    m_info_bar_icon = Gtk::make_managed<Gtk::Image>();
+    m_info_bar_label = Gtk::make_managed<Gtk::Label>("foo");
+    {
+        auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 10);
+        box->append(*m_info_bar_icon);
+        box->append(*m_info_bar_label);
+        m_info_bar->add_child(*box);
+    }
+
+
+    append(*m_info_bar);
 
     {
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
