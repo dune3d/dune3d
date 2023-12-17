@@ -41,6 +41,17 @@ public:
 
 using Path = std::deque<std::pair<Node &, Edge &>>;
 
+class Paths {
+public:
+    std::deque<Path> paths;
+    static Paths from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu);
+
+private:
+    std::list<Node> nodes;
+    std::list<Edge> edges;
+};
+
+
 class FaceBuilder {
 public:
     static FaceBuilder from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
@@ -50,14 +61,15 @@ public:
     unsigned int get_n_faces() const;
 
 private:
-    FaceBuilder(const EntityWorkplane &wrkpl, const std::deque<Path> &paths, const glm::dvec3 &offset);
+    FaceBuilder(const EntityWorkplane &wrkpl, const Paths &paths, const glm::dvec3 &offset);
+
 
     static bool check_path(const Clipper2Lib::PathD &contour);
 
     void visit_poly_path(const Clipper2Lib::PolyPathD &path);
 
     const EntityWorkplane &m_wrkpl;
-    const std::deque<Path> &m_paths;
+    const Paths &m_paths;
     const glm::dvec3 m_offset;
     TopoDS_Compound m_compound;
     TopoDS_Builder m_builder;

@@ -93,14 +93,11 @@ std::array<Edge *, 2> Node::get_edges()
         return {e2.first, e1.first};
 }
 
-using Path = std::deque<std::pair<Node &, Edge &>>;
-
-FaceBuilder::FaceBuilder(const EntityWorkplane &wrkpl, const std::deque<Path> &paths, const glm::dvec3 &offset)
+FaceBuilder::FaceBuilder(const EntityWorkplane &wrkpl, const Paths &paths, const glm::dvec3 &offset)
     : m_wrkpl(wrkpl), m_paths(paths), m_offset(offset)
 {
     m_builder.MakeCompound(m_compound);
 }
-
 
 struct VertexInfo {
 
@@ -310,7 +307,7 @@ static std::pair<const Node &, const Edge &> get_node_and_edge(const Path &path,
 TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
 {
 
-    Path orig_path = m_paths.at(VertexInfo::unpack(path.front().z).path_index);
+    Path orig_path = m_paths.paths.at(VertexInfo::unpack(path.front().z).path_index);
     if (orig_path.size() == 1) {
         BRepBuilderAPI_MakeWire wire;
         auto &rad = dynamic_cast<const IEntityRadius &>(orig_path.front().second.entity);
@@ -393,8 +390,51 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
 FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
                                        const glm::dvec3 &offset)
 {
-    std::list<Node> nodes;
-    std::list<Edge> edges;
+    auto paths = Paths::from_document(doc, wrkpl_uu, source_group_uu);
+
+    // have node/edge paths, now turn them into clipper paths
+    Clipper2Lib::PathsD cpaths;
+    cpaths.reserve(paths.paths.size());
+    {
+        unsigned int path_index = 0;
+        for (auto &path : paths.paths) {
+            if (path_is_valid(path))
+                cpaths.emplace_back(path_to_clipper(path, path_index++));
+        }
+    }
+    Clipper2Lib::PolyTreeD poly_tree;
+    Clipper2Lib::ClipperD clipper;
+    clipper.AddSubject(cpaths);
+    if (0) {
+        std::ofstream ofs("/tmp/paths.txt");
+        for (auto &path : cpaths) {
+            for (auto &p : path) {
+                ofs << p.x << " " << p.y << " " << p.z << std::endl;
+            }
+            ofs << path.front().x << " " << path.front().y << " " << path.front().z << std::endl;
+            ofs << std::endl;
+        }
+    }
+    clipper.SetZCallback([](const Clipper2Lib::PointD &e1bot, const Clipper2Lib::PointD &e1top,
+                            const Clipper2Lib::PointD &e2bot, const Clipper2Lib::PointD &e2top,
+                            Clipper2Lib::PointD &pt) { pt.z = -1; });
+
+    clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::EvenOdd, poly_tree);
+
+    auto &wrkpl = doc.get_entity<EntityWorkplane>(wrkpl_uu);
+
+    FaceBuilder face_builder{wrkpl, paths, offset};
+
+    for (auto &child : poly_tree) {
+        face_builder.visit_poly_path(*child);
+    }
+
+    return face_builder;
+}
+
+Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu)
+{
+    Paths paths;
     for (const auto &[uu, en] : doc.m_entities) {
         if (en->m_group != source_group_uu)
             continue;
@@ -407,18 +447,15 @@ FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu
         if (auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(en.get())) {
             if (en_wrkpl->get_workplane() != wrkpl_uu)
                 continue;
-            edges.emplace_back(nodes, *en);
+            paths.edges.emplace_back(paths.nodes, *en);
         }
     }
-
-    // find closed paths
-    std::deque<Path> paths;
 
     int tag = 1;
     while (true) {
         // find a node with tag 0, i.e. hasn't been visited yet
-        auto it = std::ranges::find_if(nodes, [](auto &x) { return x.tag == 0 && x.is_valid(); });
-        if (it == nodes.end())
+        auto it = std::ranges::find_if(paths.nodes, [](auto &x) { return x.tag == 0 && x.is_valid(); });
+        if (it == paths.nodes.end())
             break;
         auto node = &(*it);
         node->tag = tag++;
@@ -462,7 +499,7 @@ FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu
             }
         } while (node);
         if (path.size())
-            paths.emplace_back(std::move(path));
+            paths.paths.emplace_back(std::move(path));
     }
 
     // add circles
@@ -477,51 +514,13 @@ FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu
         if (circle.get_workplane() != wrkpl_uu)
             continue;
 
-        auto &node = nodes.emplace_back(circle.m_center);
-        auto &edge = edges.emplace_back(node, circle);
+        auto &node = paths.nodes.emplace_back(circle.m_center);
+        auto &edge = paths.edges.emplace_back(node, circle);
         Path path;
         path.emplace_back(node, edge);
-        paths.emplace_back(std::move(path));
+        paths.paths.emplace_back(std::move(path));
     }
-
-
-    // have node/edge paths, now turn them into clipper paths
-    Clipper2Lib::PathsD cpaths;
-    cpaths.reserve(paths.size());
-    {
-        unsigned int path_index = 0;
-        for (auto &path : paths) {
-            if (path_is_valid(path))
-                cpaths.emplace_back(path_to_clipper(path, path_index++));
-        }
-    }
-    Clipper2Lib::PolyTreeD poly_tree;
-    Clipper2Lib::ClipperD clipper;
-    clipper.AddSubject(cpaths);
-    if (0) {
-        std::ofstream ofs("/tmp/paths.txt");
-        for (auto &path : cpaths) {
-            for (auto &p : path) {
-                ofs << p.x << " " << p.y << " " << p.z << std::endl;
-            }
-            ofs << path.front().x << " " << path.front().y << " " << path.front().z << std::endl;
-            ofs << std::endl;
-        }
-    }
-    clipper.SetZCallback([](const Clipper2Lib::PointD &e1bot, const Clipper2Lib::PointD &e1top,
-                            const Clipper2Lib::PointD &e2bot, const Clipper2Lib::PointD &e2top,
-                            Clipper2Lib::PointD &pt) { pt.z = -1; });
-
-    clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::EvenOdd, poly_tree);
-
-    auto &wrkpl = doc.get_entity<EntityWorkplane>(wrkpl_uu);
-
-    FaceBuilder face_builder{wrkpl, paths, offset};
-
-    for (auto &child : poly_tree) {
-        face_builder.visit_poly_path(*child);
-    }
-
-    return face_builder;
+    return paths;
 }
+
 } // namespace dune3d::solid_model_util
