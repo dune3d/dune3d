@@ -9,6 +9,7 @@
 #include "document/solid_model.hpp"
 #include "canvas/canvas.hpp"
 #include "document/entity/entity.hpp"
+#include "document/entity/ientity_in_workplane.hpp"
 #include "tool_popover.hpp"
 #include "dune3d_application.hpp"
 #include "preferences/preferences_window.hpp"
@@ -24,6 +25,7 @@
 #include "selection_editor.hpp"
 #include "preferences/color_presets.hpp"
 #include "workspace_browser.hpp"
+#include "document/solid_model_util.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -481,6 +483,35 @@ void Editor::init_actions()
         cb.set_active(!cb.get_active());
     });
 
+    connect_action(ActionID::SELECT_PATH, [this](auto &a) {
+        auto &doc = m_core.get_current_document();
+
+        auto en_uu = entity_from_selection(doc, get_canvas().get_selection());
+        if (!en_uu)
+            return;
+        auto &en = doc.get_entity(*en_uu);
+        auto &group = doc.get_group(en.m_group);
+        auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(&en);
+        if (!en_wrkpl)
+            return;
+        auto paths = solid_model_util::Paths::from_document(m_core.get_current_document(), en_wrkpl->get_workplane(),
+                                                            group.m_uuid);
+
+        for (auto &path : paths.paths) {
+            for (auto &[node, edge] : path) {
+                if (edge.entity.m_uuid == en.m_uuid) {
+                    std::set<SelectableRef> sel;
+                    for (auto &[node2, edge2] : path) {
+                        sel.emplace(UUID(), SelectableRef::Type::ENTITY, edge2.entity.m_uuid, 0);
+                    }
+                    get_canvas().set_selection(sel, true);
+                    get_canvas().set_selection_mode(SelectionMode::NORMAL);
+                    return;
+                }
+            }
+        }
+    });
+
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
 }
@@ -862,6 +893,8 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_WORKPLANE] = sel_is_workplane;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
         m_action_sensitivity[ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
+        m_action_sensitivity[ActionID::SELECT_PATH] =
+                entity_from_selection(m_core.get_current_document(), sel).has_value();
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
@@ -871,6 +904,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE] = false;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_WORKPLANE] = false;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE] = false;
+        m_action_sensitivity[ActionID::SELECT_PATH] = false;
     }
 
 
