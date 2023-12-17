@@ -109,6 +109,8 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
                     constraint.m_line = line.m_uuid;
                     constraint.m_point_line = tp->points.at(pt);
                     constraint.m_point = tp->points.at(other_pt);
+
+                    reset_selection_after_constrain();
                     return ToolResponse::commit();
                 }
             }
@@ -132,6 +134,8 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
         constraint->m_wrkpl = get_workplane_uuid();
         constraint->m_entity1 = tl->first;
         constraint->m_entity2 = tl->second;
+
+        reset_selection_after_constrain();
         return ToolResponse::commit();
     }
 

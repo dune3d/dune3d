@@ -37,5 +37,7 @@ protected:
 
     Document &get_doc();
     Group &get_group();
+
+    void reset_selection_after_constrain();
 };
 } // namespace dune3d

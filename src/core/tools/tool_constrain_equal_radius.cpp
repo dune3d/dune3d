@@ -41,7 +41,7 @@ ToolResponse ToolConstrainEqualRadius::begin(const ToolArgs &args)
         constraint.m_entity2 = *it;
     }
 
-
+    reset_selection_after_constrain();
     return ToolResponse::commit();
 }
 

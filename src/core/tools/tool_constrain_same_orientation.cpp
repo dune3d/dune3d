@@ -50,6 +50,7 @@ ToolResponse ToolConstrainSameOrientation::begin(const ToolArgs &args)
     constraint.m_entity1 = tp->first;
     constraint.m_entity2 = tp->second;
 
+    reset_selection_after_constrain();
     return ToolResponse::commit();
 }
 

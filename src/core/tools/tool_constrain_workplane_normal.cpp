@@ -114,6 +114,7 @@ ToolResponse ToolConstrainWorkplaneNormal::update(const ToolArgs &args)
                 if (d > 0)
                     m_constraint->m_flip_normal = true;
 
+                reset_selection_after_constrain();
                 return ToolResponse::commit();
             }
 

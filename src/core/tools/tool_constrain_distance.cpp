@@ -47,6 +47,7 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
         constraint->flip();
     constraint->m_distance = std::abs(dist);
 
+    reset_selection_after_constrain();
     return ToolResponse::commit();
 }
 

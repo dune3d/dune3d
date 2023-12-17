@@ -116,6 +116,7 @@ ToolResponse ToolConstrainParallel::begin(const ToolArgs &args)
         constraint.m_entity1 = tp->first;
         constraint.m_entity2 = tp->second;
         constraint.m_wrkpl = get_workplane_uuid();
+        reset_selection_after_constrain();
         return ToolResponse::commit();
     }
     if (auto tp = arc_and_line_from_selection(get_doc(), m_selection)) {
@@ -133,6 +134,7 @@ ToolResponse ToolConstrainParallel::begin(const ToolArgs &args)
 
                     constraint.m_arc = {tp->arc, arc_pt};
                     constraint.m_line = tp->line;
+                    reset_selection_after_constrain();
                     return ToolResponse::commit();
                 }
             }
@@ -152,6 +154,7 @@ ToolResponse ToolConstrainParallel::begin(const ToolArgs &args)
 
                     constraint.m_arc1 = {arc1.m_uuid, arc1_pt};
                     constraint.m_arc2 = {arc2.m_uuid, arc2_pt};
+                    reset_selection_after_constrain();
                     return ToolResponse::commit();
                 }
             }

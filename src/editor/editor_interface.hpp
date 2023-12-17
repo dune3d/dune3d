@@ -11,6 +11,7 @@ namespace dune3d {
 
 class ActionLabelInfo;
 class Dialogs;
+enum class SelectionMode;
 
 class EditorInterface {
 public:
@@ -27,6 +28,7 @@ public:
     virtual void enable_hover_selection() = 0;
     virtual std::optional<SelectableRef> get_hover_selection() const = 0;
     virtual void set_no_canvas_update(bool v) = 0;
+    virtual void set_canvas_selection_mode(SelectionMode mode) = 0;
     virtual void canvas_update_from_tool() = 0;
     virtual void set_solid_model_edge_select_mode(bool v) = 0;
 

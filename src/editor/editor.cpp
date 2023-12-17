@@ -1160,6 +1160,11 @@ glm::dvec3 Editor::get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal
     return get_canvas().get_cursor_pos_for_plane(origin, normal);
 }
 
+void Editor::set_canvas_selection_mode(SelectionMode mode)
+{
+    m_last_selection_mode = mode;
+}
+
 void Editor::handle_cursor_move()
 {
     if (m_core.tool_is_active()) {

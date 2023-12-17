@@ -36,6 +36,7 @@ ToolResponse ToolConstrainHV::begin(const ToolArgs &args)
     constraint->m_entity2 = {tp->entity2, tp->point2};
     constraint->m_wrkpl = get_workplane_uuid();
 
+    reset_selection_after_constrain();
     return ToolResponse::commit();
 }
 

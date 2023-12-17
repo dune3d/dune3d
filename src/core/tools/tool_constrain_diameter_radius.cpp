@@ -44,6 +44,7 @@ ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
     constraint->m_entity = *uu;
     constraint->measure(get_doc());
 
+    reset_selection_after_constrain();
     return ToolResponse::commit();
 }
 

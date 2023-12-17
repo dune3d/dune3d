@@ -55,6 +55,8 @@ public:
 
     bool get_use_workplane() const override;
 
+    void set_canvas_selection_mode(SelectionMode mode) override;
+
     void open_file(const std::filesystem::path &path);
 
 private:

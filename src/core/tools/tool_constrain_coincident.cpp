@@ -84,6 +84,7 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
         return ToolResponse::end();
     }
 
+    reset_selection_after_constrain();
     return ToolResponse::commit();
 }
 
