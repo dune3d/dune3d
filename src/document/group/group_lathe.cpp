@@ -3,6 +3,7 @@
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
 #include "util/util.hpp"
+#include "util/template_util.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_arc3d.hpp"
@@ -91,11 +92,12 @@ void GroupLathe::generate_or_solve(Document &doc, GenerateOrSolve gen_or_solve) 
             continue;
         if (it->m_construction)
             continue;
-        if (it->get_type() == Entity::Type::LINE_2D) {
-            const auto &li = dynamic_cast<const EntityLine2D &>(*it);
-            if (li.m_wrkpl != m_wrkpl)
+        if (any_of(it->get_type(), Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D)) {
+            const auto &li = dynamic_cast<const IEntityInWorkplane &>(*it);
+            if (li.get_workplane() != m_wrkpl)
                 continue;
-            for (unsigned int pt = 1; pt <= 2; pt++) {
+            const unsigned int pt_max = it->get_type() == Entity::Type::CIRCLE_2D ? 1 : 2;
+            for (unsigned int pt = 1; pt <= pt_max; pt++) {
                 auto new_circle_uu = get_lathe_circle_uuid(uu, pt);
                 if (gen_or_solve == GenerateOrSolve::SOLVE && !doc.m_entities.contains(new_circle_uu))
                     continue;
@@ -103,7 +105,7 @@ void GroupLathe::generate_or_solve(Document &doc, GenerateOrSolve gen_or_solve) 
                                            ? doc.get_entity<EntityCircle3D>(new_circle_uu)
                                            : doc.get_or_add_entity<EntityCircle3D>(new_circle_uu);
                 new_circle.m_normal = quat_from_uv(wrkpl.get_normal_vector(), glm::cross(wrkpl.get_normal_vector(), n));
-                const auto pc = li.get_point(pt, doc);
+                const auto pc = it->get_point(pt, doc);
                 new_circle.m_center = project_point_onto_line(pc, origin, n);
                 new_circle.m_radius = glm::length(new_circle.m_center - pc);
 
