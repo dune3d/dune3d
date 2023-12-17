@@ -594,6 +594,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
     m_info_bar->set_message_type(Gtk::MessageType::ERROR);
     m_info_bar_icon = Gtk::make_managed<Gtk::Image>();
     m_info_bar_label = Gtk::make_managed<Gtk::Label>("foo");
+    m_info_bar_label->set_wrap(true);
     {
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 10);
         box->append(*m_info_bar_icon);
