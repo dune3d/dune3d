@@ -5,6 +5,7 @@
   <object class="GtkBox" id="box">
     <child>
       <object class="GtkBox">
+        <property name="hexpand-set">True</property>
         <property name="margin-bottom">20</property>
         <property name="margin-end">20</property>
         <property name="margin-start">20</property>
@@ -104,7 +105,6 @@
             <child>
               <object class="GtkBox">
                 <property name="css-classes">linked</property>
-                <property name="hexpand">True</property>
                 <child>
                   <object class="GtkToggleButton" id="theme_variant_auto_button">
                     <property name="hexpand">True</property>
@@ -161,33 +161,67 @@
     </child>
     <child>
       <object class="GtkRevealer" id="colors_revealer">
+        <property name="hexpand">True</property>
         <property name="reveal-child">True</property>
         <property name="transition-type">swing-right</property>
         <child>
           <object class="GtkBox">
+            <property name="vexpand">True</property>
             <child>
               <object class="GtkSeparator"/>
             </child>
             <child>
-              <object class="GtkScrolledWindow">
-                <property name="hexpand">True</property>
-                <property name="hscrollbar-policy">never</property>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkFlowBox" id="colors_box"/>
+                  <object class="GtkBox">
+                    <property name="margin-bottom">10</property>
+                    <property name="margin-end">10</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-top">10</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkButton" id="import_button">
+                        <property name="label">Import…</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="export_button">
+                        <property name="label">Export…</property>
+                      </object>
+                    </child>
+                  </object>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkSeparator"/>
-            </child>
-            <child>
-              <object class="GtkColorChooserWidget" id="color_chooser">
-                <property name="margin-bottom">20</property>
-                <property name="margin-end">20</property>
-                <property name="margin-start">20</property>
-                <property name="margin-top">20</property>
-                <property name="show-editor">True</property>
-                <property name="use-alpha">False</property>
+                <child>
+                  <object class="GtkSeparator"/>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <property name="hexpand">True</property>
+                        <property name="hscrollbar-policy">never</property>
+                        <child>
+                          <object class="GtkFlowBox" id="colors_box"/>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparator"/>
+                    </child>
+                    <child>
+                      <object class="GtkColorChooserWidget" id="color_chooser">
+                        <property name="margin-bottom">20</property>
+                        <property name="margin-end">20</property>
+                        <property name="margin-start">20</property>
+                        <property name="margin-top">20</property>
+                        <property name="show-editor">True</property>
+                        <property name="use-alpha">False</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

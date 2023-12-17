@@ -30,6 +30,9 @@ private:
     void update_colors_revealer();
 
     void update_color_chooser();
+
+    void handle_import();
+    void handle_export();
 };
 
 } // namespace dune3d

@@ -6,6 +6,8 @@
 #include "nlohmann/json.hpp"
 #include "canvas/color_palette.hpp"
 #include "color_presets.hpp"
+#include "logger/log_util.hpp"
+#include "util/fs_util.hpp"
 #include <format>
 
 namespace dune3d {
@@ -217,6 +219,13 @@ CanvasPreferencesEditor::CanvasPreferencesEditor(BaseObjectType *cobject, const 
             sigc::mem_fun(*this, &CanvasPreferencesEditor::update_color_chooser));
 
     m_colors_box->select_child(*m_colors_box->get_child_at_index(0));
+
+    {
+        auto import_button = x->get_widget<Gtk::Button>("import_button");
+        auto export_button = x->get_widget<Gtk::Button>("export_button");
+        import_button->signal_clicked().connect(sigc::mem_fun(*this, &CanvasPreferencesEditor::handle_import));
+        export_button->signal_clicked().connect(sigc::mem_fun(*this, &CanvasPreferencesEditor::handle_export));
+    }
 }
 
 void CanvasPreferencesEditor::update_colors_revealer()
@@ -243,6 +252,77 @@ void CanvasPreferencesEditor::update_color_chooser()
     rgba.set_rgba(c.r, c.g, c.b, 1);
     m_color_chooser->set_rgba(rgba);
     m_color_chooser_conn.unblock();
+}
+
+void CanvasPreferencesEditor::handle_import()
+{
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("JSON");
+    filter_any->add_pattern("*.json");
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    auto top = dynamic_cast<Gtk::Window *>(get_ancestor(GTK_TYPE_WINDOW));
+
+    dialog->open(*top, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->open_finish(result);
+            // open_file_view(file);
+            //  Notice that this is a std::string, not a Glib::ustring.
+            const auto path = path_from_string(file->get_path());
+            auto j = load_json_from_file(path);
+            CanvasPreferences prefs;
+            prefs.load_colors_from_json(j);
+            for (auto &[color_name, color] : prefs.appearance.colors) {
+                if (m_color_editors.contains(color_name))
+                    m_color_editors.at(color_name)->set_color(color);
+            }
+            update_color_chooser();
+        }
+        catch (Gtk::DialogError &err) {
+            // it's okay
+        }
+        CATCH_LOG(Logger::Level::WARNING, "error loading color preferences", Logger::Domain::UNSPECIFIED);
+    });
+}
+
+void CanvasPreferencesEditor::handle_export()
+{
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("JSON");
+    filter_any->add_pattern("*.json");
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    auto top = dynamic_cast<Gtk::Window *>(get_ancestor(GTK_TYPE_WINDOW));
+
+    dialog->save(*top, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->save_finish(result);
+            // open_file_view(file);
+            //  Notice that this is a std::string, not a Glib::ustring.
+            const auto path = path_from_string(file->get_path());
+            save_json_to_file(path, m_canvas_preferences.serialize_colors());
+        }
+        catch (Gtk::DialogError &err) {
+            // it's okay
+        }
+        CATCH_LOG(Logger::Level::WARNING, "error saving color preferences", Logger::Domain::UNSPECIFIED);
+    });
 }
 
 CanvasPreferencesEditor *CanvasPreferencesEditor::create(Preferences &prefs)
