@@ -61,6 +61,15 @@ ToolResponse ToolMove::begin(const ToolArgs &args)
                 m_entities.emplace(&entity, sr.point);
             }
         }
+        else if (sr.type == SelectableRef::Type::CONSTRAINT) {
+            if (auto constraint = get_doc().get_constraint_ptr<ConstraintLinesAngle>(sr.item)) {
+                if (!constraint->m_wrkpl) {
+                    auto vecs = constraint->get_vectors(get_doc());
+                    m_inital_pos_angle_constraint.emplace(
+                            sr.item, m_intf.get_cursor_pos_for_plane(constraint->get_origin(get_doc()), vecs.n));
+                }
+            }
+        }
         // we don't care about constraints since dragging them is pureley cosmetic
     }
     if (first_group)
@@ -210,6 +219,11 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                                                                                            wrkpl.get_normal_vector()))
                                              - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
                         cdelta = wrkpl.transform_relative(delta2d);
+                    }
+                    else {
+                        cdelta =
+                                m_intf.get_cursor_pos_for_plane(co->get_origin(get_doc()), co->get_vectors(get_doc()).n)
+                                - m_inital_pos_angle_constraint.at(co->m_uuid);
                     }
                     auto &co_last = dynamic_cast<const ConstraintLinesAngle &>(*last_doc.m_constraints.at(sr.item));
                     const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));

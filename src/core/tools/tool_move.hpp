@@ -36,6 +36,7 @@ public:
 private:
     glm::dvec3 m_inital_pos;
     std::map<UUID, glm::dvec2> m_inital_pos_wrkpl;
+    std::map<UUID, glm::dvec3> m_inital_pos_angle_constraint;
     UUID m_first_group;
     std::set<std::pair<Entity *, unsigned int>> m_entities;
     ICore::DraggedList m_dragged_list;
