@@ -84,10 +84,12 @@ void Editor::on_add_group(Group::Type group_type)
         if (!current_group.m_active_wrkpl)
             return;
         auto sel = get_canvas().get_selection();
-        std::optional<UUID> wrkpl = entity_from_selection(doc, sel, Entity::Type::WORKPLANE);
-        std::optional<LineAndPoint> line_and_point =
-                line_and_point_from_selection(doc, sel, LineAndPoint::AllowSameEntity::YES);
-        if (!wrkpl && !line_and_point)
+        std::optional<UUID> axis_uu = entity_from_selection(doc, sel);
+        if (!axis_uu)
+            return;
+        const auto &axis = doc.get_entity(*axis_uu);
+        if (axis.get_type() != Entity::Type::WORKPLANE && axis.get_type() != Entity::Type::LINE_2D
+            && axis.get_type() != Entity::Type::LINE_3D)
             return;
 
         auto &group = doc.insert_group<GroupLathe>(UUID::random(), current_group.m_uuid);
@@ -95,17 +97,9 @@ void Editor::on_add_group(Group::Type group_type)
         group.m_name = "Lathe";
         group.m_wrkpl = current_group.m_active_wrkpl;
         group.m_source_group = current_group.m_uuid;
-        if (wrkpl) {
-            group.m_origin = *wrkpl;
-            group.m_origin_point = 1;
-            group.m_normal = *wrkpl;
-        }
-        else {
-            assert(line_and_point.has_value());
-            group.m_origin = line_and_point->point;
-            group.m_origin_point = line_and_point->point_point;
-            group.m_normal = line_and_point->line;
-        }
+        group.m_origin = *axis_uu;
+        group.m_origin_point = 1;
+        group.m_normal = *axis_uu;
     }
     else if (group_type == Group::Type::FILLET) {
         auto &group = doc.insert_group<GroupFillet>(UUID::random(), current_group.m_uuid);
