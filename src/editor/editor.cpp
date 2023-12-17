@@ -217,10 +217,10 @@ void Editor::update_selection_mode_label()
     const auto mode = get_canvas().get_selection_mode();
     std::string label;
     switch (mode) {
-    case Canvas::SelectionMode::HOVER:
+    case SelectionMode::HOVER:
         m_win.set_selection_mode_label_text("Hover select");
         break;
-    case Canvas::SelectionMode::NORMAL:
+    case SelectionMode::NORMAL:
         m_win.set_selection_mode_label_text("Click select");
         break;
     default:;
@@ -296,7 +296,7 @@ void Editor::init_properties_notebook()
     m_constraints_box->signal_constraint_selected().connect([this](const UUID &uu) {
         SelectableRef sr{.document = UUID(), .type = SelectableRef::Type::CONSTRAINT, .item = uu};
         get_canvas().set_selection({sr}, true);
-        get_canvas().set_selection_mode(Canvas::SelectionMode::NORMAL);
+        get_canvas().set_selection_mode(SelectionMode::NORMAL);
     });
     m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
 
@@ -312,7 +312,7 @@ void Editor::init_properties_notebook()
 
 void Editor::update_selection_editor()
 {
-    if (get_canvas().get_selection_mode() == Canvas::SelectionMode::HOVER)
+    if (get_canvas().get_selection_mode() == SelectionMode::HOVER)
         m_selection_editor->set_selection({});
     else
         m_selection_editor->set_selection(get_canvas().get_selection());
@@ -1073,7 +1073,7 @@ void Editor::tool_begin(ToolID id /*bool override_selection, const std::set<Sele
     //   else
     args.selection = get_canvas().get_selection();
     m_last_selection_mode = get_canvas().get_selection_mode();
-    get_canvas().set_selection_mode(Canvas::SelectionMode::NONE);
+    get_canvas().set_selection_mode(SelectionMode::NONE);
     ToolResponse r = m_core.tool_begin(id, args);
     tool_process(r);
 }
@@ -1092,7 +1092,7 @@ void Editor::tool_update_data(std::unique_ptr<ToolData> data)
 
 void Editor::enable_hover_selection()
 {
-    get_canvas().set_selection_mode(Canvas::SelectionMode::HOVER_ONLY);
+    get_canvas().set_selection_mode(SelectionMode::HOVER_ONLY);
 }
 
 std::optional<SelectableRef> Editor::get_hover_selection() const
@@ -1180,7 +1180,7 @@ void Editor::handle_cursor_move()
             ToolArgs args;
             args.selection = m_selection_for_drag;
             m_last_selection_mode = get_canvas().get_selection_mode();
-            get_canvas().set_selection_mode(Canvas::SelectionMode::NONE);
+            get_canvas().set_selection_mode(SelectionMode::NONE);
             ToolResponse r = m_core.tool_begin(m_drag_tool, args, true);
             tool_process(r);
 
@@ -1300,7 +1300,7 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
     state &= (Gdk::ModifierType::SHIFT_MASK | Gdk::ModifierType::CONTROL_MASK | Gdk::ModifierType::ALT_MASK);
     if (keyval == GDK_KEY_Escape) {
         if (!m_core.tool_is_active()) {
-            get_canvas().set_selection_mode(Canvas::SelectionMode::HOVER);
+            get_canvas().set_selection_mode(SelectionMode::HOVER);
             get_canvas().set_selection({}, true);
 
             reset_key_hint_label();

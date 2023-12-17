@@ -9,6 +9,7 @@
 #include "icon_renderer.hpp"
 #include "box_selection.hpp"
 #include "icanvas.hpp"
+#include "selection_mode.hpp"
 #include "color.hpp"
 #include "bitmask_operators.hpp"
 #include "selectable_ref.hpp"
@@ -66,7 +67,6 @@ public:
     glm::vec3 get_cam_normal() const;
     glm::dvec2 get_cursor_pos_win() const;
 
-    enum class SelectionMode { HOVER, NORMAL, HOVER_ONLY, DRAG, NONE };
     void set_selection_mode(SelectionMode mode);
     SelectionMode get_selection_mode() const
     {

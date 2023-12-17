@@ -8,7 +8,6 @@
 #include "dialogs/dialogs.hpp"
 #include "util/action_label.hpp"
 #include "document/group/group.hpp"
-#include "canvas/canvas.hpp"
 
 
 namespace dune3d {
@@ -23,6 +22,8 @@ class GroupEditor;
 class SelectionEditor;
 class WorkspaceBrowser;
 class Dune3DAppWindow;
+class Canvas;
+enum class SelectionMode;
 
 class Editor : private EditorInterface {
 public:
@@ -185,6 +186,6 @@ private:
     Dune3DAppWindow &m_win;
 
     Core m_core;
-    Canvas::SelectionMode m_last_selection_mode;
+    SelectionMode m_last_selection_mode;
 };
 } // namespace dune3d
