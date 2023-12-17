@@ -55,8 +55,10 @@ static std::shared_ptr<const SolidModel> create_array(const Document &doc, Group
         break;
     }
 
-    if (mod->m_shape_acc.IsNull())
+    if (mod->m_shape_acc.IsNull()) {
+        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "didn't generate a shape");
         return nullptr;
+    }
 
     mod->find_edges();
     mod->triangulate();

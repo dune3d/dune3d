@@ -57,8 +57,10 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupE
     catch (...) {
         group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "unknown exception");
     }
-    if (mod->m_shape.IsNull())
+    if (mod->m_shape.IsNull()) {
+        group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "didn't generate a shape");
         return nullptr;
+    }
 
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
 
