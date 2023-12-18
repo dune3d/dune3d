@@ -12,32 +12,34 @@ using json = nlohmann::json;
 class Document;
 class EntityAndPoint;
 
+enum class ConstraintType {
+    POINTS_COINCIDENT,
+    PARALLEL,
+    POINT_ON_LINE,
+    POINT_ON_CIRCLE,
+    EQUAL_LENGTH,
+    EQUAL_RADIUS,
+    SAME_ORIENTATION,
+    HORIZONTAL,
+    VERTICAL,
+    POINT_DISTANCE,
+    POINT_DISTANCE_HORIZONTAL,
+    POINT_DISTANCE_VERTICAL,
+    WORKPLANE_NORMAL,
+    MIDPOINT,
+    DIAMETER,
+    RADIUS,
+    ARC_LINE_TANGENT,
+    ARC_ARC_TANGENT,
+    LINE_POINTS_PERPENDICULAR,
+    LINES_PERPENDICULAR,
+    LINES_ANGLE,
+};
+
 class Constraint {
 public:
     UUID m_uuid;
-    enum class Type {
-        POINTS_COINCIDENT,
-        PARALLEL,
-        POINT_ON_LINE,
-        POINT_ON_CIRCLE,
-        EQUAL_LENGTH,
-        EQUAL_RADIUS,
-        SAME_ORIENTATION,
-        HORIZONTAL,
-        VERTICAL,
-        POINT_DISTANCE,
-        POINT_DISTANCE_HORIZONTAL,
-        POINT_DISTANCE_VERTICAL,
-        WORKPLANE_NORMAL,
-        MIDPOINT,
-        DIAMETER,
-        RADIUS,
-        ARC_LINE_TANGENT,
-        ARC_ARC_TANGENT,
-        LINE_POINTS_PERPENDICULAR,
-        LINES_PERPENDICULAR,
-        LINES_ANGLE,
-    };
+    using Type = ConstraintType;
     virtual Type get_type() const = 0;
     static std::string get_type_name(Type type);
     std::string get_type_name() const;

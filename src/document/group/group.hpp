@@ -30,10 +30,21 @@ struct GroupStatusMessage {
     static GroupStatusMessage::Status summarize(const std::list<GroupStatusMessage> &msgs);
 };
 
+enum class GroupType {
+    REFERENCE,
+    SKETCH,
+    EXTRUDE,
+    LATHE,
+    FILLET,
+    CHAMFER,
+    LINEAR_ARRAY,
+    POLAR_ARRAY,
+};
+
 class Group {
 public:
     UUID m_uuid;
-    enum class Type { REFERENCE, SKETCH, EXTRUDE, LATHE, FILLET, CHAMFER, LINEAR_ARRAY, POLAR_ARRAY };
+    using Type = GroupType;
     virtual Type get_type() const = 0;
 
     virtual ~Group();

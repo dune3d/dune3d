@@ -15,20 +15,23 @@ class EntityVisitor;
 class Constraint;
 
 using json = nlohmann::json;
+
+enum class EntityType {
+    LINE_3D,
+    WORKPLANE,
+    LINE_2D,
+    ARC_2D,
+    ARC_3D,
+    CIRCLE_2D,
+    CIRCLE_3D,
+    STEP,
+    POINT_2D,
+};
+
 class Entity {
 public:
     UUID m_uuid;
-    enum class Type {
-        LINE_3D,
-        WORKPLANE,
-        LINE_2D,
-        ARC_2D,
-        ARC_3D,
-        CIRCLE_2D,
-        CIRCLE_3D,
-        STEP,
-        POINT_2D,
-    };
+    using Type = EntityType;
     virtual Type get_type() const = 0;
     static std::string get_type_name(Type type);
     std::string get_type_name() const;
