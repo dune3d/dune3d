@@ -4,6 +4,7 @@
 #include "util/json_util.hpp"
 #include "document/document.hpp"
 #include "document/group/group.hpp"
+#include "document/constraint/constraint.hpp"
 
 namespace dune3d {
 
@@ -118,6 +119,19 @@ bool Entity::can_move(const Document &doc) const
     auto &group = doc.get_group(m_group);
     return group.get_type() != Group::Type::REFERENCE;
 }
+
+std::set<const Constraint *> Entity::get_constraints(const Document &doc) const
+{
+    std::set<const Constraint *> constraints;
+    for (const auto &[uu, constraint] : doc.m_constraints) {
+        if (constraint->m_group != m_group)
+            continue;
+        if (constraint->get_referenced_entities().contains(m_uuid))
+            constraints.insert(constraint.get());
+    }
+    return constraints;
+}
+
 
 Entity::~Entity() = default;
 } // namespace dune3d

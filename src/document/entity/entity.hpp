@@ -12,6 +12,7 @@ namespace dune3d {
 
 class Document;
 class EntityVisitor;
+class Constraint;
 
 using json = nlohmann::json;
 class Entity {
@@ -46,6 +47,8 @@ public:
     virtual bool is_valid_point(unsigned int point) const;
 
     virtual void accept(EntityVisitor &visitor) const = 0;
+
+    std::set<const Constraint *> get_constraints(const Document &doc) const;
 
     UUID m_group;
     std::string m_name;

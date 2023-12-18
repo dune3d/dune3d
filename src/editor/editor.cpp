@@ -179,6 +179,17 @@ void Editor::init_canvas()
             trigger_action(action_id);
         });
     }
+
+    actions->add_action_with_parameter(
+            "remove_constraint", Glib::Variant<std::string>::variant_type(), [this](Glib::VariantBase const &value) {
+                UUID uu = Glib::VariantBase::cast_dynamic<Glib::Variant<std::string>>(value).get();
+                auto &doc = m_core.get_current_document();
+                doc.m_constraints.erase(uu);
+                doc.set_group_solve_pending(m_core.get_current_group());
+                m_core.set_needs_save();
+                m_core.rebuild("remove constraint");
+                canvas_update_keep_selection();
+            });
     m_context_menu->insert_action_group("menu", actions);
 
 
@@ -262,6 +273,29 @@ void Editor::open_context_menu()
                         menu->append_item(item);
                     }
                 }
+            }
+        }
+    }
+    if (m_core.has_documents()) {
+        auto &doc = m_core.get_current_document();
+        if (auto en_uu = entity_from_selection(doc, m_context_menu_selection)) {
+            auto &en = doc.get_entity(*en_uu);
+            std::vector<const Constraint *> constraints;
+            for (auto constraint : en.get_constraints(doc)) {
+                constraints.push_back(constraint);
+            }
+            std::ranges::sort(constraints, [](auto a, auto b) { return a->get_type() < b->get_type(); });
+
+            if (constraints.size()) {
+                auto submenu = Gio::Menu::create();
+                for (auto constraint : constraints) {
+                    auto item = Gio::MenuItem::create(constraint->get_type_name(), "menu.remove_constraint");
+                    item->set_action_and_target("menu.remove_constraint",
+                                                Glib::Variant<std::string>::create(constraint->m_uuid));
+                    submenu->append_item(item);
+                }
+                auto item = Gio::MenuItem::create("Remove constraint", submenu);
+                menu->append_item(item);
             }
         }
     }
