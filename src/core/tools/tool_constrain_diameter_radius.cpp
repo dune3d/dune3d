@@ -4,6 +4,8 @@
 #include "document/entity/entity_circle2d.hpp"
 #include "document/constraint/constraint_diameter_radius.hpp"
 #include "util/selection_util.hpp"
+#include "util/util.hpp"
+#include "util/template_util.hpp"
 #include "core/tool_id.hpp"
 #include "tool_common_impl.hpp"
 
@@ -17,8 +19,16 @@ bool ToolConstrainDiameterRadius::can_begin()
     auto uu = entity_from_selection(get_doc(), m_selection);
     if (!uu)
         return false;
-    auto type = get_doc().get_entity(*uu).get_type();
-    return type == Entity::Type::ARC_2D || type == Entity::Type::CIRCLE_2D;
+    auto &doc = get_doc();
+    auto &en = doc.get_entity(*uu);
+    if (!en.of_type(Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D))
+        return false;
+
+    const auto constraint_types = en.get_constraint_types(doc);
+    if (set_contains(constraint_types, Constraint::Type::RADIUS, Constraint::Type::DIAMETER))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)

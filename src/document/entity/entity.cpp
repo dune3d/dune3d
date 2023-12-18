@@ -132,6 +132,15 @@ std::set<const Constraint *> Entity::get_constraints(const Document &doc) const
     return constraints;
 }
 
+std::set<ConstraintType> Entity::get_constraint_types(const Document &doc) const
+{
+    std::set<Constraint::Type> types;
+    for (const auto constraint : get_constraints(doc)) {
+        types.insert(constraint->get_type());
+    }
+    return types;
+}
+
 
 Entity::~Entity() = default;
 } // namespace dune3d

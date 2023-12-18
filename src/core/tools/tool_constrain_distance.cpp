@@ -5,6 +5,7 @@
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_point_distance_hv.hpp"
 #include "util/selection_util.hpp"
+#include "util/template_util.hpp"
 #include "core/tool_id.hpp"
 #include "tool_common_impl.hpp"
 
@@ -16,7 +17,35 @@ bool ToolConstrainDistance::can_begin()
         && !get_workplane_uuid())
         return false;
 
-    return two_points_from_selection(get_doc(), m_selection).has_value();
+    auto tp = two_points_from_selection(get_doc(), m_selection);
+    if (!tp)
+        return false;
+    if (tp->entity1 == tp->entity2) {
+        // single entity
+        auto &en = get_entity(tp->entity1);
+        const auto constraint_types = en.get_constraint_types(get_doc());
+        switch (m_tool_id) {
+        case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
+            if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::VERTICAL))
+                return false;
+            break;
+
+        case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
+            if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE_VERTICAL, Constraint::Type::HORIZONTAL))
+                return false;
+            break;
+
+        case ToolID::CONSTRAIN_DISTANCE:
+            if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE, Constraint::Type::HORIZONTAL,
+                             Constraint::Type::VERTICAL))
+                return false;
+            break;
+        default:
+            return false;
+        }
+    }
+
+    return true;
 }
 
 ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)

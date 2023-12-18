@@ -6,6 +6,7 @@
 #include "core/tool_id.hpp"
 #include <optional>
 #include "util/selection_util.hpp"
+#include "util/template_util.hpp"
 #include "tool_common_impl.hpp"
 
 namespace dune3d {
@@ -17,7 +18,17 @@ bool ToolConstrainHV::can_begin()
         return false;
 
     auto tp = two_points_from_selection(get_doc(), m_selection);
-    return tp.has_value();
+    if (!tp)
+        return false;
+    if (tp->entity1 == tp->entity2) {
+        // single entity
+        auto &en = get_entity(tp->entity1);
+        const auto constraint_types = en.get_constraint_types(get_doc());
+        if (set_contains(constraint_types, Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL))
+            return false;
+    }
+
+    return true;
 }
 
 ToolResponse ToolConstrainHV::begin(const ToolArgs &args)

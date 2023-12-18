@@ -13,6 +13,7 @@ namespace dune3d {
 class Document;
 class EntityVisitor;
 class Constraint;
+enum class ConstraintType;
 
 using json = nlohmann::json;
 
@@ -36,6 +37,12 @@ public:
     static std::string get_type_name(Type type);
     std::string get_type_name() const;
 
+    template <typename... Args> bool of_type(Args &&...args) const
+    {
+        const auto type = get_type();
+        return ((type == args) || ...);
+    }
+
     virtual ~Entity();
     virtual json serialize() const;
 
@@ -52,6 +59,7 @@ public:
     virtual void accept(EntityVisitor &visitor) const = 0;
 
     std::set<const Constraint *> get_constraints(const Document &doc) const;
+    std::set<ConstraintType> get_constraint_types(const Document &doc) const;
 
     UUID m_group;
     std::string m_name;
