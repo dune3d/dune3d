@@ -92,5 +92,13 @@
                 "mod": 0
             }
         ]
+    ],
+    "TOGGLE_RECTANGLE_MODE": [
+    [
+        {
+            "key": "m",
+            "mod": 0
+        }
     ]
+]
 }

@@ -39,5 +39,6 @@ enum class ToolID {
     DRAW_POINT_2D,
     ROTATE,
     DRAW_REGULAR_POLYGON,
+    DRAW_RECTANGLE,
 };
 }

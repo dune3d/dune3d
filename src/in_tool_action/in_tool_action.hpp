@@ -25,6 +25,8 @@ enum class InToolActionID {
     N_SIDES_DEC,
     ENTER_N_SIDES,
 
+    TOGGLE_RECTANGLE_MODE,
+
     CANCEL,
     COMMIT
 };

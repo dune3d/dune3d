@@ -24,6 +24,8 @@ const std::map<InToolActionID, InToolActionCatalogItem> in_tool_action_catalog =
          {"decrease sides", ToolID::DRAW_REGULAR_POLYGON, InToolActionCatalogItem::FLAGS_DEFAULT}},
         {InToolActionID::ENTER_N_SIDES,
          {"enter sides", ToolID::DRAW_REGULAR_POLYGON, InToolActionCatalogItem::FLAGS_DEFAULT}},
+        {InToolActionID::TOGGLE_RECTANGLE_MODE,
+         {"toggle rectangle mode", ToolID::DRAW_RECTANGLE, InToolActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -47,6 +49,7 @@ const LutEnumStr<InToolActionID> in_tool_action_lut = {
         LUT_ITEM(N_SIDES_INC),
         LUT_ITEM(N_SIDES_DEC),
         LUT_ITEM(ENTER_N_SIDES),
+        LUT_ITEM(TOGGLE_RECTANGLE_MODE),
 };
 
 
