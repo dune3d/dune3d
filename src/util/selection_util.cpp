@@ -149,6 +149,8 @@ std::optional<UUID> entity_from_selection(const Document &doc, const std::set<Se
     auto en = entity_from_selection(doc, sel);
     if (!en)
         return {};
+    if (!doc.m_entities.contains(*en))
+        return {};
     if (doc.get_entity(*en).get_type() == type)
         return en;
     else
