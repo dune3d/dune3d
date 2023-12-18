@@ -2,6 +2,7 @@
 #include "enter_datum_window.hpp"
 #include "rotate_window.hpp"
 #include "widgets/spin_button_dim.hpp"
+#include "editor/editor_interface.hpp"
 #include <gtkmm.h>
 
 namespace dune3d {
@@ -34,6 +35,9 @@ RotateWindow *Dialogs::show_rotate_window(const std::string &label, const glm::d
 
 void Dialogs::close_nonmodal()
 {
+    auto data = std::make_unique<ToolDataWindow>();
+    data->event = ToolDataWindow::Event::CLOSE;
+    m_interface.tool_update_data(std::move(data));
     delete m_window_nonmodal;
     m_window_nonmodal = nullptr;
 }

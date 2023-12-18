@@ -1,18 +1,17 @@
 #include "tool_window.hpp"
 #include "editor/editor_interface.hpp"
 #include "util/gtk_util.hpp"
-#include <iostream>
 
 namespace dune3d {
 
 ToolWindow::ToolWindow(Gtk::Window &parent, EditorInterface &intf) : m_interface(intf)
 {
     set_transient_for(parent);
-    // set_type_hint(Gdk::WINDOW_TYPE_HINT_DIALOG);
     m_headerbar = Gtk::make_managed<Gtk::HeaderBar>();
     m_headerbar->set_show_title_buttons(false);
     set_titlebar(*m_headerbar);
     install_esc_to_close(*this);
+    set_hide_on_close(true);
 
     auto sg = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::HORIZONTAL);
 
@@ -28,14 +27,6 @@ ToolWindow::ToolWindow(Gtk::Window &parent, EditorInterface &intf) : m_interface
     sg->add_widget(*m_ok_button);
 
     m_ok_button->signal_clicked().connect([this] { emit_event(ToolDataWindow::Event::OK); });
-
-    signal_close_request().connect(
-            [this] {
-                std::cout << "tool win destroy " << std::endl;
-                emit_event(ToolDataWindow::Event::CLOSE);
-                return false;
-            },
-            true);
 }
 
 void ToolWindow::emit_event(ToolDataWindow::Event ev)
