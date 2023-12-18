@@ -38,5 +38,6 @@ enum class ToolID {
     UNSET_WORKPLANE,
     DRAW_POINT_2D,
     ROTATE,
+    DRAW_REGULAR_POLYGON,
 };
 }

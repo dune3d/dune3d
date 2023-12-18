@@ -137,6 +137,7 @@ src = files(
   'src/core/tools/tool_set_workplane.cpp',
   'src/core/tools/tool_helper_constrain.cpp',
   'src/core/tools/tool_rotate.cpp',
+  'src/core/tools/tool_draw_regular_polygon.cpp',
   'src/util/history_manager.cpp',
   'src/action/action.cpp',
   'src/action/action_catalog.cpp',

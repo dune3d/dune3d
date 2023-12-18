@@ -104,6 +104,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Align&center view to workplane", ActionGroup::VIEW, ActionCatalogItem::FLAGS_SPECIFIC}},
         {ActionID::VIEW_RESET_TILT, {"Reset tilt", ActionGroup::VIEW, ActionCatalogItem::FLAGS_IN_TOOL}},
         {ActionID::SELECT_PATH, {"Select path", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_SPECIFIC}},
+        {ToolID::DRAW_REGULAR_POLYGON, {"Draw regular polygon", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -201,6 +202,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(SET_WORKPLANE),
         TOOL_LUT_ITEM(UNSET_WORKPLANE),
         TOOL_LUT_ITEM(ROTATE),
+        TOOL_LUT_ITEM(DRAW_REGULAR_POLYGON),
 };
 
 

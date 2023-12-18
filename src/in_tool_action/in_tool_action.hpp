@@ -21,6 +21,10 @@ enum class InToolActionID {
 
     CLEAR_EDGES,
 
+    N_SIDES_INC,
+    N_SIDES_DEC,
+    ENTER_N_SIDES,
+
     CANCEL,
     COMMIT
 };

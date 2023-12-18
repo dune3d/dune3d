@@ -19,12 +19,20 @@ EnterDatumWindow::EnterDatumWindow(Gtk::Window &parent, EditorInterface &intf, c
     la->set_halign(Gtk::Align::START);
     box->append(*la);
 
-    if (unit == DatumUnit::MM) {
+    switch (unit) {
+    case DatumUnit::MM:
         m_sp = Gtk::make_managed<SpinButtonDim>();
         m_sp->set_range(-1e3, 1e3);
-    }
-    else {
+        break;
+
+    case DatumUnit::DEGREE:
         m_sp = Gtk::make_managed<SpinButtonAngle>();
+        break;
+
+    case DatumUnit::INTEGER:
+        m_sp = Gtk::make_managed<Gtk::SpinButton>();
+        m_sp->set_range(-1e3, 1e3);
+        break;
     }
     m_sp->set_margin_start(8);
     m_sp->set_value(def);

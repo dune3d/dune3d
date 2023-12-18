@@ -26,6 +26,7 @@
 #include "tools/tool_constrain_perpendicular.hpp"
 #include "tools/tool_set_workplane.hpp"
 #include "tools/tool_rotate.hpp"
+#include "tools/tool_draw_regular_polygon.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -119,6 +120,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::ROTATE:
         return std::make_unique<ToolRotate>(tool_id, *this, m_intf, flags);
+
+    case ToolID::DRAW_REGULAR_POLYGON:
+        return std::make_unique<ToolDrawRegularPolygon>(tool_id, *this, m_intf, flags);
 
     default:
         throw std::runtime_error("unknown tool");

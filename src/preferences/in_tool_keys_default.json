@@ -62,5 +62,35 @@
                 "mod": 0
             }
         ]
+    ],
+    "ENTER_N_SIDES": [
+    [
+        {
+            "key": "Return",
+            "mod": 0
+        }
+    ]
+    ],
+    "N_SIDES_DEC": [
+        [
+            {
+                "key": "minus",
+                "mod": 0
+            }
+        ]
+    ],
+    "N_SIDES_INC": [
+        [
+            {
+                "key": "plus",
+                "mod": 0
+            }
+        ],
+        [
+            {
+                "key": "equal",
+                "mod": 0
+            }
+        ]
     ]
 }
