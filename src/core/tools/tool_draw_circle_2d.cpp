@@ -51,7 +51,6 @@ ToolResponse ToolDrawCircle2D::update(const ToolArgs &args)
                                 auto &constraint = add_constraint<ConstraintPointOnCircle>();
                                 constraint.m_circle = m_temp_circle->m_uuid;
                                 constraint.m_point = enp;
-                                constraint.m_wrkpl = m_wrkpl->m_uuid;
                                 constraint.m_modify_to_satisfy = true;
                             }
                         }

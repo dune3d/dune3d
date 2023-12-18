@@ -88,7 +88,6 @@ ToolResponse ToolDrawRegularPolygon::update(const ToolArgs &args)
                         auto &constraint = add_constraint<ConstraintPointOnCircle>();
                         constraint.m_circle = m_temp_circle->m_uuid;
                         constraint.m_point = {line->m_uuid, 1};
-                        constraint.m_wrkpl = m_wrkpl->m_uuid;
                         constraint.m_modify_to_satisfy = true;
                     }
                     if (line != m_sides.front()) {
@@ -115,7 +114,6 @@ ToolResponse ToolDrawRegularPolygon::update(const ToolArgs &args)
                                 auto &constraint = add_constraint<ConstraintPointOnCircle>();
                                 constraint.m_circle = m_temp_circle->m_uuid;
                                 constraint.m_point = enp;
-                                constraint.m_wrkpl = m_wrkpl->m_uuid;
                                 constraint.m_modify_to_satisfy = true;
                             }
                         }

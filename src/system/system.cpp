@@ -1229,18 +1229,19 @@ static void AddEq(hConstraint h, IdList<Equation, hEquation> *l, Expr *expr, int
 
 void System::visit(const ConstraintPointOnCircle &constraint)
 {
+    const auto group = get_group_index(constraint);
     const auto c = n_constraint++;
 
-    EntityBase *circle = SK.GetEntity({m_entity_refs_r.at(EntityRef{constraint.m_circle, 0})});
-    EntityBase *point = SK.GetEntity({m_entity_refs_r.at(constraint.m_point)});
+    m_constraint_refs.emplace(c, constraint.m_uuid);
 
-    auto center = SK.GetEntity(circle->point[0])->PointGetExprs();
-    auto normal = SK.GetEntity(circle->normal)->NormalExprsN();
-    auto pointex = point->PointGetExprs();
+    ConstraintBase cb = {};
+    cb.type = ConstraintBase::Type::PT_ON_CIRCLE;
+    cb.h.v = c;
+    cb.group.v = group;
+    cb.ptA.v = m_entity_refs_r.at(constraint.m_point);
+    cb.entityA.v = m_entity_refs_r.at(EntityRef{constraint.m_circle, 0});
 
-    if (point->workplane == ::Entity::FREE_IN_3D)
-        AddEq(hConstraint{c}, &m_sys->eq, normal.Dot(pointex.Minus(center)), 0);
-    AddEq(hConstraint{c}, &m_sys->eq, (pointex.Minus(center)).Magnitude()->Minus(circle->CircleGetRadiusExpr()), 1);
+    SK.constraint.Add(&cb);
 }
 
 void System::visit(const ConstraintHV &constraint)

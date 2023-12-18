@@ -36,7 +36,6 @@ Constraint *ToolHelperConstrain::constrain_point(const UUID &wrkpl, const Entity
                     auto &constraint = add_constraint<ConstraintPointOnCircle>();
                     constraint.m_circle = entity.m_uuid;
                     constraint.m_point = enp_to_constrain;
-                    constraint.m_wrkpl = wrkpl;
                     constraint.m_modify_to_satisfy = true;
                     m_core.solve_current();
                     return &constraint;

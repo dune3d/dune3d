@@ -78,7 +78,6 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
         auto &constraint = add_constraint<ConstraintPointOnCircle>();
         constraint.m_circle = tp->line;
         constraint.m_point = {tp->point, tp->point_point};
-        constraint.m_wrkpl = get_workplane_uuid();
     }
     else {
         return ToolResponse::end();

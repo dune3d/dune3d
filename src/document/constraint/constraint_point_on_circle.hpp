@@ -20,7 +20,6 @@ public:
 
     EntityAndPoint m_point;
     UUID m_circle;
-    UUID m_wrkpl;
 
     std::set<UUID> get_referenced_entities() const override;
 

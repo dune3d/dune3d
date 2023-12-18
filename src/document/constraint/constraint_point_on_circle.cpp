@@ -9,18 +9,16 @@ ConstraintPointOnCircle::ConstraintPointOnCircle(const UUID &uu) : Constraint(uu
 }
 
 ConstraintPointOnCircle::ConstraintPointOnCircle(const UUID &uu, const json &j)
-    : Constraint(uu, j), m_point(j.at("point").get<EntityAndPoint>()), m_circle(j.at("circle").get<UUID>()),
-      m_wrkpl(j.at("wrkpl").get<UUID>())
+    : Constraint(uu, j), m_point(j.at("point").get<EntityAndPoint>()), m_circle(j.at("circle").get<UUID>())
 {
 }
-
 
 json ConstraintPointOnCircle::serialize() const
 {
     json j = Constraint::serialize();
     j["point"] = m_point;
     j["circle"] = m_circle;
-    j["wrkpl"] = m_wrkpl;
+    j["wrkpl"] = UUID(); // for backwards compatibility
     return j;
 }
 
