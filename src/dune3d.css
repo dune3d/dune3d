@@ -17,3 +17,7 @@
 .editor-key-box > label:not(:last-child) {
   border-right: 2px solid;
 }
+
+.tnum {
+  font-feature-settings: "tnum";
+}

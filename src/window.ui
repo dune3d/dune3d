@@ -163,6 +163,7 @@
                                     </child>
                                     <child>
                                       <object class="GtkLabel" id="tool_bar_tip_label">
+                                        <property name="css-classes">tnum</property>
                                         <property name="label">tip</property>
                                         <property name="xalign">0.0</property>
                                       </object>

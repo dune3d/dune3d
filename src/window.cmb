@@ -144,6 +144,7 @@
 	(1,53,"GtkBox","spacing","10",None,None,None,None,None,None,None,None,None),
 	(1,54,"GtkLabel","label","tip",None,None,None,None,None,None,None,None,None),
 	(1,54,"GtkLabel","xalign","0.0",None,None,None,None,None,None,None,None,None),
+	(1,54,"GtkWidget","css-classes","tnum",None,None,None,None,None,None,None,None,None),
 	(1,55,"GtkLabel","label","lalala",None,None,None,None,None,None,None,None,None),
 	(1,55,"GtkLabel","wrap","True",None,None,None,None,None,None,None,None,None),
 	(1,55,"GtkLabel","xalign","0.0",None,None,None,None,None,None,None,None,None),
