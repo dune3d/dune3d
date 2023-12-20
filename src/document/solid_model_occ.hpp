@@ -13,6 +13,8 @@ public:
 
     void export_stl(const std::filesystem::path &path) const override;
     void export_step(const std::filesystem::path &path) const override;
+    void export_projection(const std::filesystem::path &path, const glm::dvec3 &origin,
+                           const glm::dquat &normal) const override;
 };
 
 } // namespace dune3d

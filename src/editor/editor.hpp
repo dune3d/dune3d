@@ -77,14 +77,13 @@ private:
 
     void on_export_solid_model(const ActionConnection &conn);
     void on_export_paths(const ActionConnection &conn);
+    void on_export_projection(const ActionConnection &conn);
     void on_open_document(const ActionConnection &conn);
     void on_save_as(const ActionConnection &conn);
     void on_create_group_action(const ActionConnection &conn);
     void on_move_group_action(const ActionConnection &conn);
     void on_align_to_workplane(const ActionConnection &conn);
     void on_center_to_workplane(const ActionConnection &conn);
-
-
     Canvas &get_canvas();
     const Canvas &get_canvas() const;
 

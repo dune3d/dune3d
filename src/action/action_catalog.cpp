@@ -107,6 +107,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::DRAW_REGULAR_POLYGON, {"Draw regular polygon", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_RECTANGLE, {"Draw rectangle", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::EXPORT_PATHS, {"Export paths", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::EXPORT_PROJECTION, {"Export projection", ActionGroup::DOCUMENT, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -127,6 +128,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(SAVE_AS),
         ACTION_LUT_ITEM(EXPORT_SOLID_MODEL_STL),
         ACTION_LUT_ITEM(EXPORT_SOLID_MODEL_STEP),
+        ACTION_LUT_ITEM(EXPORT_PROJECTION),
         ACTION_LUT_ITEM(UNDO),
         ACTION_LUT_ITEM(REDO),
         ACTION_LUT_ITEM(POPOVER),

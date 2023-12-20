@@ -548,7 +548,7 @@ void Editor::init_actions()
     });
 
     connect_action(ActionID::EXPORT_PATHS, sigc::mem_fun(*this, &Editor::on_export_paths));
-
+    connect_action(ActionID::EXPORT_PROJECTION, sigc::mem_fun(*this, &Editor::on_export_projection));
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
 }
@@ -678,6 +678,57 @@ void Editor::on_export_paths(const ActionConnection &conn)
                 return body_visible && group_visible;
             };
             export_paths(path, m_core.get_current_document(), m_core.get_current_group(), group_filter);
+        }
+        catch (const Gtk::DialogError &err) {
+            // Can be thrown by dialog->open_finish(result).
+            std::cout << "No file selected. " << err.what() << std::endl;
+        }
+        catch (const Glib::Error &err) {
+            std::cout << "Unexpected exception. " << err.what() << std::endl;
+        }
+    });
+}
+
+void Editor::on_export_projection(const ActionConnection &conn)
+{
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("SVG");
+    filter_any->add_pattern("*.svg");
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    dialog->save(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->save_finish(result);
+            // open_file_view(file);
+            //  Notice that this is a std::string, not a Glib::ustring.
+            const auto path = path_from_string(append_suffix_if_required(file->get_path(), ".svg"));
+
+            auto sel = get_canvas().get_selection();
+            glm::dvec3 origin = get_canvas().get_center();
+            glm::dquat normal = get_canvas().get_cam_quat();
+            for (const auto &it : sel) {
+                if (it.type == SelectableRef::Type::ENTITY) {
+                    if (m_core.get_current_document().m_entities.count(it.item)
+                        && m_core.get_current_document().m_entities.at(it.item)->get_type()
+                                   == Entity::Type::WORKPLANE) {
+                        auto &wrkpl = m_core.get_current_document().get_entity<EntityWorkplane>(it.item);
+                        origin = wrkpl.m_origin;
+                        normal = wrkpl.m_normal;
+                        break;
+                    }
+                }
+            }
+            auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
+            if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group))
+                gr->get_solid_model()->export_projection(path, origin, normal);
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
@@ -934,11 +985,11 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::SAVE_AS] = m_core.has_documents();
     m_action_sensitivity[ActionID::CLOSE_DOCUMENT] = m_core.has_documents();
     m_action_sensitivity[ActionID::OPEN_DOCUMENT] = !m_core.has_documents();
-    m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = m_core.has_documents();
-    m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STL] = m_core.has_documents();
+
     m_action_sensitivity[ActionID::TOGGLE_SOLID_MODEL] = m_core.has_documents();
     m_action_sensitivity[ActionID::NEW_DOCUMENT] = !m_core.has_documents();
     m_action_sensitivity[ActionID::TOGGLE_WORKPLANE] = m_core.has_documents();
+    bool has_solid_model = false;
 
     for (const auto act : create_group_actions) {
         m_action_sensitivity[act] = m_core.has_documents();
@@ -949,6 +1000,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     }
     if (m_core.has_documents()) {
         auto &current_group = m_core.get_current_document().get_group(m_core.get_current_group());
+        has_solid_model = dynamic_cast<const IGroupSolidModel *>(&current_group);
         auto groups_sorted = m_core.get_current_document().get_groups_sorted();
         assert(groups_sorted.size());
         const bool is_first = groups_sorted.front() == &current_group;
@@ -985,6 +1037,10 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::SELECT_PATH] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
     }
+
+    m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = has_solid_model;
+    m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STL] = has_solid_model;
+    m_action_sensitivity[ActionID::EXPORT_PROJECTION] = has_solid_model;
 
 
     m_signal_action_sensitive.emit();
