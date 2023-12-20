@@ -106,6 +106,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::SELECT_PATH, {"Select path", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_SPECIFIC}},
         {ToolID::DRAW_REGULAR_POLYGON, {"Draw regular polygon", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_RECTANGLE, {"Draw rectangle", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::EXPORT_PATHS, {"Export paths", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -159,6 +160,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(ALIGN_AND_CENTER_VIEW_TO_WORKPLANE),
         ACTION_LUT_ITEM(VIEW_RESET_TILT),
         ACTION_LUT_ITEM(SELECT_PATH),
+        ACTION_LUT_ITEM(EXPORT_PATHS),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \

@@ -76,6 +76,7 @@ private:
     void on_workspace_browser_body_solid_model_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
 
     void on_export_solid_model(const ActionConnection &conn);
+    void on_export_paths(const ActionConnection &conn);
     void on_open_document(const ActionConnection &conn);
     void on_save_as(const ActionConnection &conn);
     void on_create_group_action(const ActionConnection &conn);

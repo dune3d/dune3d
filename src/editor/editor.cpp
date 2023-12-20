@@ -26,6 +26,7 @@
 #include "preferences/color_presets.hpp"
 #include "workspace_browser.hpp"
 #include "document/solid_model_util.hpp"
+#include "document/export_paths.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -546,6 +547,8 @@ void Editor::init_actions()
         }
     });
 
+    connect_action(ActionID::EXPORT_PATHS, sigc::mem_fun(*this, &Editor::on_export_paths));
+
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
 }
@@ -635,6 +638,46 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
                 else
                     gr->get_solid_model()->export_stl(path);
             }
+        }
+        catch (const Gtk::DialogError &err) {
+            // Can be thrown by dialog->open_finish(result).
+            std::cout << "No file selected. " << err.what() << std::endl;
+        }
+        catch (const Glib::Error &err) {
+            std::cout << "Unexpected exception. " << err.what() << std::endl;
+        }
+    });
+}
+
+void Editor::on_export_paths(const ActionConnection &conn)
+{
+    auto dialog = Gtk::FileDialog::create();
+
+    // Add filters, so that only certain file types can be selected:
+    auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("SVG");
+    filter_any->add_pattern("*.svg");
+    filters->append(filter_any);
+
+    dialog->set_filters(filters);
+
+    // Show the dialog and wait for a user response:
+    dialog->save(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+        try {
+            auto file = dialog->save_finish(result);
+            // open_file_view(file);
+            //  Notice that this is a std::string, not a Glib::ustring.
+            const auto path = path_from_string(append_suffix_if_required(file->get_path(), ".svg"));
+
+            auto group_filter = [this](const Group &group) {
+                auto &body_group = group.find_body(m_core.get_current_document()).group;
+                auto group_visible = m_document_view.group_is_visible(group.m_uuid);
+                auto body_visible = m_document_view.body_is_visible(body_group.m_uuid);
+                return body_visible && group_visible;
+            };
+            export_paths(path, m_core.get_current_document(), m_core.get_current_group(), group_filter);
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
@@ -929,6 +972,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
         m_action_sensitivity[ActionID::SELECT_PATH] =
                 entity_from_selection(m_core.get_current_document(), sel).has_value();
+        m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
@@ -939,6 +983,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_WORKPLANE] = false;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE] = false;
         m_action_sensitivity[ActionID::SELECT_PATH] = false;
+        m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
     }
 
 

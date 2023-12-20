@@ -95,6 +95,7 @@ src = files(
   'src/document/group/group_linear_array.cpp',
   'src/document/group/group_polar_array.cpp',
   'src/document/group/group_array.cpp',
+  'src/document/export_paths.cpp',
   'src/system/system.cpp',
   'src/logger/logger.cpp',
   'src/logger/log_dispatcher.cpp',
