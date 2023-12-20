@@ -22,5 +22,6 @@ public:
     virtual void visit(const ConstraintLinePointsPerpendicular &constraint) = 0;
     virtual void visit(const ConstraintLinesPerpendicular &constraint) = 0;
     virtual void visit(const ConstraintLinesAngle &constraint) = 0;
+    virtual void visit(const ConstraintPointInPlane &constraint) = 0;
 };
 } // namespace dune3d

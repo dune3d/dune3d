@@ -5,3 +5,4 @@ versions:
     3: add Point2D entity
     4: add polar array group
     5: save entity names
+    6: add point in plane constraint

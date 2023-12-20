@@ -17,3 +17,4 @@
 #include "constraint_arc_line_tangent.hpp"
 #include "constraint_line_points_perpendicular.hpp"
 #include "constraint_angle.hpp"
+#include "constraint_point_in_plane.hpp"

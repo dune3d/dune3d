@@ -18,6 +18,7 @@
 #include "tools/tool_constrain_midpoint.hpp"
 #include "tools/tool_constrain_equal_length.hpp"
 #include "tools/tool_constrain_equal_radius.hpp"
+#include "tools/tool_constrain_point_in_plane.hpp"
 #include "tools/tool_add_anchor.hpp"
 #include "tools/tool_toggle_construction.hpp"
 #include "tools/tool_import_step.hpp"
@@ -127,6 +128,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::DRAW_RECTANGLE:
         return std::make_unique<ToolDrawRectangle>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_POINT_IN_PLANE:
+        return std::make_unique<ToolConstrainPointInPlane>(tool_id, *this, m_intf, flags);
 
     default:
         throw std::runtime_error("unknown tool");

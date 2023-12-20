@@ -82,6 +82,7 @@ private:
     void visit(const ConstraintLinePointsPerpendicular &constraint) override;
     void visit(const ConstraintLinesPerpendicular &constr) override;
     void visit(const ConstraintLinesAngle &constr) override;
+    void visit(const ConstraintPointInPlane &constr) override;
     void add(const GroupExtrude &group);
     void add(const GroupLinearArray &group);
     void add(const GroupPolarArray &group);

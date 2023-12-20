@@ -20,4 +20,5 @@ class ConstraintArcLineTangent;
 class ConstraintLinePointsPerpendicular;
 class ConstraintLinesPerpendicular;
 class ConstraintLinesAngle;
+class ConstraintPointInPlane;
 } // namespace dune3d
