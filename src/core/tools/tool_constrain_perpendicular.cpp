@@ -76,10 +76,17 @@ static std::optional<std::pair<UUID, UUID>> two_lines_from_selection(const Docum
     if (sr2.type != SelectableRef::Type::ENTITY)
         return {};
 
+    if (sr1.item == sr2.item)
+        return {};
+    if (sr1.point != 0)
+        return {};
+    if (sr2.point != 0)
+        return {};
+
     auto &en1 = doc.get_entity(sr1.item);
     auto &en2 = doc.get_entity(sr2.item);
-    if ((en1.get_type() == Entity::Type::LINE_2D || en1.get_type() == Entity::Type::LINE_3D)
-        || (en2.get_type() == Entity::Type::LINE_2D && en2.get_type() == Entity::Type::LINE_3D))
+    if (en1.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D)
+        && en2.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D))
         return {{en1.m_uuid, en2.m_uuid}};
 
     return {};

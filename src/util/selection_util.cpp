@@ -70,8 +70,8 @@ std::optional<LineAndPoint> line_and_point_from_selection(const Document &doc, c
     if (sel.size() != 2)
         return {};
     auto it = sel.begin();
-    auto &sr1 = *it++;
-    auto &sr2 = *it;
+    auto sr1 = *it++;
+    auto sr2 = *it;
 
     if (sr1.type != SelectableRef::Type::ENTITY)
         return {};
@@ -81,17 +81,21 @@ std::optional<LineAndPoint> line_and_point_from_selection(const Document &doc, c
     if ((allow_same_entity == LineAndPoint::AllowSameEntity::NO) && (sr1.item == sr2.item))
         return {};
 
-    if ((!!sr1.point) == (!!sr2.point))
+    // for an sr to be a line, it must be of LINE2D/3D and point==0
+    if (doc.is_valid_point(sr2.get_entity_and_point()))
+        std::swap(sr1, sr2);
+
+    auto &sr_point = sr1;
+    auto &sr_line = sr2;
+
+    if (!doc.is_valid_point(sr_point.get_entity_and_point()))
         return {};
 
-    auto &sr_line = sr1.point == 0 ? sr1 : sr2;
-    auto &sr_point = sr1.point == 0 ? sr2 : sr1;
-
-    assert(sr_line.point == 0);
-    assert(sr_point.point != 0);
+    if (sr_line.point != 0)
+        return {};
 
     auto &en_line = doc.get_entity(sr_line.item);
-    if (en_line.get_type() != Entity::Type::LINE_2D && en_line.get_type() != Entity::Type::LINE_3D)
+    if (!en_line.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D))
         return {};
 
     return {{sr_line.item, sr_point.item, sr_point.point}};
