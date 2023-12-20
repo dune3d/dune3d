@@ -120,7 +120,18 @@ bool ToolDrawContour::is_valid_tangent_point(const EntityAndPoint &enp)
     const auto &en = get_doc().get_entity(enp.entity);
     if (!en.is_valid_point(enp.point))
         return false;
-    return dynamic_cast<const IEntityTangent *>(&en);
+    if (!dynamic_cast<const IEntityTangent *>(&en))
+        return false;
+    // if the point already has a coincident constraint, it's not possible to tell
+    // which one got selected, so the tanget would be arbitrary
+    // so no tangent for us then
+    for (auto constraint : en.get_constraints(get_doc())) {
+        if (auto cc = dynamic_cast<const ConstraintPointsCoincident *>(constraint)) {
+            if (cc->m_entity1 == enp || cc->m_entity2 == enp)
+                return false;
+        }
+    }
+    return true;
 }
 
 ToolResponse ToolDrawContour::update(const ToolArgs &args)
