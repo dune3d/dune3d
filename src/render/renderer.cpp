@@ -421,6 +421,23 @@ void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, co
     }
 }
 
+void Renderer::visit(const ConstraintPointLineDistance &constr)
+{
+    m_ca.set_vertex_constraint(true);
+
+    const auto pp = m_doc->get_point(constr.m_point);
+    const auto pproj = constr.get_projected(*m_doc);
+    auto p = constr.get_origin(*m_doc) + constr.m_offset;
+    if (constr.m_wrkpl) {
+        auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constr.m_wrkpl);
+        p = wrkpl.project3(p);
+    }
+
+    draw_distance_line(pproj, pp, p, std::abs(constr.m_distance), constr.m_uuid);
+
+    m_ca.set_vertex_constraint(false);
+}
+
 void Renderer::visit(const ConstraintDiameterRadius &constr)
 {
     m_ca.set_vertex_constraint(true);

@@ -4,6 +4,7 @@
 #include "document/entity/entity_line2d.hpp"
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_point_distance_hv.hpp"
+#include "document/constraint/constraint_point_line_distance.hpp"
 #include "util/selection_util.hpp"
 #include "util/template_util.hpp"
 #include "core/tool_id.hpp"
@@ -17,64 +18,88 @@ bool ToolConstrainDistance::can_begin()
         && !get_workplane_uuid())
         return false;
 
+    auto lp = line_and_point_from_selection(get_doc(), m_selection, LineAndPoint::AllowSameEntity::NO);
     auto tp = two_points_from_selection(get_doc(), m_selection);
-    if (!tp)
+    if (!tp && !lp)
         return false;
-    if (tp->entity1 == tp->entity2) {
-        // single entity
-        auto &en = get_entity(tp->entity1);
-        const auto constraint_types = en.get_constraint_types(get_doc());
-        switch (m_tool_id) {
-        case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
-            if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::VERTICAL))
-                return false;
-            break;
+    if (tp) {
+        if (tp->entity1 == tp->entity2) {
+            // single entity
+            auto &en = get_entity(tp->entity1);
+            const auto constraint_types = en.get_constraint_types(get_doc());
+            switch (m_tool_id) {
+            case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
+                if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE_HORIZONTAL,
+                                 Constraint::Type::VERTICAL))
+                    return false;
+                break;
 
-        case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
-            if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE_VERTICAL, Constraint::Type::HORIZONTAL))
-                return false;
-            break;
+            case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
+                if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE_VERTICAL,
+                                 Constraint::Type::HORIZONTAL))
+                    return false;
+                break;
 
-        case ToolID::CONSTRAIN_DISTANCE:
-            if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE, Constraint::Type::HORIZONTAL,
-                             Constraint::Type::VERTICAL))
+            case ToolID::CONSTRAIN_DISTANCE:
+                if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE, Constraint::Type::HORIZONTAL,
+                                 Constraint::Type::VERTICAL))
+                    return false;
+                break;
+            default:
                 return false;
-            break;
-        default:
-            return false;
+            }
         }
+        return true;
     }
-
-    return true;
+    else if (lp && m_tool_id == ToolID::CONSTRAIN_DISTANCE) {
+        for (auto constraint : get_entity(lp->line).get_constraints(get_doc())) {
+            if (auto dc = dynamic_cast<const ConstraintPointLineDistance *>(constraint)) {
+                if (dc->m_line == lp->line && dc->m_point == EntityAndPoint{lp->point, lp->point_point})
+                    return false;
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
 {
     auto tp = two_points_from_selection(get_doc(), m_selection);
-    if (!tp.has_value())
+    auto lp = line_and_point_from_selection(get_doc(), m_selection, LineAndPoint::AllowSameEntity::NO);
+    if (!tp && !lp)
         return ToolResponse::end();
 
-    ConstraintPointDistanceBase *constraint = nullptr;
-    switch (m_tool_id) {
-    case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
-        constraint = &add_constraint<ConstraintPointDistanceHorizontal>();
-        break;
+    if (tp) {
+        ConstraintPointDistanceBase *constraint = nullptr;
+        switch (m_tool_id) {
+        case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
+            constraint = &add_constraint<ConstraintPointDistanceHorizontal>();
+            break;
 
-    case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
-        constraint = &add_constraint<ConstraintPointDistanceVertical>();
-        break;
+        case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
+            constraint = &add_constraint<ConstraintPointDistanceVertical>();
+            break;
 
-    default:
-        constraint = &add_constraint<ConstraintPointDistance>();
+        default:
+            constraint = &add_constraint<ConstraintPointDistance>();
+        }
+
+        constraint->m_entity1 = {tp->entity1, tp->point1};
+        constraint->m_entity2 = {tp->entity2, tp->point2};
+        constraint->m_wrkpl = get_workplane_uuid();
+        auto dist = constraint->measure_distance(get_doc());
+        if (dist < 0)
+            constraint->flip();
+        constraint->m_distance = std::abs(dist);
     }
-
-    constraint->m_entity1 = {tp->entity1, tp->point1};
-    constraint->m_entity2 = {tp->entity2, tp->point2};
-    constraint->m_wrkpl = get_workplane_uuid();
-    auto dist = constraint->measure_distance(get_doc());
-    if (dist < 0)
-        constraint->flip();
-    constraint->m_distance = std::abs(dist);
+    else if (lp) {
+        auto &constraint = add_constraint<ConstraintPointLineDistance>();
+        constraint.m_line = lp->line;
+        constraint.m_point = {lp->point, lp->point_point};
+        constraint.m_wrkpl = get_workplane_uuid();
+        constraint.m_modify_to_satisfy = true;
+    }
 
     reset_selection_after_constrain();
     return ToolResponse::commit();

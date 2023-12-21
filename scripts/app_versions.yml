@@ -6,3 +6,4 @@ versions:
     4: add polar array group
     5: save entity names
     6: add point in plane constraint
+    7: add point/line distance constraint

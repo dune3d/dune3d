@@ -35,6 +35,7 @@ enum class ConstraintType {
     LINES_PERPENDICULAR,
     LINES_ANGLE,
     POINT_IN_PLANE,
+    POINT_LINE_DISTANCE,
 };
 
 class Constraint {

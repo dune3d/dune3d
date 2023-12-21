@@ -1037,6 +1037,12 @@ void System::update_document()
                 c->m_modify_to_satisfy = false;
             }
         }
+        else if (auto c = m_doc.get_constraint_ptr<ConstraintPointLineDistance>(uu)) {
+            if (c->m_modify_to_satisfy) {
+                c->m_distance = SK.constraint.FindById(hConstraint{idx})->valA;
+                c->m_modify_to_satisfy = false;
+            }
+        }
     }
     for (auto &[uu, group] : m_doc.get_groups()) {
         if (auto gp = dynamic_cast<GroupPolarArray *>(group.get()); gp && gp->m_active_wrkpl) {
@@ -1322,6 +1328,32 @@ void System::visit(const ConstraintPointDistanceHV &constraint)
         AddEq(hConstraint{c}, &m_sys->eq, v2->Minus(v1)->Minus(Expr::From(constraint.m_distance)), 0);
     }
 }
+
+void System::visit(const ConstraintPointLineDistance &constraint)
+{
+    const auto group = get_group_index(constraint);
+    const auto c = n_constraint++;
+
+    m_constraint_refs.emplace(c, constraint.m_uuid);
+
+    ConstraintBase cb = {};
+    cb.type = ConstraintBase::Type::PT_LINE_DISTANCE;
+    cb.h.v = c;
+    cb.group.v = group;
+    cb.valA = constraint.m_distance;
+    if (constraint.m_wrkpl)
+        cb.workplane.v = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
+    else
+        cb.workplane.v = 0;
+    cb.ptA.v = m_entity_refs_r.at(constraint.m_point);
+    cb.entityA.v = m_entity_refs_r.at({constraint.m_line, 0});
+
+    if (constraint.m_modify_to_satisfy)
+        cb.ModifyToSatisfy();
+
+    SK.constraint.Add(&cb);
+}
+
 
 System::EntityRef System::get_entity_ref_for_parallel(const UUID &uu) const
 {

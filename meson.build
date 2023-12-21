@@ -77,6 +77,7 @@ src = files(
   'src/document/constraint/constraint_line_points_perpendicular.cpp',
   'src/document/constraint/constraint_angle.cpp',
   'src/document/constraint/constraint_point_in_plane.cpp',
+  'src/document/constraint/constraint_point_line_distance.cpp',
   'src/document/solid_model.cpp',
   'src/document/solid_model_occ.cpp',
   'src/document/solid_model_array.cpp',

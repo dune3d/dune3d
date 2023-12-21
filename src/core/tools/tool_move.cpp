@@ -13,6 +13,7 @@
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_diameter_radius.hpp"
 #include "document/constraint/constraint_angle.hpp"
+#include "document/constraint/constraint_point_line_distance.hpp"
 #include "editor/editor_interface.hpp"
 #include "tool_common_impl.hpp"
 
@@ -240,6 +241,20 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                     auto &co_last = dynamic_cast<const ConstraintDiameterRadius &>(*last_doc.m_constraints.at(sr.item));
                     const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));
                     co->m_offset = co_last.m_offset + delta2d - odelta;
+                }
+                if (auto co = dynamic_cast<ConstraintPointLineDistance *>(constraint)) {
+                    auto cdelta = delta;
+                    if (co->m_wrkpl) {
+                        auto &wrkpl = doc.get_entity<EntityWorkplane>(co->m_wrkpl);
+                        const auto delta2d = wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin,
+                                                                                           wrkpl.get_normal_vector()))
+                                             - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                        cdelta = wrkpl.transform_relative(delta2d);
+                    }
+                    auto &co_last =
+                            dynamic_cast<const ConstraintPointLineDistance &>(*last_doc.m_constraints.at(sr.item));
+                    const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));
+                    co->m_offset = co_last.m_offset + cdelta - odelta;
                 }
             }
         }
