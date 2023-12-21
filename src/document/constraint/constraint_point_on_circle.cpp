@@ -27,9 +27,9 @@ std::unique_ptr<Constraint> ConstraintPointOnCircle::clone() const
     return std::make_unique<ConstraintPointOnCircle>(*this);
 }
 
-std::set<UUID> ConstraintPointOnCircle::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintPointOnCircle::get_referenced_entities_and_points() const
 {
-    return {m_point.entity, m_circle};
+    return {m_point, {m_circle, 0}};
 }
 
 void ConstraintPointOnCircle::accept(ConstraintVisitor &visitor) const

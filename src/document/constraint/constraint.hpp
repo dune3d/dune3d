@@ -3,6 +3,7 @@
 #include "nlohmann/json_fwd.hpp"
 #include "document/item_kind.hpp"
 #include "constraint_visitor.hpp"
+#include "document/entity/entity_and_point.hpp"
 #include <memory>
 #include <set>
 
@@ -58,7 +59,8 @@ public:
 
     UUID m_group;
 
-    virtual std::set<UUID> get_referenced_entities() const = 0;
+    std::set<UUID> get_referenced_entities() const;
+    virtual std::set<EntityAndPoint> get_referenced_entities_and_points() const = 0;
 
     bool m_modify_to_satisfy = false;
 

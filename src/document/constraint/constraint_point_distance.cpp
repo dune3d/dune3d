@@ -58,11 +58,11 @@ double ConstraintPointDistance::measure_distance(const Document &doc) const
     return glm::length(get_distance_vector(doc));
 }
 
-std::set<UUID> ConstraintPointDistanceBase::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintPointDistanceBase::get_referenced_entities_and_points() const
 {
-    std::set<UUID> r = {m_entity1.entity, m_entity2.entity};
+    std::set<EntityAndPoint> r = {m_entity1, m_entity2};
     if (m_wrkpl)
-        r.insert(m_wrkpl);
+        r.emplace(m_wrkpl, 0);
     return r;
 }
 

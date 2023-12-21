@@ -26,9 +26,9 @@ std::unique_ptr<Constraint> ConstraintArcLineTangent::clone() const
     return std::make_unique<ConstraintArcLineTangent>(*this);
 }
 
-std::set<UUID> ConstraintArcLineTangent::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintArcLineTangent::get_referenced_entities_and_points() const
 {
-    return {m_arc.entity, m_line};
+    return {m_arc, {m_line, 0}};
 }
 
 void ConstraintArcLineTangent::accept(ConstraintVisitor &visitor) const

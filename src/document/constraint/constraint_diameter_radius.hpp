@@ -22,7 +22,7 @@ public:
     virtual double get_diameter() const = 0;
     virtual void measure(const Document &doc) = 0;
 
-    std::set<UUID> get_referenced_entities() const override;
+    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 
     double get_datum() const override
     {

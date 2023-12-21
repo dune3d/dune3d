@@ -29,9 +29,9 @@ std::unique_ptr<Constraint> ConstraintLinePointsPerpendicular::clone() const
     return std::make_unique<ConstraintLinePointsPerpendicular>(*this);
 }
 
-std::set<UUID> ConstraintLinePointsPerpendicular::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintLinePointsPerpendicular::get_referenced_entities_and_points() const
 {
-    return {m_line, m_point_line.entity, m_point.entity};
+    return {{m_line, 0}, m_point_line, m_point};
 }
 
 void ConstraintLinePointsPerpendicular::accept(ConstraintVisitor &visitor) const

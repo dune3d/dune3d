@@ -21,7 +21,7 @@ public:
     EntityAndPoint m_arc;
     UUID m_line;
 
-    std::set<UUID> get_referenced_entities() const override;
+    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 
     void accept(ConstraintVisitor &visitor) const override;
 };

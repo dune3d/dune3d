@@ -30,9 +30,9 @@ std::unique_ptr<Constraint> ConstraintPointOnLine::clone() const
     return std::make_unique<ConstraintPointOnLine>(*this);
 }
 
-std::set<UUID> ConstraintPointOnLine::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintPointOnLine::get_referenced_entities_and_points() const
 {
-    return {m_point.entity, m_line};
+    return {m_point, {m_line, 0}};
 }
 
 void ConstraintPointOnLine::accept(ConstraintVisitor &visitor) const

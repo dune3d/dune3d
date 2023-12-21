@@ -25,10 +25,10 @@ std::unique_ptr<Constraint> ConstraintPointDistanceVertical::clone() const
     return std::make_unique<ConstraintPointDistanceVertical>(*this);
 }
 
-std::set<UUID> ConstraintPointDistanceHV::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintPointDistanceHV::get_referenced_entities_and_points() const
 {
-    std::set<UUID> r = ConstraintPointDistanceBase::get_referenced_entities();
-    r.insert(m_wrkpl);
+    std::set<EntityAndPoint> r = ConstraintPointDistanceBase::get_referenced_entities_and_points();
+    r.emplace(m_wrkpl, 0);
     return r;
 }
 

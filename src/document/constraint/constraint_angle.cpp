@@ -26,9 +26,9 @@ json ConstraintAngleBase::serialize() const
     return j;
 }
 
-std::set<UUID> ConstraintAngleBase::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintAngleBase::get_referenced_entities_and_points() const
 {
-    return {m_entity1, m_entity2};
+    return {{m_entity1, 0}, {m_entity2, 0}};
 }
 
 void ConstraintLinesAngle::accept(ConstraintVisitor &visitor) const

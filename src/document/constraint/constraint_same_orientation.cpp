@@ -29,9 +29,9 @@ std::unique_ptr<Constraint> ConstraintSameOrientation::clone() const
     return std::make_unique<ConstraintSameOrientation>(*this);
 }
 
-std::set<UUID> ConstraintSameOrientation::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintSameOrientation::get_referenced_entities_and_points() const
 {
-    return {m_entity1, m_entity2};
+    return {{m_entity1, 0}, {m_entity2, 0}};
 }
 
 void ConstraintSameOrientation::accept(ConstraintVisitor &visitor) const

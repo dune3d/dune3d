@@ -33,9 +33,9 @@ std::unique_ptr<Constraint> ConstraintVertical::clone() const
     return std::make_unique<ConstraintVertical>(*this);
 }
 
-std::set<UUID> ConstraintHV::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintHV::get_referenced_entities_and_points() const
 {
-    return {m_entity1.entity, m_entity2.entity, m_wrkpl};
+    return {m_entity1, m_entity2, {m_wrkpl, 0}};
 }
 
 void ConstraintHV::accept(ConstraintVisitor &visitor) const

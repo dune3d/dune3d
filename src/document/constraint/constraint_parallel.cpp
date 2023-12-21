@@ -30,9 +30,9 @@ std::unique_ptr<Constraint> ConstraintParallel::clone() const
     return std::make_unique<ConstraintParallel>(*this);
 }
 
-std::set<UUID> ConstraintParallel::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintParallel::get_referenced_entities_and_points() const
 {
-    return {m_entity1, m_entity2};
+    return {{m_entity1, 0}, {m_entity2, 0}};
 }
 
 void ConstraintParallel::accept(ConstraintVisitor &visitor) const

@@ -38,9 +38,9 @@ std::unique_ptr<Constraint> ConstraintRadius::clone() const
     return std::make_unique<ConstraintRadius>(*this);
 }
 
-std::set<UUID> ConstraintDiameterRadius::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintDiameterRadius::get_referenced_entities_and_points() const
 {
-    return {m_entity};
+    return {{m_entity, 0}};
 }
 
 void ConstraintRadius::measure(const Document &doc)

@@ -29,11 +29,11 @@ std::unique_ptr<Constraint> ConstraintEqualLength::clone() const
     return std::make_unique<ConstraintEqualLength>(*this);
 }
 
-std::set<UUID> ConstraintEqualLength::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintEqualLength::get_referenced_entities_and_points() const
 {
-    std::set<UUID> r = {m_entity1, m_entity2};
+    std::set<EntityAndPoint> r = {{m_entity1, 0}, {m_entity2, 0}};
     if (m_wrkpl)
-        r.insert(m_wrkpl);
+        r.emplace(m_wrkpl, 0);
     return r;
 }
 

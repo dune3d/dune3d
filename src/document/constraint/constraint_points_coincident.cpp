@@ -32,9 +32,9 @@ std::unique_ptr<Constraint> ConstraintPointsCoincident::clone() const
     return std::make_unique<ConstraintPointsCoincident>(*this);
 }
 
-std::set<UUID> ConstraintPointsCoincident::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintPointsCoincident::get_referenced_entities_and_points() const
 {
-    return {m_entity1.entity, m_entity2.entity};
+    return {m_entity1, m_entity2};
 }
 
 void ConstraintPointsCoincident::accept(ConstraintVisitor &visitor) const

@@ -18,7 +18,7 @@ public:
     UUID m_entity2;
     UUID m_wrkpl;
 
-    std::set<UUID> get_referenced_entities() const override;
+    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 };
 
 class ConstraintLinesPerpendicular : public ConstraintAngleBase {

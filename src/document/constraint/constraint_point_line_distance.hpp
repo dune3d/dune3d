@@ -31,7 +31,7 @@ public:
 
     std::unique_ptr<Constraint> clone() const override;
 
-    std::set<UUID> get_referenced_entities() const override;
+    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 
     std::string get_datum_name() const override
     {

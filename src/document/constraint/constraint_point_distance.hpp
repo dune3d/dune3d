@@ -23,7 +23,7 @@ public:
 
     virtual double measure_distance(const Document &doc) const = 0;
 
-    std::set<UUID> get_referenced_entities() const override;
+    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 
     double get_datum() const override
     {

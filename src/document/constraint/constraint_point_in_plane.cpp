@@ -28,9 +28,9 @@ std::unique_ptr<Constraint> ConstraintPointInPlane::clone() const
     return std::make_unique<ConstraintPointInPlane>(*this);
 }
 
-std::set<UUID> ConstraintPointInPlane::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintPointInPlane::get_referenced_entities_and_points() const
 {
-    return {m_point.entity, m_line1, m_line2};
+    return {m_point, {m_line1, 0}, {m_line2, 0}};
 }
 
 void ConstraintPointInPlane::accept(ConstraintVisitor &visitor) const

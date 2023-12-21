@@ -26,9 +26,9 @@ std::unique_ptr<Constraint> ConstraintEqualRadius::clone() const
     return std::make_unique<ConstraintEqualRadius>(*this);
 }
 
-std::set<UUID> ConstraintEqualRadius::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintEqualRadius::get_referenced_entities_and_points() const
 {
-    return {m_entity1, m_entity2};
+    return {{m_entity1, 0}, {m_entity2, 0}};
 }
 
 void ConstraintEqualRadius::accept(ConstraintVisitor &visitor) const

@@ -55,11 +55,11 @@ std::unique_ptr<Constraint> ConstraintPointLineDistance::clone() const
     return std::make_unique<ConstraintPointLineDistance>(*this);
 }
 
-std::set<UUID> ConstraintPointLineDistance::get_referenced_entities() const
+std::set<EntityAndPoint> ConstraintPointLineDistance::get_referenced_entities_and_points() const
 {
-    std::set<UUID> r = {m_point.entity, m_line};
+    std::set<EntityAndPoint> r = {m_point, {m_line, 0}};
     if (m_wrkpl)
-        r.insert(m_wrkpl);
+        r.emplace(m_wrkpl, 0);
     return r;
 }
 

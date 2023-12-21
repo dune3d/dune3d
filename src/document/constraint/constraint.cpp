@@ -174,5 +174,14 @@ bool Constraint::is_valid(const Document &doc) const
     return true;
 }
 
+std::set<UUID> Constraint::get_referenced_entities() const
+{
+    std::set<UUID> r;
+    for (const auto &enp : get_referenced_entities_and_points()) {
+        r.insert(enp.entity);
+    }
+    return r;
+}
+
 Constraint::~Constraint() = default;
 } // namespace dune3d
