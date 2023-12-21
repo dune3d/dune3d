@@ -280,11 +280,12 @@ void Editor::open_context_menu()
     }
     if (m_core.has_documents()) {
         auto &doc = m_core.get_current_document();
-        if (auto en_uu = entity_from_selection(doc, m_context_menu_selection)) {
-            auto &en = doc.get_entity(*en_uu);
+        if (auto enp = entity_and_point_from_selection(doc, m_context_menu_selection)) {
+            auto &en = doc.get_entity(enp->entity);
             std::vector<const Constraint *> constraints;
             for (auto constraint : en.get_constraints(doc)) {
-                constraints.push_back(constraint);
+                if (enp->point == 0 || constraint->get_referenced_entities_and_points().contains(*enp))
+                    constraints.push_back(constraint);
             }
             std::ranges::sort(constraints, [](auto a, auto b) { return a->get_type() < b->get_type(); });
 
