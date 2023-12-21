@@ -47,6 +47,12 @@ public:
     static std::string get_type_name(Type type);
     std::string get_type_name() const;
 
+    template <typename... Args> bool of_type(Args &&...args) const
+    {
+        const auto type = get_type();
+        return ((type == args) || ...);
+    }
+
     virtual ~Constraint();
     virtual json serialize() const;
 

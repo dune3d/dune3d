@@ -23,26 +23,22 @@ bool ToolConstrainDistance::can_begin()
     if (!tp && !lp)
         return false;
     if (tp) {
-        if (tp->point1.entity == tp->point2.entity) {
-            // single entity
-            auto &en = get_entity(tp->point1.entity);
-            const auto constraint_types = en.get_constraint_types(get_doc());
+        auto constraints = get_doc().find_constraints(tp->get_enps());
+        for (auto constraint : constraints) {
             switch (m_tool_id) {
             case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
-                if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE_HORIZONTAL,
-                                 Constraint::Type::VERTICAL))
+                if (constraint->of_type(Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::VERTICAL))
                     return false;
                 break;
 
             case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
-                if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE_VERTICAL,
-                                 Constraint::Type::HORIZONTAL))
+                if (constraint->of_type(Constraint::Type::POINT_DISTANCE_VERTICAL, Constraint::Type::HORIZONTAL))
                     return false;
                 break;
 
             case ToolID::CONSTRAIN_DISTANCE:
-                if (set_contains(constraint_types, Constraint::Type::POINT_DISTANCE, Constraint::Type::HORIZONTAL,
-                                 Constraint::Type::VERTICAL))
+                if (constraint->of_type(Constraint::Type::POINT_DISTANCE, Constraint::Type::HORIZONTAL,
+                                        Constraint::Type::VERTICAL))
                     return false;
                 break;
             default:
@@ -52,12 +48,13 @@ bool ToolConstrainDistance::can_begin()
         return true;
     }
     else if (lp && m_tool_id == ToolID::CONSTRAIN_DISTANCE) {
-        for (auto constraint : get_entity(lp->line).get_constraints(get_doc())) {
-            if (auto dc = dynamic_cast<const ConstraintPointLineDistance *>(constraint)) {
-                if (dc->m_line == lp->line && dc->m_point == lp->point)
-                    return false;
-            }
+        auto constraints = get_doc().find_constraints(lp->get_enps());
+        for (auto constraint : constraints) {
+            if (constraint->of_type(Constraint::Type::POINT_LINE_DISTANCE, Constraint::Type::POINT_ON_LINE,
+                                    Constraint::Type::MIDPOINT))
+                return false;
         }
+
         return true;
     }
     return false;

@@ -20,6 +20,12 @@ bool ToolConstrainCoincident::is_point_on_point()
     if (tp->point1.entity == tp->point2.entity) {
         return get_entity<Entity>(tp->point1.entity).get_type() == Entity::Type::ARC_2D;
     }
+    auto constraints = get_doc().find_constraints(tp->get_enps());
+    for (auto constraint : constraints) {
+        if (constraint->of_type(Constraint::Type::POINT_DISTANCE, Constraint::Type::POINTS_COINCIDENT,
+                                Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::POINT_DISTANCE_VERTICAL))
+            return false;
+    }
     return tp->point1.entity != tp->point2.entity;
 }
 
@@ -28,6 +34,12 @@ bool ToolConstrainCoincident::is_point_on_line()
     auto tp = line_and_point_from_selection(get_doc(), m_selection);
     if (!tp.has_value())
         return false;
+    auto constraints = get_doc().find_constraints(tp->get_enps());
+    for (auto constraint : constraints) {
+        if (constraint->of_type(Constraint::Type::POINT_ON_LINE, Constraint::Type::MIDPOINT,
+                                Constraint::Type::POINT_LINE_DISTANCE))
+            return false;
+    }
     return true;
 }
 
@@ -36,6 +48,11 @@ bool ToolConstrainCoincident::is_point_on_circle()
     auto tp = circle_and_point_from_selection(get_doc(), m_selection);
     if (!tp.has_value())
         return false;
+    auto constraints = get_doc().find_constraints(tp->get_enps());
+    for (auto constraint : constraints) {
+        if (constraint->of_type(Constraint::Type::POINT_ON_CIRCLE))
+            return false;
+    }
     return true;
 }
 

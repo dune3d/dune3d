@@ -20,12 +20,19 @@ bool ToolConstrainHV::can_begin()
     auto tp = two_points_from_selection(get_doc(), m_selection);
     if (!tp)
         return false;
-    if (tp->point1.entity == tp->point2.entity) {
-        // single entity
-        auto &en = get_entity(tp->point1.entity);
-        const auto constraint_types = en.get_constraint_types(get_doc());
-        if (set_contains(constraint_types, Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL))
-            return false;
+
+    auto constraints = get_doc().find_constraints(tp->get_enps());
+    for (auto constraint : constraints) {
+        if (m_tool_id == ToolID::CONSTRAIN_HORIZONTAL) {
+            if (constraint->of_type(Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
+                                    Constraint::Type::POINT_DISTANCE_VERTICAL))
+                return false;
+        }
+        else {
+            if (constraint->of_type(Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
+                                    Constraint::Type::POINT_DISTANCE_HORIZONTAL))
+                return false;
+        }
     }
 
     return true;

@@ -6,6 +6,16 @@
 
 namespace dune3d {
 
+std::set<EntityAndPoint> TwoPoints::get_enps() const
+{
+    return {point1, point2};
+}
+
+std::set<EntityAndPoint> LineAndPoint::get_enps() const
+{
+    return {{line, 0}, point};
+}
+
 std::optional<TwoPoints> two_points_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
 {
     if (sel.size() == 1) {
@@ -132,7 +142,7 @@ std::optional<LineAndPoint> circle_and_point_from_selection(const Document &doc,
     return {{sr_line.item, sr_point.get_entity_and_point()}};
 }
 
-std::optional<UUID> entity_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
 {
     if (sel.size() != 1)
         return {};
@@ -142,10 +152,16 @@ std::optional<UUID> entity_from_selection(const Document &doc, const std::set<Se
     if (sr1.type != SelectableRef::Type::ENTITY)
         return {};
 
-    if (sr1.point != 0)
-        return {};
+    return sr1.get_entity_and_point();
+}
 
-    return {sr1.item};
+std::optional<UUID> entity_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+{
+    if (auto enp = entity_and_point_from_selection(doc, sel)) {
+        if (enp->point == 0)
+            return enp->entity;
+    }
+    return {};
 }
 
 std::optional<UUID> entity_from_selection(const Document &doc, const std::set<SelectableRef> &sel, Entity::Type type)

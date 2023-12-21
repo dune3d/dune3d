@@ -10,7 +10,18 @@
 namespace dune3d {
 bool ToolConstrainMidpoint::can_begin()
 {
-    return line_and_point_from_selection(get_doc(), m_selection).has_value();
+    auto lp = line_and_point_from_selection(get_doc(), m_selection);
+    if (!lp)
+        return false;
+
+    auto constraints = get_doc().find_constraints(lp->get_enps());
+    for (auto constraint : constraints) {
+        if (constraint->of_type(Constraint::Type::POINT_LINE_DISTANCE, Constraint::Type::POINT_ON_LINE,
+                                Constraint::Type::MIDPOINT))
+            return false;
+    }
+
+    return true;
 }
 
 ToolResponse ToolConstrainMidpoint::begin(const ToolArgs &args)

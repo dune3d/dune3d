@@ -165,6 +165,8 @@ public:
     ItemsToDelete get_additional_items_to_delete(const ItemsToDelete &items) const;
     void delete_items(const ItemsToDelete &items);
 
+    std::set<const Constraint *> find_constraints(const std::set<EntityAndPoint> &enps) const;
+
     json serialize() const;
 
     ~Document();

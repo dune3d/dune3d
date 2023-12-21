@@ -13,6 +13,8 @@ class SelectableRef;
 struct TwoPoints {
     EntityAndPoint point1;
     EntityAndPoint point2;
+
+    std::set<EntityAndPoint> get_enps() const;
 };
 
 std::optional<TwoPoints> two_points_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
@@ -25,6 +27,8 @@ struct LineAndPoint {
     EntityAndPoint point;
 
     enum class AllowSameEntity { YES, NO };
+
+    std::set<EntityAndPoint> get_enps() const;
 };
 
 std::optional<LineAndPoint>
@@ -34,5 +38,6 @@ std::optional<LineAndPoint>
 circle_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                 LineAndPoint::AllowSameEntity allow_same_entity = LineAndPoint::AllowSameEntity::NO);
 std::optional<UUID> entity_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
+std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
 std::optional<UUID> entity_from_selection(const Document &doc, const std::set<SelectableRef> &sel, Entity::Type type);
 } // namespace dune3d

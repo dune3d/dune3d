@@ -548,6 +548,17 @@ UUID Document::get_group_after(const UUID &group_uu, MoveGroup dir) const
     return group_after;
 }
 
+std::set<const Constraint *> Document::find_constraints(const std::set<EntityAndPoint> &enps) const
+{
+    std::set<const Constraint *> r;
+    for (const auto &[uu, constr] : m_constraints) {
+        auto refs = constr->get_referenced_entities_and_points();
+        if (std::ranges::includes(refs, enps))
+            r.insert(constr.get());
+    }
+    return r;
+}
+
 Document::~Document() = default;
 
 } // namespace dune3d
