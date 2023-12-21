@@ -27,6 +27,7 @@
 #include "workspace_browser.hpp"
 #include "document/solid_model_util.hpp"
 #include "document/export_paths.hpp"
+#include "document/constraint/iconstraint_datum.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -1417,17 +1418,8 @@ std::optional<ActionToolID> Editor::get_doubleclick_action(const SelectableRef &
 {
     if (sr.type == SelectableRef::Type::CONSTRAINT) {
         auto &constraint = m_core.get_current_document().get_constraint(sr.item);
-        switch (constraint.get_type()) {
-        case Constraint::Type::DIAMETER:
-        case Constraint::Type::RADIUS:
-        case Constraint::Type::POINT_DISTANCE:
-        case Constraint::Type::POINT_DISTANCE_HORIZONTAL:
-        case Constraint::Type::POINT_DISTANCE_VERTICAL:
-        case Constraint::Type::LINES_ANGLE:
+        if (dynamic_cast<IConstraintDatum *>(&constraint))
             return ToolID::ENTER_DATUM;
-            break;
-        default:;
-        }
     }
     else if (sr.type == SelectableRef::Type::ENTITY) {
         auto &entity = m_core.get_current_document().get_entity(sr.item);
