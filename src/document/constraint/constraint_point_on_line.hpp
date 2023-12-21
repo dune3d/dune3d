@@ -1,12 +1,13 @@
 #pragma once
 #include "constraint.hpp"
+#include "iconstraint_workplane.hpp"
 #include "document/entity/entity_and_point.hpp"
 
 namespace dune3d {
 
 class Entity;
 
-class ConstraintPointOnLine : public Constraint {
+class ConstraintPointOnLine : public Constraint, public IConstraintWorkplane {
 public:
     explicit ConstraintPointOnLine(const UUID &uu);
     explicit ConstraintPointOnLine(const UUID &uu, const json &j);
@@ -21,6 +22,11 @@ public:
     EntityAndPoint m_point;
     UUID m_line;
     UUID m_wrkpl;
+
+    const UUID &get_workplane(const Document &doc) const override
+    {
+        return m_wrkpl;
+    }
 
     double m_val = 1;
 

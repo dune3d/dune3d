@@ -1,6 +1,8 @@
 #pragma once
 #include "constraint.hpp"
 #include "iconstraint_datum.hpp"
+#include "iconstraint_workplane.hpp"
+#include "iconstraint_movable.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -8,7 +10,10 @@ namespace dune3d {
 class Entity;
 class Document;
 
-class ConstraintDiameterRadius : public Constraint, public IConstraintDatum {
+class ConstraintDiameterRadius : public Constraint,
+                                 public IConstraintDatum,
+                                 public IConstraintWorkplane,
+                                 public IConstraintMovable {
 public:
     explicit ConstraintDiameterRadius(const UUID &uu);
     explicit ConstraintDiameterRadius(const UUID &uu, const json &j);
@@ -17,7 +22,17 @@ public:
     UUID m_entity;
     double m_distance = 1;
     glm::dvec2 m_offset = {1, 0};
-    glm::dvec2 get_origin(const Document &doc) const;
+    glm::dvec3 get_origin(const Document &doc) const override;
+
+    glm::dvec3 get_offset() const override
+    {
+        return glm::dvec3(m_offset, 0);
+    }
+
+    void set_offset(const glm::dvec3 &offset) override
+    {
+        m_offset = offset;
+    }
 
     virtual double get_diameter() const = 0;
     virtual void measure(const Document &doc) = 0;
@@ -44,10 +59,7 @@ public:
         return {0, 1e3};
     }
 
-    bool is_movable() const override
-    {
-        return true;
-    }
+    const UUID &get_workplane(const Document &doc) const override;
 
     void accept(ConstraintVisitor &visitor) const override;
 

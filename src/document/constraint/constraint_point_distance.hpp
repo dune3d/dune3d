@@ -2,11 +2,16 @@
 #include "constraint.hpp"
 #include "document/entity/entity_and_point.hpp"
 #include "iconstraint_datum.hpp"
+#include "iconstraint_workplane.hpp"
+#include "iconstraint_movable.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
 
-class ConstraintPointDistanceBase : public Constraint, public IConstraintDatum {
+class ConstraintPointDistanceBase : public Constraint,
+                                    public IConstraintDatum,
+                                    public IConstraintWorkplane,
+                                    public IConstraintMovable {
 public:
     explicit ConstraintPointDistanceBase(const UUID &uu);
     explicit ConstraintPointDistanceBase(const UUID &uu, const json &j);
@@ -19,7 +24,17 @@ public:
 
     double m_distance = 1;
     glm::dvec3 m_offset = {0, 0, 0};
-    glm::dvec3 get_origin(const Document &doc) const;
+    glm::dvec3 get_origin(const Document &doc) const override;
+
+    glm::dvec3 get_offset() const override
+    {
+        return m_offset;
+    }
+
+    void set_offset(const glm::dvec3 &offset) override
+    {
+        m_offset = offset;
+    }
 
     virtual double measure_distance(const Document &doc) const = 0;
 
@@ -40,9 +55,9 @@ public:
         return DatumUnit::MM;
     }
 
-    bool is_movable() const override
+    const UUID &get_workplane(const Document &doc) const override
     {
-        return true;
+        return m_wrkpl;
     }
 
     void flip();

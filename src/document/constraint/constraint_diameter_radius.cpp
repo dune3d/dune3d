@@ -4,6 +4,7 @@
 #include "document/entity/ientity_radius.hpp"
 #include "document/entity/entity.hpp"
 #include "document/entity/entity_workplane.hpp"
+#include "document/entity/ientity_in_workplane.hpp"
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
 #include "constraint_visitor.hpp"
@@ -64,11 +65,18 @@ void ConstraintDiameterRadius::accept(ConstraintVisitor &visitor) const
     visitor.visit(*this);
 }
 
-glm::dvec2 ConstraintDiameterRadius::get_origin(const Document &doc) const
+glm::dvec3 ConstraintDiameterRadius::get_origin(const Document &doc) const
 {
     auto &en = doc.get_entity(m_entity);
     auto &en_radius = dynamic_cast<const IEntityRadius &>(en);
-    return en_radius.get_center();
+    return glm::dvec3(en_radius.get_center(), 0);
 }
+
+const UUID &ConstraintDiameterRadius::get_workplane(const Document &doc) const
+{
+    auto &en = doc.get_entity(m_entity);
+    return dynamic_cast<const IEntityInWorkplane &>(en).get_workplane();
+}
+
 
 } // namespace dune3d

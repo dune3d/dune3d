@@ -1,13 +1,15 @@
 #pragma once
 #include "constraint.hpp"
 #include "iconstraint_datum.hpp"
+#include "iconstraint_workplane.hpp"
+#include "iconstraint_movable.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
 
 class Entity;
 
-class ConstraintAngleBase : public Constraint {
+class ConstraintAngleBase : public Constraint, public IConstraintWorkplane {
 public:
     explicit ConstraintAngleBase(const UUID &uu);
     explicit ConstraintAngleBase(const UUID &uu, const json &j);
@@ -17,6 +19,11 @@ public:
     UUID m_entity1;
     UUID m_entity2;
     UUID m_wrkpl;
+
+    const UUID &get_workplane(const Document &doc) const override
+    {
+        return m_wrkpl;
+    }
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 };
@@ -35,7 +42,7 @@ public:
     void accept(ConstraintVisitor &visitor) const override;
 };
 
-class ConstraintLinesAngle : public ConstraintAngleBase, public IConstraintDatum {
+class ConstraintLinesAngle : public ConstraintAngleBase, public IConstraintDatum, public IConstraintMovable {
 public:
     using ConstraintAngleBase::ConstraintAngleBase;
     explicit ConstraintLinesAngle(const UUID &uu, const json &j);
@@ -51,11 +58,16 @@ public:
     double m_angle = 0;
     bool m_negative = false;
     glm::dvec3 m_offset = {0, 0, 0};
-    glm::dvec3 get_origin(const Document &doc) const;
+    glm::dvec3 get_origin(const Document &doc) const override;
 
-    bool is_movable() const override
+    glm::dvec3 get_offset() const override
     {
-        return true;
+        return m_offset;
+    }
+
+    void set_offset(const glm::dvec3 &offset) override
+    {
+        m_offset = offset;
     }
 
     double get_datum() const override

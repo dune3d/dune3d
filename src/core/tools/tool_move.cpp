@@ -29,7 +29,7 @@ bool ToolMove::can_begin()
         }
         else if (sr.type == SelectableRef::Type::CONSTRAINT) {
             auto &constr = get_doc().get_constraint(sr.item);
-            if (constr.is_movable())
+            if (dynamic_cast<const IConstraintMovable *>(&constr))
                 return true;
         }
     }
@@ -198,63 +198,21 @@ ToolResponse ToolMove::update(const ToolArgs &args)
         for (auto sr : m_selection) {
             if (sr.type == SelectableRef::Type::CONSTRAINT) {
                 auto constraint = doc.m_constraints.at(sr.item).get();
-                if (auto co = dynamic_cast<ConstraintPointDistanceBase *>(constraint)) {
+                auto co_wrkpl = dynamic_cast<const IConstraintWorkplane *>(constraint);
+                auto co_movable = dynamic_cast<IConstraintMovable *>(constraint);
+                if (co_wrkpl && co_movable) {
+                    auto wrkpl_uu = co_wrkpl->get_workplane(get_doc());
                     auto cdelta = delta;
-                    if (co->m_wrkpl) {
-                        auto &wrkpl = doc.get_entity<EntityWorkplane>(co->m_wrkpl);
+                    if (wrkpl_uu) {
+                        auto &wrkpl = get_entity<EntityWorkplane>(wrkpl_uu);
                         const auto delta2d = wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin,
                                                                                            wrkpl.get_normal_vector()))
                                              - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
                         cdelta = wrkpl.transform_relative(delta2d);
                     }
-                    auto &co_last =
-                            dynamic_cast<const ConstraintPointDistanceBase &>(*last_doc.m_constraints.at(sr.item));
-                    const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));
-                    co->m_offset = co_last.m_offset + cdelta - odelta;
-                }
-                if (auto co = dynamic_cast<ConstraintLinesAngle *>(constraint)) {
-                    auto cdelta = delta;
-                    if (co->m_wrkpl) {
-                        auto &wrkpl = doc.get_entity<EntityWorkplane>(co->m_wrkpl);
-                        const auto delta2d = wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin,
-                                                                                           wrkpl.get_normal_vector()))
-                                             - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                        cdelta = wrkpl.transform_relative(delta2d);
-                    }
-                    else {
-                        cdelta =
-                                m_intf.get_cursor_pos_for_plane(co->get_origin(get_doc()), co->get_vectors(get_doc()).n)
-                                - m_inital_pos_angle_constraint.at(co->m_uuid);
-                    }
-                    auto &co_last = dynamic_cast<const ConstraintLinesAngle &>(*last_doc.m_constraints.at(sr.item));
-                    const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));
-                    co->m_offset = co_last.m_offset + cdelta - odelta;
-                }
-                if (auto co = dynamic_cast<ConstraintDiameterRadius *>(constraint)) {
-                    auto &en = doc.get_entity(co->m_entity);
-                    auto &en_wrkpl = dynamic_cast<const IEntityInWorkplane &>(en);
-                    auto &wrkpl = doc.get_entity<EntityWorkplane>(en_wrkpl.get_workplane());
-                    const auto delta2d =
-                            wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector()))
-                            - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-
-                    auto &co_last = dynamic_cast<const ConstraintDiameterRadius &>(*last_doc.m_constraints.at(sr.item));
-                    const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));
-                    co->m_offset = co_last.m_offset + delta2d - odelta;
-                }
-                if (auto co = dynamic_cast<ConstraintPointLineDistance *>(constraint)) {
-                    auto cdelta = delta;
-                    if (co->m_wrkpl) {
-                        auto &wrkpl = doc.get_entity<EntityWorkplane>(co->m_wrkpl);
-                        const auto delta2d = wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin,
-                                                                                           wrkpl.get_normal_vector()))
-                                             - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                        cdelta = wrkpl.transform_relative(delta2d);
-                    }
-                    auto &co_last =
-                            dynamic_cast<const ConstraintPointLineDistance &>(*last_doc.m_constraints.at(sr.item));
-                    const auto odelta = (co->get_origin(doc) - co_last.get_origin(last_doc));
-                    co->m_offset = co_last.m_offset + cdelta - odelta;
+                    auto &co_last = dynamic_cast<const IConstraintMovable &>(*last_doc.m_constraints.at(sr.item));
+                    const auto odelta = (co_movable->get_origin(doc) - co_last.get_origin(last_doc));
+                    co_movable->set_offset(co_last.get_offset() + cdelta - odelta);
                 }
             }
         }

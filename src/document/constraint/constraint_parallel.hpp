@@ -1,11 +1,12 @@
 #pragma once
 #include "constraint.hpp"
+#include "iconstraint_workplane.hpp"
 
 namespace dune3d {
 
 class Entity;
 
-class ConstraintParallel : public Constraint {
+class ConstraintParallel : public Constraint, public IConstraintWorkplane {
 public:
     explicit ConstraintParallel(const UUID &uu);
     explicit ConstraintParallel(const UUID &uu, const json &j);
@@ -20,6 +21,11 @@ public:
     UUID m_entity1;
     UUID m_entity2;
     UUID m_wrkpl;
+
+    const UUID &get_workplane(const Document &doc) const override
+    {
+        return m_wrkpl;
+    }
 
     double m_val = 1;
 

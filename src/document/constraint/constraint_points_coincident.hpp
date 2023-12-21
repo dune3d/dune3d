@@ -1,12 +1,13 @@
 #pragma once
 #include "constraint.hpp"
+#include "iconstraint_workplane.hpp"
 #include "document/entity/entity_and_point.hpp"
 
 namespace dune3d {
 
 class Entity;
 
-class ConstraintPointsCoincident : public Constraint {
+class ConstraintPointsCoincident : public Constraint, public IConstraintWorkplane {
 public:
     explicit ConstraintPointsCoincident(const UUID &uu);
     explicit ConstraintPointsCoincident(const UUID &uu, const json &j);
@@ -22,6 +23,11 @@ public:
     EntityAndPoint m_entity2;
 
     UUID m_wrkpl;
+
+    const UUID &get_workplane(const Document &doc) const override
+    {
+        return m_wrkpl;
+    }
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 
