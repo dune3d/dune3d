@@ -28,6 +28,7 @@
 #include "document/solid_model_util.hpp"
 #include "document/export_paths.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
+#include "document/constraint/iconstraint_workplane.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -208,10 +209,12 @@ void Editor::init_canvas()
         auto &constraint = m_core.get_current_document().get_constraint(hsel->item);
         std::set<SelectableRef> sel;
         std::map<UUID, std::set<unsigned int>> enps;
+        UUID constraint_wrkpl;
+        if (auto co_wrkpl = dynamic_cast<const IConstraintWorkplane *>(&constraint))
+            constraint_wrkpl = co_wrkpl->get_workplane(m_core.get_current_document());
         for (const auto &enp : constraint.get_referenced_entities_and_points()) {
-            // ignore workplanes
-            auto &entity = m_core.get_current_document().get_entity(enp.entity);
-            if (entity.get_type() == Entity::Type::WORKPLANE)
+            // ignore constraint workplanes
+            if (enp.entity == constraint_wrkpl)
                 continue;
             sel.emplace(UUID(), SelectableRef::Type::ENTITY, enp.entity, enp.point);
             enps[enp.entity].insert(enp.point);
