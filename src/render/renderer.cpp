@@ -390,12 +390,19 @@ void Renderer::visit(const ConstraintPointDistance &constr)
         p = wrkpl.project3(p);
     }
 
+    draw_distance_line(from, to, p, constr.m_distance, constr.m_uuid);
 
+    m_ca.set_vertex_constraint(false);
+}
+
+void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p, double distance,
+                                  const UUID &uu)
+{
     auto n = glm::normalize(from - to);
-    auto p1 = project_point_onto_plane(from, n, p);
-    auto p2 = project_point_onto_plane(to, n, p);
+    auto p1 = project_point_onto_plane(from, n, text_p);
+    auto p2 = project_point_onto_plane(to, n, text_p);
 
-    SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
+    SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, uu, 0};
     m_ca.add_selectable(m_ca.draw_line(p1, p2), sr);
     float scale = .01f;
     m_ca.add_selectable(m_ca.draw_screen_line(p1, ((p1 - from) / glm::length(from - p1)) * 1.5f * scale), sr);
@@ -408,13 +415,10 @@ void Renderer::visit(const ConstraintPointDistance &constr)
     m_ca.add_selectable(m_ca.draw_line(from, p1), sr);
     m_ca.add_selectable(m_ca.draw_line(to, p2), sr);
 
-    std::string label = std::format(" {:.3f}", constr.m_distance);
-    for (auto vr : m_ca.draw_bitmap_text(p, 1, label)) {
+    std::string label = std::format(" {:.3f}", distance);
+    for (auto vr : m_ca.draw_bitmap_text(text_p, 1, label)) {
         m_ca.add_selectable(vr, sr);
     }
-
-
-    m_ca.set_vertex_constraint(false);
 }
 
 void Renderer::visit(const ConstraintDiameterRadius &constr)

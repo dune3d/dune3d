@@ -72,6 +72,9 @@ private:
 
     void add_constraint(const glm::vec3 &pos, IconTexture::IconTextureID icon, const UUID &constraint);
     void draw_constraints();
+
+    void draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p, double distance,
+                            const UUID &uu);
 };
 
 } // namespace dune3d
