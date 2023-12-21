@@ -20,9 +20,9 @@ bool ToolConstrainHV::can_begin()
     auto tp = two_points_from_selection(get_doc(), m_selection);
     if (!tp)
         return false;
-    if (tp->entity1 == tp->entity2) {
+    if (tp->point1.entity == tp->point2.entity) {
         // single entity
-        auto &en = get_entity(tp->entity1);
+        auto &en = get_entity(tp->point1.entity);
         const auto constraint_types = en.get_constraint_types(get_doc());
         if (set_contains(constraint_types, Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL))
             return false;
@@ -43,8 +43,8 @@ ToolResponse ToolConstrainHV::begin(const ToolArgs &args)
         constraint = &add_constraint<ConstraintHorizontal>();
     else
         constraint = &add_constraint<ConstraintVertical>();
-    constraint->m_entity1 = {tp->entity1, tp->point1};
-    constraint->m_entity2 = {tp->entity2, tp->point2};
+    constraint->m_entity1 = tp->point1;
+    constraint->m_entity2 = tp->point2;
     constraint->m_wrkpl = get_workplane_uuid();
 
     reset_selection_after_constrain();

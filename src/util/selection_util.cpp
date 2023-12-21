@@ -15,11 +15,11 @@ std::optional<TwoPoints> two_points_from_selection(const Document &doc, const st
         auto &en = doc.get_entity(sr.item);
         if (en.get_type() == Entity::Type::LINE_2D && sr.point == 0) {
             auto &en2 = dynamic_cast<const EntityLine2D &>(en);
-            return TwoPoints{en2.m_uuid, 1, en2.m_uuid, 2};
+            return TwoPoints{{en2.m_uuid, 1}, {en2.m_uuid, 2}};
         }
         else if (en.get_type() == Entity::Type::LINE_3D && sr.point == 0) {
             auto &en3 = dynamic_cast<const EntityLine3D &>(en);
-            return TwoPoints{en3.m_uuid, 1, en3.m_uuid, 2};
+            return TwoPoints{{en3.m_uuid, 1}, {en3.m_uuid, 2}};
         }
         else {
             return {};
@@ -42,7 +42,7 @@ std::optional<TwoPoints> two_points_from_selection(const Document &doc, const st
         if (!en2.is_valid_point(sr2.point))
             return {};
 
-        return TwoPoints{en1.m_uuid, sr1.point, en2.m_uuid, sr2.point};
+        return TwoPoints{sr1.get_entity_and_point(), sr2.get_entity_and_point()};
     }
     else {
         return {};
@@ -98,7 +98,7 @@ std::optional<LineAndPoint> line_and_point_from_selection(const Document &doc, c
     if (!en_line.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D))
         return {};
 
-    return {{sr_line.item, sr_point.item, sr_point.point}};
+    return {{sr_line.item, sr_point.get_entity_and_point()}};
 }
 
 std::optional<LineAndPoint> circle_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
@@ -129,7 +129,7 @@ std::optional<LineAndPoint> circle_and_point_from_selection(const Document &doc,
         && en_line.get_type() != Entity::Type::CIRCLE_2D && en_line.get_type() != Entity::Type::CIRCLE_3D)
         return {};
 
-    return {{sr_line.item, sr_point.item, sr_point.point}};
+    return {{sr_line.item, sr_point.get_entity_and_point()}};
 }
 
 std::optional<UUID> entity_from_selection(const Document &doc, const std::set<SelectableRef> &sel)

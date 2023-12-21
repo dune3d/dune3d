@@ -23,9 +23,9 @@ bool ToolConstrainDistance::can_begin()
     if (!tp && !lp)
         return false;
     if (tp) {
-        if (tp->entity1 == tp->entity2) {
+        if (tp->point1.entity == tp->point2.entity) {
             // single entity
-            auto &en = get_entity(tp->entity1);
+            auto &en = get_entity(tp->point1.entity);
             const auto constraint_types = en.get_constraint_types(get_doc());
             switch (m_tool_id) {
             case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
@@ -54,7 +54,7 @@ bool ToolConstrainDistance::can_begin()
     else if (lp && m_tool_id == ToolID::CONSTRAIN_DISTANCE) {
         for (auto constraint : get_entity(lp->line).get_constraints(get_doc())) {
             if (auto dc = dynamic_cast<const ConstraintPointLineDistance *>(constraint)) {
-                if (dc->m_line == lp->line && dc->m_point == EntityAndPoint{lp->point, lp->point_point})
+                if (dc->m_line == lp->line && dc->m_point == lp->point)
                     return false;
             }
         }
@@ -85,8 +85,8 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
             constraint = &add_constraint<ConstraintPointDistance>();
         }
 
-        constraint->m_entity1 = {tp->entity1, tp->point1};
-        constraint->m_entity2 = {tp->entity2, tp->point2};
+        constraint->m_entity1 = tp->point1;
+        constraint->m_entity2 = tp->point2;
         constraint->m_wrkpl = get_workplane_uuid();
         auto dist = constraint->measure_distance(get_doc());
         if (dist < 0)
@@ -96,7 +96,7 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
     else if (lp) {
         auto &constraint = add_constraint<ConstraintPointLineDistance>();
         constraint.m_line = lp->line;
-        constraint.m_point = {lp->point, lp->point_point};
+        constraint.m_point = lp->point;
         constraint.m_wrkpl = get_workplane_uuid();
         constraint.m_modify_to_satisfy = true;
     }

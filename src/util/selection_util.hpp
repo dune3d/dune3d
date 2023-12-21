@@ -11,10 +11,8 @@ class Document;
 class SelectableRef;
 
 struct TwoPoints {
-    UUID entity1;
-    unsigned int point1;
-    UUID entity2;
-    unsigned int point2;
+    EntityAndPoint point1;
+    EntityAndPoint point2;
 };
 
 std::optional<TwoPoints> two_points_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
@@ -24,8 +22,7 @@ std::optional<EntityAndPoint> entity_and_point_from_hover_selection(const Docume
 
 struct LineAndPoint {
     UUID line;
-    UUID point;
-    unsigned int point_point;
+    EntityAndPoint point;
 
     enum class AllowSameEntity { YES, NO };
 };

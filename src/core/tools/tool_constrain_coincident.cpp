@@ -17,10 +17,10 @@ bool ToolConstrainCoincident::is_point_on_point()
     auto tp = two_points_from_selection(get_doc(), m_selection);
     if (!tp.has_value())
         return false;
-    if (tp->entity1 == tp->entity2) {
-        return get_entity<Entity>(tp->entity1).get_type() == Entity::Type::ARC_2D;
+    if (tp->point1.entity == tp->point2.entity) {
+        return get_entity<Entity>(tp->point1.entity).get_type() == Entity::Type::ARC_2D;
     }
-    return tp->entity1 != tp->entity2;
+    return tp->point1.entity != tp->point2.entity;
 }
 
 bool ToolConstrainCoincident::is_point_on_line()
@@ -53,8 +53,8 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
             return ToolResponse::end();
 
         auto &constraint = add_constraint<ConstraintPointsCoincident>();
-        constraint.m_entity1 = {tp->entity1, tp->point1};
-        constraint.m_entity2 = {tp->entity2, tp->point2};
+        constraint.m_entity1 = tp->point1;
+        constraint.m_entity2 = tp->point2;
         constraint.m_wrkpl = get_workplane_uuid();
     }
     else if (is_point_on_line()) {
@@ -65,7 +65,7 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
 
         auto &constraint = add_constraint<ConstraintPointOnLine>();
         constraint.m_line = tp->line;
-        constraint.m_point = {tp->point, tp->point_point};
+        constraint.m_point = tp->point;
         constraint.m_wrkpl = get_workplane_uuid();
         constraint.m_modify_to_satisfy = true;
     }
@@ -77,7 +77,7 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
 
         auto &constraint = add_constraint<ConstraintPointOnCircle>();
         constraint.m_circle = tp->line;
-        constraint.m_point = {tp->point, tp->point_point};
+        constraint.m_point = tp->point;
     }
     else {
         return ToolResponse::end();
