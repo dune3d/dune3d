@@ -207,12 +207,22 @@ void Editor::init_canvas()
         }
         auto &constraint = m_core.get_current_document().get_constraint(hsel->item);
         std::set<SelectableRef> sel;
-        for (const auto &uu : constraint.get_referenced_entities()) {
+        std::map<UUID, std::set<unsigned int>> enps;
+        for (const auto &enp : constraint.get_referenced_entities_and_points()) {
             // ignore workplanes
-            auto &entity = m_core.get_current_document().get_entity(uu);
+            auto &entity = m_core.get_current_document().get_entity(enp.entity);
             if (entity.get_type() == Entity::Type::WORKPLANE)
                 continue;
-            sel.emplace(UUID(), SelectableRef::Type::ENTITY, uu, 0);
+            sel.emplace(UUID(), SelectableRef::Type::ENTITY, enp.entity, enp.point);
+            enps[enp.entity].insert(enp.point);
+        }
+        for (const auto &[uu, pts] : enps) {
+            auto &entity = m_core.get_current_document().get_entity(uu);
+            if (entity.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D)) {
+                if (pts.contains(1) && pts.contains(2)) {
+                    sel.emplace(UUID(), SelectableRef::Type::ENTITY, uu, 0);
+                }
+            }
         }
         get_canvas().set_highlight(sel);
     });
