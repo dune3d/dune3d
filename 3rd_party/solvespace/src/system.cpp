@@ -473,6 +473,17 @@ void Rearraged::isolate(hParam param) {
                 ssassert(false, "param was not referenced");
             }
             break;
+        case Expr::Op::DIV:
+            if(lhs->a->DependsOn(param)) {
+                rhs = rhs->Times(lhs->b);
+                lhs = lhs->a;
+            } else if(lhs->b->DependsOn(param)) {
+                rhs = Expr::From(1.0)->Div(rhs->Div(lhs->a));
+                lhs = lhs->b;
+            } else {
+                ssassert(false, "param was not referenced");
+            }
+            break;
         case Expr::Op::SQRT:
             lhs = lhs->a;
             rhs = rhs->Square();
