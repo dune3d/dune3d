@@ -1037,8 +1037,16 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_WORKPLANE] = sel_is_workplane;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
         m_action_sensitivity[ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
-        m_action_sensitivity[ActionID::SELECT_PATH] =
-                entity_from_selection(m_core.get_current_document(), sel).has_value();
+        {
+            auto en_uu = entity_from_selection(m_core.get_current_document(), sel);
+            bool can_select_path = false;
+            if (en_uu) {
+                auto &en = m_core.get_current_document().get_entity(*en_uu);
+                can_select_path = en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D);
+            }
+            m_action_sensitivity[ActionID::SELECT_PATH] = can_select_path;
+        }
+
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
     }
     else {

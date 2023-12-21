@@ -152,6 +152,9 @@ std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &do
     if (sr1.type != SelectableRef::Type::ENTITY)
         return {};
 
+    if (!doc.m_entities.contains(sr1.item))
+        return {};
+
     return sr1.get_entity_and_point();
 }
 
@@ -168,8 +171,6 @@ std::optional<UUID> entity_from_selection(const Document &doc, const std::set<Se
 {
     auto en = entity_from_selection(doc, sel);
     if (!en)
-        return {};
-    if (!doc.m_entities.contains(*en))
         return {};
     if (doc.get_entity(*en).get_type() == type)
         return en;
