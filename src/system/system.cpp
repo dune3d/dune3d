@@ -302,6 +302,7 @@ void System::visit(const EntityCircle3D &circle)
     auto en_normal = get_entity_ref(EntityRef{circle.m_uuid, 3});
     {
         EntityBase eb = {};
+        eb.noEquation = true;
         eb.type = EntityBase::Type::NORMAL_IN_3D;
         eb.h.v = en_normal;
         eb.group.v = group;
@@ -563,11 +564,13 @@ void System::add(const GroupExtrude &group)
                     auto en_new_n = get_entity_ref(EntityRef{new_arc_uu, 4});
                     EntityBase *eorig = SK.GetEntity({en_orig_n});
                     EntityBase *enew = SK.GetEntity({en_new_n});
+                    enew->noEquation = true;
                     auto eqo = eorig->NormalGetExprs();
                     auto eqn = enew->NormalGetExprs();
                     AddEq(hg, &m_sys->eq, eqo.vx->Minus(eqn.vx), eqi++);
                     AddEq(hg, &m_sys->eq, eqo.vy->Minus(eqn.vy), eqi++);
                     AddEq(hg, &m_sys->eq, eqo.vz->Minus(eqn.vz), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.w->Minus(eqn.w), eqi++);
                 }
             }
             else if (it->get_type() == Entity::Type::CIRCLE_2D) {
@@ -622,11 +625,13 @@ void System::add(const GroupExtrude &group)
                     auto en_new_n = get_entity_ref(EntityRef{new_circle_uu, 3});
                     EntityBase *eorig = SK.GetEntity({en_orig_n});
                     EntityBase *enew = SK.GetEntity({en_new_n});
+                    enew->noEquation = true;
                     auto eqo = eorig->NormalGetExprs();
                     auto eqn = enew->NormalGetExprs();
                     AddEq(hg, &m_sys->eq, eqo.vx->Minus(eqn.vx), eqi++);
                     AddEq(hg, &m_sys->eq, eqo.vy->Minus(eqn.vy), eqi++);
                     AddEq(hg, &m_sys->eq, eqo.vz->Minus(eqn.vz), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.w->Minus(eqn.w), eqi++);
                 }
             }
         }
@@ -661,11 +666,13 @@ void System::add(const GroupLathe &group)
         }
         {
             auto en_normal = SK.GetEntity({get_entity_ref({uu, 3})});
+            en_normal->noEquation = true;
             auto normal = en_normal->NormalGetNum();
             auto ex = en_normal->NormalGetExprs();
             AddEq(hg, &m_sys->eq, ex.vx->Minus(Expr::From(normal.vx)), eqi++);
             AddEq(hg, &m_sys->eq, ex.vy->Minus(Expr::From(normal.vy)), eqi++);
             AddEq(hg, &m_sys->eq, ex.vz->Minus(Expr::From(normal.vz)), eqi++);
+            AddEq(hg, &m_sys->eq, ex.w->Minus(Expr::From(normal.w)), eqi++);
         }
     }
 }
@@ -774,6 +781,7 @@ void System::add_array(const GroupArray &group, CreateEq create_eq2, CreateEq cr
                 {
                     auto en_orig_n = SK.GetEntity({get_entity_ref(EntityRef{uu, 3})});
                     auto en_new_n = SK.GetEntity({get_entity_ref({new_circle_uu, 3})});
+                    en_new_n->noEquation = true;
                     auto normal_orig = en_orig_n->NormalGetExprs();
                     auto normal_new = en_new_n->NormalGetExprs();
                     create_eq_n(normal_orig, normal_new, instance);
@@ -793,6 +801,7 @@ void System::add_array(const GroupArray &group, CreateEq create_eq2, CreateEq cr
                 {
                     auto en_orig_n = SK.GetEntity({get_entity_ref(EntityRef{uu, 4})});
                     auto en_new_n = SK.GetEntity({get_entity_ref({new_arc_uu, 4})});
+                    en_new_n->noEquation = true;
                     auto normal_orig = en_orig_n->NormalGetExprs();
                     auto normal_new = en_new_n->NormalGetExprs();
                     create_eq_n(normal_orig, normal_new, instance);
@@ -879,6 +888,7 @@ void System::add(const GroupLinearArray &group)
         AddEq(hg, &m_sys->eq, normal_new.vx->Minus(normal_orig.vx), eqi++);
         AddEq(hg, &m_sys->eq, normal_new.vy->Minus(normal_orig.vy), eqi++);
         AddEq(hg, &m_sys->eq, normal_new.vz->Minus(normal_orig.vz), eqi++);
+        AddEq(hg, &m_sys->eq, normal_new.w->Minus(normal_orig.w), eqi++);
     };
 
     add_array(group, create_eq2, create_eq3, create_eq_n, eqi);
@@ -975,6 +985,7 @@ void System::add(const GroupPolarArray &group)
         AddEq(hg, &m_sys->eq, normal_new.vx->Minus(rot.vx), eqi++);
         AddEq(hg, &m_sys->eq, normal_new.vy->Minus(rot.vy), eqi++);
         AddEq(hg, &m_sys->eq, normal_new.vz->Minus(rot.vz), eqi++);
+        AddEq(hg, &m_sys->eq, normal_new.w->Minus(rot.w), eqi++);
     };
 
     add_array(group, create_eq2, create_eq3, create_eq_n, eqi);
@@ -1486,6 +1497,7 @@ void System::visit(const ConstraintWorkplaneNormal &constraint)
     auto en_wrkpl_normal = get_entity_ref(EntityRef{constraint.m_wrkpl, 2});
     EntityBase *a = SK.GetEntity({en_wrkpl_normal});
     auto xa = a->NormalGetExprs();
+    a->noEquation = true; // we set everything
     auto na = a->NormalGetNum();
 
     const auto c = n_constraint++;
@@ -1493,7 +1505,7 @@ void System::visit(const ConstraintWorkplaneNormal &constraint)
     AddEq(hConstraint{c}, &m_sys->eq, xa.vx->Minus(Expr::From(na.vx)), 0);
     AddEq(hConstraint{c}, &m_sys->eq, xa.vy->Minus(Expr::From(na.vy)), 1);
     AddEq(hConstraint{c}, &m_sys->eq, xa.vz->Minus(Expr::From(na.vz)), 2);
-    //    AddEq(hConstraint{c}, &m_sys->eq, xa.vx->Minus(Expr::From(na.w)), 3);
+    AddEq(hConstraint{c}, &m_sys->eq, xa.w->Minus(Expr::From(na.w)), 3);
 }
 
 void System::visit(const ConstraintArcArcTangent &constraint)
