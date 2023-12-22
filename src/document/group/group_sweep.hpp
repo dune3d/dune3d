@@ -19,7 +19,7 @@ public:
 
     std::shared_ptr<const SolidModel> m_solid_model;
 
-    Operation m_operation = Operation::DIFFERENCE;
+    Operation m_operation = Operation::UNION;
     Operation get_operation() const override
     {
         return m_operation;
