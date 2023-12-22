@@ -52,6 +52,11 @@ public:
         return *m_open_button;
     }
 
+    Gtk::Button &get_welcome_open_button()
+    {
+        return *m_welcome_open_button;
+    }
+
     Gtk::MenuButton &get_open_menu_button()
     {
         return *m_open_menu_button;
@@ -60,6 +65,11 @@ public:
     Gtk::Button &get_new_button()
     {
         return *m_new_button;
+    }
+
+    Gtk::Button &get_welcome_new_button()
+    {
+        return *m_welcome_new_button;
     }
 
     Gtk::HeaderBar &get_header_bar()
@@ -101,6 +111,8 @@ public:
     void set_version_info(const std::string &s);
     void set_selection_mode_label_text(const std::string &s);
 
+    void set_welcome_box_visible(bool v);
+
 
 private:
     Dune3DApplication &m_app;
@@ -135,6 +147,11 @@ private:
     bool m_tool_bar_queue_close = false;
     void tool_bar_flash(const std::string &s, bool replace);
 
+    Gtk::Box *m_welcome_box = nullptr;
+    Gtk::SearchEntry *m_welcome_recent_search_entry = nullptr;
+    Gtk::ListBox *m_welcome_recent_listbox = nullptr;
+    Gtk::Button *m_welcome_new_button = nullptr;
+    Gtk::Button *m_welcome_open_button = nullptr;
 
     Gtk::Paned *m_left_bar = nullptr;
 

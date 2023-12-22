@@ -84,9 +84,12 @@ void Editor::init()
         update_workplane_label();
         update_action_sensitivity();
         m_workspace_browser->set_sensitive(m_core.has_documents());
+        m_win.set_welcome_box_visible(!m_core.has_documents());
         update_version_info();
     });
 
+    attach_action_button(m_win.get_welcome_open_button(), ActionID::OPEN_DOCUMENT);
+    attach_action_button(m_win.get_welcome_new_button(), ActionID::NEW_DOCUMENT);
 
     update_action_sensitivity();
     reset_key_hint_label();

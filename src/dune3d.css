@@ -21,3 +21,11 @@
 .tnum {
   font-feature-settings: "tnum";
 }
+
+.welcome-box {
+  border: 1px solid @borders;
+  border-radius: 10px; 
+  /*box-shadow: 0px 0px 85px 5px rgba(0, 0, 0, .5);*/
+}
+
+.welcome-title {font-weight: 800; font-size: 150%;}

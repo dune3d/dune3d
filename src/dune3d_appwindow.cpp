@@ -148,6 +148,27 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
 
     m_selection_mode_label = refBuilder->get_widget<Gtk::Label>("selection_mode_label");
 
+    m_welcome_box = refBuilder->get_widget<Gtk::Box>("welcome_box");
+    m_welcome_recent_listbox = refBuilder->get_widget<Gtk::ListBox>("welcome_recent_listbox");
+    m_welcome_recent_listbox->set_header_func(sigc::ptr_fun(header_func_separator));
+    m_welcome_recent_listbox->signal_row_activated().connect([this](Gtk::ListBoxRow *row) {
+        auto &ch = dynamic_cast<RecentItemBox &>(*row->get_child());
+        m_editor.open_file(ch.m_path);
+    });
+    m_welcome_recent_search_entry = refBuilder->get_widget<Gtk::SearchEntry>("welcome_recent_search_entry");
+    m_welcome_new_button = refBuilder->get_widget<Gtk::Button>("welcome_new_button");
+    m_welcome_open_button = refBuilder->get_widget<Gtk::Button>("welcome_open_button");
+
+    {
+        auto sg = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::VERTICAL);
+        sg->add_widget(*m_welcome_new_button);
+        sg->add_widget(*refBuilder->get_widget<Gtk::Label>("welcome_recent_label"));
+    }
+
+    update_recent_listbox(*m_welcome_recent_listbox, m_app);
+    m_welcome_recent_search_entry->signal_changed().connect(
+            [this] { update_recent_search(*m_welcome_recent_search_entry, *m_welcome_recent_listbox); });
+
     set_icon_name("dune3d");
 
     m_editor.init();
@@ -262,6 +283,15 @@ void Dune3DAppWindow::set_version_info(const std::string &s)
 void Dune3DAppWindow::open_file_view(const Glib::RefPtr<Gio::File> &file)
 {
     m_editor.open_file(path_from_string(file->get_path()));
+}
+
+void Dune3DAppWindow::set_welcome_box_visible(bool v)
+{
+    m_welcome_box->set_visible(v);
+    if (v) {
+        m_welcome_recent_search_entry->set_text("");
+        update_recent_listbox(*m_welcome_recent_listbox, m_app);
+    }
 }
 
 

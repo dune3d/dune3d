@@ -112,6 +112,125 @@
                 </child>
                 <child>
                   <object class="GtkOverlay">
+                    <child type="overlay">
+                      <object class="GtkBox" id="welcome_box">
+                        <property name="css-classes">background
+welcome-box</property>
+                        <property name="halign">center</property>
+                        <property name="margin-bottom">100</property>
+                        <property name="margin-top">100</property>
+                        <property name="orientation">vertical</property>
+                        <property name="valign">center</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="margin-bottom">20</property>
+                            <property name="margin-end">20</property>
+                            <property name="margin-start">20</property>
+                            <property name="spacing">20</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="margin-top">20</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkLabel" id="welcome_recent_label">
+                                    <property name="label">&lt;b&gt;Open recent&lt;/b&gt;</property>
+                                    <property name="margin-bottom">10</property>
+                                    <property name="use-markup">True</property>
+                                    <property name="xalign">0.0</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkSearchEntry" id="welcome_recent_search_entry">
+                                    <property name="margin-bottom">5</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkScrolledWindow">
+                                    <property name="has-frame">True</property>
+                                    <property name="hscrollbar-policy">never</property>
+                                    <property name="min-content-height">400</property>
+                                    <property name="vexpand">True</property>
+                                    <property name="width-request">300</property>
+                                    <child>
+                                      <object class="GtkListBox" id="welcome_recent_listbox">
+                                        <property name="selection-mode">none</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="margin-top">20</property>
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">10</property>
+                                <child>
+                                  <object class="GtkButton" id="welcome_new_button">
+                                    <property name="child">
+                                      <object class="GtkBox">
+                                        <property name="spacing">10</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">document-new-symbolic</property>
+                                            <property name="icon-size">large</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkBox">
+                                            <property name="orientation">vertical</property>
+                                            <property name="spacing">10</property>
+                                            <property name="vexpand-set">True</property>
+                                            <child>
+                                              <object class="GtkLabel">
+                                                <property name="label">&lt;b&gt;Create a new document&lt;/b&gt;</property>
+                                                <property name="use-markup">True</property>
+                                                <property name="vexpand">True</property>
+                                                <property name="xalign">0.0</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="welcome_open_button">
+                                    <property name="child">
+                                      <object class="GtkBox">
+                                        <property name="spacing">10</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">document-open-symbolic</property>
+                                            <property name="icon-size">large</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkBox">
+                                            <property name="orientation">vertical</property>
+                                            <property name="spacing">10</property>
+                                            <property name="vexpand-set">True</property>
+                                            <child>
+                                              <object class="GtkLabel">
+                                                <property name="label">&lt;b&gt;Open existing document&lt;/b&gt;</property>
+                                                <property name="use-markup">True</property>
+                                                <property name="vexpand">True</property>
+                                                <property name="xalign">0.0</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                     <child>
                       <object class="GtkBox" id="canvas_box">
                         <property name="vexpand">True</property>
