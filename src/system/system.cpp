@@ -981,7 +981,7 @@ void System::add(const GroupPolarArray &group)
                                                                      unsigned int instance) {
         auto exangle = offset_angle->Plus(Expr::From(hParam{angle})->Times(Expr::From(instance)));
         auto rq = quat_from_axis_angle(wn, exangle);
-        auto rot = normal_orig.Times(rq);
+        auto rot = rq.Times(normal_orig);
         AddEq(hg, &m_sys->eq, normal_new.vx->Minus(rot.vx), eqi++);
         AddEq(hg, &m_sys->eq, normal_new.vy->Minus(rot.vy), eqi++);
         AddEq(hg, &m_sys->eq, normal_new.vz->Minus(rot.vz), eqi++);
