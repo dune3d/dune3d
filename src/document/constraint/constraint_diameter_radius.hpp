@@ -34,6 +34,11 @@ public:
         m_offset = offset;
     }
 
+    bool offset_is_in_workplane() const override
+    {
+        return true;
+    }
+
     virtual double get_diameter() const = 0;
     virtual void measure(const Document &doc) = 0;
 

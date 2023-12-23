@@ -70,6 +70,11 @@ public:
         m_offset = offset;
     }
 
+    bool offset_is_in_workplane() const override
+    {
+        return false;
+    }
+
     double get_datum() const override
     {
         return m_angle;

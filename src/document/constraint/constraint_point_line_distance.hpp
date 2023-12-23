@@ -49,6 +49,11 @@ public:
         m_offset = offset;
     }
 
+    bool offset_is_in_workplane() const override
+    {
+        return false;
+    }
+
     std::unique_ptr<Constraint> clone() const override;
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;

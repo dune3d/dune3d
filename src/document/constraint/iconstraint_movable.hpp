@@ -9,5 +9,6 @@ public:
     virtual glm::dvec3 get_origin(const Document &doc) const = 0;
     virtual glm::dvec3 get_offset() const = 0;
     virtual void set_offset(const glm::dvec3 &offset) = 0;
+    virtual bool offset_is_in_workplane() const = 0;
 };
 } // namespace dune3d

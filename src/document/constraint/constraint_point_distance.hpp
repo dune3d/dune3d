@@ -36,6 +36,11 @@ public:
         m_offset = offset;
     }
 
+    bool offset_is_in_workplane() const override
+    {
+        return false;
+    }
+
     virtual double measure_distance(const Document &doc) const = 0;
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
