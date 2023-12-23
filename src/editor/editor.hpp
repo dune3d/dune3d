@@ -66,6 +66,7 @@ private:
     void init_actions();
     void init_tool_popover();
     void init_canvas();
+    void init_view_options();
 
     void on_workspace_browser_group_selected(const UUID &uu_doc, const UUID &uu_group);
     void on_add_group(Group::Type group_type);
@@ -118,6 +119,11 @@ private:
     void update_action_bar_visibility();
     bool force_end_tool();
 
+    Glib::RefPtr<Gio::Menu> m_view_options_menu;
+    Glib::RefPtr<Gio::SimpleAction> m_perspective_action;
+    void set_perspective_projection(bool persp);
+
+    void update_view_hints();
 
     std::map<ActionToolID, ActionConnection> m_action_connections;
 

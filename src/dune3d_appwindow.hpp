@@ -87,6 +87,11 @@ public:
         return *m_workplane_checkbutton;
     }
 
+    Gtk::MenuButton &get_view_options_button()
+    {
+        return *m_view_options_button;
+    }
+
     Canvas &get_canvas()
     {
         return *m_canvas;
@@ -115,6 +120,9 @@ public:
 
     void add_action_button(Gtk::Widget &widget);
     void set_action_bar_visible(bool v);
+
+    void set_view_hints_label(const std::vector<std::string> &s);
+    void set_workplane_label(const std::string &s);
 
 private:
     Dune3DApplication &m_app;
@@ -163,6 +171,10 @@ private:
     Canvas *m_canvas = nullptr;
     Gtk::Label *m_key_hint_label = nullptr;
     Gtk::CheckButton *m_workplane_checkbutton = nullptr;
+    Gtk::Label *m_workplane_label = nullptr;
+
+    Gtk::MenuButton *m_view_options_button = nullptr;
+    Gtk::Label *m_view_hints_label = nullptr;
 
 
     Gtk::InfoBar *m_version_info_bar = nullptr;

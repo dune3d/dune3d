@@ -99,8 +99,32 @@ void Editor::init()
     create_action_bar_button(ToolID::DRAW_REGULAR_POLYGON);
     create_action_bar_button(ToolID::DRAW_WORKPLANE);
 
+    init_view_options();
+
+
     update_action_sensitivity();
     reset_key_hint_label();
+}
+
+void Editor::init_view_options()
+{
+    auto view_options_popover = Gtk::make_managed<Gtk::PopoverMenu>();
+    m_win.get_view_options_button().set_popover(*view_options_popover);
+    {
+        Gdk::Rectangle rect;
+        rect.set_width(32);
+        m_win.get_view_options_button().get_popover()->set_pointing_to(rect);
+    }
+
+    m_view_options_menu = Gio::Menu::create();
+    m_perspective_action = m_win.add_action_bool("perspective", false);
+    m_view_options_menu->append("Perspective projection", "win.perspective");
+    m_perspective_action->signal_change_state().connect([this](const Glib::VariantBase &v) {
+        auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
+        set_perspective_projection(b);
+    });
+
+    view_options_popover->set_menu_model(m_view_options_menu);
 }
 
 Gtk::Button &Editor::create_action_bar_button(ActionToolID action)
@@ -601,13 +625,10 @@ void Editor::init_actions()
         trigger_action(ActionID::CENTER_VIEW_TO_WORKPLANE);
     });
 
-    connect_action(ActionID::VIEW_PERSP, [this](auto &a) { get_canvas().set_projection(Canvas::Projection::PERSP); });
-    connect_action(ActionID::VIEW_ORTHO, [this](auto &a) { get_canvas().set_projection(Canvas::Projection::ORTHO); });
+    connect_action(ActionID::VIEW_PERSP, [this](auto &a) { set_perspective_projection(true); });
+    connect_action(ActionID::VIEW_ORTHO, [this](auto &a) { set_perspective_projection(false); });
     connect_action(ActionID::VIEW_TOGGLE_PERSP_ORTHO, [this](auto &a) {
-        if (get_canvas().get_projection() == Canvas::Projection::PERSP)
-            get_canvas().set_projection(Canvas::Projection::ORTHO);
-        else
-            get_canvas().set_projection(Canvas::Projection::PERSP);
+        set_perspective_projection(get_canvas().get_projection() == Canvas::Projection::ORTHO);
     });
 
     connect_action(ActionID::DELETE_CURRENT_GROUP, [this](auto &a) { on_delete_current_group(); });
@@ -658,6 +679,21 @@ void Editor::init_actions()
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
 }
 
+void Editor::set_perspective_projection(bool persp)
+{
+    using P = Canvas::Projection;
+    get_canvas().set_projection(persp ? P::PERSP : P::ORTHO);
+    m_perspective_action->set_state(Glib::Variant<bool>::create(persp));
+    update_view_hints();
+}
+
+void Editor::update_view_hints()
+{
+    std::vector<std::string> hints;
+    if (get_canvas().get_projection() == Canvas::Projection::PERSP)
+        hints.push_back("persp.");
+    m_win.set_view_hints_label(hints);
+}
 
 void Editor::on_align_to_workplane(const ActionConnection &conn)
 {
@@ -1053,12 +1089,12 @@ void Editor::update_group_editor()
 void Editor::update_workplane_label()
 {
     if (!m_core.has_documents()) {
-        m_win.get_workplane_checkbutton().set_label("No documents");
+        m_win.set_workplane_label("No documents");
         return;
     }
     auto wrkpl_uu = m_core.get_current_workplane();
     if (!wrkpl_uu) {
-        m_win.get_workplane_checkbutton().set_label("No Workplane");
+        m_win.set_workplane_label("No Workplane");
     }
     else {
         auto &wrkpl = m_core.get_current_document().get_entity<EntityWorkplane>(wrkpl_uu);
@@ -1067,7 +1103,7 @@ void Editor::update_workplane_label()
         if (wrkpl.m_name.size())
             s += wrkpl.m_name + " ";
         s += "in group " + wrkpl_group.m_name;
-        m_win.get_workplane_checkbutton().set_label(s);
+        m_win.set_workplane_label(s);
     }
 }
 

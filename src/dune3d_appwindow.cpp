@@ -131,6 +131,7 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     get_canvas().set_hexpand(true);
     m_key_hint_label = refBuilder->get_widget<Gtk::Label>("key_hint_label");
     m_workplane_checkbutton = refBuilder->get_widget<Gtk::CheckButton>("workplane_checkbutton");
+    m_workplane_label = refBuilder->get_widget<Gtk::Label>("workplane_label");
 
 
     {
@@ -167,6 +168,11 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
 
     m_action_bar_box = refBuilder->get_widget<Gtk::Box>("action_bar_box");
     m_action_bar_revealer = refBuilder->get_widget<Gtk::Revealer>("action_bar_revealer");
+
+    m_view_options_button = refBuilder->get_widget<Gtk::MenuButton>("view_options_button");
+    m_view_hints_label = refBuilder->get_widget<Gtk::Label>("view_hints_label");
+
+    set_view_hints_label({});
 
     update_recent_listbox(*m_welcome_recent_listbox, m_app);
     m_welcome_recent_search_entry->signal_changed().connect(
@@ -307,5 +313,31 @@ void Dune3DAppWindow::set_action_bar_visible(bool v)
     m_action_bar_revealer->set_reveal_child(v);
 }
 
+void Dune3DAppWindow::set_view_hints_label(const std::vector<std::string> &s)
+{
+    if (s.size()) {
+        std::string label_text;
+        std::string tooltip_text;
+        for (const auto &it : s) {
+            if (label_text.size())
+                label_text += ", ";
+            if (tooltip_text.size())
+                tooltip_text += "\n";
+            label_text += it;
+            tooltip_text += it;
+        }
+        m_view_hints_label->set_markup("<b>" + Glib::Markup::escape_text(label_text) + "</b>");
+        m_view_hints_label->set_tooltip_text(tooltip_text);
+    }
+    else {
+        m_view_hints_label->set_text("View");
+        m_view_hints_label->set_has_tooltip(false);
+    }
+}
+
+void Dune3DAppWindow::set_workplane_label(const std::string &s)
+{
+    m_workplane_label->set_text(s);
+}
 
 } // namespace dune3d

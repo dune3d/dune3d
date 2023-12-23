@@ -35,3 +35,8 @@
 /* workarounds for theme bugs */
 .navigation-sidebar :selected image {color: @theme_fg_color;}
 button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
+
+.view-options-button > button {
+  padding: 0px 8px 0px 8px;
+  border: 0px;
+}
