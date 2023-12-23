@@ -2,6 +2,7 @@
 #include "group.hpp"
 #include "igroup_generate.hpp"
 #include "igroup_solid_model.hpp"
+#include "igroup_source_group.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -9,12 +10,17 @@ namespace dune3d {
 class Document;
 class SolidModel;
 
-class GroupArray : public Group, public IGroupGenerate, public IGroupSolidModel {
+class GroupArray : public Group, public IGroupGenerate, public IGroupSolidModel, public IGroupSourceGroup {
 public:
     explicit GroupArray(const UUID &uu);
     explicit GroupArray(const UUID &uu, const json &j);
 
     UUID m_source_group;
+
+    UUID get_source_group() const override
+    {
+        return m_source_group;
+    }
 
     unsigned int m_count = 3;
 

@@ -2,7 +2,7 @@
 #include "core/core.hpp"
 #include "document/document.hpp"
 #include "document/group/group.hpp"
-#include "document/group/group_sweep.hpp"
+#include "document/group/igroup_source_group.hpp"
 #include "document_view.hpp"
 #include <iostream>
 
@@ -204,8 +204,8 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
         it_doc.m_name = doci.get_basename();
         const auto &current_group = doci.get_document().get_group(doci.get_current_group());
         UUID source_group;
-        if (auto group_sweep = dynamic_cast<const GroupSweep *>(&current_group))
-            source_group = group_sweep->m_source_group;
+        if (auto group_src = dynamic_cast<const IGroupSourceGroup *>(&current_group))
+            source_group = group_src->get_source_group();
         auto body = current_group.find_body(doci.get_document());
         UUID body_uu = body.group.m_uuid;
         bool after_active = false;

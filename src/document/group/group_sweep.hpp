@@ -2,6 +2,7 @@
 #include "group.hpp"
 #include "igroup_generate.hpp"
 #include "igroup_solid_model.hpp"
+#include "igroup_source_group.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -9,13 +10,18 @@ namespace dune3d {
 class Document;
 class SolidModel;
 
-class GroupSweep : public Group, public IGroupGenerate, public IGroupSolidModel {
+class GroupSweep : public Group, public IGroupGenerate, public IGroupSolidModel, public IGroupSourceGroup {
 public:
     explicit GroupSweep(const UUID &uu);
     explicit GroupSweep(const UUID &uu, const json &j);
 
     UUID m_wrkpl;
     UUID m_source_group;
+
+    UUID get_source_group() const override
+    {
+        return m_source_group;
+    }
 
     std::shared_ptr<const SolidModel> m_solid_model;
 
