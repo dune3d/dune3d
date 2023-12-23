@@ -25,6 +25,8 @@ std::filesystem::path path_from_string(const std::string &path)
 std::optional<std::filesystem::path> get_relative_filename(const std::filesystem::path &p,
                                                            const std::filesystem::path &b)
 {
+    if (b == std::filesystem::path{})
+        return {};
     for (auto ip = p.begin(), ib = b.begin(); ib != b.end(); ip++, ib++) {
         if (ip == p.end() || *ip != *ib)
             return {};
