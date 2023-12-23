@@ -31,3 +31,7 @@
 .welcome-title {font-weight: 800; font-size: 150%;}
 
 .action-button {padding: 4px;}
+
+/* workarounds for theme bugs */
+.navigation-sidebar :selected image {color: @theme_fg_color;}
+button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
