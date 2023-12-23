@@ -1172,6 +1172,12 @@ void Canvas::set_appearance(const Appearance &appearance)
     queue_draw();
 }
 
+void Canvas::set_clipping_planes(const ClippingPlanes &planes)
+{
+    m_clipping_planes = planes;
+    queue_draw();
+}
+
 void Canvas::set_projection(Projection proj)
 {
     m_projection = proj;

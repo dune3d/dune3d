@@ -67,6 +67,8 @@ void FaceRenderer::realize()
     GET_LOC(this, origin);
     GET_LOC(this, normal_mat);
     GET_LOC(this, override_color);
+    GET_LOC(this, clipping_value);
+    GET_LOC(this, clipping_op);
 }
 
 void FaceRenderer::push()
@@ -86,6 +88,16 @@ void FaceRenderer::push()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+static int get_clipping_op(const ClippingPlanes::Plane &plane)
+{
+    if (!plane.enabled)
+        return 0;
+    if (plane.operation == ClippingPlanes::Plane::Operation::CLIP_GREATER)
+        return 1;
+    else
+        return -1;
+}
+
 void FaceRenderer::render()
 {
     glUseProgram(m_program);
@@ -93,6 +105,19 @@ void FaceRenderer::render()
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
 
     load_uniforms();
+    glm::vec3 clipping_value;
+    clipping_value.x = m_ca.m_clipping_planes.x.value;
+    clipping_value.z = m_ca.m_clipping_planes.y.value;
+    clipping_value.z = m_ca.m_clipping_planes.z.value;
+
+    glm::ivec3 clipping_op;
+    clipping_op.x = get_clipping_op(m_ca.m_clipping_planes.x);
+    clipping_op.y = get_clipping_op(m_ca.m_clipping_planes.y);
+    clipping_op.z = get_clipping_op(m_ca.m_clipping_planes.z);
+
+
+    glUniform3fv(m_clipping_value_loc, 1, glm::value_ptr(clipping_value));
+    glUniform3iv(m_clipping_op_loc, 1, glm::value_ptr(clipping_op));
 
     glUniform3fv(m_cam_normal_loc, 1, glm::value_ptr(m_ca.m_cam_normal));
 

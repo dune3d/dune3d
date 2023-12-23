@@ -29,6 +29,7 @@
 #include "document/export_paths.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
 #include "document/constraint/iconstraint_workplane.hpp"
+#include "widgets/clipping_plane_window.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -37,6 +38,8 @@ Editor::Editor(Dune3DAppWindow &win, Preferences &prefs)
 {
     m_drag_tool = ToolID::NONE;
 }
+
+Editor::~Editor() = default;
 
 void Editor::init()
 {
@@ -101,9 +104,25 @@ void Editor::init()
 
     init_view_options();
 
+    m_clipping_plane_window = std::make_unique<ClippingPlaneWindow>();
+    m_clipping_plane_window->set_transient_for(m_win);
+    connect_action(ActionID::CLIPPING_PLANE_WINDOW, [this](const auto &a) { m_clipping_plane_window->present(); });
+    connect_action(ActionID::TOGGLE_CLIPPING_PLANES,
+                   [this](const auto &a) { m_clipping_plane_window->toggle_global(); });
+    m_clipping_plane_window->signal_changed().connect([this] {
+        get_canvas().set_clipping_planes(m_clipping_plane_window->get_planes());
+        update_view_hints();
+    });
+    m_clipping_plane_window->set_hide_on_close(true);
+
 
     update_action_sensitivity();
     reset_key_hint_label();
+}
+
+void Editor::add_tool_action(ActionToolID id, const std::string &action)
+{
+    m_win.add_action(action, [this, id] { trigger_action(id); });
 }
 
 void Editor::init_view_options()
@@ -118,11 +137,15 @@ void Editor::init_view_options()
 
     m_view_options_menu = Gio::Menu::create();
     m_perspective_action = m_win.add_action_bool("perspective", false);
-    m_view_options_menu->append("Perspective projection", "win.perspective");
     m_perspective_action->signal_change_state().connect([this](const Glib::VariantBase &v) {
         auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
         set_perspective_projection(b);
     });
+
+    add_tool_action(ActionID::CLIPPING_PLANE_WINDOW, "clipping_planes");
+
+    m_view_options_menu->append("Clipping planes", "win.clipping_planes");
+    m_view_options_menu->append("Perspective projection", "win.perspective");
 
     view_options_popover->set_menu_model(m_view_options_menu);
 }
@@ -692,6 +715,19 @@ void Editor::update_view_hints()
     std::vector<std::string> hints;
     if (get_canvas().get_projection() == Canvas::Projection::PERSP)
         hints.push_back("persp.");
+    {
+        const auto cl = get_canvas().get_clipping_planes();
+        if (cl.x.enabled || cl.y.enabled || cl.z.enabled) {
+            std::string s = "clipped:";
+            if (cl.x.enabled)
+                s += "x";
+            if (cl.y.enabled)
+                s += "y";
+            if (cl.z.enabled)
+                s += "z";
+            hints.push_back(s);
+        }
+    }
     m_win.set_view_hints_label(hints);
 }
 

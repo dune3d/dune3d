@@ -110,6 +110,9 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::DRAW_RECTANGLE, {"Draw rectangle", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::EXPORT_PATHS, {"Export paths", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::EXPORT_PROJECTION, {"Export projection", ActionGroup::DOCUMENT, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::CLIPPING_PLANE_WINDOW, {"Clipping planes", ActionGroup::VIEW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::TOGGLE_CLIPPING_PLANES,
+         {"Toggle clipping planes", ActionGroup::VIEW, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -165,6 +168,8 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(VIEW_RESET_TILT),
         ACTION_LUT_ITEM(SELECT_PATH),
         ACTION_LUT_ITEM(EXPORT_PATHS),
+        ACTION_LUT_ITEM(CLIPPING_PLANE_WINDOW),
+        ACTION_LUT_ITEM(TOGGLE_CLIPPING_PLANES),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \

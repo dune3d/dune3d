@@ -6,6 +6,7 @@ in vec3 color;
 
 out vec3 normal_to_fragment;
 out vec3 color_to_fragment;
+out vec3 pos_to_fragment;
 
 uniform mat4 view;
 uniform mat4 proj;
@@ -23,5 +24,6 @@ void main()
     vec4 n4 = vec4(normal, 0);
 
     gl_Position = (proj * view) * p4;
+    pos_to_fragment = p4.xyz;
     normal_to_fragment = normalize(n4.xyz);
 }

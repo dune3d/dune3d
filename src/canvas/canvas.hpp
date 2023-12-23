@@ -16,6 +16,7 @@
 #include "face.hpp"
 #include "appearance.hpp"
 #include "util/msd_animator.hpp"
+#include "clipping_planes.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -153,6 +154,12 @@ public:
 
     void set_appearance(const Appearance &appearance);
 
+    void set_clipping_planes(const ClippingPlanes &planes);
+
+    const auto &get_clipping_planes() const
+    {
+        return m_clipping_planes;
+    }
 
     void end_pan();
 
@@ -477,6 +484,8 @@ private:
     bool m_inhibit_drag_selection = false;
 
     int m_scale_factor = 1;
+
+    ClippingPlanes m_clipping_planes;
 };
 
 } // namespace dune3d

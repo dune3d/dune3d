@@ -178,6 +178,7 @@ src = files(
   'src/widgets/recent_item_box.cpp',
   'src/widgets/log_view.cpp',
   'src/widgets/log_window.cpp',
+  'src/widgets/clipping_plane_window.cpp',
   'src/util/version.cpp',
   'src/util/msd.cpp',
   'src/util/msd_animator.cpp',

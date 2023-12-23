@@ -23,6 +23,7 @@ class SelectionEditor;
 class WorkspaceBrowser;
 class Dune3DAppWindow;
 class Canvas;
+class ClippingPlaneWindow;
 enum class SelectionMode;
 
 class Editor : private EditorInterface {
@@ -58,6 +59,8 @@ public:
     void set_canvas_selection_mode(SelectionMode mode) override;
 
     void open_file(const std::filesystem::path &path);
+
+    ~Editor();
 
 private:
     void init_workspace_browser();
@@ -122,6 +125,7 @@ private:
     Glib::RefPtr<Gio::Menu> m_view_options_menu;
     Glib::RefPtr<Gio::SimpleAction> m_perspective_action;
     void set_perspective_projection(bool persp);
+    void add_tool_action(ActionToolID id, const std::string &action);
 
     void update_view_hints();
 
@@ -195,6 +199,8 @@ private:
     ToolID m_drag_tool;
     std::set<SelectableRef> m_selection_for_drag;
     glm::dvec2 m_cursor_pos_win_drag_begin;
+
+    std::unique_ptr<ClippingPlaneWindow> m_clipping_plane_window;
 
     void update_version_info();
 
