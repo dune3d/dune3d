@@ -22,13 +22,12 @@ static std::shared_ptr<const SolidModel> create_array(const Document &doc, Group
     auto mod = std::make_shared<SolidModelOcc>();
     group.m_array_messages.clear();
 
-
-    const auto last_solid_model_group = SolidModel::get_last_solid_model_group(doc, group);
-    if (!last_solid_model_group) {
+    auto solid_model_group = dynamic_cast<const IGroupSolidModel *>(&doc.get_group(group.m_source_group));
+    if (!solid_model_group)
         return nullptr;
-    }
-    group.m_operation = last_solid_model_group->get_operation();
-    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(last_solid_model_group->get_solid_model());
+
+    group.m_operation = solid_model_group->get_operation();
+    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(solid_model_group->get_solid_model());
     if (!last_solid_model) {
         return nullptr;
     }
