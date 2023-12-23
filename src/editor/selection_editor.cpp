@@ -196,28 +196,26 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
         remove(*m_editor);
         m_editor = nullptr;
     }
-    if (!m_core.has_documents())
-        return;
-
-
-    if (auto wrkpl = entity_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE)) {
-        m_title->set_label("Workplane");
-        m_title->set_tooltip_text((std::string)*wrkpl);
-        auto ed = Gtk::make_managed<WorkplaneEditor>(m_core.get_current_document(), *wrkpl);
-        m_editor = ed;
-        ed->signal_changed().connect([this] { m_signal_changed.emit(); });
-    }
-    else if (auto step = entity_from_selection(m_core.get_current_document(), sel, Entity::Type::STEP)) {
-        m_title->set_label("STEP");
-        m_title->set_tooltip_text((std::string)*step);
-        auto ed = Gtk::make_managed<STEPEditor>(m_core.get_current_document_directory(),
-                                                m_core.get_current_document().get_entity<EntitySTEP>(*step));
-        m_editor = ed;
-        ed->signal_changed().connect([this] { m_signal_changed.emit(); });
-    }
-    else if (sel.size()) {
-        m_title->set_label("");
-        m_editor = Gtk::make_managed<GenericEditor>(m_core.get_current_document(), sel);
+    if (m_core.has_documents()) {
+        if (auto wrkpl = entity_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE)) {
+            m_title->set_label("Workplane");
+            m_title->set_tooltip_text((std::string)*wrkpl);
+            auto ed = Gtk::make_managed<WorkplaneEditor>(m_core.get_current_document(), *wrkpl);
+            m_editor = ed;
+            ed->signal_changed().connect([this] { m_signal_changed.emit(); });
+        }
+        else if (auto step = entity_from_selection(m_core.get_current_document(), sel, Entity::Type::STEP)) {
+            m_title->set_label("STEP");
+            m_title->set_tooltip_text((std::string)*step);
+            auto ed = Gtk::make_managed<STEPEditor>(m_core.get_current_document_directory(),
+                                                    m_core.get_current_document().get_entity<EntitySTEP>(*step));
+            m_editor = ed;
+            ed->signal_changed().connect([this] { m_signal_changed.emit(); });
+        }
+        else if (sel.size()) {
+            m_title->set_label("");
+            m_editor = Gtk::make_managed<GenericEditor>(m_core.get_current_document(), sel);
+        }
     }
 
     if (!m_editor) {

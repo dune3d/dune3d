@@ -56,6 +56,7 @@ void Editor::on_workspace_browser_group_selected(const UUID &uu_doc, const UUID 
         update_group_editor();
         update_action_sensitivity();
         update_action_bar_buttons_sensitivity();
+        update_selection_editor();
     }
 }
 

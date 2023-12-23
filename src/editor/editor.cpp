@@ -91,6 +91,7 @@ void Editor::init()
         update_version_info();
         update_action_bar_buttons_sensitivity();
         update_action_bar_visibility();
+        update_selection_editor();
     });
 
     attach_action_button(m_win.get_welcome_open_button(), ActionID::OPEN_DOCUMENT);
