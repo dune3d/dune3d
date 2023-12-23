@@ -52,6 +52,7 @@ ToolResponse ToolDrawContour::begin(const ToolArgs &args)
         }
         update_constrain_tangent();
     }
+    update_tip();
 
     return ToolResponse();
 }
