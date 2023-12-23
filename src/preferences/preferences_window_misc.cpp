@@ -26,6 +26,28 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
         }
     }
     {
+        auto gr = Gtk::make_managed<PreferencesGroup>("Action Bar");
+        box->append(*gr);
+        gr->show();
+        {
+            auto r = Gtk::make_managed<PreferencesRowBool>(
+                    "Use action bar", "Show action bar in editors to quickly access commonly-used tools", m_preferences,
+                    m_preferences.action_bar.enable);
+            gr->add_row(*r);
+        }
+        /* {
+             auto r = Gtk::manage(new PreferencesRowBool("Remember last action",
+                                                         "Show last-used action in button instead of the default one",
+                                                         preferences, preferences.action_bar.remember));
+             gr->add_row(*r);
+         }*/
+        {
+            auto r = Gtk::make_managed<PreferencesRowBool>("Always show", "Also show action bar if a tool is active",
+                                                           m_preferences, m_preferences.action_bar.show_in_tool);
+            gr->add_row(*r);
+        }
+    }
+    {
         auto gr = Gtk::make_managed<PreferencesGroup>("Tool Bar");
         box->append(*gr);
         {

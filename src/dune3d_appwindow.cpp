@@ -165,6 +165,9 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
         sg->add_widget(*refBuilder->get_widget<Gtk::Label>("welcome_recent_label"));
     }
 
+    m_action_bar_box = refBuilder->get_widget<Gtk::Box>("action_bar_box");
+    m_action_bar_revealer = refBuilder->get_widget<Gtk::Revealer>("action_bar_revealer");
+
     update_recent_listbox(*m_welcome_recent_listbox, m_app);
     m_welcome_recent_search_entry->signal_changed().connect(
             [this] { update_recent_search(*m_welcome_recent_search_entry, *m_welcome_recent_listbox); });
@@ -292,6 +295,16 @@ void Dune3DAppWindow::set_welcome_box_visible(bool v)
         m_welcome_recent_search_entry->set_text("");
         update_recent_listbox(*m_welcome_recent_listbox, m_app);
     }
+}
+
+void Dune3DAppWindow::add_action_button(Gtk::Widget &widget)
+{
+    m_action_bar_box->append(widget);
+}
+
+void Dune3DAppWindow::set_action_bar_visible(bool v)
+{
+    m_action_bar_revealer->set_reveal_child(v);
 }
 
 

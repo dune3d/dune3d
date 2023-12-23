@@ -86,13 +86,100 @@ void Editor::init()
         m_workspace_browser->set_sensitive(m_core.has_documents());
         m_win.set_welcome_box_visible(!m_core.has_documents());
         update_version_info();
+        update_action_bar_buttons_sensitivity();
+        update_action_bar_visibility();
     });
 
     attach_action_button(m_win.get_welcome_open_button(), ActionID::OPEN_DOCUMENT);
     attach_action_button(m_win.get_welcome_new_button(), ActionID::NEW_DOCUMENT);
 
+    create_action_bar_button(ToolID::DRAW_CONTOUR);
+    create_action_bar_button(ToolID::DRAW_RECTANGLE);
+    create_action_bar_button(ToolID::DRAW_CIRCLE_2D);
+    create_action_bar_button(ToolID::DRAW_REGULAR_POLYGON);
+    create_action_bar_button(ToolID::DRAW_WORKPLANE);
+
     update_action_sensitivity();
     reset_key_hint_label();
+}
+
+Gtk::Button &Editor::create_action_bar_button(ActionToolID action)
+{
+    static const std::map<ActionToolID, std::string> action_icons = {
+            {ToolID::DRAW_CONTOUR, "action-draw-contour-symbolic"},
+            {ToolID::DRAW_CIRCLE_2D, "action-draw-line-circle-symbolic"},
+            {ToolID::DRAW_RECTANGLE, "action-draw-line-rectangle-symbolic"},
+            {ToolID::DRAW_REGULAR_POLYGON, "action-draw-line-regular-polygon-symbolic"},
+            {ToolID::DRAW_WORKPLANE, "action-draw-workplane-symbolic"},
+    };
+    auto bu = Gtk::make_managed<Gtk::Button>();
+    bu->set_tooltip_text(action_catalog.at(action).name);
+    auto img = Gtk::make_managed<Gtk::Image>();
+    if (action_icons.count(action))
+        img->set_from_icon_name(action_icons.at(action));
+    else
+        img->set_from_icon_name("face-worried-symbolic");
+    img->set_icon_size(Gtk::IconSize::LARGE);
+    bu->set_child(*img);
+    bu->add_css_class("osd");
+    bu->add_css_class("action-button");
+    bu->signal_clicked().connect([this, action] {
+        if (force_end_tool())
+            trigger_action(action);
+    });
+    m_win.add_action_button(*bu);
+    m_action_bar_buttons.emplace(action, bu);
+    return *bu;
+}
+
+bool Editor::force_end_tool()
+{
+    if (!m_core.tool_is_active())
+        return true;
+
+    for (auto i = 0; i < 5; i++) {
+        ToolArgs args;
+        args.type = ToolEventType::ACTION;
+        args.action = InToolActionID::CANCEL;
+        ToolResponse r = m_core.tool_update(args);
+        tool_process(r);
+        if (!m_core.tool_is_active())
+            return true;
+    }
+    Logger::get().log_critical("Tool didn't end", Logger::Domain::EDITOR, "end the tool and repeat the last action");
+    return false;
+}
+
+void Editor::update_action_bar_buttons_sensitivity()
+{
+    auto has_docs = m_core.has_documents();
+    for (auto &[act, bu] : m_action_bar_buttons) {
+        auto sensitive = false;
+        if (has_docs) {
+            if (std::holds_alternative<ActionID>(act)) {
+                auto a = std::get<ActionID>(act);
+                if (m_action_sensitivity.contains(a))
+                    sensitive = m_action_sensitivity.at(a);
+            }
+            else {
+                sensitive = m_core.tool_can_begin(std::get<ToolID>(act), {}).can_begin;
+            }
+        }
+        bu->set_sensitive(sensitive);
+    }
+}
+
+void Editor::update_action_bar_visibility()
+{
+    bool visible = false;
+    if (m_preferences.action_bar.enable && m_core.has_documents()) {
+        auto tool_is_active = m_core.tool_is_active();
+        if (m_preferences.action_bar.show_in_tool)
+            visible = true;
+        else
+            visible = !tool_is_active;
+    }
+    m_win.set_action_bar_visible(visible);
 }
 
 static std::string action_tool_id_to_string(ActionToolID id)
@@ -1125,6 +1212,7 @@ void Editor::apply_preferences()
     get_canvas().set_enable_animations(m_preferences.canvas.enable_animations);
 
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
+    update_action_bar_visibility();
     /*
         key_sequence_dialog->clear();
         for (const auto &it : action_connections) {
@@ -1324,6 +1412,7 @@ void Editor::tool_process_one()
         m_solid_model_edge_select_mode = false;
         update_workplane_label();
         update_selection_editor();
+        update_action_bar_buttons_sensitivity(); // due to workplane change
     }
     if (!m_no_canvas_update)
         canvas_update();
@@ -1658,6 +1747,7 @@ void Editor::handle_tool_change()
     }
     m_win.tool_bar_set_visible(tool_id != ToolID::NONE);
     tool_bar_clear_actions();
+    update_action_bar_visibility();
 }
 
 void Editor::tool_bar_clear_actions()

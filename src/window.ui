@@ -231,6 +231,23 @@ welcome-box</property>
                         </child>
                       </object>
                     </child>
+                    <child type="overlay">
+                      <object class="GtkRevealer" id="action_bar_revealer">
+                        <property name="halign">start</property>
+                        <property name="margin-top">50</property>
+                        <property name="reveal-child">True</property>
+                        <property name="transition-type">slide-right</property>
+                        <property name="valign">start</property>
+                        <child>
+                          <object class="GtkBox" id="action_bar_box">
+                            <property name="margin-end">7</property>
+                            <property name="margin-start">7</property>
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                     <child>
                       <object class="GtkBox" id="canvas_box">
                         <property name="vexpand">True</property>

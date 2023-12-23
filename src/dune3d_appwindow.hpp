@@ -113,6 +113,8 @@ public:
 
     void set_welcome_box_visible(bool v);
 
+    void add_action_button(Gtk::Widget &widget);
+    void set_action_bar_visible(bool v);
 
 private:
     Dune3DApplication &m_app;
@@ -152,6 +154,9 @@ private:
     Gtk::ListBox *m_welcome_recent_listbox = nullptr;
     Gtk::Button *m_welcome_new_button = nullptr;
     Gtk::Button *m_welcome_open_button = nullptr;
+
+    Gtk::Box *m_action_bar_box = nullptr;
+    Gtk::Revealer *m_action_bar_revealer = nullptr;
 
     Gtk::Paned *m_left_bar = nullptr;
 

@@ -55,6 +55,7 @@ void Editor::on_workspace_browser_group_selected(const UUID &uu_doc, const UUID 
         m_constraints_box->update();
         update_group_editor();
         update_action_sensitivity();
+        update_action_bar_buttons_sensitivity();
     }
 }
 
