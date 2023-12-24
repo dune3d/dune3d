@@ -355,6 +355,8 @@ void Editor::init_canvas()
             if (enp.entity == constraint_wrkpl)
                 continue;
             sel.emplace(UUID(), SelectableRef::Type::ENTITY, enp.entity, enp.point);
+            if (enp.point != 0)
+                sel.emplace(UUID(), SelectableRef::Type::ENTITY, enp.entity, 0);
             enps[enp.entity].insert(enp.point);
         }
         for (const auto &[uu, pts] : enps) {
