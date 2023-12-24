@@ -2,6 +2,7 @@
 #include "uuid.hpp"
 #include <optional>
 #include <set>
+#include <array>
 #include "document/entity/entity_and_point.hpp"
 
 namespace dune3d {
@@ -40,4 +41,13 @@ circle_and_point_from_selection(const Document &doc, const std::set<SelectableRe
 std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
 std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                                               EntityType type);
+
+
+struct LinesAndPoint {
+    std::array<UUID, 2> lines;
+    EntityAndPoint point;
+};
+
+std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
+
 } // namespace dune3d
