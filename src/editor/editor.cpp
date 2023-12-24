@@ -667,6 +667,7 @@ void Editor::init_actions()
         auto &cb = m_win.get_workplane_checkbutton();
         cb.set_active(!cb.get_active());
     });
+    m_win.get_workplane_checkbutton().signal_toggled().connect([this] { update_action_bar_buttons_sensitivity(); });
 
     connect_action(ActionID::SELECT_PATH, [this](auto &a) {
         auto &doc = m_core.get_current_document();
