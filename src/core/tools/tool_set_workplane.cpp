@@ -16,7 +16,7 @@ bool ToolSetWorkplane::is_specific()
 bool ToolSetWorkplane::can_begin()
 {
     if (m_tool_id == ToolID::SET_WORKPLANE) {
-        auto wrkpl = entity_from_selection(get_doc(), m_selection, Entity::Type::WORKPLANE);
+        auto wrkpl = entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::WORKPLANE);
         return wrkpl.has_value();
     }
     else { // UNSET_WORKPLANE
@@ -27,8 +27,8 @@ bool ToolSetWorkplane::can_begin()
 ToolResponse ToolSetWorkplane::begin(const ToolArgs &args)
 {
     if (m_tool_id == ToolID::SET_WORKPLANE) {
-        auto wrkpl = entity_from_selection(get_doc(), m_selection, Entity::Type::WORKPLANE);
-        get_group().m_active_wrkpl = wrkpl.value();
+        auto wrkpl = entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::WORKPLANE);
+        get_group().m_active_wrkpl = wrkpl->entity;
     }
     else {
         get_group().m_active_wrkpl = UUID();

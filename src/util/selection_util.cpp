@@ -158,24 +158,18 @@ std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &do
     return sr1.get_entity_and_point();
 }
 
-std::optional<UUID> entity_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                                              Entity::Type type)
 {
-    if (auto enp = entity_and_point_from_selection(doc, sel)) {
-        if (enp->point == 0)
-            return enp->entity;
-    }
-    return {};
+    auto enp = entity_and_point_from_selection(doc, sel);
+    if (!enp)
+        return {};
+
+    if (!doc.get_entity(enp->entity).of_type(type))
+        return {};
+
+    return enp;
 }
 
-std::optional<UUID> entity_from_selection(const Document &doc, const std::set<SelectableRef> &sel, Entity::Type type)
-{
-    auto en = entity_from_selection(doc, sel);
-    if (!en)
-        return {};
-    if (doc.get_entity(*en).get_type() == type)
-        return en;
-    else
-        return {};
-}
 
 } // namespace dune3d

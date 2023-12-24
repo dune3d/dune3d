@@ -16,11 +16,13 @@ bool ToolConstrainDiameterRadius::can_begin()
     if (!get_workplane_uuid())
         return false;
 
-    auto uu = entity_from_selection(get_doc(), m_selection);
-    if (!uu)
+    auto enp = entity_and_point_from_selection(get_doc(), m_selection);
+    if (!enp)
+        return false;
+    if (enp->point != 0)
         return false;
     auto &doc = get_doc();
-    auto &en = doc.get_entity(*uu);
+    auto &en = get_entity(enp->entity);
     if (!en.of_type(Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D))
         return false;
 
@@ -33,8 +35,8 @@ bool ToolConstrainDiameterRadius::can_begin()
 
 ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
 {
-    auto uu = entity_from_selection(m_core.get_current_document(), m_selection);
-    if (!uu.has_value())
+    auto enp = entity_and_point_from_selection(m_core.get_current_document(), m_selection);
+    if (!enp.has_value())
         return ToolResponse::end();
 
     ConstraintDiameterRadius *constraint = nullptr;
@@ -51,7 +53,7 @@ ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
         return ToolResponse::end();
     }
 
-    constraint->m_entity = *uu;
+    constraint->m_entity = enp->entity;
     constraint->measure(get_doc());
 
     reset_selection_after_constrain();

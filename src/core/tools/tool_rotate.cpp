@@ -16,10 +16,10 @@ namespace dune3d {
 
 bool ToolRotate::can_begin()
 {
-    auto uu = entity_from_selection(get_doc(), m_selection);
-    if (!uu)
+    auto enp = entity_and_point_from_selection(get_doc(), m_selection);
+    if (!enp)
         return false;
-    auto &en = get_entity(*uu);
+    auto &en = get_entity(enp->entity);
     if (!en.can_move(get_doc()))
         return false;
     return dynamic_cast<IEntityNormal *>(&en);
@@ -27,15 +27,10 @@ bool ToolRotate::can_begin()
 
 ToolResponse ToolRotate::begin(const ToolArgs &args)
 {
-    if (m_selection.size() != 1)
-        return ToolResponse::end();
-    auto &sr = *m_selection.begin();
-
-    if (sr.type != SelectableRef::Type::ENTITY)
-        return ToolResponse::end();
+    auto enp = entity_and_point_from_selection(get_doc(), m_selection);
 
     {
-        auto &en = get_entity(sr.item);
+        auto &en = get_entity(enp.value().entity);
         m_entity = dynamic_cast<IEntityNormal *>(&en);
     }
     if (!m_entity)
