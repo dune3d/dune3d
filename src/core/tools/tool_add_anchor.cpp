@@ -2,24 +2,18 @@
 #include "document/document.hpp"
 #include "document/entity/entity_step.hpp"
 #include <optional>
-#include <iostream>
 #include <algorithm>
 #include "util/selection_util.hpp"
 #include "editor/editor_interface.hpp"
-
+#include "util/action_label.hpp"
+#include "in_tool_action/in_tool_action.hpp"
 
 namespace dune3d {
 
 
 bool ToolAddAnchor::can_begin()
 {
-    if (m_selection.size() != 1)
-        return false;
-    auto sr = *m_selection.begin();
-    if (sr.type != SelectableRef::Type::ENTITY)
-        return false;
-    auto &en = m_core.get_current_document().get_entity(sr.item);
-    return en.get_type() == Entity::Type::STEP;
+    return entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::STEP).has_value();
 }
 
 ToolResponse ToolAddAnchor::begin(const ToolArgs &args)
@@ -33,6 +27,15 @@ ToolResponse ToolAddAnchor::begin(const ToolArgs &args)
     m_intf.enable_hover_selection();
     m_intf.set_no_canvas_update(true);
     m_intf.canvas_update_from_tool();
+
+    {
+        std::vector<ActionLabelInfo> actions;
+        actions.emplace_back(InToolActionID::LMB, "add point");
+        actions.emplace_back(InToolActionID::RMB, "finish");
+        actions.emplace_back(InToolActionID::CANCEL, "cancel");
+        m_intf.tool_bar_set_actions(actions);
+    }
+
 
     return ToolResponse();
 }
