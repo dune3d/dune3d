@@ -438,6 +438,19 @@ void Renderer::visit(const ConstraintPointLineDistance &constr)
     m_ca.set_vertex_constraint(false);
 }
 
+void Renderer::visit(const ConstraintPointPlaneDistance &constr)
+{
+    m_ca.set_vertex_constraint(true);
+
+    const auto pp = m_doc->get_point(constr.m_point);
+    const auto pproj = constr.get_projected(*m_doc);
+    auto p = constr.get_origin(*m_doc) + constr.m_offset;
+
+    draw_distance_line(pproj, pp, p, std::abs(constr.m_distance), constr.m_uuid);
+
+    m_ca.set_vertex_constraint(false);
+}
+
 void Renderer::visit(const ConstraintDiameterRadius &constr)
 {
     m_ca.set_vertex_constraint(true);

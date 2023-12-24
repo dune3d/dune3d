@@ -5,6 +5,7 @@
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_point_distance_hv.hpp"
 #include "document/constraint/constraint_point_line_distance.hpp"
+#include "document/constraint/constraint_point_plane_distance.hpp"
 #include "util/selection_util.hpp"
 #include "util/template_util.hpp"
 #include "core/tool_id.hpp"
@@ -19,8 +20,9 @@ bool ToolConstrainDistance::can_begin()
         return false;
 
     auto lp = line_and_point_from_selection(get_doc(), m_selection, LineAndPoint::AllowSameEntity::NO);
+    auto lps = lines_and_point_from_selection(get_doc(), m_selection);
     auto tp = two_points_from_selection(get_doc(), m_selection);
-    if (!tp && !lp)
+    if (!tp && !lp && !lps)
         return false;
     if (tp) {
         auto constraints = get_doc().find_constraints(tp->get_enps());
@@ -57,6 +59,15 @@ bool ToolConstrainDistance::can_begin()
 
         return true;
     }
+    else if (lps && m_tool_id == ToolID::CONSTRAIN_DISTANCE) {
+        auto constraints = get_doc().find_constraints(lp->get_enps());
+        for (auto constraint : constraints) {
+            if (constraint->of_type(Constraint::Type::POINT_PLANE_DISTANCE))
+                return false;
+        }
+
+        return true;
+    }
     return false;
 }
 
@@ -64,7 +75,9 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
 {
     auto tp = two_points_from_selection(get_doc(), m_selection);
     auto lp = line_and_point_from_selection(get_doc(), m_selection, LineAndPoint::AllowSameEntity::NO);
-    if (!tp && !lp)
+    auto lps = lines_and_point_from_selection(get_doc(), m_selection);
+
+    if (!tp && !lp && !lps)
         return ToolResponse::end();
 
     if (tp) {
@@ -96,6 +109,13 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
         constraint.m_point = lp->point;
         constraint.m_wrkpl = get_workplane_uuid();
         constraint.m_modify_to_satisfy = true;
+    }
+    else if (lps) {
+        auto &constraint = add_constraint<ConstraintPointPlaneDistance>();
+        constraint.m_line1 = lps->lines.at(0);
+        constraint.m_line2 = lps->lines.at(1);
+        constraint.m_point = lps->point;
+        constraint.m_distance = constraint.measure_distance(get_doc());
     }
 
     reset_selection_after_constrain();

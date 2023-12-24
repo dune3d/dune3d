@@ -1622,6 +1622,20 @@ void System::visit(const ConstraintPointInPlane &constraint)
     AddEq(hConstraint{c}, &m_sys->eq, norm.Dot(v), 0);
 }
 
+void System::visit(const ConstraintPointPlaneDistance &constraint)
+{
+    const auto c = n_constraint++;
+
+    auto en_p_ref = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_line1, 1})});
+    auto en_line1 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_line1, 0})});
+    auto en_line2 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_line2, 0})});
+    auto en_p = SK.GetEntity({get_entity_ref(constraint.m_point)});
+    auto norm = en_line1->VectorGetExprs().Cross(en_line2->VectorGetExprs()).WithMagnitude(Expr::From(1.0));
+    auto v = en_p->PointGetExprs().Minus(en_p_ref->PointGetExprs());
+
+    AddEq(hConstraint{c}, &m_sys->eq, norm.Dot(v)->Minus(Expr::From(constraint.m_distance)), 0);
+}
+
 int System::get_group_index(const UUID &uu) const
 {
     return m_doc.get_group(uu).get_index() + 1;
