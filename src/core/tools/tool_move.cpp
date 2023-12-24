@@ -200,16 +200,18 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                 auto constraint = doc.m_constraints.at(sr.item).get();
                 auto co_wrkpl = dynamic_cast<const IConstraintWorkplane *>(constraint);
                 auto co_movable = dynamic_cast<IConstraintMovable *>(constraint);
-                if (co_wrkpl && co_movable) {
-                    auto wrkpl_uu = co_wrkpl->get_workplane(get_doc());
+                if (co_movable) {
                     auto cdelta = delta;
                     glm::dvec2 delta2d;
-                    if (wrkpl_uu) {
-                        auto &wrkpl = get_entity<EntityWorkplane>(wrkpl_uu);
-                        delta2d = wrkpl.project(
-                                          m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector()))
-                                  - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                        cdelta = wrkpl.transform_relative(delta2d);
+                    if (co_wrkpl) {
+                        const auto wrkpl_uu = co_wrkpl->get_workplane(get_doc());
+                        if (wrkpl_uu) {
+                            auto &wrkpl = get_entity<EntityWorkplane>(wrkpl_uu);
+                            delta2d = wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin,
+                                                                                    wrkpl.get_normal_vector()))
+                                      - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                            cdelta = wrkpl.transform_relative(delta2d);
+                        }
                     }
                     auto &co_last = dynamic_cast<const IConstraintMovable &>(*last_doc.m_constraints.at(sr.item));
                     const auto odelta = (co_movable->get_origin(doc) - co_last.get_origin(last_doc));
