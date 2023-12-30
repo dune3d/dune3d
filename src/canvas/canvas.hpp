@@ -487,6 +487,10 @@ private:
     int m_scale_factor = 1;
 
     ClippingPlanes m_clipping_planes;
+
+    bool have_spnav = false;
+    void handle_spnav();
+    sigc::connection spnav_connection;
 };
 
 } // namespace dune3d

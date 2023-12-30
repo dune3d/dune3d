@@ -13,6 +13,9 @@
 #include <glm/gtx/io.hpp>
 #include <fstream>
 
+#ifdef HAVE_SPNAV
+#include <spnav.h>
+#endif
 
 namespace dune3d {
 
@@ -34,6 +37,24 @@ Canvas::Canvas()
 
     m_cam_quat = glm::quat_identity<float, glm::defaultp>();
 
+#ifdef HAVE_SPNAV
+    if (spnav_open() != -1) {
+        if (auto fd = spnav_fd(); fd != -1) {
+            have_spnav = true;
+            auto chan = Glib::IOChannel::create_from_fd(fd);
+            spnav_connection = Glib::signal_io().connect(
+                    [this](Glib::IOCondition cond) {
+                        if ((cond & Glib::IOCondition::IO_HUP) == Glib::IOCondition::IO_HUP) {
+                            return false;
+                        }
+                        handle_spnav();
+                        return true;
+                    },
+                    chan, Glib::IOCondition::IO_IN | Glib::IOCondition::IO_HUP);
+        }
+    }
+#endif
+
     m_animators.push_back(&m_quat_w_animator);
     m_animators.push_back(&m_quat_x_animator);
     m_animators.push_back(&m_quat_y_animator);
@@ -43,6 +64,43 @@ Canvas::Canvas()
     m_animators.push_back(&m_cy_animator);
     m_animators.push_back(&m_cz_animator);
 }
+
+#ifdef HAVE_SPNAV
+void Canvas::handle_spnav()
+{
+    spnav_event e;
+    auto top = dynamic_cast<Gtk::Window *>(get_ancestor(GTK_TYPE_WINDOW));
+
+    while (spnav_poll_event(&e)) {
+        if (!top->is_active())
+            continue;
+        switch (e.type) {
+        case SPNAV_EVENT_MOTION: {
+            const auto thre = 10.0f;
+            const auto values = {e.motion.x, e.motion.y, e.motion.z, e.motion.rx, e.motion.ry};
+            if (std::any_of(values.begin(), values.end(), [thre](auto x) { return std::abs(x) > thre; })) {
+                m_cam_distance *= pow(1.5f, e.motion.y * -0.001f);
+
+                // reduce shifting speed when zoomed in
+                auto scale_shift = 0.05f * (1.0f - (1.0f / pow(2.2f, m_cam_distance)));
+                const auto center_shift = get_center_shift(glm::vec2(e.motion.x, e.motion.z) * scale_shift);
+                m_center += center_shift;
+
+                // reduce rotation speed when zoomed in
+                auto scale_rot = -0.01f * (1.0f - (1.0f / pow(2.8f, m_cam_distance)));
+                auto ry = glm::angleAxis(glm::radians(e.motion.ry * scale_rot), glm::vec3(0, 0, 1));
+                auto rx = glm::angleAxis(glm::radians(e.motion.rx * scale_rot),
+                                         glm::rotate(m_cam_quat, glm::vec3(1, 0, 0)));
+                m_cam_quat = glm::normalize(ry * rx * m_cam_quat);
+
+                queue_draw();
+                m_signal_view_changed.emit();
+            }
+        } break;
+        }
+    }
+}
+#endif
 
 void Canvas::setup_controllers()
 {
