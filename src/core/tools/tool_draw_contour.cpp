@@ -124,7 +124,7 @@ bool ToolDrawContour::is_valid_tangent_point(const EntityAndPoint &enp)
     if (!dynamic_cast<const IEntityTangent *>(&en))
         return false;
     // if the point already has a coincident constraint, it's not possible to tell
-    // which one got selected, so the tanget would be arbitrary
+    // which one got selected, so the tangent would be arbitrary
     // so no tangent for us then
     for (auto constraint : en.get_constraints(get_doc())) {
         if (auto cc = dynamic_cast<const ConstraintPointsCoincident *>(constraint)) {
