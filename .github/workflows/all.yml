@@ -18,7 +18,7 @@ jobs:
   stylecheck:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install preliminary dependencies
       run: sudo apt-get update -y && sudo apt-get install curl gnupg apt-transport-https -y
     - name: Add clang 11.0 to apt sources
@@ -50,7 +50,7 @@ jobs:
     container: ${{ matrix.os.container }}
     needs: stylecheck
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: generate locales
       run: |
         apt-get update
@@ -74,7 +74,7 @@ jobs:
     container: archlinux:base-devel
     needs: stylecheck
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install updates
       run: pacman -Syu --noconfirm
     - name: Install dependencies
@@ -95,7 +95,7 @@ jobs:
     container: archlinux:base-devel
     needs: stylecheck
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install updates
       run: pacman -Syu --noconfirm
     - name: Install dependencies
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: stylecheck
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: nixbuild/nix-quick-install-action@v26
     - name: Build
       run: nix build .

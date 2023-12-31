@@ -18,7 +18,7 @@ jobs:
     - name: Check tag
       if: startsWith(github.ref, 'refs/tags/')
       run: echo "Building tag ${{ github.ref }}"
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: msys2/setup-msys2@v2
       with:
         update: true
