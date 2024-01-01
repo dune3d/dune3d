@@ -225,6 +225,30 @@ welcome-box</property>
                                     </property>
                                   </object>
                                 </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="spacing">10</property>
+                                    <property name="valign">end</property>
+                                    <property name="vexpand">True</property>
+                                    <child>
+                                      <object class="GtkImage">
+                                        <property name="icon-name">dialog-information-symbolic</property>
+                                        <property name="icon-size">large</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="halign">start</property>
+                                        <property name="justify">fill</property>
+                                        <property name="label">Press space anywhere in the 3D viewport to open the searchable global menu.</property>
+                                        <property name="max-width-chars">0</property>
+                                        <property name="natural-wrap-mode">word</property>
+                                        <property name="wrap">True</property>
+                                        <property name="xalign">0.0</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>
