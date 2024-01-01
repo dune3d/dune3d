@@ -1,5 +1,4 @@
 #include "gtk_util.hpp"
-#include <iostream>
 
 namespace dune3d {
 void install_esc_to_close(Gtk::Window &win)
@@ -51,7 +50,6 @@ void spinbutton_connect_activate_immediate(Gtk::SpinButton &sp, std::function<vo
         controller->set_propagation_phase(Gtk::PropagationPhase::CAPTURE);
         controller->signal_key_pressed().connect(
                 [&sp, cb](guint keyval, guint keycode, Gdk::ModifierType state) {
-                    std::cout << "kp " << keyval << std::endl;
                     if (keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter) {
                         sp.update();
                         cb();
