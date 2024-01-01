@@ -13,12 +13,14 @@ static std::list<UUID> lines_from_selection(const Document &doc, const std::set<
     std::list<UUID> r;
     for (const auto &sr : sel) {
         if (sr.type != SelectableRef::Type::ENTITY)
-            continue;
+            return {};
         if (sr.point != 0)
-            continue;
+            return {};
         auto &en = doc.get_entity(sr.item);
-        if (en.get_type() == Entity::Type::LINE_2D || en.get_type() == Entity::Type::LINE_3D)
+        if (en.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D))
             r.push_back(sr.item);
+        else
+            return {};
     }
     return r;
 }
