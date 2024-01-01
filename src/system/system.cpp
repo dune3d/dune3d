@@ -1508,6 +1508,22 @@ void System::visit(const ConstraintWorkplaneNormal &constraint)
     AddEq(hConstraint{c}, &m_sys->eq, xa.w->Minus(Expr::From(na.w)), 3);
 }
 
+void System::visit(const ConstraintLockRotation &constraint)
+{
+    auto en_wrkpl_normal = get_entity_ref(EntityRef{constraint.m_entity, 2});
+    EntityBase *a = SK.GetEntity({en_wrkpl_normal});
+    auto xa = a->NormalGetExprs();
+    a->noEquation = true; // we set everything
+    auto na = a->NormalGetNum();
+
+    const auto c = n_constraint++;
+
+    AddEq(hConstraint{c}, &m_sys->eq, xa.vx->Minus(Expr::From(na.vx)), 0);
+    AddEq(hConstraint{c}, &m_sys->eq, xa.vy->Minus(Expr::From(na.vy)), 1);
+    AddEq(hConstraint{c}, &m_sys->eq, xa.vz->Minus(Expr::From(na.vz)), 2);
+    AddEq(hConstraint{c}, &m_sys->eq, xa.w->Minus(Expr::From(na.w)), 3);
+}
+
 void System::visit(const ConstraintArcArcTangent &constraint)
 {
     const auto group = get_group_index(constraint);

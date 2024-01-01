@@ -20,3 +20,4 @@
 #include "constraint_point_in_plane.hpp"
 #include "constraint_point_line_distance.hpp"
 #include "constraint_point_plane_distance.hpp"
+#include "constraint_lock_rotation.hpp"

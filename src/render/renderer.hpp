@@ -57,6 +57,7 @@ private:
     void visit(const ConstraintPointInPlane &constr) override;
     void visit(const ConstraintPointLineDistance &constr) override;
     void visit(const ConstraintPointPlaneDistance &constr) override;
+    void visit(const ConstraintLockRotation &constr) override;
     ICanvas &m_ca;
     const Document *m_doc = nullptr;
     const IDocumentView *m_doc_view = nullptr;

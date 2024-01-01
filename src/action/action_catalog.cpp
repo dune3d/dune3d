@@ -113,6 +113,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::CLIPPING_PLANE_WINDOW, {"Clipping planes", ActionGroup::VIEW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::TOGGLE_CLIPPING_PLANES,
          {"Toggle clipping planes", ActionGroup::VIEW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_LOCK_ROTATION, {"Lock rotation", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -205,6 +206,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_PERPENDICULAR),
         TOOL_LUT_ITEM(CONSTRAIN_ANGLE),
         TOOL_LUT_ITEM(CONSTRAIN_POINT_IN_PLANE),
+        TOOL_LUT_ITEM(CONSTRAIN_LOCK_ROTATION),
         TOOL_LUT_ITEM(ENTER_DATUM),
         TOOL_LUT_ITEM(ADD_ANCHOR),
         TOOL_LUT_ITEM(TOGGLE_CONSTRUCTION),

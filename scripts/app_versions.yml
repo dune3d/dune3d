@@ -8,3 +8,4 @@ versions:
     6: add point in plane constraint
     7: add point/line distance constraint
     8: add point/plane distance constraint
+    9: add lock rotation constraint

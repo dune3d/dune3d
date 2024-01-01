@@ -38,6 +38,7 @@ enum class ConstraintType {
     POINT_IN_PLANE,
     POINT_LINE_DISTANCE,
     POINT_PLANE_DISTANCE,
+    LOCK_ROTATION,
 };
 
 class Constraint {

@@ -638,6 +638,12 @@ void Renderer::visit(const ConstraintSameOrientation &constraint)
     add_constraint(pt2, IconID::CONSTRAINT_SAME_ORIENTATION, constraint.m_uuid);
 }
 
+void Renderer::visit(const ConstraintLockRotation &constraint)
+{
+    auto pt = m_doc->get_point({constraint.m_entity, 1});
+    add_constraint(pt, IconID::CONSTRAINT_LOCK_ROTATION, constraint.m_uuid);
+}
+
 void Renderer::visit(const ConstraintArcArcTangent &constraint)
 {
     auto p1 = m_doc->get_point(constraint.m_arc1);

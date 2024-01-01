@@ -23,4 +23,5 @@ class ConstraintLinesAngle;
 class ConstraintPointInPlane;
 class ConstraintPointLineDistance;
 class ConstraintPointPlaneDistance;
+class ConstraintLockRotation;
 } // namespace dune3d
