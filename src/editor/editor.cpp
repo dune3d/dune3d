@@ -1531,7 +1531,6 @@ void Editor::set_canvas_selection_mode(SelectionMode mode)
 void Editor::handle_cursor_move()
 {
     if (m_core.tool_is_active()) {
-        std::cout << "tool cursor move" << std::endl;
         ToolArgs args;
         args.type = ToolEventType::MOVE;
         ToolResponse r = m_core.tool_update(args);

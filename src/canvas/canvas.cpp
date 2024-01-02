@@ -862,7 +862,6 @@ void Canvas::queue_pick()
 
 void Canvas::clear()
 {
-    std::cout << "clear" << std::endl;
     m_face_index_buffer.clear();
     m_face_vertex_buffer.clear();
     m_face_groups.clear();
