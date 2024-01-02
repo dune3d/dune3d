@@ -38,8 +38,9 @@ private:
     class Entity *get_temp_entity();
 
     const class EntityWorkplane *m_wrkpl = nullptr;
-    std::list<Entity *> m_entities;
+    std::vector<Entity *> m_entities;
     std::set<Constraint *> m_constraints;
+    bool m_tangent_valid = true;
 
     void update_tip();
 

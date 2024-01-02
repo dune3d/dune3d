@@ -135,15 +135,52 @@ bool ToolDrawContour::is_valid_tangent_point(const EntityAndPoint &enp)
     return true;
 }
 
+static double sq(double x)
+{
+    return x * x;
+};
+
 ToolResponse ToolDrawContour::update(const ToolArgs &args)
 {
     if (args.type == ToolEventType::MOVE) {
+        m_tangent_valid = true;
         if (m_temp_line) {
             if (m_constrain_tangent && m_last_tangent_point) {
-                const auto last_tangent = glm::normalize(get_last_tangent());
-                auto v = get_cursor_pos_in_plane() - m_temp_line->m_p1;
-                const auto d = glm::dot(last_tangent, v);
-                m_temp_line->m_p2 = m_temp_line->m_p1 + last_tangent * d;
+                if (m_entities.size() > 1
+                    && m_last_tangent_point->entity == m_entities.at(m_entities.size() - 2)->m_uuid) {
+                    m_temp_line->m_p2 = get_cursor_pos_in_plane();
+                    auto &arc = dynamic_cast<EntityArc2D &>(*m_entities.at(m_entities.size() - 2));
+                    const auto c = arc.m_center;
+                    const auto other_pt = m_last_tangent_point->point == 1 ? 2 : 1;
+                    // https://en.wikipedia.org/wiki/Tangent_lines_to_circles#With_analytic_geometry
+                    const auto r = glm::length(arc.get_point_in_workplane(other_pt) - c);
+                    const auto p = m_temp_line->m_p2 - c;
+                    const auto d = glm::length(p);
+                    if (d > r) {
+                        const auto a = c + sq(r) / sq(d) * p;
+                        const auto b = r / sq(d) * sqrt(sq(d) - sq(r)) * glm::dvec2(-p.y, p.x);
+                        const auto q1 = a + b;
+                        const auto q2 = a - b;
+                        const auto qlast = arc.get_point_in_workplane(m_last_tangent_point->point);
+                        const auto q1d = glm::length(q1 - qlast);
+                        const auto q2d = glm::length(q2 - qlast);
+                        const auto q = (q1d < q2d) ? q1 : q2;
+                        m_temp_line->m_p1 = q;
+                        if (m_last_tangent_point->point == 1)
+                            arc.m_from = q;
+                        else
+                            arc.m_to = q;
+                    }
+                    else {
+                        m_tangent_valid = false;
+                    }
+                }
+                else {
+                    const auto last_tangent = glm::normalize(get_last_tangent());
+                    auto v = get_cursor_pos_in_plane() - m_temp_line->m_p1;
+                    const auto d = glm::dot(last_tangent, v);
+                    m_temp_line->m_p2 = m_temp_line->m_p1 + last_tangent * d;
+                }
             }
             else {
                 m_temp_line->m_p2 = get_cursor_pos_in_plane();
@@ -206,7 +243,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
 
 
             if (m_temp_line) {
-                if (m_last_tangent_point && m_constrain_tangent) {
+                if (m_last_tangent_point && m_constrain_tangent && m_tangent_valid) {
                     auto &last_tangent_entity = get_entity(m_last_tangent_point->entity);
                     if (last_tangent_entity.get_type() == Entity::Type::LINE_2D) {
                         auto &constraint = add_constraint<ConstraintParallel>();
@@ -226,7 +263,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             }
             else if (m_temp_arc) {
                 // add tangent constraint
-                if (m_last_tangent_point && m_constrain_tangent) {
+                if (m_last_tangent_point && m_constrain_tangent && m_tangent_valid) {
                     auto &last_tangent_entity = get_entity(m_last_tangent_point->entity);
                     if (last_tangent_entity.get_type() == Entity::Type::LINE_2D) {
                         auto &constraint = add_constraint<ConstraintArcLineTangent>();
@@ -483,6 +520,11 @@ void ToolDrawContour::update_tip()
         actions.emplace_back(InToolActionID::FLIP_ARC);
 
     std::string tip;
+
+    if (!m_tangent_valid) {
+        tip += "invalid tangent ";
+    }
+
     if (m_constrain) {
         std::string what = "to";
         if (m_placing_center)
