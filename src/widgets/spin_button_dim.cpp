@@ -25,7 +25,7 @@ bool SpinButtonDim::on_output()
 
     int prec = 3;
     {
-        int64_t ivalue = value;
+        int64_t ivalue = abs(round(value * 1e6));
         if (ivalue % 1000)
             prec = 5;
     }
