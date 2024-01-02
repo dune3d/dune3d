@@ -512,7 +512,7 @@ void Canvas::update_hover_selection()
     }
 }
 
-uint16_t Canvas::read_pick_buf(int x, int y) const
+Canvas::pick_buf_t Canvas::read_pick_buf(int x, int y) const
 {
     int xi = x * m_scale_factor;
     int yi = y * m_scale_factor;
@@ -634,10 +634,10 @@ void Canvas::resize_buffers()
     glBindRenderbuffer(GL_RENDERBUFFER, m_depthrenderbuffer);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT, m_dev_width, m_dev_height);
     glBindRenderbuffer(GL_RENDERBUFFER, m_pickrenderbuffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_R16UI, m_dev_width, m_dev_height);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_R32UI, m_dev_width, m_dev_height);
 
     glBindRenderbuffer(GL_RENDERBUFFER, m_pickrenderbuffer_downsampled);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_R16UI, m_dev_width, m_dev_height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_R32UI, m_dev_width, m_dev_height);
 
     glBindRenderbuffer(GL_RENDERBUFFER, rb);
 }
@@ -796,8 +796,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     m_pick_buf.resize(m_dev_width * m_dev_height);
     GL_CHECK_ERROR
 
-    glPixelStorei(GL_PACK_ALIGNMENT, 2);
-    glReadPixels(0, 0, m_dev_width, m_dev_height, GL_RED_INTEGER, GL_UNSIGNED_SHORT, m_pick_buf.data());
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadPixels(0, 0, m_dev_width, m_dev_height, GL_RED_INTEGER, GL_UNSIGNED_INT, m_pick_buf.data());
 
     GL_CHECK_ERROR
     if (m_pick_state == PickState::QUEUED) {

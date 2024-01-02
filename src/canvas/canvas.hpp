@@ -225,8 +225,9 @@ private:
     enum class PickState { QUEUED, CURRENT, INVALID };
     PickState m_pick_state = PickState::INVALID;
 
-    std::vector<uint16_t> m_pick_buf;
-    uint16_t read_pick_buf(int x, int y) const;
+    using pick_buf_t = uint32_t;
+    std::vector<pick_buf_t> m_pick_buf;
+    pick_buf_t read_pick_buf(int x, int y) const;
 
     GLuint m_renderbuffer;
     GLuint m_fbo;
