@@ -287,8 +287,8 @@ void Canvas::scroll_rotate(double dx, double dy, Gtk::EventController &ctrl)
 {
     auto delta = -glm::vec2(dx, dy);
 
-    auto rz = glm::angleAxis(glm::radians(delta.x * -.9f), glm::vec3(0, 0, 1));
-    auto rx = glm::angleAxis(glm::radians(delta.y * -.9f), glm::rotate(m_cam_quat, glm::vec3(1, 0, 0)));
+    auto rz = glm::angleAxis(glm::radians(delta.x * -9.f), glm::vec3(0, 0, 1));
+    auto rx = glm::angleAxis(glm::radians(delta.y * -9.f), glm::rotate(m_cam_quat, glm::vec3(1, 0, 0)));
     set_cam_quat(rz * rx * m_cam_quat);
 }
 
