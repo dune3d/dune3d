@@ -145,7 +145,7 @@ ToolPopover::ToolPopover() : Gtk::Popover()
     auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
     search_entry = Gtk::manage(new Gtk::SearchEntry());
     search_entry->set_margin_bottom(5);
-    search_entry->set_width_chars(35);
+    search_entry->set_width_chars(45);
     box->append(*search_entry);
 
     search_entry->signal_changed().connect([this] {
@@ -256,6 +256,8 @@ ToolPopover::ToolPopover() : Gtk::Popover()
         auto factory = Gtk::SignalListItemFactory::create();
         factory->signal_setup().connect([&](const Glib::RefPtr<Gtk::ListItem> &li) {
             auto label = Gtk::make_managed<Gtk::Label>();
+            label->set_ellipsize(Pango::EllipsizeMode::END);
+
             label->set_xalign(0);
             li->set_child(*label);
         });
@@ -277,6 +279,7 @@ ToolPopover::ToolPopover() : Gtk::Popover()
         auto factory = Gtk::SignalListItemFactory::create();
         factory->signal_setup().connect([&](const Glib::RefPtr<Gtk::ListItem> &li) {
             auto label = Gtk::make_managed<Gtk::Label>();
+            label->set_ellipsize(Pango::EllipsizeMode::END);
             label->set_xalign(0);
             li->set_child(*label);
 
