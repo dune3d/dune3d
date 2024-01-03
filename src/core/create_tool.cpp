@@ -20,6 +20,7 @@
 #include "tools/tool_constrain_equal_radius.hpp"
 #include "tools/tool_constrain_point_in_plane.hpp"
 #include "tools/tool_add_anchor.hpp"
+#include "tools/tool_move_anchor.hpp"
 #include "tools/tool_toggle_construction.hpp"
 #include "tools/tool_import_step.hpp"
 #include "tools/tool_constrain_diameter_radius.hpp"
@@ -90,6 +91,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::ADD_ANCHOR:
         return std::make_unique<ToolAddAnchor>(tool_id, *this, m_intf, flags);
+
+    case ToolID::MOVE_ANCHOR:
+        return std::make_unique<ToolMoveAnchor>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_MIDPOINT:
         return std::make_unique<ToolConstrainMidpoint>(tool_id, *this, m_intf, flags);

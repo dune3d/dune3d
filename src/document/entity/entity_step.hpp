@@ -39,6 +39,7 @@ public:
     std::map<unsigned int, glm::dvec3> m_anchors_transformed;
 
     void add_anchor(unsigned int i, const glm::dvec3 &pt);
+    void update_anchor(unsigned int i, const glm::dvec3 &pt);
     void remove_anchor(unsigned int i);
 
     static constexpr unsigned int s_imported_point_offset = 1000;

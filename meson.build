@@ -138,6 +138,7 @@ src = files(
   'src/core/tools/tool_enter_datum.cpp',
   'src/core/tools/tool_draw_workplane.cpp',
   'src/core/tools/tool_add_anchor.cpp',
+  'src/core/tools/tool_move_anchor.cpp',
   'src/core/tools/tool_toggle_construction.cpp',
   'src/core/tools/tool_import_step.cpp',
   'src/core/tools/tool_select_edges.cpp',

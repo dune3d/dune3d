@@ -108,6 +108,12 @@ void EntitySTEP::add_anchor(unsigned int i, const glm::dvec3 &pt)
     m_anchors_transformed.emplace(i, transform(pt));
 }
 
+void EntitySTEP::update_anchor(unsigned int i, const glm::dvec3 &pt)
+{
+    m_anchors.at(i) = pt;
+    m_anchors_transformed.at(i) = transform(pt);
+}
+
 void EntitySTEP::remove_anchor(unsigned int i)
 {
     m_anchors.erase(i);
