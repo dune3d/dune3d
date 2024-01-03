@@ -37,6 +37,8 @@ namespace dune3d {
 std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flags)
 {
     switch (tool_id) {
+    case ToolID::NONE:;
+
     case ToolID::DRAW_LINE_3D:
         return std::make_unique<ToolDrawLine3D>(tool_id, *this, m_intf, flags);
 
