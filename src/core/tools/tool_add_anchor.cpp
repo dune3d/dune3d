@@ -56,11 +56,11 @@ ToolResponse ToolAddAnchor::update(const ToolArgs &args)
             if (hsel->item != m_step->m_uuid)
                 return ToolResponse();
 
-            if (hsel->point < 1000)
+            if (hsel->point < EntitySTEP::s_imported_point_offset)
                 return ToolResponse();
 
             m_selection.insert(*hsel);
-            m_anchors.insert(hsel->point - 1000);
+            m_anchors.insert(hsel->point - EntitySTEP::s_imported_point_offset);
 
         } break;
 

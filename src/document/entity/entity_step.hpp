@@ -41,6 +41,7 @@ public:
     void add_anchor(unsigned int i, const glm::dvec3 &pt);
     void remove_anchor(unsigned int i);
 
+    static constexpr unsigned int s_imported_point_offset = 1000;
     bool m_show_points = false;
 
     std::shared_ptr<const ImportedSTEP> m_imported;

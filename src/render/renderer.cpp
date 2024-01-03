@@ -362,7 +362,7 @@ void Renderer::visit(const EntitySTEP &en)
                 m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal, ICanvas::FaceColor::AS_IS),
                 SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, en.m_uuid, 0});
         if (en.m_show_points) {
-            unsigned int idx = 1000;
+            unsigned int idx = EntitySTEP::s_imported_point_offset;
             for (auto &pt : en.m_imported->result.points) {
                 m_ca.add_selectable(m_ca.draw_point(en.transform({pt.x, pt.y, pt.z})),
                                     SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, en.m_uuid, idx++});
