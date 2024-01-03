@@ -1,13 +1,11 @@
 #pragma once
-#include "constraint.hpp"
-#include "iconstraint_workplane.hpp"
-#include "document/entity/entity_and_point.hpp"
+#include "constraint_point_on_line_base.hpp"
 
 namespace dune3d {
 
 class Entity;
 
-class ConstraintPointOnLine : public Constraint, public IConstraintWorkplane {
+class ConstraintPointOnLine : public ConstraintPointOnLineBase {
 public:
     explicit ConstraintPointOnLine(const UUID &uu);
     explicit ConstraintPointOnLine(const UUID &uu, const json &j);
@@ -19,22 +17,9 @@ public:
     json serialize() const override;
     std::unique_ptr<Constraint> clone() const override;
 
-    EntityAndPoint m_point;
-    UUID m_line;
-    UUID m_wrkpl;
-
-    const UUID &get_workplane(const Document &doc) const override
-    {
-        return m_wrkpl;
-    }
-
     double m_val = 1;
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
     void accept(ConstraintVisitor &visitor) const override;
-
-    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
 };
 
 } // namespace dune3d

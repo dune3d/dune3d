@@ -64,6 +64,7 @@ src = files(
   'src/document/constraint/constraint_equal_length.cpp',
   'src/document/constraint/constraint_equal_radius.cpp',
   'src/document/constraint/constraint_point_on_line.cpp',
+  'src/document/constraint/constraint_point_on_line_base.cpp',
   'src/document/constraint/constraint_point_on_circle.cpp',
   'src/document/constraint/constraint_same_orientation.cpp',
   'src/document/constraint/constraint_hv.cpp',
