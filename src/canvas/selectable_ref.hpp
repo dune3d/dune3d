@@ -11,6 +11,21 @@ public:
     UUID item;
     unsigned int point;
 
+    bool is_entity() const
+    {
+        return type == Type::ENTITY;
+    }
+
+    bool is_constraint() const
+    {
+        return type == Type::CONSTRAINT;
+    }
+
+    bool is_solid_model_edge() const
+    {
+        return type == Type::SOLID_MODEL_EDGE;
+    }
+
     EntityAndPoint get_entity_and_point() const;
 
     friend auto operator<=>(const SelectableRef &, const SelectableRef &) = default;

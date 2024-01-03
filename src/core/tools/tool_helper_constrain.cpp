@@ -57,17 +57,18 @@ Constraint *ToolHelperConstrain::constrain_point(const UUID &wrkpl, const Entity
 std::optional<Constraint::Type> ToolHelperConstrain::get_constraint_type()
 {
     if (auto hsel = m_intf.get_hover_selection()) {
-        if (hsel->type == SelectableRef::Type::ENTITY) {
+        if (hsel->is_entity()) {
             const auto enp = hsel->get_entity_and_point();
             if (get_doc().is_valid_point(enp)) {
                 return Constraint::Type::POINTS_COINCIDENT;
             }
             else if (enp.point == 0) {
+                using ET = Entity::Type;
                 auto &entity = get_entity(enp.entity);
-                if (entity.get_type() == Entity::Type::LINE_2D || entity.get_type() == Entity::Type::LINE_3D) {
+                if (entity.of_type(ET::LINE_2D, ET::LINE_3D)) {
                     return Constraint::Type::POINT_ON_LINE;
                 }
-                else if (entity.get_type() == Entity::Type::ARC_2D || entity.get_type() == Entity::Type::CIRCLE_2D) {
+                else if (entity.of_type(ET::ARC_2D, ET::CIRCLE_2D, ET::ARC_3D, ET::CIRCLE_3D)) {
                     return Constraint::Type::POINT_ON_CIRCLE;
                 }
             }
