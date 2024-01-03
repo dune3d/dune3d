@@ -417,6 +417,23 @@ private:
         uint32_t bits;
 
         VertexFlags flags = VertexFlags::DEFAULT;
+
+        Glyph3DVertex(float x0)
+        : x0(x0), y0(0.0f), z0(0.0f),
+          xr(0.0f), yr(0.0f), zr(0.0f),
+          xu(0.0f), yu(0.0f), zu(0.0f),
+          bits(0)
+        {}
+
+        Glyph3DVertex(float x0, float y0, float z0,
+                  float xr, float yr, float zr,
+                  float xu, float yu, float zu,
+                  uint32_t bits)
+        : x0(x0), y0(y0), z0(z0),
+          xr(xr), yr(yr), zr(zr),
+          xu(xu), yu(yu), zu(zu),
+          bits(bits)
+        {}
     };
 
     std::vector<Glyph3DVertex> m_glyphs_3d;

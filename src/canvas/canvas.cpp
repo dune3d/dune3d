@@ -626,7 +626,12 @@ void Canvas::on_realize()
 void Canvas::resize_buffers()
 {
     GLint rb;
+#ifndef __APPLE__
     GLint samples = m_appearance.msaa;
+#else
+    // samples above 1 does not seem to work on macOS
+    GLint samples = 1;
+#endif
 
     glGetIntegerv(GL_RENDERBUFFER_BINDING, &rb); // save rb
     glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
@@ -635,10 +640,8 @@ void Canvas::resize_buffers()
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT, m_dev_width, m_dev_height);
     glBindRenderbuffer(GL_RENDERBUFFER, m_pickrenderbuffer);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_R32UI, m_dev_width, m_dev_height);
-
     glBindRenderbuffer(GL_RENDERBUFFER, m_pickrenderbuffer_downsampled);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_R32UI, m_dev_width, m_dev_height);
-
     glBindRenderbuffer(GL_RENDERBUFFER, rb);
 }
 
@@ -788,8 +791,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     glReadBuffer(GL_COLOR_ATTACHMENT1);
-    // glBlitFramebuffer(0, 0, m_dev_width, m_dev_height, 0, 0, m_dev_width, m_dev_height, GL_COLOR_BUFFER_BIT,
-    //                   GL_NEAREST);
+    glBlitFramebuffer(0, 0, m_dev_width, m_dev_height, 0, 0, m_dev_width, m_dev_height, GL_COLOR_BUFFER_BIT,
+                      GL_NEAREST);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_downsampled);
     glReadBuffer(GL_COLOR_ATTACHMENT0);

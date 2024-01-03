@@ -92,7 +92,9 @@ void LineRenderer::render()
         glUniform1f(m_screen_scale_loc, 1e3 / m);
     }
     load_uniforms();
-    // glLineWidth(m_ca.m_appearance.line_width);
+#ifndef __APPLE__
+    glLineWidth(m_ca.m_appearance.line_width);
+#endif
     glDrawArrays(GL_POINTS, 0, m_ca.m_n_lines);
     glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDrawArrays(GL_POINTS, m_ca.m_n_lines, m_ca.m_n_lines_selection_invisible);

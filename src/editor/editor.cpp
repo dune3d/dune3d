@@ -32,7 +32,6 @@
 #include "widgets/clipping_plane_window.hpp"
 #include <iostream>
 
-#define M_PIF 3.141592653589793238462643383279502884e+00F
 namespace dune3d {
 Editor::Editor(Dune3DAppWindow &win, Preferences &prefs)
     : m_preferences(prefs), m_dialogs(win, *this), m_win(win), m_core(*this)
@@ -639,7 +638,7 @@ void Editor::init_actions()
         const auto q = get_canvas().get_cam_quat();
         const auto z = glm::rotate(glm::inverse(q), glm::vec3(0, 0, 1));
         const auto phi = atan2(z.y, z.x);
-        const auto ry = glm::angleAxis(-(M_PIF / 2 - phi), glm::rotate(q, glm::vec3(0, 0, 1)));
+        const auto ry = glm::angleAxis(-(float)(M_PI / 2 - phi), glm::rotate(q, glm::vec3(0, 0, 1)));
         get_canvas().animate_to_cam_quat(ry * q);
     });
 
