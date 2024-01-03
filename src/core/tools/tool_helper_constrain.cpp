@@ -4,8 +4,10 @@
 #include "document/entity/entity.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "document/constraint/constraint_point_on_line.hpp"
+#include "document/constraint/constraint_midpoint.hpp"
 #include "document/constraint/constraint_point_on_circle.hpp"
 #include "tool_common_impl.hpp"
+#include <iostream>
 
 namespace dune3d {
 
@@ -23,6 +25,15 @@ Constraint *ToolHelperConstrain::constrain_point(Constraint::Type type, const UU
     }
     case Constraint::Type::POINT_ON_LINE: {
         auto &constraint = add_constraint<ConstraintPointOnLine>();
+        constraint.m_line = enp.entity;
+        constraint.m_point = enp_to_constrain;
+        constraint.m_wrkpl = wrkpl;
+        constraint.m_modify_to_satisfy = true;
+        m_core.solve_current();
+        return &constraint;
+    }
+    case Constraint::Type::MIDPOINT: {
+        auto &constraint = add_constraint<ConstraintMidpoint>();
         constraint.m_line = enp.entity;
         constraint.m_point = enp_to_constrain;
         constraint.m_wrkpl = wrkpl;
@@ -66,6 +77,15 @@ std::optional<Constraint::Type> ToolHelperConstrain::get_constraint_type()
                 using ET = Entity::Type;
                 auto &entity = get_entity(enp.entity);
                 if (entity.of_type(ET::LINE_2D, ET::LINE_3D)) {
+                    const auto p2 = entity.get_point(2, get_doc());
+                    const auto p1 = entity.get_point(1, get_doc());
+                    const auto v = p2 - p1;
+                    const auto u = glm::cross(v, glm::dvec3(m_intf.get_cam_normal()));
+                    const auto n = glm::cross(u, v);
+                    const auto pos = m_intf.get_cursor_pos_for_plane(p1, n);
+                    const auto d = glm::length(pos - p1) / glm::length(v);
+                    if (std::abs(d - 0.5) < .05)
+                        return Constraint::Type::MIDPOINT;
                     return Constraint::Type::POINT_ON_LINE;
                 }
                 else if (entity.of_type(ET::ARC_2D, ET::CIRCLE_2D, ET::ARC_3D, ET::CIRCLE_3D)) {
@@ -87,6 +107,8 @@ std::string ToolHelperConstrain::get_constrain_tip(const std::string &what)
         return "constrain " + what + " on point";
     case Constraint::Type::POINT_ON_LINE:
         return "constrain " + what + " on line";
+    case Constraint::Type::MIDPOINT:
+        return "constrain " + what + " on midpoint";
     case Constraint::Type::POINT_ON_CIRCLE:
         return "constrain " + what + " on circle";
     default:
