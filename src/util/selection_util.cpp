@@ -130,18 +130,22 @@ std::optional<LineAndPoint> circle_and_point_from_selection(const Document &doc,
     if ((allow_same_entity == LineAndPoint::AllowSameEntity::NO) && (sr1.item == sr2.item))
         return {};
 
-    if ((!!sr1.point) == (!!sr2.point))
+    auto &en1 = doc.get_entity(sr1.item);
+    auto &en2 = doc.get_entity(sr2.item);
+
+    // we're looking for just one point
+    if (en1.is_valid_point(sr1.point) == en2.is_valid_point(sr2.point))
         return {};
 
-    auto &sr_line = sr1.point == 0 ? sr1 : sr2;
-    auto &sr_point = sr1.point == 0 ? sr2 : sr1;
+    auto &sr_arc = en1.is_valid_point(sr1.point) ? sr2 : sr1;
+    auto &sr_point = en1.is_valid_point(sr1.point) ? sr1 : sr2;
 
-    auto &en_line = doc.get_entity(sr_line.item);
-    if (en_line.get_type() != Entity::Type::ARC_2D && en_line.get_type() != Entity::Type::ARC_3D
-        && en_line.get_type() != Entity::Type::CIRCLE_2D && en_line.get_type() != Entity::Type::CIRCLE_3D)
+    auto &en_arc = doc.get_entity(sr_arc.item);
+    using ET = Entity::Type;
+    if (!en_arc.of_type(ET::ARC_2D, ET::CIRCLE_2D, ET::ARC_3D, ET::CIRCLE_3D))
         return {};
 
-    return {{sr_line.item, sr_point.get_entity_and_point()}};
+    return {{sr_arc.item, sr_point.get_entity_and_point()}};
 }
 
 std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
