@@ -338,10 +338,8 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
         auto p2 = wrkpl.transform(-sz + glm::vec2(0, s));
         m_ca.add_selectable(m_ca.draw_line(p1, p2), sr);
 
-        for (const auto &vr : m_ca.draw_bitmap_text_3d(wrkpl.transform(-sz + glm::vec2(s, s * .25)), wrkpl.m_normal,
-                                                       s / 2, wrkpl.m_name)) {
-            m_ca.add_selectable(vr, sr);
-        }
+        add_selectables(sr, m_ca.draw_bitmap_text_3d(wrkpl.transform(-sz + glm::vec2(s, s * .25)), wrkpl.m_normal,
+                                                     s / 2, wrkpl.m_name));
     }
 }
 
@@ -416,7 +414,12 @@ void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, co
     m_ca.add_selectable(m_ca.draw_line(to, p2), sr);
 
     std::string label = std::format(" {:.3f}", distance);
-    for (auto vr : m_ca.draw_bitmap_text(text_p, 1, label)) {
+    add_selectables(sr, m_ca.draw_bitmap_text(text_p, 1, label));
+}
+
+void Renderer::add_selectables(const SelectableRef &sr, const std::vector<ICanvas::VertexRef> &vrs)
+{
+    for (const auto &vr : vrs) {
         m_ca.add_selectable(vr, sr);
     }
 }
@@ -484,10 +487,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * 1.5f) * 1.5f * scale), sr);
 
     std::string label = std::format(" {:.3f}", constr.m_distance);
-    for (auto vr : m_ca.draw_bitmap_text(p, 1, label)) {
-        m_ca.add_selectable(vr, sr);
-    }
-
+    add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 
     m_ca.set_vertex_constraint(false);
 }
@@ -541,10 +541,7 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
     m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(pt), wrkpl.transform(to)), sr);
 
     std::string label = std::format(" {:.3f}", constr.m_distance);
-    for (auto vr : m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label)) {
-        m_ca.add_selectable(vr, sr);
-    }
-
+    add_selectables(sr, m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label));
 
     m_ca.set_vertex_constraint(false);
 }
@@ -714,9 +711,7 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
     }
 
     std::string label = std::format(" {:.1f}°", constr.m_angle);
-    for (auto vr : m_ca.draw_bitmap_text(p, 1, label)) {
-        m_ca.add_selectable(vr, sr);
-    }
+    add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 
     m_ca.set_vertex_constraint(false);
 }

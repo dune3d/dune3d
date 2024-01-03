@@ -6,6 +6,7 @@
 #include "document/group/all_groups_fwd.hpp"
 #include "document/entity/entity_visitor.hpp"
 #include "document/constraint/constraint_visitor.hpp"
+#include "canvas/icanvas.hpp"
 
 namespace dune3d {
 
@@ -16,7 +17,7 @@ enum class IconTextureID;
 class ICanvas;
 class Document;
 class IDocumentView;
-
+class SelectableRef;
 
 class Renderer : private EntityVisitor, private ConstraintVisitor {
 public:
@@ -78,6 +79,7 @@ private:
 
     void draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p, double distance,
                             const UUID &uu);
+    void add_selectables(const SelectableRef &sr, const std::vector<ICanvas::VertexRef> &vrs);
 };
 
 } // namespace dune3d
