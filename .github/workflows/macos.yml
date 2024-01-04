@@ -43,4 +43,4 @@ jobs:
         # the stable meson version seems to crash with the cmake dependency
         brew install --HEAD meson
     - name: Build
-      run: bash scripts/build_macos.sh
+      run: bash scripts/build_macos.sh && otool -L build/dune3d
