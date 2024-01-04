@@ -561,21 +561,44 @@ void Renderer::visit(const ConstraintHV &constraint)
 {
     auto p1 = m_doc->get_point(constraint.m_entity1);
     auto p2 = m_doc->get_point(constraint.m_entity2);
-    auto icon = constraint.get_type() == Constraint::Type::HORIZONTAL ? IconID::CONSTRAINT_HORIZONTAL
-                                                                      : IconID::CONSTRAINT_VERTICAL;
-    add_constraint((p1 + p2) / 2., icon, constraint.m_uuid);
+    auto icon = IconID::CONSTRAINT_HORIZONTAL;
+    add_constraint((p1 + p2) / 2., icon, constraint.m_uuid, p2 - p1);
+}
+
+static glm::dvec3 get_vec(const UUID &uu, const Document &doc)
+{
+    return doc.get_point({uu, 2}) - doc.get_point({uu, 1});
 }
 
 void Renderer::visit(const ConstraintPointOnLine &constraint)
 {
-    auto pt = m_doc->get_point(constraint.m_point);
-    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_LINE, constraint.m_uuid);
+    const auto pt = m_doc->get_point(constraint.m_point);
+    const auto v = get_vec(constraint.m_line, *m_doc);
+    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_LINE, constraint.m_uuid, v);
 }
 
 void Renderer::visit(const ConstraintPointOnCircle &constraint)
 {
-    auto pt = m_doc->get_point(constraint.m_point);
-    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_CIRCLE, constraint.m_uuid);
+    const auto pt = m_doc->get_point(constraint.m_point);
+    const auto &en = m_doc->get_entity(constraint.m_circle);
+    glm::dvec3 center;
+    if (en.of_type(Entity::Type::CIRCLE_2D, Entity::Type::CIRCLE_3D))
+        center = en.get_point(1, *m_doc);
+    else
+        center = en.get_point(3, *m_doc);
+    const auto v = pt - center;
+
+    glm::dquat normal;
+    if (auto iw = dynamic_cast<const IEntityInWorkplane *>(&en))
+        normal = m_doc->get_entity<EntityWorkplane>(iw->get_workplane()).get_normal();
+    else if (auto arc = dynamic_cast<const EntityArc3D *>(&en))
+        normal = arc->m_normal;
+    else if (auto circle = dynamic_cast<const EntityCircle3D *>(&en))
+        normal = circle->m_normal;
+    auto normal_vec = glm::rotate(normal, glm::dvec3(0, 0, 1));
+    auto ortho = glm::cross(v, normal_vec);
+
+    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_CIRCLE, constraint.m_uuid, ortho);
 }
 
 void Renderer::visit(const ConstraintWorkplaneNormal &constraint)
@@ -587,7 +610,8 @@ void Renderer::visit(const ConstraintWorkplaneNormal &constraint)
 void Renderer::visit(const ConstraintMidpoint &constraint)
 {
     auto pt = m_doc->get_point(constraint.m_point);
-    add_constraint(pt, IconID::CONSTRAINT_MIDPOINT, constraint.m_uuid);
+    const auto v = get_vec(constraint.m_line, *m_doc);
+    add_constraint(pt, IconID::CONSTRAINT_MIDPOINT, constraint.m_uuid, v);
 }
 
 static glm::vec3 get_center(const Entity &entity, const Document &doc)
@@ -607,16 +631,20 @@ void Renderer::visit(const ConstraintParallel &constraint)
 {
     auto c1 = get_center(m_doc->get_entity(constraint.m_entity1), *m_doc);
     auto c2 = get_center(m_doc->get_entity(constraint.m_entity2), *m_doc);
-    add_constraint(c1, IconID::CONSTRAINT_PARALLEL, constraint.m_uuid);
-    add_constraint(c2, IconID::CONSTRAINT_PARALLEL, constraint.m_uuid);
+    const auto v1 = get_vec(constraint.m_entity1, *m_doc);
+    const auto v2 = get_vec(constraint.m_entity2, *m_doc);
+    add_constraint(c1, IconID::CONSTRAINT_PARALLEL, constraint.m_uuid, v1);
+    add_constraint(c2, IconID::CONSTRAINT_PARALLEL, constraint.m_uuid, v2);
 }
 
 void Renderer::visit(const ConstraintEqualLength &constraint)
 {
     auto c1 = get_center(m_doc->get_entity(constraint.m_entity1), *m_doc);
     auto c2 = get_center(m_doc->get_entity(constraint.m_entity2), *m_doc);
-    add_constraint(c1, IconID::CONSTRAINT_EQUAL_LENGTH, constraint.m_uuid);
-    add_constraint(c2, IconID::CONSTRAINT_EQUAL_LENGTH, constraint.m_uuid);
+    const auto v1 = get_vec(constraint.m_entity1, *m_doc);
+    const auto v2 = get_vec(constraint.m_entity2, *m_doc);
+    add_constraint(c1, IconID::CONSTRAINT_EQUAL_LENGTH, constraint.m_uuid, v1);
+    add_constraint(c2, IconID::CONSTRAINT_EQUAL_LENGTH, constraint.m_uuid, v2);
 }
 
 void Renderer::visit(const ConstraintEqualRadius &constraint)
@@ -644,7 +672,10 @@ void Renderer::visit(const ConstraintLockRotation &constraint)
 void Renderer::visit(const ConstraintArcArcTangent &constraint)
 {
     auto p1 = m_doc->get_point(constraint.m_arc1);
-    add_constraint(p1, IconID::CONSTRAINT_ARC_ARC_TANGENT, constraint.m_uuid);
+    const auto &arc = m_doc->get_entity<EntityArc2D>(constraint.m_arc1.entity);
+    const auto &wrkpl = m_doc->get_entity<EntityWorkplane>(arc.m_wrkpl);
+    const auto v = wrkpl.transform_relative(arc.get_tangent_at_point(constraint.m_arc1.point));
+    add_constraint(p1, IconID::CONSTRAINT_ARC_ARC_TANGENT, constraint.m_uuid, v);
 }
 
 void Renderer::visit(const ConstraintLinePointsPerpendicular &constraint)
@@ -657,8 +688,10 @@ void Renderer::visit(const ConstraintLinesPerpendicular &constraint)
 {
     auto c1 = get_center(m_doc->get_entity(constraint.m_entity1), *m_doc);
     auto c2 = get_center(m_doc->get_entity(constraint.m_entity2), *m_doc);
-    add_constraint(c1, IconID::CONSTRAINT_PERPENDICULAR, constraint.m_uuid);
-    add_constraint(c2, IconID::CONSTRAINT_PERPENDICULAR, constraint.m_uuid);
+    const auto v1 = get_vec(constraint.m_entity1, *m_doc);
+    const auto v2 = get_vec(constraint.m_entity2, *m_doc);
+    add_constraint(c1, IconID::CONSTRAINT_PERPENDICULAR, constraint.m_uuid, v1);
+    add_constraint(c2, IconID::CONSTRAINT_PERPENDICULAR, constraint.m_uuid, v2);
 }
 
 
@@ -718,8 +751,11 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
 
 void Renderer::visit(const ConstraintArcLineTangent &constraint)
 {
-    auto p1 = m_doc->get_point(constraint.m_arc);
-    add_constraint(p1, IconID::CONSTRAINT_ARC_LINE_TANGENT, constraint.m_uuid);
+    const auto p1 = m_doc->get_point(constraint.m_arc);
+    const auto &arc = m_doc->get_entity<EntityArc2D>(constraint.m_arc.entity);
+    const auto &wrkpl = m_doc->get_entity<EntityWorkplane>(arc.m_wrkpl);
+    const auto v = wrkpl.transform_relative(arc.get_tangent_at_point(constraint.m_arc.point));
+    add_constraint(p1, IconID::CONSTRAINT_ARC_LINE_TANGENT, constraint.m_uuid, v);
 }
 
 void Renderer::visit(const ConstraintPointInPlane &constraint)
@@ -728,17 +764,18 @@ void Renderer::visit(const ConstraintPointInPlane &constraint)
     add_constraint(pt, IconID::CONSTRAINT_POINT_IN_PLANE, constraint.m_uuid);
 }
 
-void Renderer::add_constraint(const glm::vec3 &pos, IconTexture::IconTextureID icon, const UUID &constraint)
+void Renderer::add_constraint(const glm::vec3 &pos, IconTexture::IconTextureID icon, const UUID &constraint,
+                              const glm::vec3 &v)
 {
     for (auto &[p, l] : m_constraints) {
         if (glm::length(p - pos) < 1e-6) {
-            l.push_back({icon, constraint});
+            l.push_back({icon, v, constraint});
             return;
         }
     }
     m_constraints.emplace_back();
     m_constraints.back().first = pos;
-    m_constraints.back().second.push_back(ConstraintInfo{icon, constraint});
+    m_constraints.back().second.push_back(ConstraintInfo{icon, v, constraint});
 }
 
 void Renderer::draw_constraints()
@@ -748,9 +785,16 @@ void Renderer::draw_constraints()
         double n = constraints.size();
         double spacing = 1;
         double offset = -(n - 1) / 2 * spacing;
+        glm::vec3 v = {NAN, NAN, NAN};
+        for (const auto &constraint : constraints) {
+            if (!std::isnan(constraint.v.x)) {
+                v = constraint.v;
+                break;
+            }
+        }
         for (const auto &constraint : constraints) {
             m_ca.add_selectable(
-                    m_ca.draw_icon(constraint.icon, pos, glm::vec2(offset, -.9)),
+                    m_ca.draw_icon(constraint.icon, pos, glm::vec2(offset, -.9), v),
                     SelectableRef{m_document_uuid, SelectableRef::Type::CONSTRAINT, constraint.constraint, 0});
             offset += spacing;
         }

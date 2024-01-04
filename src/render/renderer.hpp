@@ -70,11 +70,13 @@ private:
 
     struct ConstraintInfo {
         IconTexture::IconTextureID icon;
+        glm::vec3 v;
         UUID constraint;
     };
     std::list<std::pair<glm::vec3, std::list<ConstraintInfo>>> m_constraints;
 
-    void add_constraint(const glm::vec3 &pos, IconTexture::IconTextureID icon, const UUID &constraint);
+    void add_constraint(const glm::vec3 &pos, IconTexture::IconTextureID icon, const UUID &constraint,
+                        const glm::vec3 &v = {NAN, NAN, NAN});
     void draw_constraints();
 
     void draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p, double distance,

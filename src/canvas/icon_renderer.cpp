@@ -16,6 +16,7 @@ GLuint IconRenderer::create_vao(GLuint program, GLuint &vbo_out)
 {
     GLuint origin_index = glGetAttribLocation(program, "origin");
     GLuint shift_index = glGetAttribLocation(program, "shift");
+    GLuint vec_index = glGetAttribLocation(program, "vec");
     GLuint icon_x_index = glGetAttribLocation(program, "icon_x");
     GLuint icon_y_index = glGetAttribLocation(program, "icon_y");
     GLuint flags_index = glGetAttribLocation(program, "flags");
@@ -35,6 +36,10 @@ GLuint IconRenderer::create_vao(GLuint program, GLuint &vbo_out)
     /* enable and set the position attribute */
     glEnableVertexAttribArray(origin_index);
     glVertexAttribPointer(origin_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::IconVertex), 0);
+    GL_CHECK_ERROR
+    glEnableVertexAttribArray(vec_index);
+    glVertexAttribPointer(vec_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::IconVertex),
+                          (void *)offsetof(Canvas::IconVertex, vx));
     GL_CHECK_ERROR
     glEnableVertexAttribArray(shift_index);
     glVertexAttribPointer(shift_index, 2, GL_FLOAT, GL_FALSE, sizeof(Canvas::IconVertex),

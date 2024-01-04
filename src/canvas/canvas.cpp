@@ -1013,10 +1013,11 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(const glm::vec3 p, c
     return vrefs;
 }
 
-ICanvas::VertexRef Canvas::draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift)
+ICanvas::VertexRef Canvas::draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift, glm::vec3 v)
 {
     auto icon_pos = IconTexture::icon_texture_map.at(id);
-    auto &icon = m_icons.emplace_back(origin.x, origin.y, origin.z, shift.x, shift.y, icon_pos.x, icon_pos.y);
+    auto &icon =
+            m_icons.emplace_back(origin.x, origin.y, origin.z, shift.x, shift.y, v.x, v.y, v.z, icon_pos.x, icon_pos.y);
     apply_flags(icon.flags);
     return {VertexType::ICON, m_icons.size() - 1};
 }
