@@ -1,6 +1,5 @@
 #include "core.hpp"
 #include "tools/tool_draw_line_3d.hpp"
-#include "tools/tool_draw_arc_2d.hpp"
 #include "tools/tool_draw_point_2d.hpp"
 #include "tools/tool_draw_circle_2d.hpp"
 #include "tools/tool_draw_point_2d.hpp"
@@ -43,9 +42,6 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::DRAW_LINE_3D:
         return std::make_unique<ToolDrawLine3D>(tool_id, *this, m_intf, flags);
 
-    case ToolID::DRAW_ARC_2D:
-        return std::make_unique<ToolDrawArc2D>(tool_id, *this, m_intf, flags);
-
     case ToolID::DRAW_CIRCLE_2D:
         return std::make_unique<ToolDrawCircle2D>(tool_id, *this, m_intf, flags);
 
@@ -54,6 +50,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::DRAW_CONTOUR:
     case ToolID::DRAW_CONTOUR_FROM_POINT:
+    case ToolID::DRAW_ARC_2D:
         return std::make_unique<ToolDrawContour>(tool_id, *this, m_intf, flags);
 
     case ToolID::DELETE:

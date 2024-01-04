@@ -32,6 +32,8 @@ public:
 
 
 private:
+    bool is_draw_contour() const;
+
     class EntityLine2D *m_temp_line = nullptr;
     class EntityArc2D *m_temp_arc = nullptr;
 

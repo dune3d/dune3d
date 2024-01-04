@@ -12,6 +12,7 @@
 #include "util/selection_util.hpp"
 #include "util/action_label.hpp"
 #include "util/glm_util.hpp"
+#include "util/template_util.hpp"
 #include "tool_common_impl.hpp"
 #include "core/tool_id.hpp"
 #include "document/solid_model_util.hpp"
@@ -60,6 +61,11 @@ ToolResponse ToolDrawContour::begin(const ToolArgs &args)
 bool ToolDrawContour::can_begin()
 {
     return get_workplane_uuid() != UUID();
+}
+
+bool ToolDrawContour::is_draw_contour() const
+{
+    return any_of(m_tool_id, ToolID::DRAW_CONTOUR, ToolID::DRAW_CONTOUR_FROM_POINT);
 }
 
 glm::dvec2 ToolDrawContour::get_cursor_pos_in_plane() const
@@ -306,27 +312,48 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 }
             }
 
-            m_temp_line = &add_entity<EntityLine2D>();
-            m_temp_arc = nullptr;
-            m_temp_line->m_selection_invisible = true;
-            m_temp_line->m_p1 = get_cursor_pos_in_plane();
-            if (m_entities.size()) {
-                if (auto last_line = dynamic_cast<const EntityLine2D *>(m_entities.back())) {
-                    m_temp_line->m_p1 = last_line->m_p2;
+            if (m_entities.size() && m_tool_id == ToolID::DRAW_ARC_2D)
+                return ToolResponse::commit();
+
+            if (m_tool_id == ToolID::DRAW_ARC_2D) {
+                m_temp_line = nullptr;
+                m_temp_arc = &add_entity<EntityArc2D>();
+                m_temp_arc->m_selection_invisible = true;
+                m_temp_arc->m_from = get_cursor_pos_in_plane();
+                m_temp_arc->m_center = get_cursor_pos_in_plane();
+                if (m_entities.size()) {
+                    if (auto last_line = dynamic_cast<const EntityLine2D *>(m_entities.back())) {
+                        m_temp_arc->m_from = last_line->m_p2;
+                    }
+                    else if (auto last_arc = dynamic_cast<const EntityArc2D *>(m_entities.back())) {
+                        m_temp_arc->m_from = last_arc->get_point_in_workplane(last_point);
+                    }
                 }
-                else if (auto last_arc = dynamic_cast<const EntityArc2D *>(m_entities.back())) {
-                    m_temp_line->m_p1 = last_arc->get_point_in_workplane(last_point);
+                m_temp_arc->m_to = get_cursor_pos_in_plane();
+                m_temp_arc->m_wrkpl = m_wrkpl->m_uuid;
+            }
+            else {
+                m_temp_line = &add_entity<EntityLine2D>();
+                m_temp_arc = nullptr;
+                m_temp_line->m_selection_invisible = true;
+                m_temp_line->m_p1 = get_cursor_pos_in_plane();
+                if (m_entities.size()) {
+                    if (auto last_line = dynamic_cast<const EntityLine2D *>(m_entities.back())) {
+                        m_temp_line->m_p1 = last_line->m_p2;
+                    }
+                    else if (auto last_arc = dynamic_cast<const EntityArc2D *>(m_entities.back())) {
+                        m_temp_line->m_p1 = last_arc->get_point_in_workplane(last_point);
+                    }
+                    m_temp_line->m_construction = m_entities.back()->m_construction;
                 }
+                m_temp_line->m_p2 = get_cursor_pos_in_plane();
+                m_temp_line->m_wrkpl = m_wrkpl->m_uuid;
             }
 
-            m_temp_line->m_p2 = get_cursor_pos_in_plane();
-            m_temp_line->m_wrkpl = m_wrkpl->m_uuid;
-            if (m_entities.size())
-                m_temp_line->m_construction = m_entities.back()->m_construction;
 
             if (m_constrain) {
                 if (m_entities.size() == 0) {
-                    if (auto constraint = constrain_point(m_wrkpl->m_uuid, {m_temp_line->m_uuid, 1})) {
+                    if (auto constraint = constrain_point(m_wrkpl->m_uuid, {get_temp_entity()->m_uuid, 1})) {
                         auto enp = m_intf.get_hover_selection().value().get_entity_and_point();
                         if (is_valid_tangent_point(enp)) {
                             m_last_tangent_point = enp;
@@ -343,11 +370,11 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 auto &constraint = add_constraint<ConstraintPointsCoincident>();
                 m_constraints.insert(&constraint);
                 constraint.m_entity1 = {m_entities.back()->m_uuid, last_point};
-                constraint.m_entity2 = {m_temp_line->m_uuid, 1};
+                constraint.m_entity2 = {get_temp_entity()->m_uuid, 1};
                 constraint.m_wrkpl = m_wrkpl->m_uuid;
             }
 
-            m_entities.push_back(m_temp_line);
+            m_entities.push_back(get_temp_entity());
         }
 
         break;
@@ -376,7 +403,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
         } break;
 
         case InToolActionID::TOGGLE_ARC: {
-            if (get_temp_entity()) {
+            if (get_temp_entity() && is_draw_contour()) {
                 if (m_temp_line) {
                     m_constrain_tangent = true;
                     m_temp_arc = &add_entity<EntityArc2D>();
@@ -529,7 +556,7 @@ void ToolDrawContour::update_tip()
             actions.emplace_back(InToolActionID::TOGGLE_TANGENT_CONSTRAINT, "tangent constraint on");
     }
 
-    if (get_temp_entity())
+    if (get_temp_entity() && is_draw_contour())
         actions.emplace_back(InToolActionID::TOGGLE_ARC);
 
     if (m_temp_arc && !(m_constrain_tangent && m_last_tangent_point))
