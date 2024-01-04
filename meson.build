@@ -9,7 +9,6 @@ is_windows = target_machine.system() == 'windows'
 
 
 
-libm = cxx.find_library('m')
 gtk4 = dependency('gtk4', version: '>=4.0')
 gtkmm = dependency('gtkmm-4.0', version: '>=4.0.0')
 epoxy = dependency('epoxy')
@@ -251,7 +250,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs')
 endif
 
-build_dependencies = [libm, gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
@@ -260,6 +259,13 @@ else
 	src += 'src/util/uuid_win32.cpp'
 	cpp_args += '-DWIN32_UUID'
 endif
+
+# on darwin, the math lib is included in libSystem, which is linked by default
+if target_machine.system() != 'darwin'
+  libm = cxx.find_library('m')
+  build_dependencies += libm
+endif
+
 include_directories = [
   include_directories('src'),
   include_directories('3rd_party'),
