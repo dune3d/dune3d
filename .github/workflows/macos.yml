@@ -1,0 +1,30 @@
+name: Build macOS binaries
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!appveyor-*'
+      - '!freebsd-*'
+      - '!pr-review*'
+    tags: [ '*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - name: Check tag
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo "Building tag ${{ github.ref }}"
+    - uses: actions/checkout@v4
+    - name: Install
+      shell: bash
+      run: |
+        brew install meson eigen opencascade pkg-config gtk4 gtkmm4 glm range-v3 mimalloc pygobject3
+    - name: Build
+      shell: bash
+      run: |
+        meson setup build
+        meson compile -C build
