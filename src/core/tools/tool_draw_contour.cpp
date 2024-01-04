@@ -211,6 +211,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 update_tip();
                 return ToolResponse();
             }
+            const bool was_placing_center = m_placing_center;
             m_placing_center = false;
 
             if (get_temp_entity()) {
@@ -285,7 +286,8 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             }
 
             if (m_constrain && m_entities.size()) {
-                if (constrain_point(m_wrkpl->m_uuid, {m_entities.back()->m_uuid, last_point})) {
+                if (constrain_point(m_wrkpl->m_uuid,
+                                    {m_entities.back()->m_uuid, was_placing_center ? 3 : last_point})) {
                     return ToolResponse::commit();
                 }
             }
