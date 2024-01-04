@@ -46,9 +46,9 @@ static std::optional<LineAndPoints> line_and_points_from_selection(const Documen
         LineAndPoints r;
         if (en1.get_type() == Entity::Type::LINE_3D && srs.at(0)->point == 0) {
             r.line = en1.m_uuid;
-            if (srs.at(1)->point == 0)
+            if (!doc.is_valid_point(srs.at(1)->get_entity_and_point()))
                 return {};
-            if (srs.at(2)->point == 0)
+            if (!doc.is_valid_point(srs.at(2)->get_entity_and_point()))
                 return {};
             r.points.at(0).entity = srs.at(1)->item;
             r.points.at(0).point = srs.at(1)->point;
