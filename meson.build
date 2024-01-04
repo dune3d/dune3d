@@ -21,7 +21,7 @@ if target_machine.system() == 'darwin'
   message('meson\'s framework handling on macos with the cmake method is broken, replacing')
   brew_prefix_cmd = run_command('brew', '--prefix', check: true)
   brew_prefix = brew_prefix_cmd.stdout().strip() + '/lib'
-  opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args:['-Wl,-L' + brew_prefix, '-lTKernel', '-lTKMath', '-lTKG2d', '-lTKG3d', '-lTKGeomBase', '-lTKBRep', '-lTKGeomAlgo', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKBool', '-lTKHLR', '-lTKFillet', '-lTKOffset', '-lTKFeat', '-lTKMesh', '-lTKXMesh', '-lTKService', '-lTKV3d', '-lTKOpenGl', '-lTKMeshVS', '-lTKCDF', '-lTKLCAF', '-lTKCAF', '-lTKBinL', '-lTKXmlL', '-lTKBin', '-lTKXml', '-lTKStdL', '-lTKStd', '-lTKTObj', '-lTKBinTObj', '-lTKXmlTObj', '-lTKVCAF', '-lTKXDE', '-lTKXSBase', '-lTKSTEPBase', '-lTKSTEPAttr', '-lTKSTEP209', '-lTKSTEP', '-lTKIGES', '-lTKXCAF', '-lTKXDEIGES', '-lTKXDESTEP', '-lTKSTL', '-lTKRWMesh', '-lTKVRML', '-lTKXmlXCAF', '-lTKBinXCAF', '-lTKXDECascade', '-lTKDraw', '-lTKTopTest', '-lTKOpenGlTest', '-lTKViewerTest', '-lTKDCAF', '-lTKXSDRAW', '-lTKXDEDRAW', '-lTKTObjDRAW', '-lTKQADraw', '-lTKExpress'])
+  opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args:['-Wl,-L' + brew_prefix, '-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKSTL', '-lTKFillet'])
 endif
 
 rangev3 = dependency('range-v3', method : 'cmake')
