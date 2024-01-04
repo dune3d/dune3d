@@ -312,7 +312,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 }
             }
 
-            if (m_entities.size() && m_tool_id == ToolID::DRAW_ARC_2D)
+            if (m_entities.size() && !is_draw_contour())
                 return ToolResponse::commit();
 
             if (m_tool_id == ToolID::DRAW_ARC_2D) {

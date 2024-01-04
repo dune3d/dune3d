@@ -51,6 +51,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::DRAW_CONTOUR:
     case ToolID::DRAW_CONTOUR_FROM_POINT:
     case ToolID::DRAW_ARC_2D:
+    case ToolID::DRAW_LINE_2D:
         return std::make_unique<ToolDrawContour>(tool_id, *this, m_intf, flags);
 
     case ToolID::DELETE:

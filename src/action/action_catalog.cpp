@@ -15,6 +15,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
           ActionCatalogItem::FLAGS_NO_MENU | ActionCatalogItem::FLAGS_NO_POPOVER
                   | ActionCatalogItem::FLAGS_NO_PREFERENCES}},
         {ToolID::DRAW_LINE_3D, {"Draw line in 3D", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::DRAW_LINE_2D, {"Draw line in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_ARC_2D, {"Draw arc in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_POINT_2D, {"Draw point in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_CIRCLE_2D, {"Draw circle in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
@@ -184,6 +185,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(MOVE),
         TOOL_LUT_ITEM(DELETE),
         TOOL_LUT_ITEM(DRAW_ARC_2D),
+        TOOL_LUT_ITEM(DRAW_LINE_2D),
         TOOL_LUT_ITEM(DRAW_POINT_2D),
         TOOL_LUT_ITEM(DRAW_CIRCLE_2D),
         TOOL_LUT_ITEM(DRAW_LINE_3D),

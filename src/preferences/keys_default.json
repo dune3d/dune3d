@@ -159,6 +159,21 @@
                     "mod": 0
                 },
                 {
+                    "key": "l",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_LINE_2D"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
                     "key": "s",
                     "mod": 0
                 }
