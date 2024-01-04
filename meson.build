@@ -16,7 +16,7 @@ eigen = dependency('eigen3')
 glm = dependency('glm')
 
 
-opencascade = dependency('OpenCASCADE', method : 'cmake', required:false)
+opencascade = dependency('OpenCASCADE', method : 'cmake', required:target_machine.system() != 'darwin')
 if target_machine.system() == 'darwin'
   message('meson\'s framework handling on macos with the cmake method is broken, replacing')
   brew_prefix_cmd = run_command('brew', '--prefix', check: true)
@@ -270,13 +270,6 @@ endif
 if target_machine.system() != 'darwin'
   libm = cxx.find_library('m')
   build_dependencies += libm
-# looks like we don't need the frameworks on macOS, as they are already added by our dependencies? commenting out for now...
-# else
-#   frameworks = dependency('appleframeworks', modules : ['OpenGL', 'AppKit', 'IOKit'], required : false)
-#   if not frameworks.found()
-#     error('OpenGL, AppKit or IOKit framework not found')
-#   endif
-#   build_dependencies += frameworks
 endif
 
 include_directories = [

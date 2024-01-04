@@ -43,4 +43,9 @@ jobs:
         # the stable meson version seems to crash with the cmake dependency
         brew install --HEAD meson
     - name: Build
-      run: bash scripts/build_macos.sh
+      shell: bash
+      run: |
+        # use the cross file based on the architecture, we assume homebrew installs packages in /usr/local on x86_64 and /opt/homebrew on arm64
+        meson setup --cross-file macos-$(uname -m).ini build
+
+        meson compile -C build
