@@ -8,7 +8,7 @@ on:
       - '!freebsd-*'
     tags: [ '*' ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 env:
   LANG: en_US.UTF-8

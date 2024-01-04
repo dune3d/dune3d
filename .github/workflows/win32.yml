@@ -9,7 +9,7 @@ on:
       - '!pr-review*'
     tags: [ '*' ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build-win32:
