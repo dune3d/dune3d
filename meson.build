@@ -16,7 +16,13 @@ eigen = dependency('eigen3')
 glm = dependency('glm')
 
 
-opencascade = dependency('OpenCASCADE', method : 'cmake')
+opencascade = dependency('OpenCASCADE', method : 'cmake', required:false)
+if target_machine.system() == 'darwin'
+  message('meson\'s framework handling on macos with the cmake method is broken, replacing')
+  brew_prefix_cmd = run_command('brew', '--prefix', check: true)
+  brew_prefix = brew_prefix_cmd.stdout().strip() + '/lib'
+  opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args:['-Wl,-L' + brew_prefix, '-lTKernel', '-lTKMath', '-lTKG2d', '-lTKG3d', '-lTKGeomBase', '-lTKBRep', '-lTKGeomAlgo', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKBool', '-lTKHLR', '-lTKFillet', '-lTKOffset', '-lTKFeat', '-lTKMesh', '-lTKXMesh', '-lTKService', '-lTKV3d', '-lTKOpenGl', '-lTKMeshVS', '-lTKCDF', '-lTKLCAF', '-lTKCAF', '-lTKBinL', '-lTKXmlL', '-lTKBin', '-lTKXml', '-lTKStdL', '-lTKStd', '-lTKTObj', '-lTKBinTObj', '-lTKXmlTObj', '-lTKVCAF', '-lTKXDE', '-lTKXSBase', '-lTKSTEPBase', '-lTKSTEPAttr', '-lTKSTEP209', '-lTKSTEP', '-lTKIGES', '-lTKXCAF', '-lTKXDEIGES', '-lTKXDESTEP', '-lTKSTL', '-lTKRWMesh', '-lTKVRML', '-lTKXmlXCAF', '-lTKBinXCAF', '-lTKXDECascade', '-lTKDraw', '-lTKTopTest', '-lTKOpenGlTest', '-lTKViewerTest', '-lTKDCAF', '-lTKXSDRAW', '-lTKXDEDRAW', '-lTKTObjDRAW', '-lTKQADraw', '-lTKExpress'])
+endif
 
 rangev3 = dependency('range-v3', method : 'cmake')
 
@@ -264,6 +270,13 @@ endif
 if target_machine.system() != 'darwin'
   libm = cxx.find_library('m')
   build_dependencies += libm
+# looks like we don't need the frameworks on macOS, as they are already added by our dependencies? commenting out for now...
+# else
+#   frameworks = dependency('appleframeworks', modules : ['OpenGL', 'AppKit', 'IOKit'], required : false)
+#   if not frameworks.found()
+#     error('OpenGL, AppKit or IOKit framework not found')
+#   endif
+#   build_dependencies += frameworks
 endif
 
 include_directories = [
