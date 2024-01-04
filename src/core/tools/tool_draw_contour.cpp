@@ -14,7 +14,7 @@
 #include "util/glm_util.hpp"
 #include "tool_common_impl.hpp"
 #include "core/tool_id.hpp"
-#include <iostream>
+#include "document/solid_model_util.hpp"
 
 
 namespace dune3d {
@@ -288,7 +288,21 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             if (m_constrain && m_entities.size()) {
                 if (constrain_point(m_wrkpl->m_uuid,
                                     {m_entities.back()->m_uuid, was_placing_center ? 3 : last_point})) {
-                    return ToolResponse::commit();
+                    if (auto hsel = m_intf.get_hover_selection()) {
+                        const auto paths = solid_model_util::Paths::from_document(get_doc(), m_wrkpl->m_uuid,
+                                                                                  m_core.get_current_group());
+                        for (const auto &path : paths.paths) {
+                            if (std::ranges::find_if(path,
+                                                     [this](const auto &x) {
+                                                         return x.second.entity.m_uuid == m_entities.back()->m_uuid;
+                                                     })
+                                        != path.end()
+                                && std::ranges::find_if(path, [&hsel](const auto &x) {
+                                       return x.second.entity.m_uuid == hsel->item;
+                                   }) != path.end())
+                                return ToolResponse::commit();
+                        }
+                    }
                 }
             }
 
