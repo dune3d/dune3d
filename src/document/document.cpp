@@ -164,10 +164,14 @@ std::vector<Document::BodyGroups> Document::get_groups_by_body() const
     return r;
 }
 
-void Document::update_pending(const UUID &last_group_to_update, const std::vector<EntityAndPoint> &dragged)
+void Document::update_pending(const UUID &last_group_to_update_i, const std::vector<EntityAndPoint> &dragged)
 {
     try {
         auto groups_sorted = get_groups_sorted();
+        if (groups_sorted.empty())
+            return;
+        const UUID last_group_to_update =
+                last_group_to_update_i == groups_sorted.back()->m_uuid ? UUID() : last_group_to_update_i;
         auto get_first_index = [this](const UUID &uu) {
             if (m_groups.contains(uu))
                 return get_group(uu).get_index();
