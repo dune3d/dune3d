@@ -21,6 +21,11 @@ opencascade = dependency('OpenCASCADE', method : 'cmake')
 
 rangev3 = dependency('range-v3', method : 'cmake')
 
+spnav = dependency('spnav', required: false)
+if not spnav.found()
+    spnav = cxx.find_library('spnav', required: false)
+endif
+
 src = files(
   'src/main.cpp',
   'src/dune3d_application.cpp',
@@ -238,6 +243,10 @@ resources = gnome.compile_resources(
 
 cpp_args = ['-DLIBRARY', '-DUSINGZ', '-D_USE_MATH_DEFINES']
 
+if spnav.found()
+    cpp_args += '-DHAVE_SPNAV'
+endif
+
 stdlibs = []
 is_libstdcpp = cxx.get_define('__GLIBCXX__', prefix: '#include <vector>') != ''
 if is_libstdcpp
@@ -250,7 +259,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs')
 endif
 
-build_dependencies = [libm, gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs]
+build_dependencies = [libm, gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs, spnav]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
