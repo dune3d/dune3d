@@ -269,6 +269,13 @@ subdir('3rd_party/solvespace')
 subdir('3rd_party/Clipper2Lib')
 
 
+datadir = get_option('datadir')
+install_data('org.dune3d.dune3d.desktop', install_dir:datadir / 'applications')
+install_data('org.dune3d.dune3d.metainfo.xml', install_dir:datadir / 'metainfo')
+icondir = datadir / 'icons/hicolor'
+
+install_data('src/icons/scalable/apps/dune3d.svg', install_dir: icondir /  'scalable/apps', rename: 'org.dune3d.dune3d.svg')
+
 
 dune3d = executable('dune3d',
     [src,resources,icon_texture, color_presets],
