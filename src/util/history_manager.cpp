@@ -1,9 +1,8 @@
 #include "history_manager.hpp"
 #include <stdexcept>
 #include <assert.h>
-#include <range/v3/view.hpp>
-#include <range/v3/action.hpp>
 #include <set>
+#include <ranges>
 
 namespace dune3d {
 void HistoryManager::clear()
@@ -16,8 +15,10 @@ void HistoryManager::clear()
 
 static size_t count_unique(const std::deque<std::shared_ptr<const HistoryManager::HistoryItem>> &items)
 {
-    auto unique_items = items | ranges::views::transform([](auto x) { return x.get(); })
-                        | ranges::to<std::set<const HistoryManager::HistoryItem *>>();
+    std::set<const HistoryManager::HistoryItem *> unique_items;
+    for (const auto &x : items) {
+        unique_items.insert(x.get());
+    }
     return unique_items.size();
 }
 
@@ -111,7 +112,9 @@ void HistoryManager::push(std::unique_ptr<const HistoryItem> it)
 
     if (redo_stack.size()) {
         if (never_forgets) {
-            ranges::actions::insert(undo_stack, undo_stack.end(), redo_stack | ranges::views::reverse);
+            for (auto &x : redo_stack | std::views::reverse) {
+                undo_stack.push_back(x);
+            }
             undo_stack.push_back(history_current);
         }
         redo_stack.clear();

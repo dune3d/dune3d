@@ -19,8 +19,6 @@ glm = dependency('glm')
 
 opencascade = dependency('OpenCASCADE', method : 'cmake')
 
-rangev3 = dependency('range-v3', method : 'cmake')
-
 src = files(
   'src/main.cpp',
   'src/dune3d_application.cpp',
@@ -250,7 +248,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs')
 endif
 
-build_dependencies = [libm, gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs]
+build_dependencies = [libm, gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
