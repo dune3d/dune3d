@@ -112,3 +112,42 @@ meson compile -C build
 ```
 ./build/dune3d.exe
 ```
+
+## Building on macOS
+
+On macOS, homebrew, and LLVM from homebrew are needed to compile dune3d.
+
+### Installing dependencies
+
+[Homebrew](https://brew.sh/):
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Follow the instructions, now you should be able to install the remaining dependencies:
+
+```
+brew install \
+	python@3
+	llvm \
+	eigen \
+	opencascade \
+	pkg-config \
+	gtk4 \
+	gtkmm4 \
+	glm \
+	range-v3 \
+	mimalloc \
+	pygobject3 \
+	librsvg
+```
+
+Install meson from source (at the time of writing this, the stable version has an issue that breaks the build on macOS):
+
+```
+brew install --HEAD meson
+```
+
+Now you can build the project using the `./scripts/build_macos.sh` script.
+
+You should now have the `dune3d` executable in the `build/` folder.

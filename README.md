@@ -48,6 +48,10 @@ See the [samples](https://github.com/dune3d/samples) repository.
 
 See the [build instructions](doc/building.md#building-on-windows) for how to build on Windows.
 
+### Does it run on macOS?
+
+See the [build instructions](doc/building.md#building-on-macos) for how to build on macOS.
+
 ### Why not integrate it into Horizon EDA?
 
 There's no place in Horizon EDA where a 3D CAD would make sense to implement. Also, I wanted to do some things differently and give Gtk 4 a try.

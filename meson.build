@@ -9,7 +9,6 @@ is_windows = target_machine.system() == 'windows'
 
 
 
-libm = cxx.find_library('m')
 gtk4 = dependency('gtk4', version: '>=4.0')
 gtkmm = dependency('gtkmm-4.0', version: '>=4.0.0')
 epoxy = dependency('epoxy')
@@ -17,7 +16,13 @@ eigen = dependency('eigen3')
 glm = dependency('glm')
 
 
-opencascade = dependency('OpenCASCADE', method : 'cmake')
+opencascade = dependency('OpenCASCADE', method : 'cmake', required:target_machine.system() != 'darwin')
+if target_machine.system() == 'darwin'
+  message('meson\'s framework handling on macos with the cmake method is broken, replacing')
+  brew_prefix_cmd = run_command('brew', '--prefix', check: true)
+  brew_prefix = brew_prefix_cmd.stdout().strip() + '/lib'
+  opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args:['-Wl,-L' + brew_prefix, '-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKSTL', '-lTKFillet'])
+endif
 
 rangev3 = dependency('range-v3', method : 'cmake')
 
@@ -250,7 +255,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs')
 endif
 
-build_dependencies = [libm, gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
@@ -259,6 +264,13 @@ else
 	src += 'src/util/uuid_win32.cpp'
 	cpp_args += '-DWIN32_UUID'
 endif
+
+# on darwin, the math lib is included in libSystem, which is linked by default
+if target_machine.system() != 'darwin'
+  libm = cxx.find_library('m')
+  build_dependencies += libm
+endif
+
 include_directories = [
   include_directories('src'),
   include_directories('3rd_party'),

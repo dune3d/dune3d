@@ -626,7 +626,12 @@ void Canvas::on_realize()
 void Canvas::resize_buffers()
 {
     GLint rb;
+#ifndef __APPLE__
     GLint samples = m_appearance.msaa;
+#else
+    // samples above 1 does not seem to work on macOS
+    GLint samples = 1;
+#endif
 
     glGetIntegerv(GL_RENDERBUFFER_BINDING, &rb); // save rb
     glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
