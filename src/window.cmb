@@ -122,6 +122,8 @@
 	(3,41,"GtkButton","export_button",34,None,None,None,1,None)
   </object>
   <object_property>
+	(1,1,"GtkWindow","default-height","750",None,None,None,None,None,None,None,None,None),
+	(1,1,"GtkWindow","default-width","1024",None,None,None,None,None,None,None,None,None),
 	(1,1,"GtkWindow","title","Dune 3D",None,None,None,None,None,None,None,None,None),
 	(1,1,"GtkWindow","titlebar",None,None,None,None,None,2,None,None,None,None),
 	(1,6,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
