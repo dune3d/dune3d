@@ -4,6 +4,8 @@
   <!-- interface-name window.ui -->
   <requires lib="gtk" version="4.10"/>
   <object class="GtkApplicationWindow" id="window">
+    <property name="default-height">750</property>
+    <property name="default-width">1024</property>
     <property name="title">Dune 3D</property>
     <property name="titlebar">
       <object class="GtkHeaderBar" id="titlebar">
