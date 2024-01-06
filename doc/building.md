@@ -15,7 +15,6 @@ You're going to need these dependencies:
  - cmake (build-time only)
  - meson (build-time only)
  - eigen  (build-time only, since it's just headers)
- - range-v3  (build-time only, since it's just headers)
  - git (build-time only, required when building from a git repo)
  - python-gobject (build-time only)
  - python-cairo (build-time only)
@@ -82,7 +81,6 @@ pacman -S \
 	mingw-w64-x86_64-python \
 	mingw-w64-x86_64-python-cairo \
 	mingw-w64-x86_64-python-gobject \
-	mingw-w64-x86_64-range-v3 \
 	zip \
 	unzip \
 	git \

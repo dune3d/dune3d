@@ -34,7 +34,6 @@
         pkgs.libepoxy
         pkgs.libuuid
         pkgs.opencascade-occt
-        pkgs.range-v3
       ];
       env.CASROOT = pkgs.opencascade-occt;
     };

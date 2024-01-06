@@ -24,8 +24,6 @@ if target_machine.system() == 'darwin'
   opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args:['-Wl,-L' + brew_prefix, '-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKSTL', '-lTKFillet'])
 endif
 
-rangev3 = dependency('range-v3', method : 'cmake')
-
 src = files(
   'src/main.cpp',
   'src/dune3d_application.cpp',
@@ -255,7 +253,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs')
 endif
 
-build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, rangev3, stdlibs]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
