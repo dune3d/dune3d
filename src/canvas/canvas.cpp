@@ -77,21 +77,18 @@ void Canvas::handle_spnav()
         switch (e.type) {
         case SPNAV_EVENT_MOTION: {
             const auto thre = 10.0f;
-            const auto values = {e.motion.x, e.motion.y, e.motion.z, e.motion.rx, e.motion.ry};
+            const auto values = {e.motion.x, e.motion.y, e.motion.z, e.motion.rx, e.motion.ry, e.motion.rz};
             if (std::any_of(values.begin(), values.end(), [thre](auto x) { return std::abs(x) > thre; })) {
-                m_cam_distance *= pow(1.5f, e.motion.y * -0.001f);
+                m_cam_distance *= pow(1.5f, e.motion.z * 0.001f);
 
                 // reduce shifting speed when zoomed in
-                auto scale_shift = 0.05f * (1.0f - (1.0f / pow(2.2f, m_cam_distance)));
-                const auto center_shift = get_center_shift(glm::vec2(e.motion.x, e.motion.z) * scale_shift);
+                const auto scale_shift = 0.1f * (1.0f - (1.0f / pow(2.2f, m_cam_distance)));
+                const auto center_shift = get_center_shift(glm::vec2(e.motion.x, e.motion.y) * scale_shift);
                 m_center += center_shift;
 
-                // reduce rotation speed when zoomed in
-                auto scale_rot = -0.01f * (1.0f - (1.0f / pow(2.8f, m_cam_distance)));
-                auto ry = glm::angleAxis(glm::radians(e.motion.ry * scale_rot), glm::vec3(0, 0, 1));
-                auto rx = glm::angleAxis(glm::radians(e.motion.rx * scale_rot),
-                                         glm::rotate(m_cam_quat, glm::vec3(1, 0, 0)));
-                m_cam_quat = glm::normalize(ry * rx * m_cam_quat);
+                auto scale_rot = -0.01f;
+                auto r = glm::quat(glm::radians(glm::vec3(e.motion.rx, e.motion.ry, -e.motion.rz)) * scale_rot);
+                m_cam_quat = glm::normalize(m_cam_quat * r);
 
                 queue_draw();
                 m_signal_view_changed.emit();
