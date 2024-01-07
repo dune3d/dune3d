@@ -32,6 +32,7 @@
         pkgs.glm
         pkgs.gtkmm4
         pkgs.libepoxy
+        pkgs.libspnav
         pkgs.libuuid
         pkgs.opencascade-occt
       ];
