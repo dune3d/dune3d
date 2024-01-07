@@ -18,14 +18,17 @@ flat out uint pick_to_geom;
 
 uniform mat4 view;
 uniform mat4 proj;
+uniform mat3 screen;
+
 void main() {
 	pick_to_geom = uint(gl_VertexID+int(pick_base));
 	flags_to_geom = flags;
     origin_to_geom = (proj*view*vec4(origin, 1));
+    vec3 t = screen*vec3(1,-1,0);
     if(!isnan(vec.x)) {
         vec4 v4 = proj*view*vec4(vec, 0);
         v4.y *= -1;
-        vec_to_geom = normalize(v4.xy);
+        vec_to_geom = normalize(v4.xy/t.xy);
     }
     else {
         vec_to_geom = vec2(1,0);
