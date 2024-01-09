@@ -1,7 +1,6 @@
 #include "tool_constrain_hv.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_line3d.hpp"
-#include "document/entity/entity_line2d.hpp"
+#include "document/entity/entity_workplane.hpp"
 #include "document/constraint/constraint_hv.hpp"
 #include "core/tool_id.hpp"
 #include <optional>
@@ -21,9 +20,30 @@ bool ToolConstrainHV::can_begin()
     if (!tp)
         return false;
 
+    auto wrkpl = get_workplane();
+    const auto p1 = wrkpl->project(get_doc().get_point(tp->point1));
+    const auto p2 = wrkpl->project(get_doc().get_point(tp->point2));
+    const auto v = glm::abs(p2 - p1);
+    const auto is_horizontal = v.x > v.y;
+    switch (m_tool_id) {
+    default:
+    case ToolID::CONSTRAIN_HORIZONTAL_AUTO:
+    case ToolID::CONSTRAIN_VERTICAL:
+        if (!is_horizontal)
+            return false;
+        break;
+
+    case ToolID::CONSTRAIN_HORIZONTAL:
+    case ToolID::CONSTRAIN_VERTICAL_AUTO:
+        if (is_horizontal)
+            return false;
+        break;
+        return false;
+    }
+
     auto constraints = get_doc().find_constraints(tp->get_enps());
     for (auto constraint : constraints) {
-        if (m_tool_id == ToolID::CONSTRAIN_HORIZONTAL) {
+        if (any_of(m_tool_id, ToolID::CONSTRAIN_HORIZONTAL, ToolID::CONSTRAIN_HORIZONTAL_AUTO)) {
             if (constraint->of_type(Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
                                     Constraint::Type::POINT_DISTANCE_VERTICAL))
                 return false;
@@ -46,7 +66,7 @@ ToolResponse ToolConstrainHV::begin(const ToolArgs &args)
         return ToolResponse::end();
 
     ConstraintHV *constraint = nullptr;
-    if (m_tool_id == ToolID::CONSTRAIN_HORIZONTAL)
+    if (any_of(m_tool_id, ToolID::CONSTRAIN_HORIZONTAL, ToolID::CONSTRAIN_HORIZONTAL_AUTO))
         constraint = &add_constraint<ConstraintHorizontal>();
     else
         constraint = &add_constraint<ConstraintVertical>();

@@ -64,7 +64,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainCoincident>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_HORIZONTAL:
+    case ToolID::CONSTRAIN_HORIZONTAL_AUTO:
     case ToolID::CONSTRAIN_VERTICAL:
+    case ToolID::CONSTRAIN_VERTICAL_AUTO:
         return std::make_unique<ToolConstrainHV>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_DISTANCE:
