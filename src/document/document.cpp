@@ -294,6 +294,7 @@ bool Document::reorder_group(const UUID &group_uu, const UUID &after)
     auto groups_sorted = get_groups_sorted();
     decltype(groups_sorted) groups_new_order;
     groups_new_order.reserve(groups_sorted.size());
+    const auto group_before = get_group_rel(group_uu, -1);
 
     for (auto gr : groups_sorted) {
         if (gr->m_uuid == group_uu)
@@ -318,6 +319,10 @@ bool Document::reorder_group(const UUID &group_uu, const UUID &after)
             gr->set_index({}, index++);
         }
     }
+
+    set_group_generate_pending(group_uu);
+    set_group_generate_pending(group_before);
+    set_group_generate_pending(after);
 
     return true;
 }
