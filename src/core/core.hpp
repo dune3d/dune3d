@@ -56,6 +56,10 @@ public:
     std::set<InToolActionID> get_tool_actions() const;
 
     struct CanBeginInfo {
+        bool get_can_begin() const
+        {
+            return can_begin;
+        }
         bool can_begin;
         bool is_specific;
     };

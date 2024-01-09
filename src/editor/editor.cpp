@@ -210,7 +210,7 @@ void Editor::update_action_bar_buttons_sensitivity()
                     sensitive = m_action_sensitivity.at(a);
             }
             else {
-                sensitive = m_core.tool_can_begin(std::get<ToolID>(act), {}).can_begin;
+                sensitive = m_core.tool_can_begin(std::get<ToolID>(act), {}).get_can_begin();
             }
         }
         bu->set_sensitive(sensitive);
@@ -417,7 +417,7 @@ void Editor::open_context_menu()
             if (it_cat.group == action_group && !(it_cat.flags & ActionCatalogItem::FLAGS_NO_MENU)) {
                 if (auto tool = std::get_if<ToolID>(&id)) {
                     auto r = m_core.tool_can_begin(*tool, sel);
-                    if (r.can_begin && r.is_specific) {
+                    if (r.get_can_begin() && r.is_specific) {
                         auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
                         menu->append_item(item);
                     }
@@ -1040,7 +1040,7 @@ void Editor::init_tool_popover()
         auto sel = get_canvas().get_selection();
         for (const auto &[id, it] : action_catalog) {
             if (std::holds_alternative<ToolID>(id)) {
-                bool r = m_core.tool_can_begin(std::get<ToolID>(id), sel).can_begin;
+                bool r = m_core.tool_can_begin(std::get<ToolID>(id), sel).get_can_begin();
                 can_begin[id] = r;
             }
             else {
@@ -1690,7 +1690,7 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
         for (auto &[id, conn] : m_action_connections) {
             bool can_begin = false;
             if (std::holds_alternative<ToolID>(id) && !m_core.tool_is_active()) {
-                can_begin = m_core.tool_can_begin(std::get<ToolID>(id), selection).can_begin;
+                can_begin = m_core.tool_can_begin(std::get<ToolID>(id), selection).get_can_begin();
             }
             else if (std::holds_alternative<ActionID>(id)) {
                 can_begin = get_action_sensitive(std::get<ActionID>(id));
