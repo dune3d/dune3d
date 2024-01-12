@@ -23,6 +23,7 @@ protected:
         auto items = Gtk::StringList::create();
         items->append("Union");
         items->append("Difference");
+        items->append("Intersection");
 
         m_operation_combo = Gtk::make_managed<Gtk::DropDown>(items);
         m_operation_combo->set_selected(static_cast<guint>(group.m_operation));

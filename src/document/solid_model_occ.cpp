@@ -59,6 +59,7 @@
 
 #include <BRepAlgoAPI_Cut.hxx>
 #include <BRepAlgoAPI_Fuse.hxx>
+#include <BRepAlgoAPI_Common.hxx>
 
 #include <cairomm/cairomm.h>
 
@@ -601,6 +602,9 @@ void SolidModelOcc::update_acc(IGroupSolidModel::Operation op, const TopoDS_Shap
         break;
     case IGroupSolidModel::Operation::UNION:
         m_shape_acc = BRepAlgoAPI_Fuse(last, m_shape);
+        break;
+    case IGroupSolidModel::Operation::INTERSECTION:
+        m_shape_acc = BRepAlgoAPI_Common(last, m_shape);
         break;
     }
 }
