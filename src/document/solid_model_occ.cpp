@@ -57,6 +57,9 @@
 
 #include <gp_Quaternion.hxx>
 
+#include <BRepAlgoAPI_Cut.hxx>
+#include <BRepAlgoAPI_Fuse.hxx>
+
 #include <cairomm/cairomm.h>
 
 
@@ -587,6 +590,18 @@ void SolidModelOcc::find_edges()
         }
         topex.Next();
         edge_idx++;
+    }
+}
+
+void SolidModelOcc::update_acc(IGroupSolidModel::Operation op, const TopoDS_Shape &last)
+{
+    switch (op) {
+    case IGroupSolidModel::Operation::DIFFERENCE:
+        m_shape_acc = BRepAlgoAPI_Cut(last, m_shape);
+        break;
+    case IGroupSolidModel::Operation::UNION:
+        m_shape_acc = BRepAlgoAPI_Fuse(last, m_shape);
+        break;
     }
 }
 

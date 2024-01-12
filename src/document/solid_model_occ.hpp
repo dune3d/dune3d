@@ -1,4 +1,5 @@
 #include "solid_model.hpp"
+#include "group/igroup_solid_model.hpp"
 #include <TopoDS.hxx>
 
 namespace dune3d {
@@ -15,6 +16,8 @@ public:
     void export_step(const std::filesystem::path &path) const override;
     void export_projection(const std::filesystem::path &path, const glm::dvec3 &origin,
                            const glm::dquat &normal) const override;
+
+    void update_acc(IGroupSolidModel::Operation op, const TopoDS_Shape &last);
 };
 
 } // namespace dune3d

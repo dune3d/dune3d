@@ -4,8 +4,6 @@
 #include "group/group_extrude.hpp"
 
 #include <BRepPrimAPI_MakePrism.hxx>
-#include <BRepAlgoAPI_Cut.hxx>
-#include <BRepAlgoAPI_Fuse.hxx>
 
 namespace dune3d {
 
@@ -65,14 +63,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupE
     const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
 
     if (last_solid_model) {
-        switch (group.m_operation) {
-        case GroupExtrude::Operation::DIFFERENCE:
-            mod->m_shape_acc = BRepAlgoAPI_Cut(last_solid_model->m_shape_acc, mod->m_shape);
-            break;
-        case GroupExtrude::Operation::UNION:
-            mod->m_shape_acc = BRepAlgoAPI_Fuse(last_solid_model->m_shape_acc, mod->m_shape);
-            break;
-        }
+        mod->update_acc(group.m_operation, last_solid_model->m_shape_acc);
     }
     else {
         mod->m_shape_acc = mod->m_shape;

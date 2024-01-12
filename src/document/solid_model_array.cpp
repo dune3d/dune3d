@@ -6,7 +6,6 @@
 #include "group/group_polar_array.hpp"
 #include <BRepBuilderAPI_Transform.hxx>
 
-#include <BRepAlgoAPI_Cut.hxx>
 #include <BRepAlgoAPI_Fuse.hxx>
 
 #include <gp_Ax2.hxx>
@@ -45,14 +44,7 @@ static std::shared_ptr<const SolidModel> create_array(const Document &doc, Group
             mod->m_shape = BRepAlgoAPI_Fuse(mod->m_shape, sh);
     }
 
-    switch (group.m_operation) {
-    case IGroupSolidModel::Operation::UNION:
-        mod->m_shape_acc = BRepAlgoAPI_Fuse(last_solid_model->m_shape_acc, mod->m_shape);
-        break;
-    case IGroupSolidModel::Operation::DIFFERENCE:
-        mod->m_shape_acc = BRepAlgoAPI_Cut(last_solid_model->m_shape_acc, mod->m_shape);
-        break;
-    }
+    mod->update_acc(group.m_operation, last_solid_model->m_shape_acc);
 
     if (mod->m_shape_acc.IsNull()) {
         group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "didn't generate a shape");
