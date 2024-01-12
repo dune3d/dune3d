@@ -112,9 +112,31 @@ public:
     virtual ToolResponse update(const ToolArgs &args) = 0;
 
     /**
-     * @returns true if this Tool can begin in sensible way
+     * @returns if this Tool can begin in sensible way
      */
-    virtual bool can_begin()
+
+    struct CanBegin {
+        enum class E {
+            NO,          // can't begin at all
+            YES,         // can begin
+            YES_NO_MENU, // can begin, but hide from context menu
+        };
+        using enum E;
+
+        const E can_begin;
+        CanBegin(E e) : can_begin(e)
+        {
+        }
+        CanBegin(bool x) : can_begin(x ? YES : NO)
+        {
+        }
+        operator E() const
+        {
+            return can_begin;
+        }
+    };
+
+    virtual CanBegin can_begin()
     {
         return true;
     }

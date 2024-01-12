@@ -417,7 +417,7 @@ void Editor::open_context_menu()
             if (it_cat.group == action_group && !(it_cat.flags & ActionCatalogItem::FLAGS_NO_MENU)) {
                 if (auto tool = std::get_if<ToolID>(&id)) {
                     auto r = m_core.tool_can_begin(*tool, sel);
-                    if (r.get_can_begin() && r.is_specific) {
+                    if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
                         auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
                         menu->append_item(item);
                     }

@@ -93,7 +93,7 @@ static std::optional<std::pair<UUID, UUID>> two_lines_from_selection(const Docum
 }
 
 
-bool ToolConstrainPerpendicular::can_begin()
+ToolBase::CanBegin ToolConstrainPerpendicular::can_begin()
 {
     return (line_and_points_from_selection(get_doc(), m_selection).has_value()
             && m_tool_id == ToolID::CONSTRAIN_PERPENDICULAR)

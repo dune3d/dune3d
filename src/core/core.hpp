@@ -58,9 +58,9 @@ public:
     struct CanBeginInfo {
         bool get_can_begin() const
         {
-            return can_begin;
+            return can_begin != ToolBase::CanBegin::NO;
         }
-        bool can_begin;
+        ToolBase::CanBegin can_begin;
         bool is_specific;
     };
 

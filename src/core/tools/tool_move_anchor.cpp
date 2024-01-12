@@ -12,7 +12,7 @@
 namespace dune3d {
 
 
-bool ToolMoveAnchor::can_begin()
+ToolBase::CanBegin ToolMoveAnchor::can_begin()
 {
     auto enp = entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::STEP);
     if (!enp)

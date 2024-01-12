@@ -56,7 +56,7 @@ bool ToolConstrainCoincident::is_point_on_circle()
     return true;
 }
 
-bool ToolConstrainCoincident::can_begin()
+ToolBase::CanBegin ToolConstrainCoincident::can_begin()
 {
     return is_point_on_line() || is_point_on_point() || is_point_on_circle();
 }

@@ -19,7 +19,7 @@
 
 namespace dune3d {
 
-bool ToolMove::can_begin()
+ToolBase::CanBegin ToolMove::can_begin()
 {
     for (const auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {

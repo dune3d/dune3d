@@ -21,7 +21,7 @@ ToolResponse ToolDrawRectangle::begin(const ToolArgs &args)
     return ToolResponse();
 }
 
-bool ToolDrawRectangle::can_begin()
+ToolBase::CanBegin ToolDrawRectangle::can_begin()
 {
     return get_workplane_uuid() != UUID();
 }

@@ -23,7 +23,7 @@ ToolResponse ToolDrawPoint2D::begin(const ToolArgs &args)
     return ToolResponse();
 }
 
-bool ToolDrawPoint2D::can_begin()
+ToolBase::CanBegin ToolDrawPoint2D::can_begin()
 {
     return get_workplane_uuid() != UUID();
 }

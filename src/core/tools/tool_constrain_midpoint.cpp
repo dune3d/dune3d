@@ -8,7 +8,7 @@
 #include "tool_common_impl.hpp"
 
 namespace dune3d {
-bool ToolConstrainMidpoint::can_begin()
+ToolBase::CanBegin ToolConstrainMidpoint::can_begin()
 {
     auto lp = line_and_point_from_selection(get_doc(), m_selection);
     if (!lp)

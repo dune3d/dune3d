@@ -240,9 +240,9 @@ std::set<SelectableRef> Core::get_tool_selection() const
 Core::CanBeginInfo Core::tool_can_begin(ToolID tool_id, const std::set<SelectableRef> &sel)
 {
     if (!has_documents())
-        return {false, false};
+        return {ToolBase::CanBegin::NO, false};
     if (is_read_only())
-        return {false, false};
+        return {ToolBase::CanBegin::NO, false};
     auto t = create_tool(tool_id);
     t->m_selection = sel;
     auto r = t->can_begin();
@@ -337,7 +337,7 @@ ToolResponse Core::tool_begin(ToolID tool_id, const ToolArgs &args, bool transie
         if (transient)
             tool->set_transient();
         */
-        if (!m_tool->can_begin()) { // check if we can actually use this tool
+        if (m_tool->can_begin() == ToolBase::CanBegin::NO) { // check if we can actually use this tool
             m_tool.reset();
             return ToolResponse();
         }

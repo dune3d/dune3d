@@ -25,7 +25,7 @@ static std::list<UUID> lines_from_selection(const Document &doc, const std::set<
     return r;
 }
 
-bool ToolConstrainEqualLength::can_begin()
+ToolBase::CanBegin ToolConstrainEqualLength::can_begin()
 {
     return lines_from_selection(get_doc(), m_selection).size() >= 2;
 }

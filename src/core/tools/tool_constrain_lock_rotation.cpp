@@ -10,7 +10,7 @@
 
 namespace dune3d {
 
-bool ToolConstrainLockRotation::can_begin()
+ToolBase::CanBegin ToolConstrainLockRotation::can_begin()
 {
     auto enp = entity_and_point_from_selection(get_doc(), m_selection);
     if (!enp)

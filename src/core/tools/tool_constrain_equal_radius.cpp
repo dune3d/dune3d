@@ -23,7 +23,7 @@ static std::list<UUID> circles_from_selection(const Document &doc, const std::se
     return r;
 }
 
-bool ToolConstrainEqualRadius::can_begin()
+ToolBase::CanBegin ToolConstrainEqualRadius::can_begin()
 {
     return circles_from_selection(get_doc(), m_selection).size() >= 2;
 }

@@ -14,7 +14,7 @@
 
 namespace dune3d {
 
-bool ToolRotate::can_begin()
+ToolBase::CanBegin ToolRotate::can_begin()
 {
     auto enp = entity_and_point_from_selection(get_doc(), m_selection);
     if (!enp)

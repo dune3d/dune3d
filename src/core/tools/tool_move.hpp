@@ -25,7 +25,7 @@ public:
     {
         return true;
     }
-    bool can_begin() override;
+    CanBegin can_begin() override;
 
     bool needs_delayed_begin() const override
     {

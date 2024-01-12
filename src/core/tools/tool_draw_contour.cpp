@@ -58,7 +58,7 @@ ToolResponse ToolDrawContour::begin(const ToolArgs &args)
     return ToolResponse();
 }
 
-bool ToolDrawContour::can_begin()
+ToolBase::CanBegin ToolDrawContour::can_begin()
 {
     return get_workplane_uuid() != UUID();
 }

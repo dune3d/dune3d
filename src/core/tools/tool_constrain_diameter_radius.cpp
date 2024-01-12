@@ -11,7 +11,7 @@
 
 namespace dune3d {
 
-bool ToolConstrainDiameterRadius::can_begin()
+ToolBase::CanBegin ToolConstrainDiameterRadius::can_begin()
 {
     if (!get_workplane_uuid())
         return false;

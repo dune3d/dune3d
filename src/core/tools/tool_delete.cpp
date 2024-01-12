@@ -9,7 +9,7 @@
 
 namespace dune3d {
 
-bool ToolDelete::can_begin()
+ToolBase::CanBegin ToolDelete::can_begin()
 {
     for (const auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {

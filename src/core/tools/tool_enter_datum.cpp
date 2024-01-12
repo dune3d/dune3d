@@ -24,7 +24,7 @@ static std::optional<UUID> constraint_from_selection(const std::set<SelectableRe
     return sr.item;
 }
 
-bool ToolEnterDatum::can_begin()
+ToolBase::CanBegin ToolEnterDatum::can_begin()
 {
     auto uu = constraint_from_selection(m_selection);
     if (!uu)

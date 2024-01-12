@@ -28,7 +28,7 @@ public:
                 I::FLIP_ARC};
     }
 
-    bool can_begin() override;
+    CanBegin can_begin() override;
 
 
 private:

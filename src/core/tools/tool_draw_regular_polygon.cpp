@@ -25,7 +25,7 @@ ToolResponse ToolDrawRegularPolygon::begin(const ToolArgs &args)
     return ToolResponse();
 }
 
-bool ToolDrawRegularPolygon::can_begin()
+ToolBase::CanBegin ToolDrawRegularPolygon::can_begin()
 {
     return get_workplane_uuid() != UUID();
 }

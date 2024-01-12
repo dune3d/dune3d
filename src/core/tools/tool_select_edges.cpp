@@ -12,7 +12,7 @@
 namespace dune3d {
 
 
-bool ToolSelectEdges::can_begin()
+ToolBase::CanBegin ToolSelectEdges::can_begin()
 {
     auto &group = get_doc().get_group(m_core.get_current_group());
     return dynamic_cast<GroupLocalOperation *>(&group);

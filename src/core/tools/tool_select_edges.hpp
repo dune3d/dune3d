@@ -15,7 +15,7 @@ public:
     {
         return false;
     }
-    bool can_begin() override;
+    CanBegin can_begin() override;
 
     std::set<InToolActionID> get_actions() const override
     {

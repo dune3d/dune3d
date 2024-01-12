@@ -13,7 +13,7 @@
 
 namespace dune3d {
 
-bool ToolConstrainDistance::can_begin()
+ToolBase::CanBegin ToolConstrainDistance::can_begin()
 {
     if ((m_tool_id == ToolID::CONSTRAIN_DISTANCE_HORIZONTAL || m_tool_id == ToolID::CONSTRAIN_DISTANCE_VERTICAL)
         && !get_workplane_uuid())

@@ -10,7 +10,7 @@
 
 namespace dune3d {
 
-bool ToolConstrainPointInPlane::can_begin()
+ToolBase::CanBegin ToolConstrainPointInPlane::can_begin()
 {
     return lines_and_point_from_selection(get_doc(), m_selection).has_value();
 }

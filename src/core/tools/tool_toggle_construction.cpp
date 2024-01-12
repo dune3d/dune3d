@@ -9,7 +9,7 @@
 
 namespace dune3d {
 
-bool ToolToggleConstruction::can_begin()
+ToolBase::CanBegin ToolToggleConstruction::can_begin()
 {
     auto entities = get_entities();
     if (entities.size() == 0)

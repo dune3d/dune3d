@@ -33,7 +33,7 @@ std::optional<std::pair<UUID, UUID>> two_wrkpl_from_selection(const Document &do
     return {};
 }
 
-bool ToolConstrainSameOrientation::can_begin()
+ToolBase::CanBegin ToolConstrainSameOrientation::can_begin()
 {
     return two_wrkpl_from_selection(get_doc(), m_selection).has_value();
 }

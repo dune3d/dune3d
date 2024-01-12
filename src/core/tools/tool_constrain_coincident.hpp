@@ -14,7 +14,7 @@ public:
     {
         return true;
     }
-    bool can_begin() override;
+    CanBegin can_begin() override;
 
 
 private:

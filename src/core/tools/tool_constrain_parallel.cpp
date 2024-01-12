@@ -102,7 +102,7 @@ static std::optional<ArcAndLine> arc_and_line_from_selection(const Document &doc
     return {};
 }
 
-bool ToolConstrainParallel::can_begin()
+ToolBase::CanBegin ToolConstrainParallel::can_begin()
 {
     return two_entities_from_selection(get_doc(), m_selection).has_value()
            || two_arcs_from_selection(get_doc(), m_selection).has_value()

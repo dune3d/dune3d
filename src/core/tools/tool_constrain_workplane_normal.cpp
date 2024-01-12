@@ -34,7 +34,7 @@ EntityWorkplane *ToolConstrainWorkplaneNormal::get_wrkpl()
     return nullptr;
 }
 
-bool ToolConstrainWorkplaneNormal::can_begin()
+ToolBase::CanBegin ToolConstrainWorkplaneNormal::can_begin()
 {
     return get_wrkpl();
 }

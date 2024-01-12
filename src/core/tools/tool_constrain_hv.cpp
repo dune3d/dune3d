@@ -11,7 +11,7 @@
 namespace dune3d {
 
 
-bool ToolConstrainHV::can_begin()
+ToolBase::CanBegin ToolConstrainHV::can_begin()
 {
     if (!get_workplane_uuid())
         return false;

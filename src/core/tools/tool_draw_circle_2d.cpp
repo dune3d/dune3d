@@ -19,7 +19,7 @@ ToolResponse ToolDrawCircle2D::begin(const ToolArgs &args)
     return ToolResponse();
 }
 
-bool ToolDrawCircle2D::can_begin()
+ToolBase::CanBegin ToolDrawCircle2D::can_begin()
 {
     return get_workplane_uuid() != UUID();
 }
