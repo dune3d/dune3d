@@ -16,13 +16,22 @@ ToolBase::CanBegin ToolToggleConstruction::can_begin()
         return false;
     const bool has_normal = std::ranges::any_of(entities, [](auto x) { return !x->m_construction; });
     const bool has_construction = std::ranges::any_of(entities, [](auto x) { return x->m_construction; });
-    if (m_tool_id == ToolID::TOGGLE_CONSTRUCTION)
-        return has_normal && has_construction;
-    else if (m_tool_id == ToolID::SET_CONSTRUCTION)
+    switch (m_tool_id) {
+    case ToolID::TOGGLE_CONSTRUCTION:
+        if (has_normal && has_construction)
+            return CanBegin::YES;
+        else
+            return CanBegin::YES_NO_MENU;
+
+    case ToolID::SET_CONSTRUCTION:
         return has_normal;
-    else if (m_tool_id == ToolID::UNSET_CONSTRUCTION)
+
+    case ToolID::UNSET_CONSTRUCTION:
         return has_construction;
-    return false;
+
+    default:
+        return false;
+    }
 }
 
 std::set<Entity *> ToolToggleConstruction::get_entities()
