@@ -278,10 +278,25 @@ include_directories = [
 subdir('3rd_party/solvespace')
 subdir('3rd_party/Clipper2Lib')
 
+if is_windows
+	windows = import('windows')
+
+	dune3d_rc = custom_target(
+        'dune3d.rc',
+        output : 'dune3d.rc',
+        input : ['make_rc.py'],
+        depend_files: files('version.py'),
+        command : [prog_python,  '@INPUT@', '@OUTPUT@'],
+    )
+
+	rc_compiled =  windows.compile_resources(dune3d_rc, include_directories:include_directories('.'))
+else
+	rc_compiled = []
+endif
 
 
 dune3d = executable('dune3d',
-    [src,resources,icon_texture, color_presets],
+    [src,resources,icon_texture, color_presets, rc_compiled],
     dependencies: [build_dependencies],
     link_with: [solvespace, clipper],
     cpp_args: cpp_args,
