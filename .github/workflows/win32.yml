@@ -43,3 +43,16 @@ jobs:
       run: |
         meson setup build
         meson compile -C build
+    - name: Make dist
+      shell: msys2 {0}
+      run: ./make_bindist.sh
+    - name: Check for missing DLLs
+      shell: msys2 {0}
+      run: ./check_dll.sh
+    - name: set artifact name
+      shell: msys2 {0}
+      run: echo "artifact_name=dune3d-win64-$(date +%Y-%m-%d-%H%M)-$(echo ${{ github.ref_name }} | tr / -)" >> $GITHUB_ENV
+    - uses: actions/upload-artifact@v2-preview
+      with:
+        name: ${{ env.artifact_name }}
+        path: dist/*.zip
