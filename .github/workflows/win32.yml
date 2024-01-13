@@ -56,3 +56,14 @@ jobs:
       with:
         name: ${{ env.artifact_name }}
         path: dist/*.zip
+    - name: Build MSI
+      if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/win32-installer'
+      run: |
+        $env:PATH += ";$($Env:WIX)\bin"
+        cd wix
+        .\install.bat
+    - uses: actions/upload-artifact@v2-preview
+      if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/win32-installer'
+      with:
+        name: dune3d-win64-installer
+        path: wix/*.msi
