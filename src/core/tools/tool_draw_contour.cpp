@@ -320,7 +320,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 m_temp_arc = &add_entity<EntityArc2D>();
                 m_temp_arc->m_selection_invisible = true;
                 m_temp_arc->m_from = get_cursor_pos_in_plane();
-                m_temp_arc->m_center = get_cursor_pos_in_plane();
+
                 if (m_entities.size()) {
                     if (auto last_line = dynamic_cast<const EntityLine2D *>(m_entities.back())) {
                         m_temp_arc->m_from = last_line->m_p2;
@@ -329,7 +329,8 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                         m_temp_arc->m_from = last_arc->get_point_in_workplane(last_point);
                     }
                 }
-                m_temp_arc->m_to = get_cursor_pos_in_plane();
+                m_temp_arc->m_center = m_temp_arc->m_from + glm::dvec2(1, 0);
+                m_temp_arc->m_to = m_temp_arc->m_from + glm::dvec2(2, 0);
                 m_temp_arc->m_wrkpl = m_wrkpl->m_uuid;
             }
             else {
@@ -362,6 +363,11 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                     }
                 }
             }
+            if (m_temp_arc) {
+                m_temp_arc->m_center = m_temp_arc->m_from;
+                m_temp_arc->m_to = m_temp_arc->m_from;
+            }
+
             update_constrain_tangent();
 
             if (m_entities.size()) {
