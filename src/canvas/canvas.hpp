@@ -273,6 +273,9 @@ private:
     MSDAnimator m_cz_animator;
 
     std::vector<MSDAnimator *> m_animators;
+
+    void set_translation_rotation_animator_params(const MSD::Params &params);
+
     int animate_step(GdkFrameClock *frame_clock);
     static int anim_tick_cb(GtkWidget *cwidget, GdkFrameClock *frame_clock, gpointer user_data);
     void start_anim();
@@ -491,6 +494,10 @@ private:
     int m_scale_factor = 1;
 
     ClippingPlanes m_clipping_planes;
+
+    bool have_spnav = false;
+    void handle_spnav();
+    sigc::connection spnav_connection;
 };
 
 } // namespace dune3d
