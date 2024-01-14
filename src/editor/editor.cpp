@@ -855,6 +855,8 @@ void Editor::on_export_paths(const ActionConnection &conn)
             const auto path = path_from_string(append_suffix_if_required(file->get_path(), ".svg"));
 
             auto group_filter = [this](const Group &group) {
+                if (m_core.get_current_group() == group.m_uuid)
+                    return true;
                 auto &body_group = group.find_body(m_core.get_current_document()).group;
                 auto group_visible = m_document_view.group_is_visible(group.m_uuid);
                 auto body_visible = m_document_view.body_is_visible(body_group.m_uuid);
