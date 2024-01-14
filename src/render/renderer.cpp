@@ -13,6 +13,7 @@
 #include <iostream>
 #include <array>
 #include <format>
+#include <ranges>
 
 namespace dune3d {
 
@@ -64,9 +65,15 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
         return;
     }
 
-    for (const auto &[uu, el] : doc.m_entities) {
-        render(*el);
+    for (auto group : doc.get_groups_sorted() | std::views::reverse) {
+        if (!group_is_visible(group->m_uuid))
+            continue;
+        for (const auto &[uu, el] : doc.m_entities) {
+            if (el->m_group == group->m_uuid)
+                render(*el);
+        }
     }
+
 
     auto groups_by_body = doc.get_groups_by_body();
     for (auto body_groups : groups_by_body) {
@@ -114,12 +121,9 @@ void Renderer::render(const Entity &entity)
 {
     if (!entity.m_visible)
         return;
-    auto &entity_group = m_doc->get_group(entity.m_group);
-    if (!group_is_visible(entity.m_group))
+    if (entity.m_construction && entity.m_group != m_current_group->m_uuid)
         return;
-    if (entity.m_construction && entity_group.m_uuid != m_current_group->m_uuid)
-        return;
-    m_ca.set_vertex_inactive(entity_group.m_uuid != m_current_group->m_uuid);
+    m_ca.set_vertex_inactive(entity.m_group != m_current_group->m_uuid);
     m_ca.set_selection_invisible(entity.m_selection_invisible);
     m_ca.set_vertex_construction(entity.m_construction);
     entity.accept(*this);
