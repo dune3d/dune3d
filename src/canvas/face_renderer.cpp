@@ -107,7 +107,7 @@ void FaceRenderer::render()
     load_uniforms();
     glm::vec3 clipping_value;
     clipping_value.x = m_ca.m_clipping_planes.x.value;
-    clipping_value.z = m_ca.m_clipping_planes.y.value;
+    clipping_value.y = m_ca.m_clipping_planes.y.value;
     clipping_value.z = m_ca.m_clipping_planes.z.value;
 
     glm::ivec3 clipping_op;
