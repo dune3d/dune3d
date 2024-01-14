@@ -30,6 +30,7 @@
 #include "tools/tool_draw_regular_polygon.hpp"
 #include "tools/tool_draw_rectangle.hpp"
 #include "tools/tool_constrain_lock_rotation.hpp"
+#include "tools/tool_flip_arc.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -141,6 +142,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_LOCK_ROTATION:
         return std::make_unique<ToolConstrainLockRotation>(tool_id, *this, m_intf, flags);
+
+    case ToolID::FLIP_ARC:
+        return std::make_unique<ToolFlipArc>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

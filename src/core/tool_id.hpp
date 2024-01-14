@@ -46,5 +46,6 @@ enum class ToolID {
     DRAW_REGULAR_POLYGON,
     DRAW_RECTANGLE,
     MOVE_ANCHOR,
+    FLIP_ARC,
 };
 }

@@ -120,6 +120,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::TOGGLE_CLIPPING_PLANES,
          {"Toggle clipping planes", ActionGroup::VIEW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_LOCK_ROTATION, {"Lock rotation", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::FLIP_ARC, {"Flip arc", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -229,6 +230,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(ROTATE),
         TOOL_LUT_ITEM(DRAW_REGULAR_POLYGON),
         TOOL_LUT_ITEM(DRAW_RECTANGLE),
+        TOOL_LUT_ITEM(FLIP_ARC),
 };
 
 
