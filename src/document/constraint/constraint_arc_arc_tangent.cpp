@@ -36,4 +36,17 @@ void ConstraintArcArcTangent::accept(ConstraintVisitor &visitor) const
     visitor.visit(*this);
 }
 
+bool ConstraintArcArcTangent::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
+{
+    if (m_arc1 == old_point) {
+        m_arc1 = new_point;
+        return true;
+    }
+    else if (m_arc2 == old_point) {
+        m_arc2 = new_point;
+        return true;
+    }
+    return false;
+}
+
 } // namespace dune3d
