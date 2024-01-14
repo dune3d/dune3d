@@ -95,17 +95,17 @@ void Canvas::handle_spnav()
             if (std::any_of(values.begin(), values.end(), [thre](auto x) { return std::abs(x) > thre; })) {
                 set_translation_rotation_animator_params(msd_params_normal);
                 start_anim();
-                m_zoom_animator.target += e.motion.z * 0.001f;
+                m_zoom_animator.target += e.motion.y * -0.001f;
 
                 // reduce shifting speed when zoomed in
                 const auto scale_shift = 0.1f * (1.0f - (1.0f / pow(2.2f, m_cam_distance)));
-                const auto center_shift = get_center_shift(glm::vec2(e.motion.x, e.motion.y) * scale_shift);
+                const auto center_shift = get_center_shift(glm::vec2(e.motion.x, e.motion.z) * scale_shift);
                 m_cx_animator.target += center_shift.x;
                 m_cy_animator.target += center_shift.y;
                 m_cz_animator.target += center_shift.z;
 
                 auto scale_rot = -0.02f;
-                const auto r = glm::quat(glm::radians(glm::vec3(e.motion.rx, e.motion.ry, -e.motion.rz)) * scale_rot);
+                const auto r = glm::quat(glm::radians(glm::vec3(e.motion.rx, e.motion.rz, e.motion.ry)) * scale_rot);
                 const auto q = glm::normalize(m_cam_quat * r);
                 m_quat_x_animator.target = q.x;
                 m_quat_y_animator.target = q.y;
