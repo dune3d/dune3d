@@ -24,6 +24,11 @@ if target_machine.system() == 'darwin'
   opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args:['-Wl,-L' + brew_prefix, '-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKSTL', '-lTKFillet'])
 endif
 
+spnav = dependency('spnav', required: false)
+if not spnav.found()
+    spnav = cxx.find_library('spnav', required: false)
+endif
+
 src = files(
   'src/main.cpp',
   'src/dune3d_application.cpp',
@@ -242,6 +247,10 @@ resources = gnome.compile_resources(
 
 cpp_args = ['-DLIBRARY', '-DUSINGZ', '-D_USE_MATH_DEFINES']
 
+if spnav.found()
+    cpp_args += '-DHAVE_SPNAV'
+endif
+
 stdlibs = []
 is_libstdcpp = cxx.get_define('__GLIBCXX__', prefix: '#include <vector>') != ''
 if is_libstdcpp
@@ -254,7 +263,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs')
 endif
 
-build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid

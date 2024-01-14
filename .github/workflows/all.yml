@@ -57,7 +57,7 @@ jobs:
         apt-get install -y locales
         locale-gen ${{ env.LANG }}
     - name: Install dependencies
-      run: apt-get install meson build-essential meson  libglm-dev  libocct-ocaf-dev cmake pkg-config libgtkmm-4.0-dev libgtkmm-4.0-dev uuid-dev libeigen3-dev git python3-gi-cairo gir1.2-rsvg-2.0 ${{ matrix.os.cxx }} libocct-data-exchange-dev -y
+      run: apt-get install meson build-essential meson  libglm-dev  libocct-ocaf-dev cmake pkg-config libgtkmm-4.0-dev libgtkmm-4.0-dev uuid-dev libeigen3-dev libspnav-dev git python3-gi-cairo gir1.2-rsvg-2.0 ${{ matrix.os.cxx }} libocct-data-exchange-dev -y
     - name: Build
       run: |
         mkdir ../build
@@ -78,7 +78,7 @@ jobs:
     - name: Install updates
       run: pacman -Syu --noconfirm
     - name: Install dependencies
-      run: pacman -Sy --needed --noconfirm  gtkmm-4.0 cairomm librsvg opencascade glm python  cmake meson eigen git python-gobject python-cairo
+      run: pacman -Sy --needed --noconfirm  gtkmm-4.0 cairomm librsvg libspnav opencascade glm python  cmake meson eigen git python-gobject python-cairo
     - name: Build
       run: |
         mkdir ../build
@@ -99,7 +99,7 @@ jobs:
     - name: Install updates
       run: pacman -Syu --noconfirm
     - name: Install dependencies
-      run: pacman -Sy --needed --noconfirm  gtkmm-4.0 cairomm librsvg opencascade glm python  cmake meson eigen git python-gobject python-cairo clang
+      run: pacman -Sy --needed --noconfirm  gtkmm-4.0 cairomm librsvg libspnav opencascade glm python  cmake meson eigen git python-gobject python-cairo clang
     - name: Build
       run: |
         mkdir ../build

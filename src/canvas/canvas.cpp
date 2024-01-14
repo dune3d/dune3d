@@ -5,6 +5,7 @@
 #include "bitmap_font_util.hpp"
 #include "icon_texture_map.hpp"
 #include "util/min_max_accumulator.hpp"
+#include "logger/logger.hpp"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -13,8 +14,23 @@
 #include <glm/gtx/io.hpp>
 #include <fstream>
 
+#ifdef HAVE_SPNAV
+#include <spnav.h>
+#endif
 
 namespace dune3d {
+
+static const MSD::Params msd_params_slow{
+        .mass = .0123,
+        .damping = .2020,
+        .springyness = 0.986,
+};
+
+[[maybe_unused]] static const MSD::Params msd_params_normal{
+        .mass = 0.002,
+        .damping = .2,
+        .springyness = .15,
+};
 
 Canvas::Canvas()
     : m_background_renderer(*this), m_face_renderer(*this), m_point_renderer(*this), m_line_renderer(*this),
@@ -22,17 +38,28 @@ Canvas::Canvas()
 {
     set_can_focus(true);
     set_focusable(true);
-    const MSD::Params slow_params{
-            .mass = .0123,
-            .damping = .2020,
-            .springyness = 0.986,
-    };
-    for (auto anim : {&m_quat_w_animator, &m_quat_x_animator, &m_quat_y_animator, &m_quat_z_animator, &m_cx_animator,
-                      &m_cy_animator, &m_cz_animator}) {
-        anim->set_params(slow_params);
-    }
 
     m_cam_quat = glm::quat_identity<float, glm::defaultp>();
+
+#ifdef HAVE_SPNAV
+    if (spnav_open() != -1) {
+        if (auto fd = spnav_fd(); fd != -1) {
+            have_spnav = true;
+            auto chan = Glib::IOChannel::create_from_fd(fd);
+            Logger::log_info("Connected to spacenavd", Logger::Domain::CANVAS);
+            spnav_connection = Glib::signal_io().connect(
+                    [this](Glib::IOCondition cond) {
+                        if ((cond & Glib::IOCondition::IO_HUP) == Glib::IOCondition::IO_HUP) {
+                            Logger::log_warning("disconnected from spacenavd", Logger::Domain::CANVAS);
+                            return false;
+                        }
+                        handle_spnav();
+                        return true;
+                    },
+                    chan, Glib::IOCondition::IO_IN | Glib::IOCondition::IO_HUP);
+        }
+    }
+#endif
 
     m_animators.push_back(&m_quat_w_animator);
     m_animators.push_back(&m_quat_x_animator);
@@ -43,6 +70,53 @@ Canvas::Canvas()
     m_animators.push_back(&m_cy_animator);
     m_animators.push_back(&m_cz_animator);
 }
+
+void Canvas::set_translation_rotation_animator_params(const MSD::Params &params)
+{
+    for (auto anim : {&m_quat_w_animator, &m_quat_x_animator, &m_quat_y_animator, &m_quat_z_animator, &m_cx_animator,
+                      &m_cy_animator, &m_cz_animator}) {
+        anim->set_params(params);
+    }
+}
+
+#ifdef HAVE_SPNAV
+void Canvas::handle_spnav()
+{
+    spnav_event e;
+    auto top = dynamic_cast<Gtk::Window *>(get_ancestor(GTK_TYPE_WINDOW));
+
+    while (spnav_poll_event(&e)) {
+        if (!top->is_active())
+            continue;
+        switch (e.type) {
+        case SPNAV_EVENT_MOTION: {
+            const auto thre = 10.0f;
+            const auto values = {e.motion.x, e.motion.y, e.motion.z, e.motion.rx, e.motion.ry, e.motion.rz};
+            if (std::any_of(values.begin(), values.end(), [thre](auto x) { return std::abs(x) > thre; })) {
+                set_translation_rotation_animator_params(msd_params_normal);
+                start_anim();
+                m_zoom_animator.target += e.motion.z * 0.001f;
+
+                // reduce shifting speed when zoomed in
+                const auto scale_shift = 0.1f * (1.0f - (1.0f / pow(2.2f, m_cam_distance)));
+                const auto center_shift = get_center_shift(glm::vec2(e.motion.x, e.motion.y) * scale_shift);
+                m_cx_animator.target += center_shift.x;
+                m_cy_animator.target += center_shift.y;
+                m_cz_animator.target += center_shift.z;
+
+                auto scale_rot = -0.02f;
+                const auto r = glm::quat(glm::radians(glm::vec3(e.motion.rx, e.motion.ry, -e.motion.rz)) * scale_rot);
+                const auto q = glm::normalize(m_cam_quat * r);
+                m_quat_x_animator.target = q.x;
+                m_quat_y_animator.target = q.y;
+                m_quat_z_animator.target = q.z;
+                m_quat_w_animator.target = q.w;
+            }
+        } break;
+        }
+    }
+}
+#endif
 
 void Canvas::setup_controllers()
 {
@@ -388,6 +462,7 @@ void Canvas::animate_to_cam_quat(const glm::quat &q)
         set_cam_quat(q);
         return;
     }
+    set_translation_rotation_animator_params(msd_params_slow);
     start_anim();
 
     m_quat_w_animator.target = q.w;
@@ -402,6 +477,7 @@ void Canvas::animate_to_center_abs(const glm::vec3 &center)
         set_center(center);
         return;
     }
+    set_translation_rotation_animator_params(msd_params_slow);
     start_anim();
 
     m_cx_animator.target = center.x;
