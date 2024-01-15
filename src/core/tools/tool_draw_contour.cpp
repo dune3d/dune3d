@@ -153,7 +153,8 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
         if (m_temp_line) {
             if (m_constrain_tangent && m_last_tangent_point) {
                 if (m_entities.size() > 1
-                    && m_last_tangent_point->entity == m_entities.at(m_entities.size() - 2)->m_uuid) {
+                    && m_last_tangent_point->entity == m_entities.at(m_entities.size() - 2)->m_uuid
+                    && m_entities.at(m_entities.size() - 2)->of_type(Entity::Type::ARC_2D)) {
                     m_temp_line->m_p2 = get_cursor_pos_in_plane();
                     auto &arc = dynamic_cast<EntityArc2D &>(*m_entities.at(m_entities.size() - 2));
                     const auto c = arc.m_center;
