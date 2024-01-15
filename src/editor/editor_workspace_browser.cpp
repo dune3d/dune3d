@@ -7,6 +7,8 @@
 #include "util/selection_util.hpp"
 #include "canvas/canvas.hpp"
 #include "workspace_browser.hpp"
+#include "util/template_util.hpp"
+#include "core/tool_id.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -151,6 +153,9 @@ void Editor::on_add_group(Group::Type group_type)
         m_workspace_browser->update_documents(m_document_view);
         canvas_update_keep_selection();
         m_workspace_browser->select_group(new_group->m_uuid);
+        if (any_of(group_type, Group::Type::FILLET, Group::Type::CHAMFER)) {
+            trigger_action(ToolID::SELECT_EDGES);
+        }
     }
 }
 
