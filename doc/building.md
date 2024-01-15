@@ -126,7 +126,7 @@ Follow the instructions, now you should be able to install the remaining depende
 
 ```
 brew install \
-	python@3
+	python@3 \
 	llvm \
 	eigen \
 	opencascade \
