@@ -1,7 +1,6 @@
 #include "tool_common.hpp"
 #include "in_tool_action/in_tool_action.hpp"
 #include "tool_helper_constrain.hpp"
-#include "document/constraint/constraint.hpp"
 #include <optional>
 #include <list>
 
@@ -70,6 +69,6 @@ private:
     void update_constrain_tangent();
     bool is_valid_tangent_point(const EntityAndPoint &enp);
 
-    std::optional<Constraint::Type> get_auto_constraint() const;
+    std::optional<ConstraintType> get_auto_constraint() const;
 };
 } // namespace dune3d

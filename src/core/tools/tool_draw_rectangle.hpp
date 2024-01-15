@@ -35,7 +35,7 @@ private:
     glm::dvec2 m_first_point;
     enum class Mode { CENTER, CORNER };
     Mode m_mode = Mode::CORNER;
-    std::optional<Constraint::Type> m_first_constraint;
+    std::optional<ConstraintType> m_first_constraint;
     EntityAndPoint m_first_enp;
 
     void update_tip();
