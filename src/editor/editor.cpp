@@ -1661,7 +1661,13 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
     if (keyval == GDK_KEY_Escape) {
         if (!m_core.tool_is_active()) {
             get_canvas().set_selection_mode(SelectionMode::HOVER);
-            get_canvas().set_selection({}, true);
+            {
+                std::set<SelectableRef> sel;
+                if (auto hsel = get_canvas().get_hover_selection())
+                    sel.insert(*hsel);
+                get_canvas().set_selection(sel, true);
+            }
+
 
             reset_key_hint_label();
             if (m_keys_current.size() == 0) {
