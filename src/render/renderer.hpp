@@ -18,6 +18,7 @@ class ICanvas;
 class Document;
 class IDocumentView;
 class SelectableRef;
+enum class ConstraintType;
 
 class Renderer : private EntityVisitor, private ConstraintVisitor {
 public:
@@ -25,6 +26,8 @@ public:
     void render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view);
 
     bool m_solid_model_edge_select_mode = false;
+
+    void add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints);
 
 private:
     void render(const Entity &en);

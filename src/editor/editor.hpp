@@ -184,6 +184,8 @@ private:
         return m_dialogs;
     }
 
+    void set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints) override;
+
     DocumentView m_document_view;
 
     void handle_tool_change();
@@ -208,5 +210,9 @@ private:
 
     Core m_core;
     SelectionMode m_last_selection_mode;
+
+    std::vector<ConstraintType> m_constraint_tip_icons;
+    glm::vec3 m_constraint_tip_pos;
+    glm::vec3 m_constraint_tip_vec;
 };
 } // namespace dune3d

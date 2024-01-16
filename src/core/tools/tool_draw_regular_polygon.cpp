@@ -211,16 +211,21 @@ void ToolDrawRegularPolygon::update_tip()
         actions.emplace_back(InToolActionID::ENTER_N_SIDES);
         actions.emplace_back(InToolActionID::N_SIDES_INC, InToolActionID::N_SIDES_DEC, "sides");
     }
-
+    std::vector<ConstraintType> constraint_icons;
+    glm::vec3 v = {NAN, NAN, NAN};
     auto tip = std::to_string(m_sides.size()) + " sides ";
     if (m_constrain && !m_temp_circle) {
         tip += get_constrain_tip("center");
+        update_constraint_icons(constraint_icons);
     }
     if (m_constrain && m_temp_circle) {
         if (auto hsel = m_intf.get_hover_selection()) {
             if (hsel->type == SelectableRef::Type::ENTITY) {
                 const auto enp = hsel->get_entity_and_point();
                 if (get_doc().is_valid_point(enp)) {
+                    const auto r = get_cursor_pos_in_plane() - m_temp_circle->m_center;
+                    v = m_wrkpl->transform_relative({-r.y, r.x});
+                    constraint_icons.push_back(Constraint::Type::POINT_ON_CIRCLE);
                     tip += " constrain radius on point";
                 }
             }
@@ -228,5 +233,6 @@ void ToolDrawRegularPolygon::update_tip()
     }
     m_intf.tool_bar_set_tool_tip(tip);
     m_intf.tool_bar_set_actions(actions);
+    m_intf.set_constraint_icons(get_cursor_pos_for_workplane(*m_wrkpl), v, constraint_icons);
 }
 } // namespace dune3d

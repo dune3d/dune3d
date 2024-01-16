@@ -122,4 +122,11 @@ void ToolHelperConstrain::set_constrain_tip(const std::string &what)
     m_intf.tool_bar_set_tool_tip(get_constrain_tip(what));
 }
 
+
+void ToolHelperConstrain::update_constraint_icons(std::vector<ConstraintType> &constraint_icons)
+{
+    if (auto ct = get_constraint_type())
+        constraint_icons.push_back(*ct);
+}
+
 } // namespace dune3d

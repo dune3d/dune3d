@@ -1408,6 +1408,10 @@ void Editor::canvas_update()
     for (const auto doc : docs) {
         Renderer renderer(get_canvas());
         renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
+
+        if (doc->get_uuid() == m_core.get_current_idocument_info().get_uuid())
+            renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
+
         renderer.render(doc->get_document(), doc->get_current_group(), m_document_view);
     }
     get_canvas().set_hover_selection(hover_sel);
@@ -1491,6 +1495,7 @@ void Editor::tool_process_one()
         // canvas->snap_filter.clear();
         m_no_canvas_update = false;
         m_solid_model_edge_select_mode = false;
+        m_constraint_tip_icons.clear();
         update_workplane_label();
         update_selection_editor();
         update_action_bar_buttons_sensitivity(); // due to workplane change
@@ -1939,6 +1944,13 @@ void Editor::tool_bar_flash_replace(const std::string &s)
 bool Editor::get_use_workplane() const
 {
     return m_win.get_workplane_checkbutton().get_active();
+}
+
+void Editor::set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)
+{
+    m_constraint_tip_icons = constraints;
+    m_constraint_tip_pos = p;
+    m_constraint_tip_vec = v;
 }
 
 } // namespace dune3d

@@ -16,6 +16,7 @@ protected:
     std::optional<ConstraintType> get_constraint_type();
 
     void set_constrain_tip(const std::string &what);
+    void update_constraint_icons(std::vector<ConstraintType> &constraint_icons);
     std::string get_constrain_tip(const std::string &what);
 };
 } // namespace dune3d

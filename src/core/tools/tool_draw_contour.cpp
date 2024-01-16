@@ -575,11 +575,16 @@ void ToolDrawContour::update_tip()
         tip += "invalid tangent ";
     }
 
+    std::vector<ConstraintType> constraint_icons;
+
     if (m_constrain) {
         std::string what = "to";
         if (m_placing_center)
             what = "center";
         tip += get_constrain_tip(what);
+        if (auto ct = get_constraint_type()) {
+            constraint_icons.push_back(*ct);
+        }
     }
 
     if (auto ct = get_auto_constraint()) {
@@ -587,10 +592,30 @@ void ToolDrawContour::update_tip()
             tip += " horizontal";
         else if (*ct == Constraint::Type::VERTICAL)
             tip += " vertical";
+        constraint_icons.push_back(*ct);
     }
     if (!tip.size())
         tip = " ";
     m_intf.tool_bar_set_tool_tip(tip);
+
+    glm::vec3 v = {NAN, NAN, NAN};
+    if (!m_placing_center) {
+        if (auto en_t = dynamic_cast<IEntityTangent *>(get_temp_entity())) {
+            unsigned int tangent_point = 2;
+            if (m_temp_line) {
+                tangent_point = 2;
+            }
+            else if (m_temp_arc) {
+                if (m_flip_arc)
+                    tangent_point = 1;
+                else
+                    tangent_point = 2;
+            }
+            v = m_wrkpl->transform_relative(en_t->get_tangent_at_point(tangent_point));
+        }
+    }
+    m_intf.set_constraint_icons(get_cursor_pos_for_workplane(*m_wrkpl), v, constraint_icons);
+
 
     m_intf.tool_bar_set_actions(actions);
 }

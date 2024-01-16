@@ -92,9 +92,13 @@ void ToolDrawPoint2D::update_tip()
         actions.emplace_back(InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT, "constraint on");
 
     m_intf.tool_bar_set_tool_tip("");
+    std::vector<ConstraintType> constraint_icons;
+
     if (m_constrain) {
         set_constrain_tip("point");
+        update_constraint_icons(constraint_icons);
     }
     m_intf.tool_bar_set_actions(actions);
+    m_intf.set_constraint_icons(get_cursor_pos_for_workplane(*m_wrkpl), {NAN, NAN, NAN}, constraint_icons);
 }
 } // namespace dune3d

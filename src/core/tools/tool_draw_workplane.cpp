@@ -27,8 +27,10 @@ ToolResponse ToolDrawWorkplane::begin(const ToolArgs &args)
 void ToolDrawWorkplane::update_tip()
 {
     m_intf.tool_bar_set_tool_tip("");
+    std::vector<ConstraintType> constraint_icons;
     if (m_constrain) {
         set_constrain_tip("origin");
+        update_constraint_icons(constraint_icons);
     }
     std::vector<ActionLabelInfo> actions;
     actions.reserve(9);
@@ -40,6 +42,8 @@ void ToolDrawWorkplane::update_tip()
         actions.emplace_back(InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT, "constraint off");
     else
         actions.emplace_back(InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT, "constraint on");
+
+    m_intf.set_constraint_icons(m_intf.get_cursor_pos(), {NAN, NAN, NAN}, constraint_icons);
 
     m_intf.tool_bar_set_actions(actions);
 }

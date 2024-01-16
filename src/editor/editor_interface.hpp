@@ -12,6 +12,7 @@ namespace dune3d {
 class ActionLabelInfo;
 class Dialogs;
 enum class SelectionMode;
+enum class ConstraintType;
 
 class EditorInterface {
 public:
@@ -33,6 +34,8 @@ public:
     virtual void set_solid_model_edge_select_mode(bool v) = 0;
 
     virtual bool get_use_workplane() const = 0;
+
+    virtual void set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints) = 0;
 
     virtual Dialogs &get_dialogs() = 0;
 };

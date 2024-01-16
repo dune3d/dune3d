@@ -36,13 +36,23 @@ void ToolDrawLine3D::update_tip()
 
     m_intf.tool_bar_set_actions(actions);
 
+    std::vector<ConstraintType> constraint_icons;
+
     if (m_constrain) {
         std::string what = m_temp_line ? "to" : "from";
         set_constrain_tip(what);
+        update_constraint_icons(constraint_icons);
     }
     else {
         m_intf.tool_bar_set_tool_tip("");
     }
+
+    glm::vec3 v = {NAN, NAN, NAN};
+    if (m_temp_line) {
+        v = m_temp_line->m_p2 - m_temp_line->m_p1;
+    }
+
+    m_intf.set_constraint_icons(m_intf.get_cursor_pos(), v, constraint_icons);
 }
 
 

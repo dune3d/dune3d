@@ -226,9 +226,14 @@ void ToolDrawRectangle::update_tip()
 
 
     m_intf.tool_bar_set_tool_tip("");
+    std::vector<ConstraintType> constraint_icons;
+
     if (m_constrain) {
         set_constrain_tip(what);
+        update_constraint_icons(constraint_icons);
     }
     m_intf.tool_bar_set_actions(actions);
+    m_intf.set_constraint_icons(get_cursor_pos_for_workplane(*m_wrkpl), m_wrkpl->transform_relative({1, 1}),
+                                constraint_icons);
 }
 } // namespace dune3d

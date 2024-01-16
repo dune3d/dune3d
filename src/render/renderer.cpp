@@ -14,6 +14,7 @@
 #include <array>
 #include <format>
 #include <ranges>
+#include <glm/gtx/io.hpp>
 
 namespace dune3d {
 
@@ -42,7 +43,6 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     m_doc_view = &doc_view;
     m_current_group = &doc.get_group(current_group);
     m_current_body_group = &m_current_group->find_body(doc).group;
-    m_constraints.clear();
 
 
     if (m_solid_model_edge_select_mode) {
@@ -768,6 +768,28 @@ void Renderer::visit(const ConstraintPointInPlane &constraint)
     add_constraint(pt, IconID::CONSTRAINT_POINT_IN_PLANE, constraint.m_uuid);
 }
 
+void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)
+{
+    using CT = Constraint::Type;
+    static const std::map<ConstraintType, IconID> constraint_icon_map = {
+            {CT::HORIZONTAL, IconID::CONSTRAINT_HORIZONTAL},
+            {CT::VERTICAL, IconID::CONSTRAINT_VERTICAL},
+            {CT::POINTS_COINCIDENT, IconID::CONSTRAINT_POINTS_COINCIDENT},
+            {CT::POINT_ON_LINE, IconID::CONSTRAINT_POINT_ON_LINE},
+            {CT::POINT_ON_CIRCLE, IconID::CONSTRAINT_POINT_ON_CIRCLE},
+            {CT::MIDPOINT, IconID::CONSTRAINT_MIDPOINT},
+    };
+    for (const auto constraint : constraints) {
+        if (!constraint_icon_map.contains(constraint))
+            continue;
+        auto icon = constraint_icon_map.at(constraint);
+        if (!std::isnan(v.x) && constraint == CT::VERTICAL)
+            icon = IconID::CONSTRAINT_HORIZONTAL;
+        add_constraint(p, icon, {}, v);
+    }
+}
+
+
 void Renderer::add_constraint(const glm::vec3 &pos, IconTexture::IconTextureID icon, const UUID &constraint,
                               const glm::vec3 &v)
 {
@@ -797,9 +819,12 @@ void Renderer::draw_constraints()
             }
         }
         for (const auto &constraint : constraints) {
-            m_ca.add_selectable(
-                    m_ca.draw_icon(constraint.icon, pos, glm::vec2(offset, -.9), v),
-                    SelectableRef{m_document_uuid, SelectableRef::Type::CONSTRAINT, constraint.constraint, 0});
+            m_ca.set_selection_invisible(!constraint.constraint);
+            const auto vr = m_ca.draw_icon(constraint.icon, pos, glm::vec2(offset, -.9), v);
+            m_ca.set_selection_invisible(false);
+            if (constraint.constraint)
+                m_ca.add_selectable(
+                        vr, SelectableRef{m_document_uuid, SelectableRef::Type::CONSTRAINT, constraint.constraint, 0});
             offset += spacing;
         }
     }

@@ -119,20 +119,30 @@ void ToolDrawCircle2D::update_tip()
         actions.emplace_back(InToolActionID::TOGGLE_COINCIDENT_CONSTRAINT, "constraint on");
 
 
+    std::vector<ConstraintType> constraint_icons;
+    glm::vec3 v = {NAN, NAN, NAN};
+
     m_intf.tool_bar_set_tool_tip("");
     if (m_constrain && !m_temp_circle) {
         set_constrain_tip("center");
+        update_constraint_icons(constraint_icons);
     }
     if (m_constrain && m_temp_circle) {
         if (auto hsel = m_intf.get_hover_selection()) {
             if (hsel->type == SelectableRef::Type::ENTITY) {
                 const auto enp = hsel->get_entity_and_point();
                 if (get_doc().is_valid_point(enp)) {
+                    const auto r = get_cursor_pos_in_plane() - m_temp_circle->m_center;
+                    v = m_wrkpl->transform_relative({-r.y, r.x});
+                    constraint_icons.push_back(Constraint::Type::POINT_ON_CIRCLE);
                     m_intf.tool_bar_set_tool_tip("constrain radius on point");
                 }
             }
         }
     }
+
+    m_intf.set_constraint_icons(get_cursor_pos_for_workplane(*m_wrkpl), v, constraint_icons);
+
     m_intf.tool_bar_set_actions(actions);
 }
 } // namespace dune3d
