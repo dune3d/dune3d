@@ -130,14 +130,20 @@ void IconRenderer::realize()
 void IconRenderer::push()
 {
     m_ca.m_n_icons = m_ca.m_icons.size();
+    m_ca.m_n_icons_selection_invisible = m_ca.m_icons_selection_invisible.size();
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Canvas::IconVertex) * m_ca.m_n_icons, m_ca.m_icons.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Canvas::IconVertex) * (m_ca.m_n_icons + m_ca.m_n_icons_selection_invisible),
+                 nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Canvas::IconVertex) * m_ca.m_n_icons, m_ca.m_icons.data());
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(Canvas::IconVertex) * m_ca.m_n_icons,
+                    sizeof(Canvas::IconVertex) * m_ca.m_n_icons_selection_invisible,
+                    m_ca.m_icons_selection_invisible.data());
 }
 
 void IconRenderer::render()
 {
-    if (!m_ca.m_n_icons)
+    if (!m_ca.m_n_icons && !m_ca.m_n_icons_selection_invisible)
         return;
     glUseProgram(m_program);
     glBindVertexArray(m_vao);
@@ -153,6 +159,9 @@ void IconRenderer::render()
     load_uniforms();
 
     glDrawArrays(GL_POINTS, 0, m_ca.m_n_icons);
+    glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDrawArrays(GL_POINTS, m_ca.m_n_icons, m_ca.m_n_icons_selection_invisible);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
 

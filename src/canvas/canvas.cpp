@@ -953,6 +953,7 @@ void Canvas::clear()
     m_glyphs.clear();
     m_glyphs_3d.clear();
     m_icons.clear();
+    m_icons_selection_invisible.clear();
     m_selectable_to_vertex_map.clear();
     m_vertex_to_selectable_map.clear();
     m_vertex_type_picks.clear();
@@ -1096,9 +1097,10 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(const glm::vec3 p, c
 
 ICanvas::VertexRef Canvas::draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift, glm::vec3 v)
 {
+    auto &icons = m_selection_invisible ? m_icons_selection_invisible : m_icons;
     auto icon_pos = IconTexture::icon_texture_map.at(id);
     auto &icon =
-            m_icons.emplace_back(origin.x, origin.y, origin.z, shift.x, shift.y, v.x, v.y, v.z, icon_pos.x, icon_pos.y);
+            icons.emplace_back(origin.x, origin.y, origin.z, shift.x, shift.y, v.x, v.y, v.z, icon_pos.x, icon_pos.y);
     apply_flags(icon.flags);
     return {VertexType::ICON, m_icons.size() - 1};
 }

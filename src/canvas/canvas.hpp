@@ -435,7 +435,9 @@ private:
     };
 
     std::vector<IconVertex> m_icons;
+    std::vector<IconVertex> m_icons_selection_invisible;
     size_t m_n_icons = 0;
+    size_t m_n_icons_selection_invisible = 0;
 
     void clear_flags(VertexFlags flags);
 
