@@ -126,7 +126,7 @@ Follow the instructions, now you should be able to install the remaining depende
 
 ```
 brew install \
-	python@3
+	python@3 \
 	llvm \
 	eigen \
 	opencascade \
@@ -149,3 +149,5 @@ brew install --HEAD meson
 Now you can build the project using the `./scripts/build_macos.sh` script.
 
 You should now have the `dune3d` executable in the `build/` folder.
+
+**Note**: Building on macOS is still experimental. You might find workarounds for building/linking issues in this project's [issues](https://github.com/dune3d/dune3d/issues). Also be aware that [selection in macOS is broken for now](https://github.com/dune3d/dune3d/pull/45#issuecomment-1877942473).
