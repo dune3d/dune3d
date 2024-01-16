@@ -29,6 +29,8 @@ void main() {
         vec4 v4 = proj*view*vec4(vec, 0);
         v4.y *= -1;
         vec_to_geom = normalize(v4.xy/t.xy);
+        if(vec_to_geom.x < vec_to_geom.y)
+            vec_to_geom *= -1;
     }
     else {
         vec_to_geom = vec2(1,0);
