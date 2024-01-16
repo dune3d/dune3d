@@ -703,6 +703,7 @@ void Editor::init_actions()
     });
 
     connect_action(ActionID::EXPORT_PATHS, sigc::mem_fun(*this, &Editor::on_export_paths));
+    connect_action(ActionID::EXPORT_PATHS_IN_CURRENT_GROUP, sigc::mem_fun(*this, &Editor::on_export_paths));
     connect_action(ActionID::EXPORT_PROJECTION, sigc::mem_fun(*this, &Editor::on_export_projection));
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
@@ -834,6 +835,8 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
 
 void Editor::on_export_paths(const ActionConnection &conn)
 {
+    const auto action = std::get<ActionID>(conn.id);
+
     auto dialog = Gtk::FileDialog::create();
 
     // Add filters, so that only certain file types can be selected:
@@ -846,17 +849,20 @@ void Editor::on_export_paths(const ActionConnection &conn)
 
     dialog->set_filters(filters);
 
+
     // Show the dialog and wait for a user response:
-    dialog->save(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+    dialog->save(m_win, [this, dialog, action](const Glib::RefPtr<Gio::AsyncResult> &result) {
         try {
             auto file = dialog->save_finish(result);
             // open_file_view(file);
             //  Notice that this is a std::string, not a Glib::ustring.
             const auto path = path_from_string(append_suffix_if_required(file->get_path(), ".svg"));
 
-            auto group_filter = [this](const Group &group) {
+            auto group_filter = [this, action](const Group &group) {
                 if (m_core.get_current_group() == group.m_uuid)
                     return true;
+                if (action == ActionID::EXPORT_PATHS_IN_CURRENT_GROUP)
+                    return false;
                 auto &body_group = group.find_body(m_core.get_current_document()).group;
                 auto group_visible = m_document_view.group_is_visible(group.m_uuid);
                 auto body_visible = m_document_view.body_is_visible(body_group.m_uuid);
@@ -1219,6 +1225,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         }
 
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
+        m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = has_current_wrkpl;
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
@@ -1230,6 +1237,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE] = false;
         m_action_sensitivity[ActionID::SELECT_PATH] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
+        m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = false;
     }
 
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = has_solid_model;
