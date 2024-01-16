@@ -34,6 +34,7 @@ protected:
 
     UUID get_workplane_uuid();
     EntityWorkplane *get_workplane();
+    glm::dvec3 get_cursor_pos_for_workplane(const EntityWorkplane &wrkpl) const;
 
     Document &get_doc();
     Group &get_group();

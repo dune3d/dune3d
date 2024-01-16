@@ -32,7 +32,7 @@ ToolBase::CanBegin ToolDrawRegularPolygon::can_begin()
 
 glm::dvec2 ToolDrawRegularPolygon::get_cursor_pos_in_plane() const
 {
-    return m_wrkpl->project(m_intf.get_cursor_pos_for_plane(m_wrkpl->m_origin, m_wrkpl->get_normal_vector()));
+    return m_wrkpl->project(get_cursor_pos_for_workplane(*m_wrkpl));
 }
 
 void ToolDrawRegularPolygon::set_n_sides(unsigned int n)

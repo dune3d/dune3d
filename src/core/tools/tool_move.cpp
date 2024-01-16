@@ -43,8 +43,7 @@ ToolResponse ToolMove::begin(const ToolArgs &args)
     for (const auto &[uu, en] : doc.m_entities) {
         if (en->get_type() == Entity::Type::WORKPLANE) {
             auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*en);
-            m_inital_pos_wrkpl.emplace(
-                    uu, wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector())));
+            m_inital_pos_wrkpl.emplace(uu, wrkpl.project(get_cursor_pos_for_workplane(wrkpl)));
         }
     }
     const Group *first_group = nullptr;
@@ -118,8 +117,7 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                 auto &en_last = dynamic_cast<const EntityLine2D &>(*last_doc.m_entities.at(entity->m_uuid));
                 auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
                 const auto delta2d =
-                        wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector()))
-                        - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                        wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
                 if (point == 0 || point == 1) {
                     en->m_p1 = en_last.m_p1 + delta2d;
                 }
@@ -131,8 +129,7 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                 auto &en_last = dynamic_cast<const EntityArc2D &>(*last_doc.m_entities.at(entity->m_uuid));
                 auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
                 const auto delta2d =
-                        wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector()))
-                        - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                        wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
                 if (point == 0 || point == 1) {
                     en->m_from = en_last.m_from + delta2d;
                 }
@@ -161,8 +158,7 @@ ToolResponse ToolMove::update(const ToolArgs &args)
 
                 if (point == 1) {
                     const auto delta2d =
-                            wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector()))
-                            - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                            wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
                     en->m_center = en_last.m_center + delta2d;
                 }
                 else if (point == 0) {
@@ -185,8 +181,7 @@ ToolResponse ToolMove::update(const ToolArgs &args)
 
                 if (point == 0) {
                     const auto delta2d =
-                            wrkpl.project(m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector()))
-                            - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                            wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
                     en->m_p = en_last.m_p + delta2d;
                 }
             }

@@ -54,4 +54,9 @@ void ToolCommon::reset_selection_after_constrain()
     m_intf.set_canvas_selection_mode(SelectionMode::HOVER);
 }
 
+glm::dvec3 ToolCommon::get_cursor_pos_for_workplane(const EntityWorkplane &wrkpl) const
+{
+    return m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector());
+}
+
 } // namespace dune3d
