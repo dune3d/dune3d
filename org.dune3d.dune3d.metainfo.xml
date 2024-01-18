@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2024 dune3d.org -->
+<component type="desktop-application">
+  <id>org.dune3d.dune3d</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <name>Dune 3D</name>
+  <summary>Parametric 3D CAD</summary>
+
+  <description>
+    <p>Dune 3D is a parametric 3D CAD application. With Dune 3D you can:</p>
+    <ul>
+        <li>Sketch and constrain in 2D and 3D</li>
+        <li>Add chamfers and fillets</li>
+        <li>Import STEP models for referencing them</li>
+        <li>Export high-quality STEP and STL files</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">org.dune3d.dune3d.desktop</launchable>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://dune3d.org/screenshots/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+
+  <url type="homepage">https://dune3d.org/</url>
+  <url type="bugtracker">https://github.com/dune3d/dune3d/issues</url>
+  <url type="help">https://docs.dune3d.org</url>
+  <url type="vcs-browser">https://github.com/dune3d/dune3d</url>
+
+  <supports>
+    <control>touch</control>
+  </supports>
+
+  <requires>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </requires>
+
+  <provides>
+    <binary>dune3d</binary>
+  </provides>
+
+  <content_rating type="oars-1.0" />
+
+  <releases>
+    <release version="0.9.3" date="2024-01-18">
+      <url>https://github.com/dune3d/dune3d/releases/tag/v0.9.3</url>
+      <description>
+        <p>prerelease to test packaging</p>
+      </description>
+    </release>
+  </releases>
+</component>

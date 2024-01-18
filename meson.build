@@ -1,5 +1,5 @@
 project('dune3d', ['cpp', 'c'],
-  version: '0.1.0',
+  version: '0.9.3',
   meson_version: '>=0.53',
   default_options: ['cpp_std=c++20', 'warning_level=1'],
 )
@@ -303,6 +303,13 @@ if is_windows
 else
 	rc_compiled = []
 endif
+
+datadir = get_option('datadir')
+install_data('org.dune3d.dune3d.desktop', install_dir:datadir / 'applications')
+install_data('org.dune3d.dune3d.metainfo.xml', install_dir:datadir / 'metainfo')
+icondir = datadir / 'icons/hicolor'
+
+install_data('src/icons/scalable/apps/dune3d.svg', install_dir: icondir /  'scalable/apps', rename: 'org.dune3d.dune3d.svg')
 
 
 dune3d = executable('dune3d',
