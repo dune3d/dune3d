@@ -83,7 +83,7 @@ private:
     void draw_constraints();
 
     void draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p, double distance,
-                            const UUID &uu);
+                            const UUID &uu, const glm::vec3 &fallback_normal = {NAN, NAN, NAN});
     void add_selectables(const SelectableRef &sr, const std::vector<ICanvas::VertexRef> &vrs);
 };
 
