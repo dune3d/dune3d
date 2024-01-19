@@ -1339,6 +1339,8 @@ void Canvas::update_bbox()
 {
     MinMaxAccumulator<float> acc_x, acc_y, acc_z;
     for (const auto &li : m_lines) {
+        if ((li.flags & VertexFlags::SCREEN) != VertexFlags::DEFAULT)
+            continue;
         acc_x.accumulate(li.x1);
         acc_x.accumulate(li.x2);
         acc_y.accumulate(li.y1);
