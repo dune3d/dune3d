@@ -399,6 +399,11 @@ void Renderer::visit(const ConstraintPointDistance &constr)
     m_ca.set_vertex_constraint(false);
 }
 
+
+static const float constraint_arrow_scale = .015;
+static const float constraint_arrow_aspect = 1.5;
+static const float constraint_line_extension = 2.0;
+
 void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p, double distance,
                                   const UUID &uu, const glm::vec3 &fallback_normal)
 {
@@ -414,7 +419,9 @@ void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, co
     std::string label = std::format(" {:.3f}", distance);
     add_selectables(sr, m_ca.draw_bitmap_text(text_p, 1, label));
 
-    float scale = .01f;
+    const float scale = constraint_arrow_scale;
+    const float aspect = constraint_arrow_aspect;
+    const float ext = constraint_line_extension;
     auto d = p1 - from;
     if (glm::length(d) > 1e-6) {
         d = glm::normalize(d);
@@ -425,12 +432,12 @@ void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, co
         d = glm::normalize(glm::cross(n, fallback_normal));
     }
 
-    m_ca.add_selectable(m_ca.draw_screen_line(p1, (d)*1.5f * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p2, (d)*1.5f * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p1, ((d)-n * 2.f) * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p1, ((-d) - n * 2.f) * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p2, ((d) + n * 2.f) * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p2, ((-d) + n * 2.f) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p1, d * ext * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p2, d * ext * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p1, (+d - n * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p1, (-d - n * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p2, (+d + n * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p2, (-d + n * aspect) * scale), sr);
 }
 
 void Renderer::add_selectables(const SelectableRef &sr, const std::vector<ICanvas::VertexRef> &vrs)
@@ -499,13 +506,14 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
 
     SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
     m_ca.add_selectable(m_ca.draw_line(from, to), sr);
-    float scale = .01f;
+    const auto scale = constraint_arrow_scale;
+    const auto aspect = constraint_arrow_aspect;
     if (constr.get_type() == Constraint::Type::DIAMETER) {
-        m_ca.add_selectable(m_ca.draw_screen_line(from, (n - l * 1.5f) * 1.5f * scale), sr);
-        m_ca.add_selectable(m_ca.draw_screen_line(from, (-n - l * 1.5f) * 1.5f * scale), sr);
+        m_ca.add_selectable(m_ca.draw_screen_line(from, (+n - l * aspect) * scale), sr);
+        m_ca.add_selectable(m_ca.draw_screen_line(from, (-n - l * aspect) * scale), sr);
     }
-    m_ca.add_selectable(m_ca.draw_screen_line(to, (n + l * 1.5f) * 1.5f * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * 1.5f) * 1.5f * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(to, (+n + l * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * aspect) * scale), sr);
 
     std::string label = std::format(" {:.3f}", constr.m_distance);
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
@@ -521,7 +529,9 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
     auto to = wrkpl.project(m_doc->get_point(constr.m_entity2));
     glm::vec2 mid = (from + to) / 2.;
     auto p = wrkpl.project(wrkpl.transform(mid) + constr.m_offset);
-    double scale = .01;
+    const double scale = constraint_arrow_scale;
+    const double aspect = constraint_arrow_aspect;
+    const double ext = constraint_line_extension;
     SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
 
     glm::dvec2 pf, pt;
@@ -534,20 +544,22 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
         pt = {p.x, to.y};
     }
 
-    const auto d = wrkpl.transform_relative(glm::normalize(pf - pt));
-    const auto dn = glm::cross(d, wrkpl.get_normal_vector());
+    const auto v = glm::normalize(pf - pt);
+    const auto d = wrkpl.transform_relative(v);
+    const auto dnf = wrkpl.transform_relative(glm::normalize(pf - from));
+    const auto dnt = wrkpl.transform_relative(glm::normalize(pt - to));
     const auto pft = wrkpl.transform(pf);
     const auto ptt = wrkpl.transform(pt);
     m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(from), pft), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(pft, dn * scale * 2.), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(pft, ((dn - d * 1.5) * scale)), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(pft, ((-dn - d * 1.5) * scale)), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(pft, dnf * scale * ext), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(pft, (+dnf - d * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(pft, (-dnf - d * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_line(pft, ptt), sr);
 
 
-    m_ca.add_selectable(m_ca.draw_screen_line(ptt, (dn * scale * 2.)), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(ptt, ((dn + d * 1.5) * scale)), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(ptt, ((-dn + d * 1.5) * scale)), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(ptt, dnt * scale * ext), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(ptt, (+dnt + d * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(ptt, (-dnt + d * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_line(ptt, wrkpl.transform(to)), sr);
 
     std::string label = std::format(" {:.3f}", constr.m_distance);
