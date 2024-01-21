@@ -27,9 +27,7 @@ private:
     void emit_tool_activated();
     type_signal_action_activated m_signal_action_activated;
     void on_show() override;
-    double y_start = NAN;
     Gtk::ScrolledWindow *m_sc = nullptr;
-    int sc_height = 0;
 
     class ActionItem;
     Glib::RefPtr<Gio::ListStore<ActionItem>> m_store;

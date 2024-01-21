@@ -19,16 +19,6 @@
 
 namespace dune3d {
 
-static void to_json(nlohmann::json &j, const std::unique_ptr<Entity> &e)
-{
-    j = e->serialize();
-}
-
-static void to_json(nlohmann::json &j, const std::unique_ptr<Constraint> &e)
-{
-    j = e->serialize();
-}
-
 json Document::serialize() const
 {
     auto j = json{{"type", "document"}};

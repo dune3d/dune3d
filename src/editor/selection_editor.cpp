@@ -68,7 +68,7 @@ public:
 
 class WorkplaneEditor : public Gtk::Grid, public Changeable {
 public:
-    WorkplaneEditor(Document &doc, const UUID &wrkpl) : m_doc(doc), m_wrkpl(doc.get_entity<EntityWorkplane>(wrkpl))
+    WorkplaneEditor(Document &doc, const UUID &wrkpl) : m_wrkpl(doc.get_entity<EntityWorkplane>(wrkpl))
     {
         set_row_spacing(5);
         set_column_spacing(5);
@@ -110,7 +110,6 @@ public:
     }
 
 private:
-    Document &m_doc;
     EntityWorkplane &m_wrkpl;
 
     Gtk::Entry *m_name_entry = nullptr;

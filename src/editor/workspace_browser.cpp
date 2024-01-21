@@ -193,6 +193,8 @@ static std::string icon_name_from_status(GroupStatusMessage::Status st)
     case S::ERR:
         return "dialog-error-symbolic";
     }
+
+    return "face-worried-symbolic";
 }
 
 void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
@@ -523,7 +525,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
         auto expander = Gtk::make_managed<WorkspaceRow>(*this);
         list_item->set_child(*expander);
     });
-    factory->signal_bind().connect([this](const Glib::RefPtr<Gtk::ListItem> &list_item) {
+    factory->signal_bind().connect([](const Glib::RefPtr<Gtk::ListItem> &list_item) {
         // When TreeListModel::property_passthrough() is false, ListItem::get_item()
         // is a TreeListRow. TreeExpander needs the TreeListRow.
         // The StringObject item is returned by TreeListRow::get_item().
@@ -547,7 +549,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
             // expander->set_label("Group " + col->m_name.get_value());
         }
     });
-    factory->signal_unbind().connect([this](const Glib::RefPtr<Gtk::ListItem> &list_item) {
+    factory->signal_unbind().connect([](const Glib::RefPtr<Gtk::ListItem> &list_item) {
         // When TreeListModel::property_passthrough() is false, ListItem::get_item()
         // is a TreeListRow. TreeExpander needs the TreeListRow.
         // The StringObject item is returned by TreeListRow::get_item().
