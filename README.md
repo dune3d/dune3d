@@ -30,13 +30,15 @@ I also had to patch the solver to make it sufficiently fast for the kinds of equ
 
 ## How to build
 
-See the [build instructions](doc/building.md).
+See the [build instructions](https://docs.dune3d.org/en/latest/build-linux.html).
 
 ## How to use
 
 Similar to Horizon EDA, all tools and actions are available from the spacebar menu.
 
 Use the "set workplane" tool to set a group's workplane.
+
+Also check out the [documentation](https://docs.dune3d.org/).
 
 ## Anticipated questions
 
@@ -46,11 +48,11 @@ See the [samples](https://github.com/dune3d/samples) repository.
 
 ### Does it run on Windows?
 
-See the [build instructions](doc/building.md#building-on-windows) for how to build on Windows.
+See the [build instructions](https://docs.dune3d.org/en/latest/build-win32.html) for how to build on Windows.
 
 ### Does it run on macOS?
 
-See the [build instructions](doc/building.md#building-on-macos) for how to build on macOS.
+See the [build instructions](https://docs.dune3d.org/en/latest/build-macos.html) for how to build on macOS.
 
 ### Why not integrate it into Horizon EDA?
 
