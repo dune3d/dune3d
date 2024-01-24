@@ -20,7 +20,7 @@ ActionEditorBase::ActionEditorBase(const std::string &title, Preferences &prefs)
     set_margin(10);
     {
         auto l = Gtk::make_managed<Gtk::Label>();
-        l->set_markup("<b>" + title + "</b>");
+        l->set_markup("<b>" + Glib::Markup::escape_text(title) + "</b>");
         append(*l);
     }
 
