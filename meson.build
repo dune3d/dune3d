@@ -245,7 +245,7 @@ resources = gnome.compile_resources(
   source_dir: 'src'
 )
 
-cpp_args = ['-DLIBRARY', '-DUSINGZ', '-D_USE_MATH_DEFINES']
+cpp_args = ['-DLIBRARY', '-DUSINGZ', '-D_USE_MATH_DEFINES', '-DGLM_ENABLE_EXPERIMENTAL']
 
 if spnav.found()
     cpp_args += '-DHAVE_SPNAV'
