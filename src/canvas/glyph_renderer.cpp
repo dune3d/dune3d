@@ -89,6 +89,7 @@ void GlyphRenderer::realize()
 
     GET_LOC(this, screen);
     GET_LOC(this, msdf);
+    GET_LOC(this, scale_factor);
 }
 
 void GlyphRenderer::push()
@@ -108,6 +109,7 @@ void GlyphRenderer::render()
     glBindVertexArray(m_vao);
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(m_msdf_loc, 0);
+    glUniform1f(m_scale_factor_loc, m_ca.m_scale_factor);
     glBindTexture(GL_TEXTURE_2D, m_texture_glyph);
 
 

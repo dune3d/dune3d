@@ -84,7 +84,7 @@ void PointRenderer::render()
 
     glUniform1f(m_z_offset_loc, 0);
 
-    glPointSize(10);
+    glPointSize(10 * m_ca.m_scale_factor);
     glDrawArrays(GL_POINTS, 0, m_ca.m_n_points);
     glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDrawArrays(GL_POINTS, m_ca.m_n_points, m_ca.m_n_points_selection_invisible);

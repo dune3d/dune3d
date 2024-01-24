@@ -6,6 +6,7 @@ uniform mat3 screen;
 uniform float icon_size;
 uniform float icon_border;
 uniform float texture_size;
+uniform float scale_factor;
 
 in vec4 origin_to_geom[1];
 in vec2 shift_to_geom[1];
@@ -23,7 +24,7 @@ vec2 rot(vec2 v, vec2 sh) {
 	return vec2(sh.x * v.x - sh.y * v.y, sh.x * v.y + sh.y * v.x);
 }
 
-float icon_scale = 1;
+float icon_scale = scale_factor;
 
 
 vec2 scale_size(vec2 v)

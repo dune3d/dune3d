@@ -94,7 +94,7 @@ void LineRenderer::render()
     load_uniforms();
 
 #ifndef __APPLE__
-    glLineWidth(m_ca.m_appearance.line_width);
+    glLineWidth(m_ca.m_appearance.line_width * m_ca.m_scale_factor);
 #endif
     glDrawArrays(GL_POINTS, 0, m_ca.m_n_lines);
     glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);

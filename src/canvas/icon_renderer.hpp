@@ -21,6 +21,7 @@ private:
     GLuint m_icon_border_loc;
     GLuint m_texture_size_loc;
     GLuint m_texture_icon;
+    GLuint m_scale_factor_loc;
 
     static GLuint create_vao(GLuint program, GLuint &vbo_out);
 

@@ -15,13 +15,14 @@ uniform uint pick_base;
 
 uniform mat4 view;
 uniform mat4 proj;
+uniform float scale_factor;
 void main() {
 	pick_to_geom = uint(gl_VertexID+int(pick_base));
 	flags_to_geom = flags;
     origin_to_geom = (proj*view*vec4(origin, 1));
-    shift_to_geom = shift;
+    shift_to_geom = shift * scale_factor;
     bits_to_geom = bits;
-    scale_to_geom = scale;
+    scale_to_geom = scale * scale_factor;
 	
 }
 

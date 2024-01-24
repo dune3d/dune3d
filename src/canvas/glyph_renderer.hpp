@@ -17,6 +17,7 @@ private:
 
     GLuint m_screen_loc;
     GLuint m_msdf_loc;
+    GLuint m_scale_factor_loc;
     GLuint m_texture_glyph;
 
     static GLuint create_vao(GLuint program, GLuint &vbo_out);

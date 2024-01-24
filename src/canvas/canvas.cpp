@@ -911,7 +911,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
 
 void Canvas::on_resize(int width, int height)
 {
-    if (width == m_dev_width && height == m_dev_height)
+    const auto scale_factor = get_scale_factor();
+    if (width == m_dev_width && height == m_dev_height && scale_factor == m_scale_factor)
         return;
     std::cout << "resize " << width << "x" << height << std::endl;
     m_dev_width = width;
@@ -924,7 +925,7 @@ void Canvas::on_resize(int width, int height)
     resize_buffers();
 
     // get_scale_factor is surprisingly expensive, so do it only once
-    m_scale_factor = get_scale_factor();
+    m_scale_factor = scale_factor;
 
     Gtk::GLArea::on_resize(width, height);
 }

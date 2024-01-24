@@ -125,6 +125,7 @@ void IconRenderer::realize()
     GET_LOC(this, icon_size);
     GET_LOC(this, icon_border);
     GET_LOC(this, texture_size);
+    GET_LOC(this, scale_factor);
 }
 
 void IconRenderer::push()
@@ -152,6 +153,7 @@ void IconRenderer::render()
     glUniform1f(m_icon_size_loc, IconTexture::icon_size);
     glUniform1f(m_icon_border_loc, IconTexture::icon_border);
     glUniform1f(m_texture_size_loc, m_texture_size);
+    glUniform1f(m_scale_factor_loc, m_ca.m_scale_factor);
     glBindTexture(GL_TEXTURE_2D, m_texture_icon);
 
 
