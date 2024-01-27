@@ -21,30 +21,31 @@ static std::shared_ptr<const SolidModel> create_array(const Document &doc, Group
     auto mod = std::make_shared<SolidModelOcc>();
     group.m_array_messages.clear();
 
-    auto solid_model_group = dynamic_cast<const IGroupSolidModel *>(&doc.get_group(group.m_source_group));
-    if (!solid_model_group)
+    auto source_group = dynamic_cast<const IGroupSolidModel *>(&doc.get_group(group.m_source_group));
+    if (!source_group)
         return nullptr;
 
-    group.m_operation = solid_model_group->get_operation();
-    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(solid_model_group->get_solid_model());
-    if (!last_solid_model) {
+    group.m_operation = source_group->get_operation();
+
+    const auto source_solid_model = dynamic_cast<const SolidModelOcc *>(source_group->get_solid_model());
+    if (!source_solid_model) {
         return nullptr;
     }
-    if (last_solid_model->m_shape.IsNull()) {
+    if (source_solid_model->m_shape.IsNull()) {
         group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no shape");
         return nullptr;
     }
 
     for (unsigned int instance = 0; instance < group.m_count; instance++) {
         auto trsf = make_trsf(instance);
-        TopoDS_Shape sh = BRepBuilderAPI_Transform(last_solid_model->m_shape, trsf);
+        TopoDS_Shape sh = BRepBuilderAPI_Transform(source_solid_model->m_shape, trsf);
         if (mod->m_shape.IsNull())
             mod->m_shape = sh;
         else
             mod->m_shape = BRepAlgoAPI_Fuse(mod->m_shape, sh);
     }
 
-    mod->update_acc(group.m_operation, last_solid_model->m_shape_acc);
+    mod->update_acc(group.m_operation, source_solid_model->m_shape_acc);
 
     if (mod->m_shape_acc.IsNull()) {
         group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "didn't generate a shape");
