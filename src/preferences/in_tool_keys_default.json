@@ -7,54 +7,6 @@
             }
         ]
     ],
-    "FLIP_ARC": [
-        [
-            {
-                "key": "e",
-                "mod": 0
-            }
-        ]
-    ],
-    "TOGGLE_COINCIDENT_CONSTRAINT": [
-        [
-            {
-                "key": "c",
-                "mod": 0
-            }
-        ]
-    ],
-    "TOGGLE_CONSTRUCTION": [
-        [
-            {
-                "key": "x",
-                "mod": 0
-            }
-        ]
-    ],
-    "TOGGLE_HV_CONSTRAINT": [
-        [
-            {
-                "key": "v",
-                "mod": 0
-            }
-        ]
-    ],
-    "TOGGLE_TANGENT_CONSTRAINT": [
-        [
-            {
-                "key": "t",
-                "mod": 0
-            }
-        ]
-    ],
-    "TOGGLE_ARC": [
-        [
-            {
-                "key": "a",
-                "mod": 0
-            }
-        ]
-    ],
     "CLEAR_EDGES": [
         [
             {
@@ -64,12 +16,20 @@
         ]
     ],
     "ENTER_N_SIDES": [
-    [
-        {
-            "key": "Return",
-            "mod": 0
-        }
-    ]
+        [
+            {
+                "key": "Return",
+                "mod": 0
+            }
+        ]
+    ],
+    "FLIP_ARC": [
+        [
+            {
+                "key": "e",
+                "mod": 0
+            }
+        ]
     ],
     "N_SIDES_DEC": [
         [
@@ -93,12 +53,52 @@
             }
         ]
     ],
+    "TOGGLE_ARC": [
+        [
+            {
+                "key": "a",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_COINCIDENT_CONSTRAINT": [
+        [
+            {
+                "key": "c",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_CONSTRUCTION": [
+        [
+            {
+                "key": "g",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_HV_CONSTRAINT": [
+        [
+            {
+                "key": "v",
+                "mod": 0
+            }
+        ]
+    ],
     "TOGGLE_RECTANGLE_MODE": [
-    [
-        {
-            "key": "m",
-            "mod": 0
-        }
+        [
+            {
+                "key": "m",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_TANGENT_CONSTRAINT": [
+        [
+            {
+                "key": "t",
+                "mod": 0
+            }
+        ]
     ]
-]
 }
