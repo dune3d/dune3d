@@ -133,7 +133,6 @@ void WorkspaceBrowser::update_documents(const DocumentView &doc_view)
     auto store = Gio::ListStore<DocumentItem>::create();
     for (auto doci : m_core.get_documents()) {
         auto mi = DocumentItem::create();
-        mi->m_name = doci->get_basename();
         mi->m_uuid = doci->get_uuid();
         Glib::RefPtr<BodyItem> body_item = BodyItem::create();
         body_item->m_name = "Missing";
@@ -203,7 +202,11 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
     for (size_t i_doc = 0; i_doc < m_document_store->get_n_items(); i_doc++) {
         auto &it_doc = *m_document_store->get_item(i_doc);
         auto &doci = m_core.get_idocument_info(it_doc.m_uuid);
-        it_doc.m_name = doci.get_basename();
+        const auto bn = doci.get_basename();
+        if (bn.size())
+            it_doc.m_name = bn;
+        else
+            it_doc.m_name = "New Document";
         const auto &current_group = doci.get_document().get_group(doci.get_current_group());
         UUID source_group;
         if (auto group_src = dynamic_cast<const IGroupSourceGroup *>(&current_group))
