@@ -263,7 +263,7 @@ void CanvasPreferences::load_colors_from_json(const json &j)
 void CanvasPreferences::load_from_json(const json &j)
 {
     appearance.msaa = j.value("msaa", 0);
-    appearance.line_width = j.value("line_width", 2.0);
+    appearance.line_width = j.value("line_width", 2.5);
     enable_animations = j.value("enable_animations", true);
     theme = j.value("theme", "Default");
     if (j.contains("theme_variant"))

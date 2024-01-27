@@ -13,6 +13,6 @@ public:
     const Color &get_color(const ColorP &color) const;
 
     unsigned int msaa = 4;
-    float line_width = 1.5;
+    float line_width = 2.5;
 };
 } // namespace dune3d
