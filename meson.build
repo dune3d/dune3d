@@ -220,11 +220,10 @@ color_presets = custom_target(
 
 fs = import('fs')
 has_git_dir = fs.is_dir('.git')
+version_deps = ['version.py']
 if has_git_dir
     message('including git commit')
-    version_deps = ['.git/HEAD', '.git/index']
-else
-    version_deps = []
+    version_deps += ['.git/HEAD', '.git/index']
 endif
 
 version_gen_cpp = custom_target(
