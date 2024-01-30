@@ -15,7 +15,7 @@ AboutDialog::AboutDialog() : Gtk::AboutDialog()
     authors.push_back("Lukas K. <lukas@dune3d.org>");
     set_authors(authors);
     set_license_type(Gtk::License::GPL_3_0);
-    set_copyright("Copyright © 2023 Lukas K., et al.");
+    set_copyright("Copyright © 2024 Lukas K., et al.");
     set_website("https://dune3d.org/");
     set_website_label("dune3d.org");
     set_comments("a parametric 3D CAD");
