@@ -2,9 +2,6 @@
 
 Dune 3D is a parametric 3D CAD application that supports STEP import/export, fillets and chamfers.
 
-> [!WARNING]
-> It's still in early development, so don't be surprised if it's janky, missing important features or crashes when you look at it the wrong way.
-
 ![Screenshot showing a PCB in a grey enclosure on a gradient background.](screenshot.png)
 
 ## Motivation
