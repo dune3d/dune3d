@@ -6,6 +6,7 @@
   <project_license>GPL-3.0+</project_license>
   <name>Dune 3D</name>
   <summary>Parametric 3D CAD</summary>
+  <developer_name>Lukas K.</developer_name>
 
   <description>
     <p>Dune 3D is a parametric 3D CAD application. With Dune 3D you can:</p>
@@ -21,6 +22,7 @@
 
   <screenshots>
     <screenshot type="default">
+      <caption>The Dune 3D main window</caption>
       <image>https://dune3d.org/screenshots/screenshot.png</image>
     </screenshot>
   </screenshots>
