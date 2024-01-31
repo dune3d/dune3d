@@ -48,8 +48,8 @@
   <content_rating type="oars-1.0" />
 
   <releases>
-    <release version="0.9.4" date="2024-01-31">
-      <url>https://github.com/dune3d/dune3d/releases/tag/v0.9.4</url>
+    <release version="0.9.5" date="2024-01-31">
+      <url>https://github.com/dune3d/dune3d/releases/tag/v0.9.5</url>
       <description>
         <p>prerelease to test packaging</p>
       </description>
