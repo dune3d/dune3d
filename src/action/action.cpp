@@ -19,6 +19,13 @@ std::string key_sequence_item_to_string(const KeySequenceItem &it)
     if ((int)(it.mod & Gdk::ModifierType::ALT_MASK)) {
         txt += "Alt+";
     }
+    if ((int)(it.mod & Gdk::ModifierType::META_MASK)) {
+#ifdef __APPLE__
+        txt += "⌘+";
+#else
+        txt += "Meta+";
+#endif
+    }
     txt += keyname;
     return txt;
 }

@@ -1,0 +1,826 @@
+[
+    {
+        "action": "SAVE",
+        "keys": [
+            [
+                {
+                    "key": "s",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "SAVE_AS",
+        "keys": [
+            [
+                {
+                    "key": "S",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "UNDO",
+        "keys": [
+            [
+                {
+                    "key": "z",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "REDO",
+        "keys": [
+            [
+                {
+                    "key": "y",
+                    "mod": 268435456
+                }
+            ],
+            [
+                {
+                    "key": "Z",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "POPOVER",
+        "keys": [
+            [
+                {
+                    "key": "space",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "CLOSE_DOCUMENT",
+        "keys": [
+            [
+                {
+                    "key": "w",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "OPEN_DOCUMENT",
+        "keys": [
+            [
+                {
+                    "key": "o",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "NEW_DOCUMENT",
+        "keys": [
+            [
+                {
+                    "key": "n",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "PREVIOUS_GROUP",
+        "keys": [
+            [
+                {
+                    "key": "Page_Up",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "NEXT_GROUP",
+        "keys": [
+            [
+                {
+                    "key": "Page_Down",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "PREFERENCES",
+        "keys": [
+            [
+                {
+                    "key": "comma",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "TOGGLE_SOLID_MODEL",
+        "keys": [
+            [
+                {
+                    "key": "s",
+                    "mod": 8
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ALL",
+        "keys": [
+            [
+                {
+                    "key": "Home",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_TOGGLE_PERSP_ORTHO",
+        "keys": [
+            [
+                {
+                    "key": "p",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_RESET_TILT",
+        "keys": [
+            [
+                {
+                    "key": "t",
+                    "mod": 8
+                }
+            ]
+        ]
+    },
+    {
+        "action": "DELETE_CURRENT_GROUP",
+        "keys": [
+            [
+                {
+                    "key": "BackSpace",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "MOVE_GROUP_UP",
+        "keys": [
+            [
+                {
+                    "key": "Page_Up",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "MOVE_GROUP_DOWN",
+        "keys": [
+            [
+                {
+                    "key": "Page_Down",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "MOVE_GROUP_TO_END_OF_BODY",
+        "keys": [
+            [
+                {
+                    "key": "End",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "CREATE_GROUP_SKETCH",
+        "keys": [
+            [
+                {
+                    "key": "k",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "CREATE_GROUP_EXTRUDE",
+        "keys": [
+            [
+                {
+                    "key": "e",
+                    "mod": 268435456
+                }
+            ]
+        ]
+    },
+    {
+        "action": "TOGGLE_WORKPLANE",
+        "keys": [
+            [
+                {
+                    "key": "w",
+                    "mod": 8
+                }
+            ]
+        ]
+    },
+    {
+        "action": "ALIGN_VIEW_TO_CURRENT_WORKPLANE",
+        "keys": [
+            [
+                {
+                    "key": "period",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "CENTER_VIEW_TO_CURRENT_WORKPLANE",
+        "keys": [
+            [
+                {
+                    "key": "comma",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "CLIPPING_PLANE_WINDOW",
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 8
+                }
+            ]
+        ]
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "3",
+                    "mod": 0
+                }
+            ],
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "L",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_LINE_3D"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "f",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_LINE_2D"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "a",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_ARC_2D"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "c",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_CIRCLE_2D"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "w",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_WORKPLANE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "s",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_CONTOUR"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "BackSpace",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DELETE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "m",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "MOVE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "c",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_COINCIDENT"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "h",
+                    "mod": 0
+                }
+            ],
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "a",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_HORIZONTAL_AUTO"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "v",
+                    "mod": 0
+                }
+            ],
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "a",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_VERTICAL_AUTO"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "h",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_HORIZONTAL"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "v",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_VERTICAL"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "d",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_DISTANCE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "h",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_DISTANCE_HORIZONTAL"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "v",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_DISTANCE_VERTICAL"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "s",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_SAME_ORIENTATION"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "w",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_WORKPLANE_NORMAL"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "p",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_PARALLEL"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "m",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_MIDPOINT"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "q",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_EQUAL_LENGTH"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "q",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_EQUAL_RADIUS"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "r",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_RADIUS"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "d",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_DIAMETER"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "o",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_PERPENDICULAR"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "g",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_ANGLE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "c",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_POINT_IN_PLANE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "k",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_LOCK_ROTATION"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "Return",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "ENTER_DATUM"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "g",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "TOGGLE_CONSTRUCTION"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "w",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "SET_WORKPLANE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "W",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "UNSET_WORKPLANE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "t",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_POINT_2D"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "x",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_REGULAR_POLYGON"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "r",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_RECTANGLE"
+    }
+]

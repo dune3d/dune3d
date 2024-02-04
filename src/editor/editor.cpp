@@ -1670,7 +1670,8 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
     if (ev->is_modifier())
         return false;
     state &= ~ev->get_consumed_modifiers();
-    state &= (Gdk::ModifierType::SHIFT_MASK | Gdk::ModifierType::CONTROL_MASK | Gdk::ModifierType::ALT_MASK);
+    state &= (Gdk::ModifierType::SHIFT_MASK | Gdk::ModifierType::CONTROL_MASK | Gdk::ModifierType::ALT_MASK
+              | Gdk::ModifierType::META_MASK);
     if (keyval == GDK_KEY_Escape) {
         if (!m_core.tool_is_active()) {
             get_canvas().set_selection_mode(SelectionMode::HOVER);

@@ -235,10 +235,17 @@ version_gen_cpp = custom_target(
 )
 src += version_gen_cpp
 
+resource_xml = custom_target(
+    'dune3d.gresource.xml',
+    output : 'dune3d.gresource.xml',
+    input : ['merge_gresource.py', 'src/dune3d.gresource.xml', 'src/dune3d.gresource.darwin.xml'],
+    command : [prog_python, '@INPUT@', target_machine.system(), '@OUTPUT@'],
+)
+
 gnome = import('gnome')
 resources = gnome.compile_resources(
   'resources',
-  'src/dune3d.gresource.xml',
+  resource_xml,
   dependencies: [icon_texture],
   c_name: 'dune3d_resources',
   source_dir: 'src'
