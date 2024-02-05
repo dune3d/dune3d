@@ -555,26 +555,6 @@ hParam Expr::ReferencedParams(ParamList *pl) const {
 }
 
 
-unsigned int Expr::CountParamReferences(hParam param) const {
-    if(op == Op::PARAM) {
-        if(parh == param) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    ssassert(op != Op::PARAM_PTR, "Expected an expression that refer to params via handles");
-    
-    int c = Children();
-    if(c == 0) {
-        return 0;
-    } else if(c == 1) {
-        return a->CountParamReferences(param);
-    } else if(c == 2) {
-        return a->CountParamReferences(param) + b->CountParamReferences(param);
-    } else ssassert(false, "Unexpected children count");
-}
-
 //-----------------------------------------------------------------------------
 // Routines to pretty-print an expression. Mostly for debugging.
 //-----------------------------------------------------------------------------

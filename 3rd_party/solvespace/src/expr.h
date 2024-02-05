@@ -79,7 +79,6 @@ public:
 
     static const hParam NO_PARAMS, MULTIPLE_PARAMS;
     hParam ReferencedParams(ParamList *pl) const;
-    unsigned int CountParamReferences(hParam param) const;
 
     void ParamsToPointers();
 
