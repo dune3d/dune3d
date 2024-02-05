@@ -7,15 +7,13 @@
 // Copyright 2008-2013 Jonathan Westhues.
 //-----------------------------------------------------------------------------
 #include "solvespace.h"
-#include <iostream>
-#include <list>
 
 #include <Eigen/Core>
 #include <Eigen/SparseQR>
 
 // The solver will converge all unknowns to within this tolerance. This must
 // always be much less than LENGTH_EPS, and in practice should be much less.
-const double System::CONVERGE_TOLERANCE = (LENGTH_EPS / (1e2));
+const double System::CONVERGE_TOLERANCE = (LENGTH_EPS/(1e2));
 
 constexpr size_t LikelyPartialCountPerEq = 10;
 
@@ -27,15 +25,13 @@ bool System::WriteJacobian(int tag) {
     mat.B.sym.clear();
 
     for(Param &p : param) {
-        if(p.tag != tag)
-            continue;
+        if(p.tag != tag) continue;
         mat.param.push_back(p.h);
     }
     mat.n = mat.param.size();
 
     for(Equation &e : eq) {
-        if(e.tag != tag)
-            continue;
+        if(e.tag != tag) continue;
         mat.eq.push_back(&e);
     }
     mat.m = mat.eq.size();
@@ -57,11 +53,10 @@ bool System::WriteJacobian(int tag) {
     mat.B.sym.reserve(mat.eq.size());
     for(size_t i = 0; i < mat.eq.size(); i++) {
         Equation *e = mat.eq[i];
-        if(e->tag != tag)
-            continue;
+        if(e->tag != tag) continue;
         // Simplify (fold) then deep-copy the current equation.
         Expr *f = e->e->FoldConstants();
-        f       = f->DeepCopyWithParamsAsPointers(&param, &(SK.param));
+        f = f->DeepCopyWithParamsAsPointers(&param, &(SK.param));
 
         paramsUsed.clear();
         f->ParamsUsedList(&paramsUsed);
@@ -69,13 +64,12 @@ bool System::WriteJacobian(int tag) {
         for(hParam &p : paramsUsed) {
             // Find the index of this parameter
             auto it = paramToIndex.find(p.v);
-            if(it == paramToIndex.end())
-                continue;
+            if(it == paramToIndex.end()) continue;
             // this is the parameter index
             const int j = it->second;
             // compute partial derivative of f
             Expr *pd = f->PartialWrt(p);
-            pd       = pd->FoldConstants();
+            pd = pd->FoldConstants();
             if(pd->IsZeroConst())
                 continue;
             mat.A.sym.insert(i, j) = pd;
@@ -93,10 +87,9 @@ void System::EvalJacobian() {
     const int size = mat.A.sym.outerSize();
 
     for(int k = 0; k < size; k++) {
-        for(SparseMatrix<Expr *>::InnerIterator it(mat.A.sym, k); it; ++it) {
+        for(SparseMatrix <Expr *>::InnerIterator it(mat.A.sym, k); it; ++it) {
             double value = it.value()->Eval();
-            if(EXACT(value == 0.0))
-                continue;
+            if(EXACT(value == 0.0)) continue;
             mat.A.num.insert(it.row(), it.col()) = value;
         }
     }
@@ -124,7 +117,7 @@ Param *System::GetLastParamSubstitution(Param *p) {
 
 void System::SortSubstitutionByDragged(Param *p) {
     std::vector<Param *> subsParams;
-    Param *by      = NULL;
+    Param *by = NULL;
     Param *current = p;
     while(current != NULL) {
         subsParams.push_back(current);
@@ -133,21 +126,18 @@ void System::SortSubstitutionByDragged(Param *p) {
         }
         current = current->substd;
     }
-    if(by == NULL)
-        by = p;
+    if(by == NULL) by = p;
     for(Param *p : subsParams) {
-        if(p == by)
-            continue;
-        p->substd = by;
-        p->tag    = VAR_SUBSTITUTED;
+       if(p == by) continue;
+       p->substd = by;
+       p->tag = VAR_SUBSTITUTED;
     }
     by->substd = NULL;
-    by->tag    = 0;
+    by->tag = 0;
 }
 
 void System::SubstituteParamsByLast(Expr *e) {
-    ssassert(e->op != Expr::Op::PARAM_PTR,
-             "Expected an expression that refer to params via handles");
+    ssassert(e->op != Expr::Op::PARAM_PTR, "Expected an expression that refer to params via handles");
 
     if(e->op == Expr::Op::PARAM) {
         Param *p = param.FindByIdNoOops(e->parh);
@@ -161,8 +151,7 @@ void System::SubstituteParamsByLast(Expr *e) {
         int c = e->Children();
         if(c >= 1) {
             SubstituteParamsByLast(e->a);
-            if(c >= 2)
-                SubstituteParamsByLast(e->b);
+            if(c >= 2) SubstituteParamsByLast(e->b);
         }
     }
 }
@@ -171,8 +160,10 @@ void System::SolveBySubstitution() {
     for(auto &teq : eq) {
         Expr *tex = teq.e;
 
-        if(tex->op == Expr::Op::MINUS && tex->a->op == Expr::Op::PARAM &&
-           tex->b->op == Expr::Op::PARAM) {
+        if(tex->op    == Expr::Op::MINUS &&
+           tex->a->op == Expr::Op::PARAM &&
+           tex->b->op == Expr::Op::PARAM)
+        {
             hParam a = tex->a->parh;
             hParam b = tex->b->parh;
             if(!(param.FindByIdNoOops(a) && param.FindByIdNoOops(b))) {
@@ -192,9 +183,9 @@ void System::SolveBySubstitution() {
 
             // Take the last substitution of parameter a
             // This resulted in creation of substitution chains
-            Param *last  = GetLastParamSubstitution(pa);
+            Param *last = GetLastParamSubstitution(pa);
             last->substd = pb;
-            last->tag    = VAR_SUBSTITUTED;
+            last->tag = VAR_SUBSTITUTED;
 
             if(pb->substd != NULL) {
                 // Break the loops
@@ -221,8 +212,7 @@ void System::SolveBySubstitution() {
 
     // Substitute all the parameters with last substitutions
     for(auto &p : param) {
-        if(p.substd == NULL)
-            continue;
+        if(p.substd == NULL) continue;
         p.substd = GetLastParamSubstitution(p.substd);
     }
 }
@@ -232,9 +222,8 @@ void System::SolveBySubstitution() {
 //-----------------------------------------------------------------------------
 int System::CalculateRank() {
     using namespace Eigen;
-    if(mat.n == 0 || mat.m == 0)
-        return 0;
-    SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> solver;
+    if(mat.n == 0 || mat.m == 0) return 0;
+    SparseQR <SparseMatrix<double>, COLAMDOrdering<int>> solver;
     solver.compute(mat.A.num);
     int result = solver.rank();
     return result;
@@ -245,18 +234,17 @@ bool System::TestRank(int *dof) {
     int jacobianRank = CalculateRank();
     // We are calculating dof based on real rank, not mat.m.
     // Using this approach we can calculate real dof even when redundant is allowed.
-    if(dof != NULL)
-        *dof = mat.n - jacobianRank;
+    if(dof != NULL) *dof = mat.n - jacobianRank;
     return jacobianRank == mat.m;
 }
 
-bool System::SolveLinearSystem(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &B,
-                               Eigen::VectorXd *X) {
-    if(A.outerSize() == 0)
-        return true;
+bool System::SolveLinearSystem(const Eigen::SparseMatrix <double> &A,
+                               const Eigen::VectorXd &B, Eigen::VectorXd *X)
+{
+    if(A.outerSize() == 0) return true;
     using namespace Eigen;
     SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> solver;
-    // SimplicialLDLT<SparseMatrix<double>> solver;
+    //SimplicialLDLT<SparseMatrix<double>> solver;
     solver.compute(A);
     *X = solver.solve(B);
     return (solver.info() == Success);
@@ -287,8 +275,7 @@ bool System::SolveLeastSquares() {
     AAt.makeCompressed();
     VectorXd z(mat.n);
 
-    if(!SolveLinearSystem(AAt, mat.B.num, &z))
-        return false;
+    if(!SolveLinearSystem(AAt, mat.B.num, &z)) return false;
 
     mat.X = mat.A.num.transpose() * z;
 
@@ -300,7 +287,7 @@ bool System::SolveLeastSquares() {
 
 bool System::NewtonSolve(int tag) {
 
-    int iter       = 0;
+    int iter = 0;
     bool converged = false;
     int i;
 
@@ -313,8 +300,7 @@ bool System::NewtonSolve(int tag) {
         // And evaluate the Jacobian at our initial operating point.
         EvalJacobian();
 
-        if(!SolveLeastSquares())
-            break;
+        if(!SolveLeastSquares()) break;
 
         // Take the Newton step;
         //      J(x_n) (x_{n+1} - x_n) = 0 - F(x_n)
@@ -351,12 +337,12 @@ void System::WriteEquationsExceptFor(hConstraint hc, Group *g) {
     // Generate all the equations from constraints in this group
     for(auto &con : SK.constraint) {
         ConstraintBase *c = &con;
-        if(c->group != g->h)
-            continue;
-        if(c->h == hc)
-            continue;
+        if(c->group != g->h) continue;
+        if(c->h == hc) continue;
 
-        if(c->HasLabel() && c->type != Constraint::Type::COMMENT && g->allDimsReference) {
+        if(c->HasLabel() && c->type != Constraint::Type::COMMENT &&
+                g->allDimsReference)
+        {
             // When all dimensions are reference, we adjust them to display
             // the correct value, and then don't generate any equations.
             c->ModifyToSatisfy();
@@ -374,8 +360,7 @@ void System::WriteEquationsExceptFor(hConstraint hc, Group *g) {
     // And the equations from entities
     for(auto &ent : SK.entity) {
         EntityBase *e = &ent;
-        if(e->group != g->h)
-            continue;
+        if(e->group != g->h) continue;
 
         e->GenerateEquations(&eq);
     }
@@ -384,7 +369,7 @@ void System::WriteEquationsExceptFor(hConstraint hc, Group *g) {
 }
 
 void System::FindWhichToRemoveToFixJacobian(Group *g, List<hConstraint> *bad, bool forceDofCheck) {
-    auto time         = GetMilliseconds();
+    auto time = GetMilliseconds();
     g->solved.timeout = false;
     int a;
 
@@ -396,10 +381,10 @@ void System::FindWhichToRemoveToFixJacobian(Group *g, List<hConstraint> *bad, bo
             }
 
             ConstraintBase *c = &con;
-            if(c->group != g->h)
-                continue;
+            if(c->group != g->h) continue;
             if((c->type == Constraint::Type::POINTS_COINCIDENT && a == 0) ||
-               (c->type != Constraint::Type::POINTS_COINCIDENT && a == 1)) {
+               (c->type != Constraint::Type::POINTS_COINCIDENT && a == 1))
+            {
                 // Do the constraints in two passes: first everything but
                 // the point-coincident constraints, then only those
                 // constraints (so they appear last in the list).
@@ -429,293 +414,62 @@ void System::FindWhichToRemoveToFixJacobian(Group *g, List<hConstraint> *bad, bo
     }
 }
 
-struct Rearraged {
-    Expr *lhs = nullptr;
-    Expr *rhs = nullptr;
-
-    void isolate(hParam param);
-};
-
-void Rearraged::isolate(hParam param) {
-    // rearrange equation until param is the only thing on lhs
-    while(lhs->op != Expr::Op::PARAM_PTR && lhs->op != Expr::Op::PARAM) {
-        switch(lhs->op) {
-        case Expr::Op::PLUS:
-            if(lhs->a->DependsOn(param)) {
-                rhs = rhs->Minus(lhs->b);
-                lhs = lhs->a;
-            } else if(lhs->b->DependsOn(param)) {
-                rhs = rhs->Minus(lhs->a);
-                lhs = lhs->b;
-            } else {
-                ssassert(false, "param was not referenced");
-            }
-            break;
-        case Expr::Op::MINUS:
-            if(lhs->a->DependsOn(param)) {
-                rhs = rhs->Plus(lhs->b);
-                lhs = lhs->a;
-            } else if(lhs->b->DependsOn(param)) {
-                rhs = (rhs->Minus(lhs->a))->Negate();
-                lhs = lhs->b;
-            } else {
-                ssassert(false, "param was not referenced");
-            }
-            break;
-        case Expr::Op::TIMES:
-            if(lhs->a->DependsOn(param)) {
-                rhs = rhs->Div(lhs->b);
-                lhs = lhs->a;
-            } else if(lhs->b->DependsOn(param)) {
-                rhs = rhs->Div(lhs->a);
-                lhs = lhs->b;
-            } else {
-                ssassert(false, "param was not referenced");
-            }
-            break;
-        case Expr::Op::DIV:
-            if(lhs->a->DependsOn(param)) {
-                rhs = rhs->Times(lhs->b);
-                lhs = lhs->a;
-            } else if(lhs->b->DependsOn(param)) {
-                rhs = Expr::From(1.0)->Div(rhs->Div(lhs->a));
-                lhs = lhs->b;
-            } else {
-                ssassert(false, "param was not referenced");
-            }
-            break;
-        case Expr::Op::SQRT:
-            lhs = lhs->a;
-            rhs = rhs->Square();
-            break;
-        case Expr::Op::SQUARE:
-            lhs = lhs->a;
-            rhs = rhs->Sqrt();
-            {
-                const auto lhs_ev     = lhs->Eval();
-                const auto rhs_ev     = rhs->Eval();
-                const auto rhs_ev_neg = -rhs_ev;
-                if(std::abs(rhs_ev_neg - lhs_ev) < std::abs(lhs_ev - rhs_ev)) {
-                    std::cout << "negate " << std::endl;
-                    rhs = rhs->Negate();
-                }
-            }
-            break;
-        default: ssassert(false, "unsupported op in isolate");
-        }
-        // std::cout << "re " << lhs->Print() << " = " << rhs->Print() << std::endl;
-    }
-    if(lhs->op == Expr::Op::PARAM_PTR)
-        ssassert(lhs->parp->h == param, "lhs param was not expected param");
-    else if(lhs->op == Expr::Op::PARAM)
-        ssassert(lhs->parh == param, "lhs param was not expected param");
-    else
-        ssassert(false, "Unexpected lhs");
-}
-
-static void add_expr(Expr *e, Equation *eq,
-                     std::map<uint32_t, std::map<Equation *, unsigned int>> &usage,
-                     std::map<Equation *, std::set<uint32_t>> &eq_params) {
-    if(e->op == Expr::Op::PARAM) {
-        eq_params[eq].insert(e->parh.v);
-        auto &x = usage[e->parh.v];
-        if(x.contains(eq))
-            x.at(eq)++;
-        else
-            x.emplace(eq, 1);
-        return;
-    }
-    ssassert(e->op != Expr::Op::PARAM_PTR,
-             "Expected an expression that refer to params via handles");
-
-    int c = e->Children();
-    if(c == 0) {
-        return;
-    } else if(c == 1) {
-        add_expr(e->a, eq, usage, eq_params);
-    } else if(c == 2) {
-        add_expr(e->a, eq, usage, eq_params);
-        add_expr(e->b, eq, usage, eq_params);
-    } else
-        ssassert(false, "Unexpected children count");
-}
-
-SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad, bool andFindBad,
-                          bool andFindFree, bool forceDofCheck) {
+SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
+                          bool andFindBad, bool andFindFree, bool forceDofCheck)
+{
     WriteEquationsExceptFor(Constraint::NO_CONSTRAINT, g);
 
     bool rankOk;
 
+/*
+    int x;
+    dbp("%d equations", eq.n);
+    for(x = 0; x < eq.n; x++) {
+        dbp("  %.3f = %s = 0", eq[x].e->Eval(), eq[x].e->Print());
+    }
+    dbp("%d parameters", param.n);
+    for(x = 0; x < param.n; x++) {
+        dbp("   param %08x at %.3f", param[x].h.v, param[x].val);
+    } */
 
     // All params and equations are assigned to group zero.
     param.ClearTags();
     eq.ClearTags();
 
-    auto tsubst_begin = clock();
     // Since we are suppressing dof calculation or allowing redundant, we
     // can't / don't want to catch result of dof checking without substitution
     if(g->suppressDofCalculation || g->allowRedundant || !forceDofCheck) {
         SolveBySubstitution();
     }
-    auto tsubst_end = clock();
-    std::cout << "subst took " << (double)(tsubst_end - tsubst_begin) / CLOCKS_PER_SEC << std::endl;
-
 
     // Before solving the big system, see if we can find any equations that
     // are soluble alone. This can be a huge speedup. We don't know whether
     // the system is consistent yet, but if it isn't then we'll catch that
     // later.
-
-    unsigned int n_eq0 = 0, n_param0 = 0;
-    unsigned int nref1 = 0;
-    int tag1;
     int alone = 1;
-    std::list<std::map<unsigned int, Equation *>> param_exprs;
-    std::map<uint32_t, std::map<Equation *, unsigned int>> param_equation_usage;
-    std::map<Equation *, std::set<uint32_t>> equation_params;
-    clock_t talone_end, tfind1_end, tsolve_end, tfinish_end;
     for(auto &e : eq) {
         if(e.tag != 0)
             continue;
 
         hParam hp = e.e->ReferencedParams(&param);
-        if(hp == Expr::NO_PARAMS)
-            continue;
-        if(hp == Expr::MULTIPLE_PARAMS)
-            continue;
+        if(hp == Expr::NO_PARAMS) continue;
+        if(hp == Expr::MULTIPLE_PARAMS) continue;
 
         Param *p = param.FindById(hp);
-        if(p->tag != 0)
-            continue; // let rank test catch inconsistency
+        if(p->tag != 0) continue; // let rank test catch inconsistency
 
         e.tag  = alone;
         p->tag = alone;
-
-        if(e.e->CountParamReferences(hp) == 1) {
-            Rearraged rearraged;
-            rearraged.lhs = e.e;
-            rearraged.rhs = Expr::From(0);
-            rearraged.isolate(hp);
-            p->val   = rearraged.rhs->Eval();
-            p->known = true;
-        }
-        else {
-            WriteJacobian(alone);
-            if(!NewtonSolve(alone)) {
-                // We don't do the rank test, so let's arbitrarily return
-                // the DIDNT_CONVERGE result here.
-                rankOk = true;
-                // Failed to converge, bail out early
-                goto didnt_converge;
-            }
+        WriteJacobian(alone);
+        if(!NewtonSolve(alone)) {
+            // We don't do the rank test, so let's arbitrarily return
+            // the DIDNT_CONVERGE result here.
+            rankOk = true;
+            // Failed to converge, bail out early
+            goto didnt_converge;
         }
         alone++;
     }
-    talone_end = clock();
-    std::cout << "alone took " << (double)(talone_end - tsubst_end) / CLOCKS_PER_SEC << std::endl;
-    if(0) {
-        int x;
-
-        dbp("%d equations", eq.n);
-        for(x = 0; x < eq.n; x++) {
-            if(eq[x].tag != 0)
-                continue;
-            dbp("%x[%d] %.3f = %s = 0", eq[x].h.v, eq[x].tag, eq[x].e->Eval(),
-                eq[x].e->Print().c_str());
-        }
-        dbp("%d parameters", param.n);
-        for(x = 0; x < param.n; x++) {
-            if(param[x].tag != 0)
-                continue;
-            dbp("   param %08x[%d] at %.3f", param[x].h.v, param[x].tag, param[x].val);
-        }
-    }
-
-    for(auto &e : eq) {
-        if(e.tag != 0)
-            continue;
-        add_expr(e.e, &e, param_equation_usage, equation_params);
-    }
-    tag1 = 1000;
-    while(1) {
-        std::map<unsigned int, Equation *> param_expr;
-        n_eq0    = 0;
-        n_param0 = 0;
-        for(auto &e : eq) {
-            if(e.tag == 0)
-                n_eq0++;
-        }
-        for(auto &p : param) {
-            if(p.tag == 0)
-                n_param0++;
-        }
-        //std::cout << "neq0:" << n_eq0 << " nparam0:" << n_param0 << " tag1:" << tag1 << std::endl;
-
-        nref1 = 0;
-
-
-        for(auto &p : param) {
-            if(IsDragged(p.h))
-                continue;
-            if(p.tag != 0)
-                continue;
-            unsigned int nrefs = 0;
-            Equation *eq1      = nullptr;
-
-            if(param_equation_usage.contains(p.h.v)) {
-                auto &eqs = param_equation_usage.at(p.h.v);
-                for(auto &[e, n] : eqs) {
-                    if(e->tag != 0 && e->tag < tag1)
-                        continue;
-                    if(n == 1)
-                        eq1 = e;
-                    nrefs += n;
-                }
-            }
-
-            if(nrefs == 1) {
-                // only remove equation and param from system if expression doesn't contain
-                // parameters only referenced by this equation
-                auto &params    = equation_params.at(eq1);
-                bool can_remove = true;
-                for(auto para : params) {
-                    if(para == p.h.v) // this parameter, don't care
-                        continue;
-                    auto &eqs        = param_equation_usage.at(para);
-                    unsigned int neq = 0;
-                    for(auto &e : eqs) {
-                        if(e.first == eq1)
-                            continue;
-                        if(e.first->tag != 0 && e.first->tag < tag1)
-                            continue;
-                        neq++;
-                    }
-                    if(neq == 0) {
-                        can_remove = false;
-                        break;
-                    }
-                }
-
-                // std::cout << "ref1 param " << std::hex << p.h.v << std::endl;
-                if(can_remove) {
-                    p.tag    = tag1;
-                    eq1->tag = tag1;
-                    nref1++;
-                    param_expr.emplace(p.h.v, eq1);
-                }
-            }
-        }
-        tag1++;
-
-        if(param_expr.size())
-            param_exprs.push_front(param_expr);
-        else
-            break;
-
-        // break;
-    }
-    tfind1_end = clock();
-    std::cout << "find1 took " << (double)(tfind1_end - talone_end) / CLOCKS_PER_SEC << std::endl;
 
     // Now write the Jacobian for what's left, and do a rank test; that
     // tells us if the system is inconsistently constrained.
@@ -723,8 +477,7 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
         return SolveResult::TOO_MANY_UNKNOWNS;
     }
     // Clear dof value in order to have indication when dof is actually not calculated
-    if(dof != NULL)
-        *dof = -1;
+    if(dof != NULL) *dof = -1;
     // We are suppressing or allowing redundant, so we no need to catch unsolveable + redundant
     rankOk = (!g->suppressDofCalculation && !g->allowRedundant) ? TestRank(dof) : true;
 
@@ -736,79 +489,24 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
     // Here we are want to calculate dof even when redundant is allowed, so just handle suppressing
     rankOk = (!g->suppressDofCalculation) ? TestRank(dof) : true;
     if(!rankOk) {
-        if(andFindBad)
-            FindWhichToRemoveToFixJacobian(g, bad, forceDofCheck);
+        if(andFindBad) FindWhichToRemoveToFixJacobian(g, bad, forceDofCheck);
     } else {
         MarkParamsFree(andFindFree);
     }
-
-    tsolve_end = clock();
-    std::cout << "solve took " << (double)(tsolve_end - tfind1_end) / CLOCKS_PER_SEC << std::endl;
-
-    
-    for(auto &p : param) {
-        if(p.tag == VAR_SUBSTITUTED) {
-            p.val = p.substd->val;
-        }
-    }
-    
-
-    for(auto &param_expr : param_exprs) {
-        for(auto &[p, e] : param_expr) {
-            Rearraged rearraged;
-            Expr *f       = e->e->FoldConstants();
-            f             = f->DeepCopyWithParamsAsPointers(&param, &(SK.param));
-            rearraged.lhs = f;
-            rearraged.rhs = Expr::From(0);
-            // std::cout << std::endl;
-            // printf("%08x\n", e->h.v);
-            // std::cout << std::hex << p << std::endl;
-            // std::cout << rearraged.lhs->Print() << " = " <<rearraged.rhs->Print() << std::endl;
-            rearraged.isolate(hParam{p});
-            // std::cout << rearraged.lhs->Print() << " = " <<rearraged.rhs->Print() << std::endl;
-            Param *pp = param.FindById(hParam{p});
-            pp->val   = rearraged.rhs->Eval();
-            pp->known = true;
-        }
-        // std::cout << "---" << std::endl;
-    }
-
-    for(auto &p : param) {
-        if(p.tag == VAR_SUBSTITUTED) {
-            p.val = p.substd->val;
-        }
-    }
-
     // System solved correctly, so write the new values back in to the
     // main parameter table.
     for(auto &p : param) {
         double val;
-
-        val = p.val;
-
+        if(p.tag == VAR_SUBSTITUTED) {
+            val = p.substd->val;
+        } else {
+            val = p.val;
+        }
         Param *pp = SK.GetParam(p.h);
-        pp->val   = val;
+        pp->val = val;
         pp->known = true;
         pp->free  = p.free;
     }
-    tfinish_end = clock();
-    std::cout << "finish took " << (double)(tfinish_end - tsolve_end) / CLOCKS_PER_SEC << std::endl;
-    // equations and params with tag=tag1 can be solved in a symbolic way
-
-
-    if(0) {
-        int x;
-        dbp("solved %d equations", eq.n);
-        for(x = 0; x < eq.n; x++) {
-            dbp("%x[%d] %.3f = %s = 0", eq[x].h.v, eq[x].tag, eq[x].e->Eval(),
-                eq[x].e->Print().c_str());
-        }
-        dbp("solved %d parameters", param.n);
-        for(x = 0; x < param.n; x++) {
-            dbp("   param %08x[%d] at %.3f", param[x].h.v, param[x].tag, param[x].val);
-        }
-    }
-
     return rankOk ? SolveResult::OKAY : SolveResult::REDUNDANT_OKAY;
 
 didnt_converge:
@@ -817,13 +515,11 @@ didnt_converge:
     for(size_t i = 0; i < mat.eq.size(); i++) {
         if(fabs(mat.B.num[i]) > CONVERGE_TOLERANCE || IsReasonable(mat.B.num[i])) {
             // This constraint is unsatisfied.
-            if(!mat.eq[i]->h.isFromConstraint())
-                continue;
+            if(!mat.eq[i]->h.isFromConstraint()) continue;
 
-            hConstraint hc    = mat.eq[i]->h.constraint();
+            hConstraint hc = mat.eq[i]->h.constraint();
             ConstraintBase *c = SK.constraint.FindByIdNoOops(hc);
-            if(!c)
-                continue;
+            if(!c) continue;
             // Don't double-show constraints that generated multiple
             // unsatisfied equations
             if(!c->tag) {
@@ -837,7 +533,8 @@ didnt_converge:
 }
 
 SolveResult System::SolveRank(Group *g, int *rank, int *dof, List<hConstraint> *bad,
-                              bool andFindBad, bool andFindFree) {
+                              bool andFindBad, bool andFindFree)
+{
     WriteEquationsExceptFor(Constraint::NO_CONSTRAINT, g);
 
     // All params and equations are assigned to group zero.
@@ -855,8 +552,7 @@ SolveResult System::SolveRank(Group *g, int *rank, int *dof, List<hConstraint> *
         // When we are testing with redundant allowed, we don't want to have additional info
         // about redundants since this test is working only for single redundant constraint
         if(!g->suppressDofCalculation && !g->allowRedundant) {
-            if(andFindBad)
-                FindWhichToRemoveToFixJacobian(g, bad, true);
+            if(andFindBad) FindWhichToRemoveToFixJacobian(g, bad, true);
         }
     } else {
         MarkParamsFree(andFindFree);

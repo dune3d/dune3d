@@ -69,12 +69,16 @@ void SolveSpaceUI::Init() {
     exportScale = settings->ThawFloat("ExportScale", 1.0);
     // Export offset (cutter radius comp)
     exportOffset = settings->ThawFloat("ExportOffset", 0.0);
+    // Dimensions on arcs default to diameter vs radius
+    arcDimDefaultDiameter = settings->ThawBool("ArcDimDefaultDiameter", false);
     // Rewrite exported colors close to white into black (assuming white bg)
     fixExportColors = settings->ThawBool("FixExportColors", true);
     // Export background color
     exportBackgroundColor = settings->ThawBool("ExportBackgroundColor", false);
     // Draw back faces of triangles (when mesh is leaky/self-intersecting)
     drawBackFaces = settings->ThawBool("DrawBackFaces", true);
+    // Use camera mouse navigation
+    cameraNav = settings->ThawBool("CameraNav", false);
     // Use turntable mouse navigation
     turntableNav = settings->ThawBool("TurntableNav", false);
     // Immediately edit dimension
@@ -125,12 +129,8 @@ void SolveSpaceUI::Init() {
         SetLocale(locale);
     }
 
-    generateAllTimer = Platform::CreateTimer();
-    generateAllTimer->onTimeout = std::bind(&SolveSpaceUI::GenerateAll, &SS, Generate::DIRTY,
-                                            /*andFindFree=*/false, /*genForBBox=*/false);
-
-    showTWTimer = Platform::CreateTimer();
-    showTWTimer->onTimeout = std::bind(&TextWindow::Show, &TW);
+    refreshTimer = Platform::CreateTimer();
+    refreshTimer->onTimeout = std::bind(&SolveSpaceUI::Refresh, &SS);
 
     autosaveTimer = Platform::CreateTimer();
     autosaveTimer->onTimeout = std::bind(&SolveSpaceUI::Autosave, &SS);
@@ -252,6 +252,8 @@ void SolveSpaceUI::Exit() {
     settings->FreezeFloat("ExportScale", exportScale);
     // Export offset (cutter radius comp)
     settings->FreezeFloat("ExportOffset", exportOffset);
+    // Rewrite the default arc dimension setting
+    settings->FreezeBool("ArcDimDefaultDiameter", arcDimDefaultDiameter);
     // Rewrite exported colors close to white into black (assuming white bg)
     settings->FreezeBool("FixExportColors", fixExportColors);
     // Export background color
@@ -262,6 +264,8 @@ void SolveSpaceUI::Exit() {
     settings->FreezeBool("ShowContourAreas", showContourAreas);
     // Check that contours are closed and not self-intersecting
     settings->FreezeBool("CheckClosedContour", checkClosedContour);
+    // Use camera mouse navigation
+    settings->FreezeBool("CameraNav", cameraNav);
     // Use turntable mouse navigation
     settings->FreezeBool("TurntableNav", turntableNav);
     // Immediately edit dimensions
@@ -302,12 +306,28 @@ void SolveSpaceUI::Exit() {
     Platform::ExitGui();
 }
 
+void SolveSpaceUI::Refresh() {
+    // generateAll must happen bfore updating displays
+    if(scheduledGenerateAll) {
+		// Clear the flag so that if the call to GenerateAll is blocked by a Message or Error, 
+		// subsequent refreshes do not try to Generate again.
+        scheduledGenerateAll = false;
+        GenerateAll(Generate::DIRTY, /*andFindFree=*/false, /*genForBBox=*/false);   
+    }
+    if(scheduledShowTW) {
+        scheduledShowTW = false;
+        TW.Show();
+    }
+}
+
 void SolveSpaceUI::ScheduleGenerateAll() {
-    generateAllTimer->RunAfterProcessingEvents();
+    scheduledGenerateAll = true;
+    refreshTimer->RunAfterProcessingEvents();
 }
 
 void SolveSpaceUI::ScheduleShowTW() {
-    showTWTimer->RunAfterProcessingEvents();
+    scheduledShowTW = true;
+    refreshTimer->RunAfterProcessingEvents();
 }
 
 void SolveSpaceUI::ScheduleAutosave() {
@@ -550,12 +570,18 @@ bool SolveSpaceUI::GetFilenameAndSave(bool saveAs) {
 
     if(saveAs || saveFile.IsEmpty()) {
         Platform::FileDialogRef dialog = Platform::CreateSaveFileDialog(GW.window);
+        // FIXME(emscripten):
+        dbp("Calling AddFilter()...");
         dialog->AddFilter(C_("file-type", "SolveSpace models"), { SKETCH_EXT });
+        dbp("Calling ThawChoices()...");
         dialog->ThawChoices(settings, "Sketch");
         if(!newSaveFile.IsEmpty()) {
+            dbp("Calling SetFilename()...");
             dialog->SetFilename(newSaveFile);
         }
+        dbp("Calling RunModal()...");
         if(dialog->RunModal()) {
+            dbp("Calling FreezeChoices()...");
             dialog->FreezeChoices(settings, "Sketch");
             newSaveFile = dialog->GetFilename();
         } else {
@@ -568,6 +594,9 @@ bool SolveSpaceUI::GetFilenameAndSave(bool saveAs) {
         RemoveAutosave();
         saveFile = newSaveFile;
         unsaved = false;
+        if (this->OnSaveFinished) {
+            this->OnSaveFinished(newSaveFile, saveAs, false);
+        }
         return true;
     } else {
         return false;
@@ -579,7 +608,11 @@ void SolveSpaceUI::Autosave()
     ScheduleAutosave();
 
     if(!saveFile.IsEmpty() && unsaved) {
-        SaveToFile(saveFile.WithExtension(BACKUP_EXT));
+        Platform::Path saveFileName = saveFile.WithExtension(BACKUP_EXT);
+        SaveToFile(saveFileName);
+        if (this->OnSaveFinished) {
+            this->OnSaveFinished(saveFileName, false, true);
+        }
     }
 }
 
@@ -679,6 +712,9 @@ void SolveSpaceUI::MenuFile(Command id) {
             if(dialog->RunModal()) {
                 dialog->FreezeChoices(settings, "ExportImage");
                 SS.ExportAsPngTo(dialog->GetFilename());
+                if (SS.OnSaveFinished) {
+                    SS.OnSaveFinished(dialog->GetFilename(), false, false);
+                }
             }
             break;
         }
@@ -693,10 +729,8 @@ void SolveSpaceUI::MenuFile(Command id) {
 
             // If the user is exporting something where it would be
             // inappropriate to include the constraints, then warn.
-            if(SS.GW.showConstraints &&
-                (dialog->GetFilename().HasExtension("txt") ||
-                 fabs(SS.exportOffset) > LENGTH_EPS))
-            {
+            if(SS.GW.showConstraints != GraphicsWindow::ShowConstraintMode::SCM_NOSHOW &&
+               (dialog->GetFilename().HasExtension("txt") || fabs(SS.exportOffset) > LENGTH_EPS)) {
                 Message(_("Constraints are currently shown, and will be exported "
                           "in the toolpath. This is probably not what you want; "
                           "hide them by clicking the link at the top of the "
@@ -704,6 +738,9 @@ void SolveSpaceUI::MenuFile(Command id) {
             }
 
             SS.ExportViewOrWireframeTo(dialog->GetFilename(), /*exportWireframe=*/false);
+            if (SS.OnSaveFinished) {
+                SS.OnSaveFinished(dialog->GetFilename(), false, false);
+            }
             break;
         }
 
@@ -716,6 +753,9 @@ void SolveSpaceUI::MenuFile(Command id) {
             dialog->FreezeChoices(settings, "ExportWireframe");
 
             SS.ExportViewOrWireframeTo(dialog->GetFilename(), /*exportWireframe*/true);
+            if (SS.OnSaveFinished) {
+                SS.OnSaveFinished(dialog->GetFilename(), false, false);
+            }
             break;
         }
 
@@ -728,6 +768,9 @@ void SolveSpaceUI::MenuFile(Command id) {
             dialog->FreezeChoices(settings, "ExportSection");
 
             SS.ExportSectionTo(dialog->GetFilename());
+            if (SS.OnSaveFinished) {
+                SS.OnSaveFinished(dialog->GetFilename(), false, false);
+            }
             break;
         }
 
@@ -740,6 +783,10 @@ void SolveSpaceUI::MenuFile(Command id) {
             dialog->FreezeChoices(settings, "ExportMesh");
 
             SS.ExportMeshTo(dialog->GetFilename());
+            if (SS.OnSaveFinished) {
+                SS.OnSaveFinished(dialog->GetFilename(), false, false);
+            }
+
             break;
         }
 
@@ -753,6 +800,9 @@ void SolveSpaceUI::MenuFile(Command id) {
 
             StepFileWriter sfw = {};
             sfw.ExportSurfacesTo(dialog->GetFilename());
+            if (SS.OnSaveFinished) {
+                SS.OnSaveFinished(dialog->GetFilename(), false, false);
+            }
             break;
         }
 
@@ -1053,7 +1103,7 @@ void SolveSpaceUI::MenuHelp(Command id) {
 "law. For details, visit http://gnu.org/licenses/\n"
 "\n"
 "© 2008-%d Jonathan Westhues and other authors.\n"),
-PACKAGE_VERSION, 2022);
+PACKAGE_VERSION, 2023);
             break;
 
         case Command::GITHUB:

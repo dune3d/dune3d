@@ -442,11 +442,13 @@ public:
     static void ScreenShowEditView(int link, uint32_t v);
     static void ScreenGoToWebsite(int link, uint32_t v);
 
+    static void ScreenChangeArcDimDefault(int link, uint32_t v);
     static void ScreenChangeFixExportColors(int link, uint32_t v);
     static void ScreenChangeExportBackgroundColor(int link, uint32_t v);
     static void ScreenChangeBackFaces(int link, uint32_t v);
     static void ScreenChangeShowContourAreas(int link, uint32_t v);
     static void ScreenChangeCheckClosedContour(int link, uint32_t v);
+    static void ScreenChangeCameraNav(int link, uint32_t v);
     static void ScreenChangeTurntableNav(int link, uint32_t v);
     static void ScreenChangeImmediatelyEditDimension(int link, uint32_t v);
     static void ScreenChangeAutomaticLineConstraints(int link, uint32_t v);
@@ -750,6 +752,7 @@ public:
     Selection hover;
     bool hoverWasSelectedOnMousedown;
     List<Selection> selection;
+    const unsigned MAX_SELECTABLE_FACES = 3u;
 
     Selection ChooseFromHoverToSelect();
     Selection ChooseFromHoverToDrag();
@@ -800,12 +803,16 @@ public:
     bool ToolbarMouseDown(int x, int y);
     Command toolbarHovered;
 
+
     // This sets what gets displayed.
     bool    showWorkplanes;
     bool    showNormals;
     bool    showPoints;
     bool    showConstruction;
-    bool    showConstraints;
+
+    enum class ShowConstraintMode : unsigned { SCM_NOSHOW, SCM_SHOW_ALL, SCM_SHOW_DIM };
+    ShowConstraintMode showConstraints;
+
     bool    showTextWindow;
     bool    showShaded;
     bool    showEdges;
@@ -816,7 +823,7 @@ public:
     bool    showMesh;
     void ToggleBool(bool *v);
 
-    enum class DrawOccludedAs { INVISIBLE, STIPPLED, VISIBLE };
+    enum class DrawOccludedAs : unsigned { INVISIBLE, STIPPLED, VISIBLE };
     DrawOccludedAs drawOccludedAs;
 
     bool    showSnapGrid;

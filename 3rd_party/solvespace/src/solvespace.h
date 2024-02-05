@@ -573,11 +573,13 @@ public:
     double   gridSpacing;
     double   exportScale;
     double   exportOffset;
+    bool     arcDimDefaultDiameter;
     bool     fixExportColors;
     bool     exportBackgroundColor;
     bool     drawBackFaces;
     bool     showContourAreas;
     bool     checkClosedContour;
+    bool     cameraNav;
     bool     turntableNav;
     bool     immediatelyEditDimension;
     bool     automaticLineConstraints;
@@ -683,6 +685,7 @@ public:
     void NewFile();
     bool SaveToFile(const Platform::Path &filename);
     bool LoadAutosaveFor(const Platform::Path &filename);
+    std::function<void(const Platform::Path &filename, bool is_saveAs, bool is_autosave)> OnSaveFinished;
     bool LoadFromFile(const Platform::Path &filename, bool canCancel = false);
     void UpgradeLegacyData();
     bool LoadEntitiesFromFile(const Platform::Path &filename, EntityList *le,
@@ -793,9 +796,11 @@ public:
     // the sketch!
     bool allConsistent;
 
-    Platform::TimerRef showTWTimer;
-    Platform::TimerRef generateAllTimer;
+    bool scheduledGenerateAll;
+    bool scheduledShowTW;
+    Platform::TimerRef refreshTimer;
     Platform::TimerRef autosaveTimer;
+    void Refresh();
     void ScheduleShowTW();
     void ScheduleGenerateAll();
     void ScheduleAutosave();

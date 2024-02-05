@@ -59,7 +59,7 @@ hdiutil create -srcfolder "${app}" "${dmg}"
 codesign -s "${MACOS_DEVELOPER_ID}" --timestamp --options runtime -f --deep "${dmg}"
 
 # notarize and store request uuid in variable
-notarize_uuid=$(xcrun altool --notarize-app --primary-bundle-id "${bundle_id}" --username "${MACOS_APPSTORE_USERNAME}" --password "${MACOS_APPSTORE_APP_PASSWORD}" --file "${dmg}" 2>&1 | grep RequestUUID | awk '{print $3'})
+notarize_uuid=$(xcrun altool --notarize-app --primary-bundle-id "${bundle_id}" --username "${MACOS_APPSTORE_USERNAME}" --password "${MACOS_APPSTORE_APP_PASSWORD}" --file "${dmg}" | grep RequestUUID | awk '{print $3'})
 
 echo $notarize_uuid
 
@@ -72,12 +72,12 @@ do
     echo "Checking progress..."
     progress=$(xcrun altool --notarization-info "${notarize_uuid}" -u "${MACOS_APPSTORE_USERNAME}" -p "${MACOS_APPSTORE_APP_PASSWORD}" 2>&1)
     # echo "${progress}"
- 
+
     if [ $? -ne 0 ] || [[  "${progress}" =~ "Invalid" ]] ; then
         echo "Error with notarization. Exiting"
         break
     fi
- 
+
     if [[  "${progress}" =~ "success" ]]; then
         success=1
         break
