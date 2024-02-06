@@ -234,6 +234,29 @@ welcome-box</property>
                                     <property name="vexpand">True</property>
                                     <child>
                                       <object class="GtkImage">
+                                        <property name="icon-name">help-browser-symbolic</property>
+                                        <property name="icon-size">large</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="hexpand">True</property>
+                                        <property name="label">New here? Check out the &lt;a href="https://docs.dune3d.org/"&gt;documentation&lt;/a&gt; and the &lt;a href="https://docs.dune3d.org/en/latest/simple-part.html"&gt;tutorial&lt;/a&gt;.</property>
+                                        <property name="max-width-chars">0</property>
+                                        <property name="natural-wrap-mode">word</property>
+                                        <property name="use-markup">True</property>
+                                        <property name="wrap">True</property>
+                                        <property name="xalign">0.0</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="spacing">10</property>
+                                    <property name="valign">end</property>
+                                    <child>
+                                      <object class="GtkImage">
                                         <property name="icon-name">dialog-information-symbolic</property>
                                         <property name="icon-size">large</property>
                                       </object>
@@ -281,7 +304,6 @@ welcome-box</property>
                     </child>
                     <child type="overlay">
                       <object class="GtkBox" id="lollipop_box">
-                        <property name="can-target">False</property>
                         <property name="halign">end</property>
                         <property name="margin-end">10</property>
                         <property name="margin-top">10</property>
@@ -290,7 +312,6 @@ welcome-box</property>
                     </child>
                     <child type="overlay">
                       <object class="GtkRevealer" id="tool_bar">
-                        <property name="can-target">False</property>
                         <property name="transition-type">slide-up</property>
                         <property name="valign">end</property>
                         <child>
