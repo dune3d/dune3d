@@ -18,6 +18,7 @@
 #include "util/msd_animator.hpp"
 #include "clipping_planes.hpp"
 #include <glm/glm.hpp>
+#include <filesystem>
 
 namespace dune3d {
 class Canvas : public Gtk::GLArea, public ICanvas {
@@ -35,7 +36,7 @@ public:
     Canvas();
 
     void request_push();
-    void queue_pick();
+    void queue_pick(const std::filesystem::path &pick_path);
 
     void clear() override;
     VertexRef draw_point(glm::vec3 p) override;
@@ -224,6 +225,7 @@ private:
 
     enum class PickState { QUEUED, CURRENT, INVALID };
     PickState m_pick_state = PickState::INVALID;
+    std::filesystem::path m_pick_path;
 
     using pick_buf_t = uint32_t;
     std::vector<pick_buf_t> m_pick_buf;

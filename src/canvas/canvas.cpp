@@ -883,7 +883,7 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     GL_CHECK_ERROR
     if (m_pick_state == PickState::QUEUED) {
         m_pick_state = PickState::CURRENT;
-        std::ofstream ofs("/tmp/pick.txt");
+        std::ofstream ofs(m_pick_path.string());
         for (int y = 0; y < m_dev_height; y++) {
             for (int x = 0; x < m_dev_width; x++) {
                 ofs << m_pick_buf.at(x + y * m_dev_width) << " ";
@@ -936,9 +936,10 @@ void Canvas::request_push()
     queue_draw();
 }
 
-void Canvas::queue_pick()
+void Canvas::queue_pick(const std::filesystem::path &pick_path)
 {
     m_pick_state = PickState::QUEUED;
+    m_pick_path = pick_path;
     queue_draw();
 }
 

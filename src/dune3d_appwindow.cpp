@@ -86,8 +86,12 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_left_bar = refBuilder->get_widget<Gtk::Paned>("left_bar");
 
 
-    // auto pick_button = refBuilder->get_widget<Gtk::Button>("pick_button");
-    // pick_button->signal_clicked().connect([this] { get_canvas().queue_pick(); });
+    {
+        auto pick_button = refBuilder->get_widget<Gtk::Button>("pick_button");
+        pick_button->signal_clicked().connect(
+                [this] { get_canvas().queue_pick(m_app.get_preferences().canvas.pick_path); });
+        pick_button->set_visible(!app.get_preferences().canvas.pick_path.empty());
+    }
 
     m_header_bar = refBuilder->get_widget<Gtk::HeaderBar>("titlebar");
 

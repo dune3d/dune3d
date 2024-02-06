@@ -59,6 +59,12 @@
             <property name="icon-name">document-new-symbolic</property>
           </object>
         </child>
+        <child>
+          <object class="GtkButton" id="pick_button">
+            <property name="label">Pick</property>
+            <property name="tooltip-text">Dump pick bufffer</property>
+          </object>
+        </child>
         <child type="end">
           <object class="GtkBox">
             <property name="css-classes">linked</property>

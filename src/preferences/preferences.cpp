@@ -11,7 +11,7 @@
 #include "action/action_id.hpp"
 #include "action/action.hpp"
 #include "canvas/color_palette.hpp"
-#include <iostream>
+#include "util/fs_util.hpp"
 
 namespace dune3d {
 
@@ -221,6 +221,7 @@ json CanvasPreferences::serialize() const
     j["theme"] = theme;
     j["theme_variant"] = theme_variant_lut.lookup_reverse(theme_variant);
     j["dark_theme"] = dark_theme;
+    j["pick_path"] = path_to_string(pick_path);
     return j;
 }
 
@@ -269,6 +270,7 @@ void CanvasPreferences::load_from_json(const json &j)
     if (j.contains("theme_variant"))
         theme_variant = theme_variant_lut.lookup(j.at("theme_variant"), ThemeVariant::AUTO);
     dark_theme = j.value("dark_theme", false);
+    pick_path = path_from_string(j.value("pick_path", ""));
     load_colors_from_json(j);
 }
 
