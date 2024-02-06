@@ -677,22 +677,30 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
                 // only remove equation and param from system if expression doesn't contain
                 // parameters only referenced by this equation
                 auto &params    = equation_params.at(eq1);
-                bool can_remove = true;
-                for(auto para : params) {
-                    if(para == p.h.v) // this parameter, don't care
-                        continue;
-                    auto &eqs        = param_equation_usage.at(para);
-                    unsigned int neq = 0;
-                    for(auto &e : eqs) {
-                        if(e.first == eq1)
+
+                // we can only remove this eq/param if it's of the form 0=a-b
+                // with either a or being the param to be removed
+                bool can_remove = (eq1->e->op == Expr::Op::MINUS)
+                    && (eq1->e->a->op == Expr::Op::PARAM)
+                    && (eq1->e->a->parh == p.h);
+
+                if(can_remove) {
+                    for(auto para : params) {
+                        if(para == p.h.v) // this parameter, don't care
                             continue;
-                        if(e.first->tag != 0 && e.first->tag < tag1)
-                            continue;
-                        neq++;
-                    }
-                    if(neq == 0) {
-                        can_remove = false;
-                        break;
+                        auto &eqs        = param_equation_usage.at(para);
+                        unsigned int neq = 0;
+                        for(auto &e : eqs) {
+                            if(e.first == eq1)
+                                continue;
+                            if(e.first->tag != 0 && e.first->tag < tag1)
+                                continue;
+                            neq++;
+                        }
+                        if(neq == 0) {
+                            can_remove = false;
+                            break;
+                        }
                     }
                 }
 
