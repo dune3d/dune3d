@@ -492,9 +492,9 @@ void System::add(const GroupExtrude &group)
             AddEq(hg, &m_sys->eq, pa.y->Minus(exp1.y), eqi++);
             AddEq(hg, &m_sys->eq, pa.z->Minus(exp1.z), eqi++);
 
-            AddEq(hg, &m_sys->eq, exp2.x->Minus(exp1.x)->Minus(direction.x), eqi++);
-            AddEq(hg, &m_sys->eq, exp2.y->Minus(exp1.y)->Minus(direction.y), eqi++);
-            AddEq(hg, &m_sys->eq, exp2.z->Minus(exp1.z)->Minus(direction.z), eqi++);
+            AddEq(hg, &m_sys->eq, exp2.x->Minus(exp1.x->Plus(direction.x)), eqi++);
+            AddEq(hg, &m_sys->eq, exp2.y->Minus(exp1.y->Plus(direction.y)), eqi++);
+            AddEq(hg, &m_sys->eq, exp2.z->Minus(exp1.z->Plus(direction.z)), eqi++);
         }
 
         for (const auto &[uu, it] : m_doc.m_entities) {
@@ -517,9 +517,9 @@ void System::add(const GroupExtrude &group)
                         EntityBase *enew = SK.GetEntity({en_new_p});
                         ExprVector exorig = eorig->PointGetExprs();
                         ExprVector exnew = enew->PointGetExprs();
-                        AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(direction.x), eqi++);
-                        AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(direction.y), eqi++);
-                        AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z)->Minus(direction.z), eqi++);
+                        AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x->Plus(direction.x)), eqi++);
+                        AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y->Plus(direction.y)), eqi++);
+                        AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z->Plus(direction.z)), eqi++);
                     }
                 }
 
@@ -555,9 +555,9 @@ void System::add(const GroupExtrude &group)
                     EntityBase *enew = SK.GetEntity({en_new_p});
                     ExprVector exorig = eorig->PointGetExprs();
                     ExprVector exnew = enew->PointGetExprs();
-                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(direction.x), eqi++);
-                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(direction.y), eqi++);
-                    AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z)->Minus(direction.z), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x->Plus(direction.x)), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y->Plus(direction.y)), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z->Plus(direction.z)), eqi++);
                 }
                 {
                     auto en_orig_n = get_entity_ref(EntityRef{arc.m_wrkpl, 2});
@@ -587,9 +587,9 @@ void System::add(const GroupExtrude &group)
                     EntityBase *enew = SK.GetEntity({en_new_p});
                     ExprVector exorig = eorig->PointGetExprs();
                     ExprVector exnew = enew->PointGetExprs();
-                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(direction.x), eqi++);
-                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(direction.y), eqi++);
-                    AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z)->Minus(direction.z), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x->Plus(direction.x)), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y->Plus(direction.y)), eqi++);
+                    AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z->Plus(direction.z)), eqi++);
                 }
 
                 {
@@ -866,8 +866,8 @@ void System::add(const GroupLinearArray &group)
                                                              unsigned int instance) {
         auto direction_scaled = direction.ScaledBy(Expr::From(instance));
         ExprVector shift2 = direction_scaled.Plus(offset);
-        AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift2.x), eqi++);
-        AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift2.y), eqi++);
+        AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x->Plus(shift2.x)), eqi++);
+        AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y->Plus(shift2.y)), eqi++);
     };
     auto create_eq3 = [this, &hg, &eqi, &direction, &offset, &group](const ExprVector &exorig, const ExprVector &exnew,
                                                                      unsigned int instance) {
@@ -879,9 +879,9 @@ void System::add(const GroupLinearArray &group)
             auto en_normal = SK.GetEntity({get_entity_ref(EntityRef{group.m_active_wrkpl, 2})});
             shift3 = en_normal->NormalGetExprs().Rotate(shift2);
         }
-        AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x)->Minus(shift3.x), eqi++);
-        AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y)->Minus(shift3.y), eqi++);
-        AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z)->Minus(shift3.z), eqi++);
+        AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x->Plus(shift3.x)), eqi++);
+        AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y->Plus(shift3.y)), eqi++);
+        AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z->Plus(shift3.z)), eqi++);
     };
     auto create_eq_n = [this, &hg, &eqi](const ExprQuaternion &normal_orig, const ExprQuaternion &normal_new,
                                          unsigned int instance) {
