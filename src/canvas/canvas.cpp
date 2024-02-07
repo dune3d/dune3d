@@ -854,14 +854,14 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     // glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     m_point_renderer.render();
     m_line_renderer.render();
-    glEnable(GL_BLEND);
+    glEnablei(GL_BLEND, 0);
     m_glyph_renderer.render();
     m_glyph_3d_renderer.render();
     m_icon_renderer.render();
     glDisable(GL_DEPTH_TEST);
     m_box_selection.render();
     glEnable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+    glDisablei(GL_BLEND, 0);
     // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     GL_CHECK_ERROR
 
