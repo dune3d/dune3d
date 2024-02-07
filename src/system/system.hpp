@@ -26,7 +26,15 @@ class System : private EntityVisitor, private ConstraintVisitor {
 public:
     System(Document &doc, const UUID &group);
 
-    bool solve();
+    enum class SolveResult {
+        OKAY,
+        DIDNT_CONVERGE,
+        REDUNDANT_OKAY,
+        REDUNDANT_DIDNT_CONVERGE,
+        TOO_MANY_UNKNOWNS,
+    };
+
+    SolveResult solve();
 
     void update_document();
 
