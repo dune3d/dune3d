@@ -31,14 +31,17 @@ void main() {
     texcoord_to_fragment = vec2(glyph.x,glyph.y)/1024;
 	EmitVertex();
 	
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+right;
     texcoord_to_fragment = vec2(glyph.x+glyph.w,glyph.y)/1024;
 	EmitVertex();
 	
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+up;
     texcoord_to_fragment = vec2(glyph.x,glyph.y+glyph.h)/1024;
 	EmitVertex();
     
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+right+up;
     texcoord_to_fragment = vec2(glyph.x+glyph.w,glyph.y+glyph.h)/1024;
 	EmitVertex();

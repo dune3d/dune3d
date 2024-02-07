@@ -53,14 +53,17 @@ void main() {
     texcoord_to_fragment = icon_pos/texture_size;
 	EmitVertex();
 	
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+shift + vec4(scale_size(rot(v, vec2(1, -1))),0,0);
     texcoord_to_fragment = (icon_pos+vec2(icon_size,0))/texture_size;
 	EmitVertex();
 	
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+shift + vec4(scale_size(rot(v, vec2(-1, 1))),0,0);
     texcoord_to_fragment = (icon_pos+vec2(0,icon_size))/texture_size;
 	EmitVertex();
     
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+shift + vec4(scale_size(rot(v, vec2(1, 1))),0,0);
     texcoord_to_fragment = (icon_pos+vec2(icon_size,icon_size))/texture_size;
 	EmitVertex();

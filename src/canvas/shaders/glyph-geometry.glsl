@@ -36,14 +36,17 @@ void main() {
     texcoord_to_fragment = vec2(glyph.x,glyph.y)/1024;
 	EmitVertex();
 	
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+shift+vec4(size.x, 0,0,0);
     texcoord_to_fragment = vec2(glyph.x+glyph.w,glyph.y)/1024;
 	EmitVertex();
 	
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+shift+vec4(0, size.y,0,0);
     texcoord_to_fragment = vec2(glyph.x,glyph.y+glyph.h)/1024;
 	EmitVertex();
     
+	pick_to_frag = pick_to_geom[0];
 	gl_Position = o+shift+vec4(size.x, size.y,0,0);
     texcoord_to_fragment = vec2(glyph.x+glyph.w,glyph.y+glyph.h)/1024;
 	EmitVertex();
