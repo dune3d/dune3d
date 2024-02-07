@@ -1110,11 +1110,11 @@ void System::add_dragged(const UUID &entity, unsigned int point)
     }
 }
 
-bool System::solve()
+System::SolveResult System::solve()
 {
     auto &gr = m_doc.get_group(m_solve_group);
     if (gr.get_type() == Group::Type::REFERENCE)
-        return false;
+        return SolveResult::OKAY;
 
     ::Group g = {};
     g.h.v = gr.get_index() + 1;
@@ -1123,7 +1123,7 @@ bool System::solve()
     List<hConstraint> bad = {};
     auto tbegin = clock();
     int dof = -2;
-    SolveResult how = m_sys->Solve(&g, NULL, &dof, &bad, false, /*andFindFree=*/false);
+    ::SolveResult how = m_sys->Solve(&g, NULL, &dof, &bad, false, /*andFindFree=*/false);
     auto tend = clock();
     std::cout << "how " << (int)how << " " << dof << " took " << (double)(tend - tbegin) / CLOCKS_PER_SEC << std::endl
               << std::endl;
@@ -1131,25 +1131,26 @@ bool System::solve()
     gr.m_dof = dof;
     gr.m_solve_messages.clear();
     switch (how) {
-    case SolveResult::DIDNT_CONVERGE:
+    case ::SolveResult::DIDNT_CONVERGE:
         gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "Solver did not converge");
-        break;
-    case SolveResult::REDUNDANT_DIDNT_CONVERGE:
+        return SolveResult::DIDNT_CONVERGE;
+
+    case ::SolveResult::REDUNDANT_DIDNT_CONVERGE:
         gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR,
                                          "Solver did not converge, redundant constraints");
-        break;
-    case SolveResult::OKAY:
-        break;
-    case SolveResult::REDUNDANT_OKAY:
+        return SolveResult::REDUNDANT_DIDNT_CONVERGE;
+
+    case ::SolveResult::OKAY:
+        return SolveResult::OKAY;
+
+    case ::SolveResult::REDUNDANT_OKAY:
         gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::WARN, "Redundant constraints");
-        break;
-    case SolveResult::TOO_MANY_UNKNOWNS:
+        return SolveResult::REDUNDANT_OKAY;
+
+    case ::SolveResult::TOO_MANY_UNKNOWNS:
         gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "Too many unknowns");
-        break;
+        return SolveResult::TOO_MANY_UNKNOWNS;
     }
-
-
-    return how == SolveResult::OKAY;
 }
 
 
