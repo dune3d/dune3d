@@ -210,6 +210,7 @@ void Canvas::setup_controllers()
             }
         });
         controller->signal_released().connect([this](int n_press, double x, double y) { end_pan(); });
+        controller->signal_cancel().connect([this](Gdk::EventSequence *) { end_pan(); });
         add_controller(controller);
     }
 
