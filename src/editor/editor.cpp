@@ -29,7 +29,9 @@
 #include "document/export_paths.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
 #include "document/constraint/iconstraint_workplane.hpp"
+#include "document/constraint/constraint_points_coincident.hpp"
 #include "widgets/clipping_plane_window.hpp"
+#include "system/system.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -116,6 +118,18 @@ void Editor::init()
     });
     m_clipping_plane_window->set_hide_on_close(true);
 
+    connect_action(ActionID::SELECT_UNDERCONSTRAINED, [this](const auto &a) {
+        auto &doc = m_core.get_current_document();
+        System sys{doc, m_core.get_current_group()};
+        std::set<EntityAndPoint> free_points;
+        sys.solve(&free_points);
+        std::set<SelectableRef> sel;
+        for (const auto &enp : free_points) {
+            sel.emplace(UUID(), SelectableRef::Type::ENTITY, enp.entity, enp.point);
+        }
+        get_canvas().set_selection(sel, true);
+        get_canvas().set_selection_mode(SelectionMode::NORMAL);
+    });
 
     update_action_sensitivity();
     reset_key_hint_label();
@@ -1180,6 +1194,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::TOGGLE_SOLID_MODEL] = m_core.has_documents();
     m_action_sensitivity[ActionID::NEW_DOCUMENT] = !m_core.has_documents();
     m_action_sensitivity[ActionID::TOGGLE_WORKPLANE] = m_core.has_documents();
+    m_action_sensitivity[ActionID::SELECT_UNDERCONSTRAINED] = m_core.has_documents();
     bool has_solid_model = false;
 
     for (const auto act : create_group_actions) {

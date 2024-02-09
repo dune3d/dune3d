@@ -1110,7 +1110,7 @@ void System::add_dragged(const UUID &entity, unsigned int point)
     }
 }
 
-System::SolveResult System::solve()
+System::SolveResult System::solve(std::set<EntityAndPoint> *free_points)
 {
     auto &gr = m_doc.get_group(m_solve_group);
     if (gr.get_type() == Group::Type::REFERENCE)
@@ -1123,13 +1123,24 @@ System::SolveResult System::solve()
     List<hConstraint> bad = {};
     auto tbegin = clock();
     int dof = -2;
-    ::SolveResult how = m_sys->Solve(&g, NULL, &dof, &bad, false, /*andFindFree=*/false);
+    ::SolveResult how = m_sys->Solve(&g, NULL, &dof, &bad, false, /*andFindFree=*/free_points != nullptr);
     auto tend = clock();
     std::cout << "how " << (int)how << " " << dof << " took " << (double)(tend - tbegin) / CLOCKS_PER_SEC << std::endl
               << std::endl;
 
     gr.m_dof = dof;
     gr.m_solve_messages.clear();
+
+    if (free_points) {
+        for (const auto &[idx, param_ref] : m_param_refs) {
+            if (SK.GetParam({idx})->free) {
+                if (param_ref.type == ParamRef::Type::ENTITY) {
+                    free_points->emplace(param_ref.item, param_ref.point);
+                }
+            }
+        }
+    }
+
     switch (how) {
     case ::SolveResult::DIDNT_CONVERGE:
         gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "Solver did not converge");

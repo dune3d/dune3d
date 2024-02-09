@@ -10,6 +10,7 @@
 #include "document/entity/entity_visitor.hpp"
 #include "document/constraint/constraint_visitor.hpp"
 #include "document/entity/entity_and_point.hpp"
+#include <set>
 
 
 namespace SolveSpace {
@@ -34,7 +35,7 @@ public:
         TOO_MANY_UNKNOWNS,
     };
 
-    SolveResult solve();
+    SolveResult solve(std::set<EntityAndPoint> *free_points = nullptr);
 
     void update_document();
 

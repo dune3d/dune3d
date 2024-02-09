@@ -434,6 +434,7 @@ struct Rearraged {
     Expr *rhs = nullptr;
 
     void isolate(hParam param);
+    bool rhs_is_free() const;
 };
 
 void Rearraged::isolate(hParam param) {
@@ -511,6 +512,34 @@ void Rearraged::isolate(hParam param) {
         ssassert(lhs->parh == param, "lhs param was not expected param");
     else
         ssassert(false, "Unexpected lhs");
+}
+
+void visit_free(const Expr &expr, bool &is_free) {
+    ssassert(expr.op != Expr::Op::PARAM,
+             "Expected an expression that refer to params via pointers");
+
+    if(expr.op == Expr::Op::PARAM_PTR) {
+        is_free |= expr.parp->free;
+    }
+    if(is_free)
+        return;
+
+    int c = expr.Children();
+    if(c == 0) {
+        return;
+    } else if(c == 1) {
+        visit_free(*expr.a, is_free);
+    } else if(c == 2) {
+        visit_free(*expr.a, is_free);
+        visit_free(*expr.b, is_free);
+    } else
+        ssassert(false, "Unexpected children count");
+}
+
+bool Rearraged::rhs_is_free() const {
+    bool is_free = false;
+    visit_free(*rhs, is_free);
+    return is_free;
 }
 
 static void add_expr(Expr *e, Equation *eq,
@@ -757,6 +786,7 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
     for(auto &p : param) {
         if(p.tag == VAR_SUBSTITUTED) {
             p.val = p.substd->val;
+            p.free = p.substd->free;
         }
     }
     
@@ -776,7 +806,10 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
             // std::cout << rearraged.lhs->Print() << " = " <<rearraged.rhs->Print() << std::endl;
             Param *pp = param.FindById(hParam{p});
             pp->val   = rearraged.rhs->Eval();
-            pp->known = true;
+            if(andFindFree)
+                pp->free = rearraged.rhs_is_free();
+            else
+                pp->free = false;
         }
         // std::cout << "---" << std::endl;
     }
@@ -784,6 +817,7 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
     for(auto &p : param) {
         if(p.tag == VAR_SUBSTITUTED) {
             p.val = p.substd->val;
+            p.free = p.substd->free;
         }
     }
 
