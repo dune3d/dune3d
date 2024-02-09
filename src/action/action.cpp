@@ -6,34 +6,6 @@
 
 namespace dune3d {
 
-std::string key_sequence_item_to_string(const KeySequenceItem &it)
-{
-    std::string txt;
-    std::string keyname(gdk_keyval_name(it.key));
-    if ((int)(it.mod & Gdk::ModifierType::CONTROL_MASK)) {
-        txt += "Ctrl+";
-    }
-    if ((int)(it.mod & Gdk::ModifierType::SHIFT_MASK)) {
-        txt += "Shift+";
-    }
-    if ((int)(it.mod & Gdk::ModifierType::ALT_MASK)) {
-        txt += "Alt+";
-    }
-    txt += keyname;
-    return txt;
-}
-
-std::string key_sequence_to_string(const KeySequence &keys)
-{
-    std::string txt;
-    for (const auto &it : keys) {
-        txt += key_sequence_item_to_string(it);
-        txt += " ";
-    }
-    rtrim(txt);
-    return txt;
-}
-
 static std::string keyval_to_string(unsigned int kv)
 {
     switch (kv) {
@@ -56,12 +28,52 @@ static std::string keyval_to_string(unsigned int kv)
     case GDK_KEY_greater:
         return ">";
     case GDK_KEY_BackSpace:
+#ifdef __APPLE__
+        return "Delete";
+    case GDK_KEY_Delete:
+#endif
         return "⌫";
     case GDK_KEY_Escape:
         return "Esc";
     default:
         return gdk_keyval_name(kv);
     }
+}
+
+std::string key_sequence_item_to_string(const KeySequenceItem &it)
+{
+    std::string txt;
+    std::string keyname = keyval_to_string(it.key);
+    if ((int)(it.mod & Gdk::ModifierType::CONTROL_MASK)) {
+#ifdef __APPLE__
+        txt += "⌘+";
+#else
+        txt += "Ctrl+";
+#endif
+    }
+    if ((int)(it.mod & Gdk::ModifierType::SHIFT_MASK)) {
+        txt += "Shift+";
+    }
+    if ((int)(it.mod & Gdk::ModifierType::ALT_MASK)) {
+#ifdef __APPLE__
+        txt += "Ctrl+";
+#else
+        txt += "Alt+";
+#endif
+    }
+    txt += keyname;
+    return txt;
+}
+
+std::string key_sequence_to_string(const KeySequence &keys)
+{
+    std::string txt;
+    for (const auto &it : keys) {
+        txt += key_sequence_item_to_string(it);
+        txt += " ";
+    }
+    rtrim(txt);
+    return txt;
 }
 
 std::string key_sequence_to_string_short(const KeySequence &keys)
