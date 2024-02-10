@@ -58,6 +58,10 @@ public:
     std::string m_name;
     int m_dof = -1;
     SolveResult m_solve_result = SolveResult::OKAY;
+    std::optional<std::vector<UUID>> m_bad_constraints;
+
+    std::set<UUID> find_redundant_constraints(Document &doc);
+
     auto get_index() const
     {
         return m_index;

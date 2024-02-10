@@ -8,7 +8,7 @@ namespace dune3d {
 class Document;
 
 
-class ConstraintsBox : public Gtk::ScrolledWindow, public Changeable {
+class ConstraintsBox : public Gtk::Box, public Changeable {
 public:
     ConstraintsBox(class Core &c);
 
@@ -22,9 +22,12 @@ public:
 
 private:
     Gtk::ListView *m_view = nullptr;
+    Gtk::CheckButton *m_redundant_only_cb = nullptr;
     Glib::RefPtr<Gtk::SingleSelection> m_selection_model;
     Core &m_core;
+    void update_internal();
 
     type_signal_constraint_selected m_signal_constraint_selected;
+    bool m_updating = false;
 };
 } // namespace dune3d

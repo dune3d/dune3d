@@ -5,6 +5,8 @@
 #include "document/entity/entity.hpp"
 #include "document/constraint/constraint.hpp"
 #include "util/json_util.hpp"
+#include "util/template_util.hpp"
+#include "system/system.hpp"
 
 namespace dune3d {
 
@@ -162,6 +164,25 @@ json Group::serialize(const Document &doc) const
 {
     return serialize();
 }
+
+std::set<UUID> Group::find_redundant_constraints(Document &doc)
+{
+    if (!any_of(m_solve_result, SolveResult::REDUNDANT_OKAY, SolveResult::REDUNDANT_DIDNT_CONVERGE))
+        return {};
+    std::set<UUID> bad;
+    for (const auto &[uu_constraint, constraint] : doc.m_constraints) {
+        if (constraint->m_group != m_uuid)
+            continue;
+        System sys{doc, m_uuid, uu_constraint};
+        const auto result = sys.solve();
+        if (result.result == SolveResult::OKAY) {
+            bad.insert(uu_constraint);
+        }
+    }
+
+    return bad;
+}
+
 
 Group::~Group() = default;
 } // namespace dune3d
