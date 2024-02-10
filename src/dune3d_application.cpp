@@ -99,6 +99,7 @@ void Dune3DApplication::on_startup()
     }
 
     m_log_window = new LogWindow();
+    m_log_window->set_hide_on_close(true);
     m_log_dispatcher.set_handler([this](const auto &it) { m_log_window->get_view().push_log(it); });
     Logger::get().set_log_handler([this](const Logger::Item &it) { m_log_dispatcher.log(it); });
 
