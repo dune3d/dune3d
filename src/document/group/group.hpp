@@ -2,6 +2,7 @@
 #include "util/uuid.hpp"
 #include "util/badge.hpp"
 #include "nlohmann/json_fwd.hpp"
+#include "system/solve_result.hpp"
 #include <memory>
 #include <optional>
 #include <list>
@@ -56,6 +57,7 @@ public:
 
     std::string m_name;
     int m_dof = -1;
+    SolveResult m_solve_result = SolveResult::OKAY;
     auto get_index() const
     {
         return m_index;

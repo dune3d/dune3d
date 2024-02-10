@@ -15,6 +15,8 @@
 #include <set>
 #include <algorithm>
 #include <iostream>
+#include <glibmm.h>
+#include "util/template_util.hpp"
 #include "entity/entity_and_point.hpp"
 
 namespace dune3d {
@@ -246,13 +248,39 @@ void Document::solve_group(Group &group, const std::vector<EntityAndPoint> &drag
 {
     if (group.get_type() == Group::Type::REFERENCE) {
         group.m_dof = 0;
+        group.m_solve_result = SolveResult::OKAY;
         return;
     }
     System system{*this, group.m_uuid};
     for (const auto &[en, pt] : dragged) {
         system.add_dragged(en, pt);
     }
-    system.solve();
+    const auto res = system.solve();
+    group.m_solve_result = res.result;
+    group.m_dof = res.dof;
+    group.m_solve_messages.clear();
+    switch (res.result) {
+    case SolveResult::DIDNT_CONVERGE:
+        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "Solver did not converge");
+        break;
+
+    case SolveResult::REDUNDANT_DIDNT_CONVERGE:
+        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR,
+                                            "Solver did not converge, redundant constraints");
+        break;
+
+    case SolveResult::OKAY:
+        break;
+
+    case SolveResult::REDUNDANT_OKAY:
+        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::WARN, "Redundant constraints");
+        break;
+
+    case SolveResult::TOO_MANY_UNKNOWNS:
+        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "Too many unknowns");
+        break;
+    }
+    group.m_bad_constraints.reset();
     system.update_document();
 }
 

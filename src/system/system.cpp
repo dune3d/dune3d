@@ -40,7 +40,7 @@ namespace dune3d {
 
 static std::mutex s_sys_mutex;
 
-System::System(Document &doc, const UUID &grp)
+System::System(Document &doc, const UUID &grp, const UUID &constraint_exclude)
     : m_sys(std::make_unique<SolveSpace::System>()), m_doc(doc), m_solve_group(grp), m_lock(s_sys_mutex)
 {
     for (auto &[uu, constraint] : m_doc.m_constraints) {
@@ -57,6 +57,8 @@ System::System(Document &doc, const UUID &grp)
     }
     for (const auto &[uu, constraint] : m_doc.m_constraints) {
         if (constraint->m_group != m_solve_group)
+            continue;
+        if (uu == constraint_exclude)
             continue;
         constraint->accept(*this);
     }
@@ -1110,11 +1112,11 @@ void System::add_dragged(const UUID &entity, unsigned int point)
     }
 }
 
-System::SolveResult System::solve(std::set<EntityAndPoint> *free_points)
+System::SolveResultWithDof System::solve(std::set<EntityAndPoint> *free_points)
 {
     auto &gr = m_doc.get_group(m_solve_group);
     if (gr.get_type() == Group::Type::REFERENCE)
-        return SolveResult::OKAY;
+        return {SolveResult::OKAY, 0};
 
     ::Group g = {};
     g.h.v = gr.get_index() + 1;
@@ -1128,9 +1130,6 @@ System::SolveResult System::solve(std::set<EntityAndPoint> *free_points)
     std::cout << "how " << (int)how << " " << dof << " took " << (double)(tend - tbegin) / CLOCKS_PER_SEC << std::endl
               << std::endl;
 
-    gr.m_dof = dof;
-    gr.m_solve_messages.clear();
-
     if (free_points) {
         for (const auto &[idx, param_ref] : m_param_refs) {
             if (SK.GetParam({idx})->free) {
@@ -1143,27 +1142,22 @@ System::SolveResult System::solve(std::set<EntityAndPoint> *free_points)
 
     switch (how) {
     case ::SolveResult::DIDNT_CONVERGE:
-        gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "Solver did not converge");
-        return SolveResult::DIDNT_CONVERGE;
+        return {SolveResult::DIDNT_CONVERGE, dof};
 
     case ::SolveResult::REDUNDANT_DIDNT_CONVERGE:
-        gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR,
-                                         "Solver did not converge, redundant constraints");
-        return SolveResult::REDUNDANT_DIDNT_CONVERGE;
+        return {SolveResult::REDUNDANT_DIDNT_CONVERGE, dof};
 
     case ::SolveResult::OKAY:
-        return SolveResult::OKAY;
+        return {SolveResult::OKAY, dof};
 
     case ::SolveResult::REDUNDANT_OKAY:
-        gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::WARN, "Redundant constraints");
-        return SolveResult::REDUNDANT_OKAY;
+        return {SolveResult::REDUNDANT_OKAY, dof};
 
     case ::SolveResult::TOO_MANY_UNKNOWNS:
-        gr.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "Too many unknowns");
-        return SolveResult::TOO_MANY_UNKNOWNS;
+        return {SolveResult::TOO_MANY_UNKNOWNS, dof};
     }
 
-    return SolveResult::OKAY;
+    return {SolveResult::OKAY, 0};
 }
 
 

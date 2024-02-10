@@ -10,6 +10,7 @@
 #include "document/entity/entity_visitor.hpp"
 #include "document/constraint/constraint_visitor.hpp"
 #include "document/entity/entity_and_point.hpp"
+#include "solve_result.hpp"
 #include <set>
 
 
@@ -25,17 +26,13 @@ class Document;
 
 class System : private EntityVisitor, private ConstraintVisitor {
 public:
-    System(Document &doc, const UUID &group);
+    System(Document &doc, const UUID &group, const UUID &constraint_exclude = UUID());
 
-    enum class SolveResult {
-        OKAY,
-        DIDNT_CONVERGE,
-        REDUNDANT_OKAY,
-        REDUNDANT_DIDNT_CONVERGE,
-        TOO_MANY_UNKNOWNS,
+    struct SolveResultWithDof {
+        SolveResult result;
+        int dof;
     };
-
-    SolveResult solve(std::set<EntityAndPoint> *free_points = nullptr);
+    SolveResultWithDof solve(std::set<EntityAndPoint> *free_points = nullptr);
 
     void update_document();
 
