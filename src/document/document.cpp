@@ -309,10 +309,15 @@ UUID Document::get_group_rel(const UUID &group, int delta) const
 
 bool Document::reorder_group(const UUID &group_uu, const UUID &after)
 {
+    if (group_uu == after)
+        return false;
+
     auto groups_sorted = get_groups_sorted();
     decltype(groups_sorted) groups_new_order;
     groups_new_order.reserve(groups_sorted.size());
     const auto group_before = get_group_rel(group_uu, -1);
+    if (!group_before)
+        return false;
 
     for (auto gr : groups_sorted) {
         if (gr->m_uuid == group_uu)
