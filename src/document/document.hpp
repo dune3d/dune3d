@@ -16,6 +16,18 @@ class Constraint;
 class Group;
 class Body;
 
+struct ItemsToDelete {
+    std::set<UUID> entities;
+    std::set<UUID> groups;
+    std::set<UUID> constraints;
+    UUID get_first_group(const class Document &doc) const;
+
+    void append(const ItemsToDelete &other);
+    void subtract(const ItemsToDelete &other);
+    bool empty() const;
+    size_t size() const;
+};
+
 class Document {
 public:
     Document();
@@ -149,18 +161,6 @@ public:
     UUID get_group_after(const UUID &group, MoveGroup dir) const;
 
     bool reorder_group(const UUID &group, const UUID &after);
-
-    struct ItemsToDelete {
-        std::set<UUID> entities;
-        std::set<UUID> groups;
-        std::set<UUID> constraints;
-        UUID get_first_group(const Document &doc) const;
-
-        void append(const ItemsToDelete &other);
-        void subtract(const ItemsToDelete &other);
-        bool empty() const;
-        size_t size() const;
-    };
 
     ItemsToDelete get_additional_items_to_delete(const ItemsToDelete &items) const;
     void delete_items(const ItemsToDelete &items);

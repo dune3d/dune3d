@@ -180,7 +180,7 @@ void Editor::on_delete_current_group()
     doc.set_group_generate_pending(previous_group);
 
     {
-        Document::ItemsToDelete items;
+        ItemsToDelete items;
         items.groups = {group.m_uuid};
         auto exra_items = doc.get_additional_items_to_delete(items);
         items.append(exra_items);

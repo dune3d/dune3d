@@ -28,7 +28,7 @@ ToolResponse ToolDelete::begin(const ToolArgs &args)
 {
     auto &doc = get_doc();
 
-    Document::ItemsToDelete items_to_delete;
+    ItemsToDelete items_to_delete;
     const Group *first_anchor_group = nullptr;
     std::set<EntityAndPoint> deleted_anchors;
 

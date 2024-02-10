@@ -350,7 +350,7 @@ bool Document::reorder_group(const UUID &group_uu, const UUID &after)
     return true;
 }
 
-void Document::ItemsToDelete::append(const ItemsToDelete &other)
+void ItemsToDelete::append(const ItemsToDelete &other)
 {
     entities.insert(other.entities.begin(), other.entities.end());
     groups.insert(other.groups.begin(), other.groups.end());
@@ -364,19 +364,19 @@ static void subtract_set(std::set<UUID> &s, const std::set<UUID> &sub)
     }
 }
 
-void Document::ItemsToDelete::subtract(const ItemsToDelete &other)
+void ItemsToDelete::subtract(const ItemsToDelete &other)
 {
     subtract_set(entities, other.entities);
     subtract_set(groups, other.groups);
     subtract_set(constraints, other.constraints);
 }
 
-bool Document::ItemsToDelete::empty() const
+bool ItemsToDelete::empty() const
 {
     return entities.empty() && groups.empty() && constraints.empty();
 }
 
-size_t Document::ItemsToDelete::size() const
+size_t ItemsToDelete::size() const
 {
     return entities.size() + groups.size() + constraints.size();
 }
@@ -388,7 +388,7 @@ void Document::accumulate_first_group(const Group *&first_group, const UUID &gro
         first_group = &group;
 }
 
-UUID Document::ItemsToDelete::get_first_group(const Document &doc) const
+UUID ItemsToDelete::get_first_group(const Document &doc) const
 {
     const Group *first_group = nullptr;
     for (const auto &uu : groups) {
@@ -409,7 +409,7 @@ UUID Document::ItemsToDelete::get_first_group(const Document &doc) const
         return UUID();
 }
 
-Document::ItemsToDelete Document::get_additional_items_to_delete(const ItemsToDelete &items_initial) const
+ItemsToDelete Document::get_additional_items_to_delete(const ItemsToDelete &items_initial) const
 {
     ItemsToDelete items = items_initial;
 
