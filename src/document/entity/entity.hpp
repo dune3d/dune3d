@@ -67,6 +67,7 @@ public:
     bool m_construction = false;
 
     ItemKind m_kind = ItemKind::USER;
+    UUID m_generated_from;
     bool m_selection_invisible = false;
 
     bool m_visible = true;

@@ -70,7 +70,9 @@ std::unique_ptr<Entity> EntityCircle2D::clone() const
 
 std::set<UUID> EntityCircle2D::get_referenced_entities() const
 {
-    return {m_wrkpl};
+    auto ents = Entity::get_referenced_entities();
+    ents.insert(m_wrkpl);
+    return ents;
 }
 
 void EntityCircle2D::accept(EntityVisitor &visitor) const

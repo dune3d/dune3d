@@ -105,6 +105,8 @@ bool Entity::is_valid_point(unsigned int point) const
 
 std::set<UUID> Entity::get_referenced_entities() const
 {
+    if (m_generated_from)
+        return {m_generated_from};
     return {};
 }
 

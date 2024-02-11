@@ -112,6 +112,7 @@ void GroupLathe::generate_or_solve(Document &doc, GenerateOrSolve gen_or_solve) 
                 if (gen_or_solve == GenerateOrSolve::GENERATE) {
                     new_circle.m_group = m_uuid;
                     new_circle.m_kind = ItemKind::GENRERATED;
+                    new_circle.m_generated_from = uu;
                 }
             }
         }

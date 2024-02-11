@@ -66,7 +66,9 @@ std::unique_ptr<Entity> EntityPoint2D::clone() const
 
 std::set<UUID> EntityPoint2D::get_referenced_entities() const
 {
-    return {m_wrkpl};
+    auto ents = Entity::get_referenced_entities();
+    ents.insert(m_wrkpl);
+    return ents;
 }
 
 void EntityPoint2D::accept(EntityVisitor &visitor) const

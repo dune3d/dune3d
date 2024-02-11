@@ -68,6 +68,7 @@ void GroupArray::generate(Document &doc) const
                     new_line.m_p1 = transform(li.m_p1, instance);
                     new_line.m_p2 = transform(li.m_p2, instance);
                     new_line.m_kind = ItemKind::GENRERATED;
+                    new_line.m_generated_from = uu;
                     new_line.m_group = m_uuid;
                     new_line.m_wrkpl = li.m_wrkpl;
                 }
@@ -82,6 +83,7 @@ void GroupArray::generate(Document &doc) const
                     new_circle.m_center = transform(circle.m_center, instance);
                     new_circle.m_radius = circle.m_radius;
                     new_circle.m_kind = ItemKind::GENRERATED;
+                    new_circle.m_generated_from = uu;
                     new_circle.m_group = m_uuid;
                     new_circle.m_wrkpl = circle.m_wrkpl;
                 }
@@ -98,6 +100,7 @@ void GroupArray::generate(Document &doc) const
                     new_arc.m_to = transform(arc.m_to, instance);
                     new_arc.m_center = transform(arc.m_center, instance);
                     new_arc.m_kind = ItemKind::GENRERATED;
+                    new_arc.m_generated_from = uu;
                     new_arc.m_group = m_uuid;
                     new_arc.m_wrkpl = arc.m_wrkpl;
                 }
@@ -110,6 +113,7 @@ void GroupArray::generate(Document &doc) const
                     new_line.m_p1 = transform(doc, li.m_p1, instance);
                     new_line.m_p2 = transform(doc, li.m_p2, instance);
                     new_line.m_kind = ItemKind::GENRERATED;
+                    new_line.m_generated_from = uu;
                     new_line.m_group = m_uuid;
                 }
             }
@@ -121,6 +125,7 @@ void GroupArray::generate(Document &doc) const
                     new_circle.m_center = transform(doc, circle.m_center, instance);
                     new_circle.m_radius = circle.m_radius;
                     new_circle.m_kind = ItemKind::GENRERATED;
+                    new_circle.m_generated_from = uu;
                     new_circle.m_group = m_uuid;
                     new_circle.m_normal = circle.m_normal;
                 }
@@ -134,6 +139,7 @@ void GroupArray::generate(Document &doc) const
                     new_arc.m_to = transform(doc, arc.m_to, instance);
                     new_arc.m_center = transform(doc, arc.m_center, instance);
                     new_arc.m_kind = ItemKind::GENRERATED;
+                    new_arc.m_generated_from = uu;
                     new_arc.m_group = m_uuid;
                     new_arc.m_normal = arc.m_normal;
                 }

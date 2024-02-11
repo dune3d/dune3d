@@ -145,6 +145,7 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_line.m_p2 = wrkpl.transform(li.m_p2) + dvec;
                 new_line.m_group = m_uuid;
                 new_line.m_name = "copied";
+                new_line.m_generated_from = uu;
                 new_line.m_kind = ItemKind::GENRERATED;
             }
             for (unsigned int pt = 1; pt <= 2; pt++) {
@@ -155,6 +156,7 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_line.m_p2 = wrkpl.transform(li.get_point(pt, doc)) + dvec;
                 new_line.m_group = m_uuid;
                 new_line.m_name = "Extrusion" + std::to_string(pt);
+                new_line.m_generated_from = uu;
                 new_line.m_move_instead.clear();
                 new_line.m_move_instead.emplace(std::piecewise_construct, std::forward_as_tuple(1),
                                                 std::forward_as_tuple(li.m_uuid, pt));
@@ -176,6 +178,7 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_arc.m_group = m_uuid;
                 new_arc.m_normal = wrkpl.m_normal;
                 new_arc.m_kind = ItemKind::GENRERATED;
+                new_arc.m_generated_from = uu;
             }
         }
         else if (it->get_type() == Entity::Type::CIRCLE_2D) {
@@ -190,6 +193,7 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_circle.m_normal = wrkpl.m_normal;
                 new_circle.m_radius = circle.m_radius;
                 new_circle.m_kind = ItemKind::GENRERATED;
+                new_circle.m_generated_from = uu;
             }
             {
                 unsigned int pt = 1;
@@ -205,6 +209,7 @@ void GroupExtrude::generate(Document &doc, Side side) const
                                                 std::forward_as_tuple(circle.m_uuid, pt));
 
                 new_line.m_kind = ItemKind::GENRERATED;
+                new_line.m_generated_from = uu;
             }
         }
     }

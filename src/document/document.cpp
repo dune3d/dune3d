@@ -227,8 +227,10 @@ void Document::generate_group(Group &group)
 {
     if (auto gg = dynamic_cast<IGroupGenerate *>(&group)) {
         for (auto &[uu, it] : m_entities) {
-            if (it->m_group == group.m_uuid && it->m_kind == ItemKind::GENRERATED)
+            if (it->m_group == group.m_uuid && it->m_kind == ItemKind::GENRERATED) {
                 it->m_kind = ItemKind::GENRERATED_STALE;
+                it->m_generated_from = UUID();
+            }
         }
         gg->generate(*this);
         map_erase_if(m_entities, [&group](auto &x) {
