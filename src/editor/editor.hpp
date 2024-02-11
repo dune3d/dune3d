@@ -24,6 +24,7 @@ class WorkspaceBrowser;
 class Dune3DAppWindow;
 class Canvas;
 class ClippingPlaneWindow;
+class SelectionFilterWindow;
 enum class SelectionMode;
 
 class Editor : private EditorInterface {
@@ -216,5 +217,7 @@ private:
     std::vector<ConstraintType> m_constraint_tip_icons;
     glm::vec3 m_constraint_tip_pos;
     glm::vec3 m_constraint_tip_vec;
+
+    std::unique_ptr<SelectionFilterWindow> m_selection_filter_window;
 };
 } // namespace dune3d

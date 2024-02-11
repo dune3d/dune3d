@@ -127,6 +127,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Select underconstrained", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP,
          {"Select all entities in current group", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::SELECTION_FILTER, {"Selection filter", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -187,6 +188,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(TOGGLE_CLIPPING_PLANES),
         ACTION_LUT_ITEM(SELECT_UNDERCONSTRAINED),
         ACTION_LUT_ITEM(SELECT_ALL_ENTITIES_IN_CURRENT_GROUP),
+        ACTION_LUT_ITEM(SELECTION_FILTER),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \

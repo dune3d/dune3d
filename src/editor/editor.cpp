@@ -31,6 +31,7 @@
 #include "document/constraint/iconstraint_workplane.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "widgets/clipping_plane_window.hpp"
+#include "widgets/selection_filter_window.hpp"
 #include "system/system.hpp"
 #include <iostream>
 #include <format>
@@ -78,8 +79,6 @@ void Editor::init()
 
     m_preferences.signal_changed().connect(sigc::mem_fun(*this, &Editor::apply_preferences));
 
-    apply_preferences();
-
     m_core.signal_tool_changed().connect(sigc::mem_fun(*this, &Editor::handle_tool_change));
 
 
@@ -119,6 +118,13 @@ void Editor::init()
     });
     m_clipping_plane_window->set_hide_on_close(true);
 
+    m_selection_filter_window = std::make_unique<SelectionFilterWindow>(m_core);
+    m_selection_filter_window->set_transient_for(m_win);
+    m_selection_filter_window->set_hide_on_close(true);
+    connect_action(ActionID::SELECTION_FILTER, [this](const auto &a) { m_selection_filter_window->present(); });
+    get_canvas().set_selection_filter(*m_selection_filter_window);
+    m_selection_filter_window->signal_changed().connect(sigc::mem_fun(*this, &Editor::update_view_hints));
+
     connect_action(ActionID::SELECT_UNDERCONSTRAINED, [this](const auto &a) {
         auto &doc = m_core.get_current_document();
         System sys{doc, m_core.get_current_group()};
@@ -136,6 +142,8 @@ void Editor::init()
 
     update_action_sensitivity();
     reset_key_hint_label();
+
+    apply_preferences();
 }
 
 void Editor::add_tool_action(ActionToolID id, const std::string &action)
@@ -161,7 +169,9 @@ void Editor::init_view_options()
     });
 
     add_tool_action(ActionID::CLIPPING_PLANE_WINDOW, "clipping_planes");
+    add_tool_action(ActionID::SELECTION_FILTER, "selection_filter");
 
+    m_view_options_menu->append("Selection filter", "win.selection_filter");
     m_view_options_menu->append("Clipping planes", "win.clipping_planes");
     m_view_options_menu->append("Perspective projection", "win.perspective");
 
@@ -767,6 +777,8 @@ void Editor::update_view_hints()
             hints.push_back(s);
         }
     }
+    if (m_selection_filter_window->is_active())
+        hints.push_back("selection filtered");
     m_win.set_view_hints_label(hints);
 }
 

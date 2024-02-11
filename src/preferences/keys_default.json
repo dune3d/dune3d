@@ -833,5 +833,16 @@
                 }
             ]
         ]
+    },
+    {
+        "action": "SELECTION_FILTER",
+        "keys": [
+            [
+                {
+                    "key": "i",
+                    "mod": 4
+                }
+            ]
+        ]
     }
 ]

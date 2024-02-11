@@ -6,6 +6,7 @@
 #include "icon_texture_map.hpp"
 #include "util/min_max_accumulator.hpp"
 #include "logger/logger.hpp"
+#include "iselection_filter.hpp"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -497,10 +498,16 @@ Canvas::VertexRef Canvas::get_vertex_ref_for_pick(unsigned int pick) const
 
 std::optional<SelectableRef> Canvas::get_selectable_ref_for_vertex_ref(const VertexRef &vref) const
 {
-    if (m_vertex_to_selectable_map.contains(vref))
-        return m_vertex_to_selectable_map.at(vref);
-    else
+    if (m_vertex_to_selectable_map.contains(vref)) {
+        auto sr = m_vertex_to_selectable_map.at(vref);
+        if (!m_selection_filter || m_selection_filter->can_select(sr))
+            return sr;
+        else
+            return {};
+    }
+    else {
         return {};
+    }
 }
 
 std::optional<SelectableRef> Canvas::get_selectable_ref_for_pick(unsigned int pick) const

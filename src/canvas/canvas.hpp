@@ -21,6 +21,9 @@
 #include <filesystem>
 
 namespace dune3d {
+
+class ISelectionFilter;
+
 class Canvas : public Gtk::GLArea, public ICanvas {
 public:
     friend BackgroundRenderer;
@@ -169,6 +172,11 @@ public:
     void inhibit_drag_selection()
     {
         m_inhibit_drag_selection = true;
+    }
+
+    void set_selection_filter(const ISelectionFilter &filter)
+    {
+        m_selection_filter = &filter;
     }
 
     void setup_controllers();
@@ -502,6 +510,8 @@ private:
     bool have_spnav = false;
     void handle_spnav();
     sigc::connection spnav_connection;
+
+    const ISelectionFilter *m_selection_filter = nullptr;
 };
 
 } // namespace dune3d
