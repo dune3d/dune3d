@@ -58,6 +58,8 @@ public:
 
     void set_canvas_selection_mode(SelectionMode mode) override;
 
+    void show_delete_items_popup(const ItemsToDelete &items_selected, const ItemsToDelete &items_all) override;
+
     void open_file(const std::filesystem::path &path);
 
     ~Editor();

@@ -182,8 +182,10 @@ void Editor::on_delete_current_group()
     {
         ItemsToDelete items;
         items.groups = {group.m_uuid};
-        auto exra_items = doc.get_additional_items_to_delete(items);
-        items.append(exra_items);
+        const auto items_initial = items;
+        auto extra_items = doc.get_additional_items_to_delete(items);
+        items.append(extra_items);
+        show_delete_items_popup(items_initial, items);
         doc.delete_items(items);
     }
 

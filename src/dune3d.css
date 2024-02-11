@@ -40,3 +40,6 @@ button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
   padding: 0px 8px 0px 8px;
   border: 0px;
 }
+
+.delete-revealer {border-radius: 5px;}
+.delete-revealer button {border-radius: 0px;}

@@ -124,6 +124,16 @@ public:
     void set_view_hints_label(const std::vector<std::string> &s);
     void set_workplane_label(const std::string &s);
 
+    void show_delete_items_popup(const std::string &expander_label, const std::string &summary_label,
+                                 const std::string &detail_label);
+    void hide_delete_items_popup();
+
+    using type_signal_undo = sigc::signal<void()>;
+    type_signal_undo signal_undo()
+    {
+        return m_signal_undo;
+    }
+
 private:
     Dune3DApplication &m_app;
     Editor m_editor;
@@ -181,5 +191,23 @@ private:
     Gtk::Label *m_version_info_bar_label = nullptr;
 
     Gtk::Label *m_selection_mode_label = nullptr;
+
+    Gtk::Revealer *m_delete_revealer = nullptr;
+    Gtk::Expander *m_delete_expander = nullptr;
+    Gtk::Label *m_delete_detail_label = nullptr;
+    Gtk::Label *m_delete_close_label = nullptr;
+    Gtk::Button *m_delete_close_button = nullptr;
+    Gtk::Button *m_delete_undo_button = nullptr;
+    glm::vec2 m_delete_motion = {NAN, NAN};
+
+    sigc::connection m_delete_timeout_connection;
+    unsigned int m_delete_countdown = 0;
+    void update_delete_close_button_label();
+    void update_delete_detail_label();
+
+    std::string m_delete_summary;
+    std::string m_delete_detail;
+
+    type_signal_undo m_signal_undo;
 };
 } // namespace dune3d

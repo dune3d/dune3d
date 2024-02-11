@@ -303,6 +303,75 @@ welcome-box</property>
                         </child>
                       </object>
                     </child>
+                    <child type="overlay">
+                      <object class="GtkRevealer" id="delete_revealer">
+                        <property name="css-classes">osd
+delete-revealer</property>
+                        <property name="halign">center</property>
+                        <property name="margin-bottom">80</property>
+                        <property name="reveal-child">True</property>
+                        <property name="transition-type">none</property>
+                        <property name="valign">end</property>
+                        <child>
+                          <object class="GtkBox">
+                            <child>
+                              <object class="GtkBox">
+                                <property name="margin-bottom">10</property>
+                                <property name="margin-end">10</property>
+                                <property name="margin-start">10</property>
+                                <property name="margin-top">10</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkExpander" id="delete_expander">
+                                    <property name="label">Deleted....</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="delete_detail_label">
+                                    <property name="label">blah
+blah</property>
+                                    <property name="margin-start">10</property>
+                                    <property name="vexpand">True</property>
+                                    <property name="xalign">0.0</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="css-classes">linked</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkButton" id="delete_undo_button">
+                                    <property name="child">
+                                      <object class="GtkLabel">
+                                        <property name="label">Undo</property>
+                                        <property name="width-chars">7</property>
+                                        <property name="xalign">0.0</property>
+                                      </object>
+                                    </property>
+                                    <property name="vexpand">True</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="delete_close_button">
+                                    <property name="child">
+                                      <object class="GtkLabel" id="delete_close_label">
+                                        <property name="css-classes">tnum</property>
+                                        <property name="label">Close</property>
+                                        <property name="width-chars">7</property>
+                                        <property name="xalign">0.0</property>
+                                      </object>
+                                    </property>
+                                    <property name="vexpand">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                     <child>
                       <object class="GtkBox" id="canvas_box">
                         <property name="vexpand">True</property>

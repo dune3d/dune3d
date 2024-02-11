@@ -13,6 +13,7 @@ class ActionLabelInfo;
 class Dialogs;
 enum class SelectionMode;
 enum class ConstraintType;
+struct ItemsToDelete;
 
 class EditorInterface {
 public:
@@ -36,6 +37,8 @@ public:
     virtual bool get_use_workplane() const = 0;
 
     virtual void set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints) = 0;
+
+    virtual void show_delete_items_popup(const ItemsToDelete &items_selected, const ItemsToDelete &items_all) = 0;
 
     virtual Dialogs &get_dialogs() = 0;
 };

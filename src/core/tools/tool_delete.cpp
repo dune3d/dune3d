@@ -4,6 +4,7 @@
 #include "document/constraint/constraint.hpp"
 #include "document/group/group.hpp"
 #include "tool_common_impl.hpp"
+#include "editor/editor_interface.hpp"
 #include <iostream>
 #include <algorithm>
 
@@ -54,6 +55,7 @@ ToolResponse ToolDelete::begin(const ToolArgs &args)
         else if (sr.type == SelectableRef::Type::CONSTRAINT)
             items_to_delete.constraints.insert(sr.item);
     }
+    ItemsToDelete selected_items = items_to_delete;
 
     for (const auto &[uu, constr] : doc.m_constraints) {
         std::set<EntityAndPoint> isect;
@@ -64,16 +66,9 @@ ToolResponse ToolDelete::begin(const ToolArgs &args)
     }
 
     auto extra_items = doc.get_additional_items_to_delete(items_to_delete);
-    for (const auto &uu : extra_items.entities) {
-        std::cout << "delete entity " << (std::string)uu << std::endl;
-    }
-    for (const auto &uu : extra_items.groups) {
-        std::cout << "delete group " << (std::string)uu << std::endl;
-    }
-    for (const auto &uu : extra_items.constraints) {
-        std::cout << "delete constraint " << (std::string)uu << std::endl;
-    }
     items_to_delete.append(extra_items);
+
+    m_intf.show_delete_items_popup(selected_items, items_to_delete);
 
     doc.delete_items(items_to_delete);
 

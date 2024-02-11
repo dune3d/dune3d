@@ -5,6 +5,7 @@
 #include "widgets/recent_item_box.hpp"
 #include "util/fs_util.hpp"
 #include "util/gtk_util.hpp"
+#include <format>
 
 namespace dune3d {
 
@@ -176,6 +177,31 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_view_options_button = refBuilder->get_widget<Gtk::MenuButton>("view_options_button");
     m_view_hints_label = refBuilder->get_widget<Gtk::Label>("view_hints_label");
 
+    m_delete_revealer = refBuilder->get_widget<Gtk::Revealer>("delete_revealer");
+    m_delete_expander = refBuilder->get_widget<Gtk::Expander>("delete_expander");
+    m_delete_detail_label = refBuilder->get_widget<Gtk::Label>("delete_detail_label");
+    m_delete_undo_button = refBuilder->get_widget<Gtk::Button>("delete_undo_button");
+    m_delete_close_button = refBuilder->get_widget<Gtk::Button>("delete_close_button");
+    m_delete_close_label = refBuilder->get_widget<Gtk::Label>("delete_close_label");
+    {
+        auto controller = Gtk::EventControllerMotion::create();
+        controller->signal_motion().connect([this](double x, double y) {
+            if (isnan(m_delete_motion.x))
+                m_delete_motion = {x, y};
+            if (glm::length(m_delete_motion - glm::vec2(x, y)) > 8) {
+                m_delete_timeout_connection.disconnect();
+                update_delete_close_button_label();
+            }
+        });
+
+        m_delete_revealer->add_controller(controller);
+    }
+    m_delete_close_button->signal_clicked().connect(sigc::mem_fun(*this, &Dune3DAppWindow::hide_delete_items_popup));
+    hide_delete_items_popup();
+    m_delete_undo_button->signal_clicked().connect([this] { m_signal_undo.emit(); });
+    m_delete_expander->property_expanded().signal_changed().connect(
+            sigc::mem_fun(*this, &Dune3DAppWindow::update_delete_detail_label));
+
     set_view_hints_label({});
 
     update_recent_listbox(*m_welcome_recent_listbox, m_app);
@@ -343,5 +369,56 @@ void Dune3DAppWindow::set_workplane_label(const std::string &s)
 {
     m_workplane_label->set_text(s);
 }
+
+void Dune3DAppWindow::update_delete_close_button_label()
+{
+    std::string label = "Close";
+    if (m_delete_timeout_connection.connected())
+        label += std::format(" ({})", m_delete_countdown);
+    m_delete_close_label->set_text(label);
+}
+
+void Dune3DAppWindow::update_delete_detail_label()
+{
+    if (m_delete_expander->get_expanded())
+        m_delete_detail_label->set_label(m_delete_detail);
+    else
+        m_delete_detail_label->set_label(m_delete_summary);
+}
+
+void Dune3DAppWindow::show_delete_items_popup(const std::string &expander_label, const std::string &summary_label,
+                                              const std::string &detail_label)
+{
+    m_delete_motion = {NAN, NAN};
+    m_delete_expander->set_expanded(false);
+    m_delete_expander->set_label(expander_label);
+    m_delete_detail = detail_label;
+    m_delete_summary = summary_label;
+    update_delete_detail_label();
+
+    m_delete_countdown = 3;
+    m_delete_timeout_connection = Glib::signal_timeout().connect_seconds(
+            [this] {
+                if (m_delete_countdown <= 1) {
+                    hide_delete_items_popup();
+                    return false;
+                }
+
+                m_delete_countdown--;
+                update_delete_close_button_label();
+
+                return true;
+            },
+            1);
+    update_delete_close_button_label();
+    m_delete_revealer->set_visible(true);
+}
+
+void Dune3DAppWindow::hide_delete_items_popup()
+{
+    m_delete_revealer->set_visible(false);
+    m_delete_timeout_connection.disconnect();
+}
+
 
 } // namespace dune3d
