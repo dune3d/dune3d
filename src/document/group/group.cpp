@@ -73,6 +73,34 @@ json Group::serialize() const
     };
 }
 
+std::string Group::get_type_name(Type type)
+{
+    switch (type) {
+    case Type::SKETCH:
+        return "Sketch";
+    case Type::CHAMFER:
+        return "Chamfer";
+    case Type::EXTRUDE:
+        return "Extrude";
+    case Type::FILLET:
+        return "Fillet";
+    case Type::LATHE:
+        return "Lathe";
+    case Type::LINEAR_ARRAY:
+        return "Linear array";
+    case Type::POLAR_ARRAY:
+        return "Polar array";
+    case Type::REFERENCE:
+        return "Reference";
+    }
+    return "Group";
+}
+
+std::string Group::get_type_name() const
+{
+    return get_type_name(get_type());
+}
+
 std::unique_ptr<Group> Group::new_from_json(const UUID &uu, const json &j)
 {
     const auto type = j.at("type").get<Type>();

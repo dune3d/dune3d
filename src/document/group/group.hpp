@@ -47,6 +47,8 @@ public:
     UUID m_uuid;
     using Type = GroupType;
     virtual Type get_type() const = 0;
+    static std::string get_type_name(Type type);
+    std::string get_type_name() const;
 
     virtual ~Group();
     virtual json serialize() const;
