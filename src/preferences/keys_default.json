@@ -822,5 +822,16 @@
             ]
         ],
         "tool": "DRAW_RECTANGLE"
+    },
+    {
+        "action": "SELECT_ALL_ENTITIES_IN_CURRENT_GROUP",
+        "keys": [
+            [
+                {
+                    "key": "a",
+                    "mod": 4
+                }
+            ]
+        ]
     }
 ]

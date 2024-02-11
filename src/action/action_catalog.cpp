@@ -125,6 +125,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::FLIP_ARC, {"Flip arc", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::SELECT_UNDERCONSTRAINED,
          {"Select underconstrained", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP,
+         {"Select all entities in current group", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -184,6 +186,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(CLIPPING_PLANE_WINDOW),
         ACTION_LUT_ITEM(TOGGLE_CLIPPING_PLANES),
         ACTION_LUT_ITEM(SELECT_UNDERCONSTRAINED),
+        ACTION_LUT_ITEM(SELECT_ALL_ENTITIES_IN_CURRENT_GROUP),
 };
 
 #define TOOL_LUT_ITEM(x)                                                                                               \

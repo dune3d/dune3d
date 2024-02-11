@@ -725,6 +725,19 @@ void Editor::init_actions()
     connect_action(ActionID::EXPORT_PATHS_IN_CURRENT_GROUP, sigc::mem_fun(*this, &Editor::on_export_paths));
     connect_action(ActionID::EXPORT_PROJECTION, sigc::mem_fun(*this, &Editor::on_export_projection));
 
+    connect_action(ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP, [this](auto &a) {
+        auto &doc = m_core.get_current_document();
+        auto group = m_core.get_current_group();
+        std::set<SelectableRef> sel;
+        for (auto &[uu, en] : doc.m_entities) {
+            if (en->m_group == group)
+                sel.emplace(UUID(), SelectableRef::Type::ENTITY, uu, 0);
+        }
+        get_canvas().set_selection(sel, true);
+        get_canvas().set_selection_mode(SelectionMode::NORMAL);
+        return;
+    });
+
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
 }
 
@@ -1200,6 +1213,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::NEW_DOCUMENT] = !m_core.has_documents();
     m_action_sensitivity[ActionID::TOGGLE_WORKPLANE] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_UNDERCONSTRAINED] = m_core.has_documents();
+    m_action_sensitivity[ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP] = m_core.has_documents();
     bool has_solid_model = false;
 
     for (const auto act : create_group_actions) {
