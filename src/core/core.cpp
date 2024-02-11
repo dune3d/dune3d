@@ -474,10 +474,10 @@ bool Core::maybe_end_tool(const ToolResponse &r)
         m_tool.reset();
         m_signal_tool_changed.emit();
         if (r.result == ToolResponse::Result::COMMIT) {
-            set_needs_save(true);
             // const auto comment = action_catalog.at(tool_id_current).name;
             const auto comment = "tool";
             rebuild_internal(false, comment);
+            set_needs_save(true);
         }
         else if (r.result == ToolResponse::Result::REVERT) {
             get_current_document_info().revert();
