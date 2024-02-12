@@ -47,3 +47,4 @@ wix/version.wxi
 compile_commands.json
 *.kate-swp
 perf.data*
+result*
