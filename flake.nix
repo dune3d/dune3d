@@ -10,9 +10,9 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        inherit (pkgs) lib;
         stdenv = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.llvmPackages_17.stdenv
                   else pkgs.gcc13Stdenv;
-        pythonEnv = pkgs.python3.withPackages (p: [ p.pygobject3 ]);
       in
       {
         packages = rec {
@@ -29,8 +29,8 @@
                 pkgs.gobject-introspection
                 pkgs.pkg-config
                 pkgs.wrapGAppsHook
-                pythonEnv
-              ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+                (pkgs.python3.withPackages (p: [ p.pygobject3 ]))
+              ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
                 pkgs.desktopToDarwinBundle
               ];
 
@@ -40,20 +40,21 @@
                 pkgs.gtkmm4
                 pkgs.libepoxy
                 pkgs.libspnav
-                (if pkgs.hostPlatform.isLinux then pkgs.libuuid else pkgs.libossp_uuid)
+                (if stdenv.hostPlatform.isLinux then pkgs.libuuid else pkgs.libossp_uuid)
                 pkgs.opencascade-occt
               ];
 
-              meta = with pkgs.lib; {
+              meta = with lib; {
                 description = "Parametric 3D CAD";
                 homepage = "https://dune3d.org";
-                license = licenses.gpl3Only;
+                license = licenses.gpl3Plus;
                 platforms = platforms.unix;
                 mainProgram = "dune3d";
               };
             };
           default = dune3d;
         };
+
         apps = rec {
           dune3d = flake-utils.lib.mkApp { drv = self.packages.${system}.dune3d; };
           default = dune3d;
