@@ -113,6 +113,19 @@ jobs:
     needs: stylecheck
     steps:
     - uses: actions/checkout@v4
-    - uses: nixbuild/nix-quick-install-action@v26
+    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - name: Build
+      run: nix build .
+  
+  build-nix-macos:
+    strategy:
+      fail-fast: false
+    runs-on: macos-13
+    needs: stylecheck
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: DeterminateSystems/magic-nix-cache-action@main
     - name: Build
       run: nix build .
