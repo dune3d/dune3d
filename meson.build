@@ -19,9 +19,15 @@ glm = dependency('glm')
 opencascade = dependency('OpenCASCADE', method : 'cmake', required:target_machine.system() != 'darwin')
 if target_machine.system() == 'darwin'
   message('meson\'s framework handling on macos with the cmake method is broken, replacing')
-  brew_prefix_cmd = run_command('brew', '--prefix', check: true)
-  brew_prefix = brew_prefix_cmd.stdout().strip() + '/lib'
-  opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args:['-Wl,-L' + brew_prefix, '-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKSTL', '-lTKFillet'])
+  opencascade_link_args = []
+  brew = find_program('brew', required : false)
+  if brew.found()
+    brew_prefix_cmd = run_command('brew', '--prefix', check: true)
+    brew_prefix = brew_prefix_cmd.stdout().strip() + '/lib'
+    opencascade_link_args += ['-Wl,-L' + brew_prefix]
+  endif
+  opencascade_link_args += ['-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKSTL', '-lTKFillet']
+  opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args: opencascade_link_args)
 endif
 
 spnav = dependency('spnav', required: false)
