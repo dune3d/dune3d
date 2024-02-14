@@ -21,6 +21,7 @@
 #include "logger/logger.hpp"
 #include "document/constraint/constraint.hpp"
 #include "util/fs_util.hpp"
+#include "util/key_util.hpp"
 #include "util/util.hpp"
 #include "selection_editor.hpp"
 #include "preferences/color_presets.hpp"
@@ -1717,6 +1718,7 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
     if (ev->is_modifier())
         return false;
     state &= ~ev->get_consumed_modifiers();
+    remap_keys(keyval, state);
     state &= (Gdk::ModifierType::SHIFT_MASK | Gdk::ModifierType::CONTROL_MASK | Gdk::ModifierType::ALT_MASK);
     if (keyval == GDK_KEY_Escape) {
         if (!m_core.tool_is_active()) {

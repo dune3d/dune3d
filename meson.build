@@ -203,6 +203,7 @@ src = files(
   'src/util/msd.cpp',
   'src/util/msd_animator.cpp',
   'src/util/exception_util.cpp',
+  'src/util/key_util.cpp',
 )
 
 prog_python = find_program('python3')
