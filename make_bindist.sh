@@ -150,8 +150,7 @@ LIBS=(
 	libImath-3_1.dll\
 	libOpenEXRCore-3_2.dll\
 	libIlmThread-3_2.dll\
-	libEGL.dll\
-	libGLESv2.dll\
+	libzvbi-0.dll\
 	gspawn-win64-helper.exe\
 	gspawn-win64-helper-console.exe
 )
