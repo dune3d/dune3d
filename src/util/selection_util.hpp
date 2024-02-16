@@ -46,6 +46,8 @@ std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &do
 struct LinesAndPoint {
     std::array<UUID, 2> lines;
     EntityAndPoint point;
+
+    std::set<EntityAndPoint> get_enps() const;
 };
 
 std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);

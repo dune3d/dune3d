@@ -60,7 +60,7 @@ ToolBase::CanBegin ToolConstrainDistance::can_begin()
         return true;
     }
     else if (lps && m_tool_id == ToolID::CONSTRAIN_DISTANCE) {
-        auto constraints = get_doc().find_constraints(lp->get_enps());
+        auto constraints = get_doc().find_constraints(lps->get_enps());
         for (auto constraint : constraints) {
             if (constraint->of_type(Constraint::Type::POINT_PLANE_DISTANCE))
                 return false;

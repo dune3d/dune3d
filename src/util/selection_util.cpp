@@ -18,6 +18,12 @@ std::set<EntityAndPoint> LineAndPoint::get_enps() const
     return {{line, 0}, point};
 }
 
+std::set<EntityAndPoint> LinesAndPoint::get_enps() const
+{
+    return {{std::get<0>(lines), 0}, {std::get<1>(lines), 0}, point};
+}
+
+
 std::optional<TwoPoints> two_points_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
 {
     if (sel.size() == 1) {
