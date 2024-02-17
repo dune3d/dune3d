@@ -392,6 +392,8 @@ void Renderer::visit(const ConstraintPointDistance &constr)
         auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constr.m_wrkpl);
         p = wrkpl.project3(p);
         fallback_normal = wrkpl.get_normal_vector();
+        from = wrkpl.project3(from);
+        to = wrkpl.project3(to);
     }
 
     draw_distance_line(from, to, p, constr.m_distance, constr.m_uuid, fallback_normal);
@@ -451,14 +453,16 @@ void Renderer::visit(const ConstraintPointLineDistance &constr)
 {
     m_ca.set_vertex_constraint(true);
 
-    const auto pp = m_doc->get_point(constr.m_point);
-    const auto pproj = constr.get_projected(*m_doc);
+    auto pp = m_doc->get_point(constr.m_point);
+    auto pproj = constr.get_projected(*m_doc);
     auto p = constr.get_origin(*m_doc) + constr.m_offset;
     glm::vec3 fallback_normal = {NAN, NAN, NAN};
     if (constr.m_wrkpl) {
         auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constr.m_wrkpl);
         p = wrkpl.project3(p);
         fallback_normal = wrkpl.get_normal_vector();
+        pproj = wrkpl.project3(pproj);
+        pp = wrkpl.project3(pp);
     }
 
     draw_distance_line(pproj, pp, p, std::abs(constr.m_distance), constr.m_uuid, fallback_normal);
