@@ -152,8 +152,8 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 auto new_line_uu = get_extrusion_line_uuid(side, uu, pt);
 
                 auto &new_line = doc.get_or_add_entity<EntityLine3D>(new_line_uu);
-                new_line.m_p1 = wrkpl.transform(li.get_point(pt, doc));
-                new_line.m_p2 = wrkpl.transform(li.get_point(pt, doc)) + dvec;
+                new_line.m_p1 = wrkpl.transform(li.get_point_in_workplane(pt));
+                new_line.m_p2 = wrkpl.transform(li.get_point_in_workplane(pt)) + dvec;
                 new_line.m_group = m_uuid;
                 new_line.m_name = "Extrusion" + std::to_string(pt);
                 new_line.m_generated_from = uu;
@@ -200,8 +200,8 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 auto new_line_uu = get_extrusion_line_uuid(side, uu, pt);
 
                 auto &new_line = doc.get_or_add_entity<EntityLine3D>(new_line_uu);
-                new_line.m_p1 = wrkpl.transform(circle.get_point(pt, doc));
-                new_line.m_p2 = wrkpl.transform(circle.get_point(pt, doc)) + dvec;
+                new_line.m_p1 = wrkpl.transform(circle.get_point_in_workplane(pt));
+                new_line.m_p2 = wrkpl.transform(circle.get_point_in_workplane(pt)) + dvec;
                 new_line.m_group = m_uuid;
                 new_line.m_name = "Extrusion" + std::to_string(pt);
                 new_line.m_move_instead.clear();
