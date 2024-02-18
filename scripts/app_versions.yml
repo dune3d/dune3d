@@ -10,3 +10,4 @@ versions:
     8: add point/plane distance constraint
     9: add lock rotation constraint
     10: add intersection solid model operation
+    11: add point in workplane constraint

@@ -790,6 +790,12 @@ void Renderer::visit(const ConstraintPointInPlane &constraint)
     add_constraint(pt, IconID::CONSTRAINT_POINT_IN_PLANE, constraint.m_uuid);
 }
 
+void Renderer::visit(const ConstraintPointInWorkplane &constraint)
+{
+    auto pt = m_doc->get_point(constraint.m_point);
+    add_constraint(pt, IconID::CONSTRAINT_POINT_IN_PLANE, constraint.m_uuid);
+}
+
 void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)
 {
     using CT = Constraint::Type;

@@ -92,6 +92,7 @@ private:
     void visit(const ConstraintPointLineDistance &constr) override;
     void visit(const ConstraintPointPlaneDistance &constr) override;
     void visit(const ConstraintLockRotation &constr) override;
+    void visit(const ConstraintPointInWorkplane &constr) override;
     void add(const GroupExtrude &group);
     void add(const GroupLinearArray &group);
     void add(const GroupPolarArray &group);

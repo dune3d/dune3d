@@ -1646,6 +1646,19 @@ void System::visit(const ConstraintPointInPlane &constraint)
     AddEq(hConstraint{c}, &m_sys->eq, norm.Dot(v), 0);
 }
 
+void System::visit(const ConstraintPointInWorkplane &constraint)
+{
+    const auto c = n_constraint++;
+
+    auto en_wrkpl_p = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_wrkpl, 1})});
+    auto en_wrkpl_n = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_wrkpl, 2})});
+    auto en_p = SK.GetEntity({get_entity_ref(constraint.m_point)});
+    auto norm = en_wrkpl_n->NormalExprsN();
+    auto v = en_p->PointGetExprs().Minus(en_wrkpl_p->PointGetExprs());
+
+    AddEq(hConstraint{c}, &m_sys->eq, norm.Dot(v), 0);
+}
+
 void System::visit(const ConstraintPointPlaneDistance &constraint)
 {
     const auto c = n_constraint++;

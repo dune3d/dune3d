@@ -128,6 +128,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP,
          {"Select all entities in current group", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::SELECTION_FILTER, {"Selection filter", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_POINT_IN_WORKPLANE,
+         {"Constrain point in workplane", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -228,6 +230,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_ANGLE),
         TOOL_LUT_ITEM(CONSTRAIN_POINT_IN_PLANE),
         TOOL_LUT_ITEM(CONSTRAIN_LOCK_ROTATION),
+        TOOL_LUT_ITEM(CONSTRAIN_POINT_IN_WORKPLANE),
         TOOL_LUT_ITEM(ENTER_DATUM),
         TOOL_LUT_ITEM(ADD_ANCHOR),
         TOOL_LUT_ITEM(MOVE_ANCHOR),

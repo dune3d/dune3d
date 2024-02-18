@@ -67,6 +67,8 @@ std::string Constraint::get_type_name(Type type)
         return "Point/plane distance";
     case Type::LOCK_ROTATION:
         return "Lock rotation";
+    case Type::POINT_IN_WORKPLANE:
+        return "Point in workplane";
     }
     return "Constraint";
 }
@@ -109,6 +111,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                      {Constraint::Type::POINT_LINE_DISTANCE, "point_line_distance"},
                                      {Constraint::Type::POINT_PLANE_DISTANCE, "point_plane_distance"},
                                      {Constraint::Type::LOCK_ROTATION, "lock_rotation"},
+                                     {Constraint::Type::POINT_IN_WORKPLANE, "point_in_workplane"},
                              })
 
 json Constraint::serialize() const
@@ -170,6 +173,8 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintPointPlaneDistance>(uu, j);
     case Type::LOCK_ROTATION:
         return std::make_unique<ConstraintLockRotation>(uu, j);
+    case Type::POINT_IN_WORKPLANE:
+        return std::make_unique<ConstraintPointInWorkplane>(uu, j);
     }
     throw std::runtime_error("unknown constraint type");
 }
