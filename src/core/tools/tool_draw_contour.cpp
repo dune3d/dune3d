@@ -214,6 +214,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
         case InToolActionID::LMB: {
         case InToolActionID::LMB_DOUBLE:
             if (m_temp_arc && !m_placing_center && !(m_constrain_tangent && m_last_tangent_point)) {
+                constrain_point(m_wrkpl->m_uuid, {m_temp_arc->m_uuid, get_last_point()});
                 m_placing_center = true;
                 update_tip();
                 return ToolResponse();
