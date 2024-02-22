@@ -272,12 +272,11 @@ void FaceBuilder::visit_poly_path(const Clipper2Lib::PolyPathD &path)
             auto hole_wire = path_to_wire(hole_contour, true);
             make_face.Add(hole_wire);
         }
-        //   visit_poly_path(*poly_tree.Child(i));
+        for (auto &child2 : hole) {
+            visit_poly_path(*child2);
+        }
     }
-    // make_face.Add()
 
-    //
-    // make_face.Face()
     m_n_faces++;
     m_builder.Add(m_compound, make_face.Face());
 }
