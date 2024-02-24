@@ -229,24 +229,6 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
 
             m_last = get_cursor_pos_in_plane();
 
-            if (m_temp_line) {
-                if (auto ct = get_auto_constraint()) {
-                    ConstraintHV *constraint = nullptr;
-                    if (*ct == Constraint::Type::HORIZONTAL) {
-                        constraint = &add_constraint<ConstraintHorizontal>();
-                        m_temp_line->m_p2.y = m_temp_line->m_p1.y;
-                    }
-                    else if (*ct == Constraint::Type::VERTICAL) {
-                        constraint = &add_constraint<ConstraintVertical>();
-                        m_temp_line->m_p2.x = m_temp_line->m_p1.x;
-                    }
-                    assert(constraint);
-                    m_constraints.insert(constraint);
-                    constraint->m_entity1 = {m_temp_line->m_uuid, 1};
-                    constraint->m_entity2 = {m_temp_line->m_uuid, 2};
-                    constraint->m_wrkpl = m_wrkpl->m_uuid;
-                }
-            }
 
             auto last_point = get_last_point();
 
@@ -293,6 +275,8 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 m_last_tangent_point = {m_temp_arc->m_uuid, get_arc_head_point()};
             }
 
+            bool commit = false;
+
             if (m_constrain && m_entities.size()) {
                 if (constrain_point(m_wrkpl->m_uuid,
                                     {m_entities.back()->m_uuid, was_placing_center ? 3 : last_point})) {
@@ -308,11 +292,41 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                                 && std::ranges::find_if(path, [&hsel](const auto &x) {
                                        return x.second.entity.m_uuid == hsel->item;
                                    }) != path.end())
-                                return ToolResponse::commit();
+                                commit = true;
                         }
                     }
                 }
             }
+
+            if (auto ct = get_auto_constraint()) {
+                const auto redundant_before = current_group_has_redundant_constraints();
+                ConstraintHV *constraint = nullptr;
+                if (*ct == Constraint::Type::HORIZONTAL) {
+                    constraint = &add_constraint<ConstraintHorizontal>();
+                    m_temp_line->m_p2.y = m_temp_line->m_p1.y;
+                }
+                else if (*ct == Constraint::Type::VERTICAL) {
+                    constraint = &add_constraint<ConstraintVertical>();
+                    m_temp_line->m_p2.x = m_temp_line->m_p1.x;
+                }
+                assert(constraint);
+                constraint->m_entity1 = {m_temp_line->m_uuid, 1};
+                constraint->m_entity2 = {m_temp_line->m_uuid, 2};
+                constraint->m_wrkpl = m_wrkpl->m_uuid;
+                if (!redundant_before) {
+                    const auto redundant_after = current_group_has_redundant_constraints();
+                    if (redundant_after) {
+                        get_doc().m_constraints.erase(constraint->m_uuid);
+                        constraint = nullptr;
+                    }
+                }
+                if (constraint)
+                    m_constraints.insert(constraint);
+            }
+
+
+            if (commit)
+                return ToolResponse::commit();
 
             if (m_entities.size() && !is_draw_contour())
                 return ToolResponse::commit();

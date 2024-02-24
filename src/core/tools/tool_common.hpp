@@ -31,6 +31,7 @@ protected:
     void set_current_group_solve_pending();
     void set_current_group_generate_pending();
     void set_current_group_update_solid_model_pending();
+    bool current_group_has_redundant_constraints();
 
     UUID get_workplane_uuid();
     EntityWorkplane *get_workplane();

@@ -4,6 +4,7 @@
 #include "document/group/group.hpp"
 #include "editor/editor_interface.hpp"
 #include "canvas/selection_mode.hpp"
+#include "system/system.hpp"
 
 namespace dune3d {
 Document &ToolCommon::get_doc()
@@ -57,6 +58,13 @@ void ToolCommon::reset_selection_after_constrain()
 glm::dvec3 ToolCommon::get_cursor_pos_for_workplane(const EntityWorkplane &wrkpl) const
 {
     return m_intf.get_cursor_pos_for_plane(wrkpl.m_origin, wrkpl.get_normal_vector());
+}
+
+bool ToolCommon::current_group_has_redundant_constraints()
+{
+    System sys{get_doc(), m_core.get_current_group()};
+    const auto result = sys.solve();
+    return result.result != SolveResult::OKAY;
 }
 
 } // namespace dune3d
