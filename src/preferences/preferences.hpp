@@ -19,6 +19,7 @@ public:
     Appearance appearance;
 
     bool enable_animations = true;
+    bool error_overlay = true;
     bool dark_theme = false;
     std::string theme = "Default";
     enum class ThemeVariant { AUTO, DARK, LIGHT };

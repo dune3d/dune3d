@@ -219,5 +219,7 @@ private:
     glm::vec3 m_constraint_tip_vec;
 
     std::unique_ptr<SelectionFilterWindow> m_selection_filter_window;
+
+    void update_error_overlay();
 };
 } // namespace dune3d

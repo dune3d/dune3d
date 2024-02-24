@@ -1349,6 +1349,7 @@ void Editor::apply_preferences()
 
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     update_action_bar_visibility();
+    update_error_overlay();
     /*
         key_sequence_dialog->clear();
         for (const auto &it : action_connections) {
@@ -1455,6 +1456,19 @@ ActionConnection &Editor::connect_action(ActionToolID id, std::function<void(con
     return connect_action_with_source(id, [cb](const ActionConnection &conn, ActionSource) { cb(conn); });
 }
 
+void Editor::update_error_overlay()
+{
+    if (m_core.has_documents()) {
+        auto &doc = m_core.get_current_document();
+        auto &group = doc.get_group(m_core.get_current_group());
+        get_canvas().set_show_error_overlay(m_preferences.canvas.error_overlay
+                                            && group.m_solve_result != SolveResult::OKAY);
+    }
+    else {
+        get_canvas().set_show_error_overlay(false);
+    }
+}
+
 void Editor::canvas_update()
 {
     auto docs = m_core.get_documents();
@@ -1470,6 +1484,7 @@ void Editor::canvas_update()
         renderer.render(doc->get_document(), doc->get_current_group(), m_document_view);
     }
     get_canvas().set_hover_selection(hover_sel);
+    update_error_overlay();
     get_canvas().request_push();
 }
 

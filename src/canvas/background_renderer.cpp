@@ -52,6 +52,7 @@ void BackgroundRenderer::realize()
 
     GET_LOC(this, color_top);
     GET_LOC(this, color_bottom);
+    GET_LOC(this, alpha);
 }
 
 void BackgroundRenderer::render()
@@ -63,9 +64,29 @@ void BackgroundRenderer::render()
 
     gl_color_to_uniform_3f(m_color_top_loc, m_ca.m_appearance.get_color(ColorP::BACKGROUND_TOP));
     gl_color_to_uniform_3f(m_color_bottom_loc, m_ca.m_appearance.get_color(ColorP::BACKGROUND_BOTTOM));
+    glUniform1f(m_alpha_loc, 1);
     GL_CHECK_ERROR
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    GL_CHECK_ERROR
+}
+
+void BackgroundRenderer::render_error()
+{
+    glUseProgram(m_program);
+    GL_CHECK_ERROR
+    glBindVertexArray(m_vao);
+    GL_CHECK_ERROR
+
+    gl_color_to_uniform_3f(m_color_bottom_loc, m_ca.m_appearance.get_color(ColorP::ERROR_OVERLAY));
+    gl_color_to_uniform_3f(m_color_top_loc, m_ca.m_appearance.get_color(ColorP::ERROR_OVERLAY));
+    glUniform1f(m_alpha_loc, .25);
+    GL_CHECK_ERROR
+
+    glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
     GL_CHECK_ERROR
 }
 } // namespace dune3d

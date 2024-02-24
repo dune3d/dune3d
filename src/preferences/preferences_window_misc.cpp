@@ -24,6 +24,13 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
                     m_preferences, m_preferences.canvas.enable_animations);
             gr->add_row(*r);
         }
+        {
+            auto r = Gtk::make_managed<PreferencesRowBool>(
+                    "Enable error overlay",
+                    "Turn canvas red if there are redundant constraints or the sketch is overconstrained",
+                    m_preferences, m_preferences.canvas.error_overlay);
+            gr->add_row(*r);
+        }
     }
     {
         auto gr = Gtk::make_managed<PreferencesGroup>("Action Bar");

@@ -868,6 +868,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     m_icon_renderer.render();
     glDisable(GL_DEPTH_TEST);
     m_box_selection.render();
+    if (m_show_error_overlay)
+        m_background_renderer.render_error();
     glEnable(GL_DEPTH_TEST);
     glDisablei(GL_BLEND, 0);
     // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -1367,5 +1369,10 @@ void Canvas::update_bbox()
     m_bbox.second = {acc_x.get_max(), acc_y.get_max(), acc_z.get_max()};
 }
 
+void Canvas::set_show_error_overlay(bool show)
+{
+    m_show_error_overlay = show;
+    queue_draw();
+}
 
 } // namespace dune3d

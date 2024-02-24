@@ -202,6 +202,7 @@ static const LutEnumStr<ColorP> colorp_lut = {
         COLORP_LUT_ITEM(SELECTED_HOVER),
         COLORP_LUT_ITEM(HIGHLIGHT),
         COLORP_LUT_ITEM(SELECTION_BOX),
+        COLORP_LUT_ITEM(ERROR_OVERLAY),
 };
 
 #undef COLORP_LUT_ITEM
@@ -222,6 +223,7 @@ json CanvasPreferences::serialize() const
     j["theme_variant"] = theme_variant_lut.lookup_reverse(theme_variant);
     j["dark_theme"] = dark_theme;
     j["pick_path"] = path_to_string(pick_path);
+    j["error_overlay"] = error_overlay;
     return j;
 }
 
@@ -271,6 +273,7 @@ void CanvasPreferences::load_from_json(const json &j)
         theme_variant = theme_variant_lut.lookup(j.at("theme_variant"), ThemeVariant::AUTO);
     dark_theme = j.value("dark_theme", false);
     pick_path = path_from_string(j.value("pick_path", ""));
+    error_overlay = j.value("error_overlay", true);
     load_colors_from_json(j);
 }
 

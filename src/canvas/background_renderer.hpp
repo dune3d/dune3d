@@ -7,6 +7,7 @@ public:
     BackgroundRenderer(class Canvas &c);
     void realize();
     void render();
+    void render_error();
 
 private:
     Canvas &m_ca;
@@ -16,5 +17,6 @@ private:
 
     GLuint m_color_top_loc;
     GLuint m_color_bottom_loc;
+    GLuint m_alpha_loc;
 };
 } // namespace dune3d

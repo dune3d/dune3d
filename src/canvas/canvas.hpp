@@ -179,6 +179,8 @@ public:
         m_selection_filter = &filter;
     }
 
+    void set_show_error_overlay(bool show);
+
     void setup_controllers();
 
     void update_bbox() override;
@@ -512,6 +514,8 @@ private:
     sigc::connection spnav_connection;
 
     const ISelectionFilter *m_selection_filter = nullptr;
+
+    bool m_show_error_overlay = false;
 };
 
 } // namespace dune3d

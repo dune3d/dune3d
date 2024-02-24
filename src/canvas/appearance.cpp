@@ -21,6 +21,7 @@ Appearance::Appearance()
     colors[ColorP::OTHER_BODY_SOLID_MODEL] = {0.76, 0.76, 0.76};
     colors[ColorP::HIGHLIGHT] = {.25, .59, .59};
     colors[ColorP::SELECTION_BOX] = {1, 0, 0};
+    colors[ColorP::ERROR_OVERLAY] = {1, 0, 0};
 }
 
 const Color &Appearance::get_color(const ColorP &color) const
