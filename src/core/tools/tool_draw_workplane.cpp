@@ -1,6 +1,7 @@
 #include "tool_draw_workplane.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity_workplane.hpp"
+#include "document/group/group.hpp"
 #include "editor/editor_interface.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "util/action_label.hpp"
@@ -60,6 +61,10 @@ ToolResponse ToolDrawWorkplane::update(const ToolArgs &args)
                 const EntityAndPoint origin{m_wrkpl->m_uuid, 1};
                 constrain_point({}, origin);
             }
+
+            auto &group = get_group();
+            if (!group.m_active_wrkpl)
+                group.m_active_wrkpl = m_wrkpl->m_uuid;
 
             return ToolResponse::commit();
 
