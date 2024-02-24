@@ -379,6 +379,7 @@ blah</property>
                     </child>
                     <child type="overlay">
                       <object class="GtkBox" id="lollipop_box">
+                        <property name="can-target">False</property>
                         <property name="halign">end</property>
                         <property name="margin-end">10</property>
                         <property name="margin-top">10</property>
@@ -387,6 +388,7 @@ blah</property>
                     </child>
                     <child type="overlay">
                       <object class="GtkRevealer" id="tool_bar">
+                        <property name="can-target">False</property>
                         <property name="transition-type">slide-up</property>
                         <property name="valign">end</property>
                         <child>
