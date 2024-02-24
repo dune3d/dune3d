@@ -1,5 +1,6 @@
 #version 330
-out vec4 outputColor;
+layout(location = 0) out vec4 outputColor;
+layout(location = 1) out uint pick;
 in vec2 x;
 in vec2 dim;
 uniform int fill;
@@ -18,4 +19,5 @@ void main() {
 		alpha = 1;
 	}
 	outputColor = vec4(color,alpha); //fixme
+	pick = 0u;
 }
