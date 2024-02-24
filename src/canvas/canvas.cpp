@@ -866,9 +866,9 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     m_glyph_renderer.render();
     m_glyph_3d_renderer.render();
     m_icon_renderer.render();
-    //glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     m_box_selection.render();
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glDisablei(GL_BLEND, 0);
     // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     GL_CHECK_ERROR
