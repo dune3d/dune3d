@@ -65,7 +65,7 @@ Document::Document() : m_version(app_version)
 
     auto &sketch = add_group<GroupSketch>(UUID::random());
     sketch.set_index({}, 1);
-    sketch.m_name = "Sketch";
+    sketch.m_name = "Sketch 1";
     sketch.m_active_wrkpl = grp.get_workplane_xy_uuid();
 
     set_group_generate_pending(grp.m_uuid);
@@ -591,6 +591,27 @@ std::set<const Constraint *> Document::find_constraints(const std::set<EntityAnd
             r.insert(constr.get());
     }
     return r;
+}
+
+static const Group *find_group_by_name(const Document &doc, const std::string &name)
+{
+    auto &groups = doc.get_groups();
+    for (const auto &[uu, group] : groups) {
+        if (group->m_name == name)
+            return group.get();
+    }
+    return nullptr;
+}
+
+std::string Document::find_next_group_name(GroupType type) const
+{
+    const std::string prefix = Group::get_type_name(type) + " ";
+    for (int i = 1; i < 1000; i++) {
+        const std::string name = prefix + std::to_string(i);
+        if (!find_group_by_name(*this, name))
+            return name;
+    }
+    return Group::get_type_name(type);
 }
 
 Document::~Document() = default;

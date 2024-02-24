@@ -72,14 +72,12 @@ void Editor::on_add_group(Group::Type group_type)
     if (group_type == Group::Type::SKETCH) {
         auto &group = doc.insert_group<GroupSketch>(UUID::random(), current_group.m_uuid);
         new_group = &group;
-        group.m_name = "Sketch";
     }
     else if (group_type == Group::Type::EXTRUDE) {
         if (!current_group.m_active_wrkpl)
             return;
         auto &group = doc.insert_group<GroupExtrude>(UUID::random(), current_group.m_uuid);
         new_group = &group;
-        group.m_name = "Extrude";
         group.m_wrkpl = current_group.m_active_wrkpl;
         group.m_dvec = doc.get_entity<EntityWorkplane>(group.m_wrkpl).get_normal_vector();
         group.m_source_group = current_group.m_uuid;
@@ -100,7 +98,6 @@ void Editor::on_add_group(Group::Type group_type)
 
         auto &group = doc.insert_group<GroupLathe>(UUID::random(), current_group.m_uuid);
         new_group = &group;
-        group.m_name = "Lathe";
         group.m_wrkpl = current_group.m_active_wrkpl;
         group.m_source_group = current_group.m_uuid;
         group.m_origin = axis_enp->entity;
@@ -110,18 +107,15 @@ void Editor::on_add_group(Group::Type group_type)
     else if (group_type == Group::Type::FILLET) {
         auto &group = doc.insert_group<GroupFillet>(UUID::random(), current_group.m_uuid);
         new_group = &group;
-        group.m_name = "Fillet";
     }
     else if (group_type == Group::Type::CHAMFER) {
         auto &group = doc.insert_group<GroupChamfer>(UUID::random(), current_group.m_uuid);
         new_group = &group;
-        group.m_name = "Chamfer";
         m_core.set_needs_save();
     }
     else if (group_type == Group::Type::LINEAR_ARRAY) {
         auto &group = doc.insert_group<GroupLinearArray>(UUID::random(), current_group.m_uuid);
         new_group = &group;
-        group.m_name = "Linear array";
         group.m_active_wrkpl = current_group.m_active_wrkpl;
         group.m_source_group = current_group.m_uuid;
         m_core.set_needs_save();
@@ -141,12 +135,12 @@ void Editor::on_add_group(Group::Type group_type)
             return;
         auto &group = doc.insert_group<GroupPolarArray>(UUID::random(), current_group.m_uuid);
         new_group = &group;
-        group.m_name = "Polar array";
         group.m_active_wrkpl = wrkpl;
         group.m_source_group = current_group.m_uuid;
         m_core.set_needs_save();
     }
     if (new_group) {
+        new_group->m_name = doc.find_next_group_name(group_type);
         doc.set_group_generate_pending(new_group->m_uuid);
         m_core.set_needs_save();
         m_core.rebuild("add group");
