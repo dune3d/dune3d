@@ -99,7 +99,7 @@ void Canvas::handle_spnav()
                 m_zoom_animator.target += e.motion.y * -0.001f;
 
                 // reduce shifting speed when zoomed in
-                const auto scale_shift = 0.1f * (1.0f - (1.0f / pow(2.2f, m_cam_distance)));
+                const auto scale_shift = 0.16f * (1.0f - (1.0f / pow(2.2f, m_cam_distance)));
                 const auto center_shift = get_center_shift(glm::vec2(e.motion.x, e.motion.z) * scale_shift);
                 m_cx_animator.target += center_shift.x;
                 m_cy_animator.target += center_shift.y;
@@ -354,7 +354,7 @@ void Canvas::scroll_zoom(double dx, double dy, Gtk::EventController &ctrl)
 
 void Canvas::scroll_move(double dx, double dy, Gtk::EventController &ctrl)
 {
-    auto delta = glm::vec2(dx * -50, dy * 50);
+    auto delta = glm::vec2(dx * -83, dy * 83);
     m_center += get_center_shift(delta);
     queue_draw();
 }
@@ -633,9 +633,14 @@ glm::dvec2 Canvas::get_cursor_pos_win() const
     return {m_last_x, m_last_y};
 }
 
+float Canvas::get_magic_number() const
+{
+    return tan(0.5 * glm::radians(m_cam_fov)) / m_dev_height * m_cam_distance;
+}
+
 glm::vec3 Canvas::get_center_shift(const glm::vec2 &shift) const
 {
-    const float m = 0.1218f * m_cam_distance / 105.f;
+    const float m = 2 * get_magic_number();
     auto s = -shift * m;
     return glm::rotate(m_cam_quat, glm::vec3(s, 0));
 }
@@ -841,8 +846,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
             cam_dist_min = std::min(dist, cam_dist_min);
         }
 
-        float m = tan(0.5 * glm::radians(m_cam_fov)) / m_dev_height * m_cam_distance;
-        float d = cam_dist_max * 2;
+        const float m = get_magic_number();
+        const float d = cam_dist_max * 2;
 
         if (m_projection == Projection::PERSP) {
             m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_dev_width / m_dev_height, cam_dist_min / 2,

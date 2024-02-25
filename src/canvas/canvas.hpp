@@ -324,6 +324,7 @@ private:
 
     glm::vec3 m_center_orig;
     glm::vec3 get_center_shift(const glm::vec2 &shift) const;
+    float get_magic_number() const;
 
     enum class VertexFlags : uint32_t {
         DEFAULT = 0,
