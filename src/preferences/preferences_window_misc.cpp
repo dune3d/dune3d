@@ -31,6 +31,12 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
                     m_preferences, m_preferences.canvas.error_overlay);
             gr->add_row(*r);
         }
+        {
+            auto r = Gtk::make_managed<PreferencesRowBoolButton>("Zoom center", "Where to zoom with mouse or touchpad",
+                                                                 "Cursor", "Screen center", m_preferences,
+                                                                 m_preferences.canvas.zoom_to_cursor);
+            gr->add_row(*r);
+        }
     }
     {
         auto gr = Gtk::make_managed<PreferencesGroup>("Action Bar");

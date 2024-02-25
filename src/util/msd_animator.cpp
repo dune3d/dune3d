@@ -23,6 +23,14 @@ double MSDAnimator::get_s() const
     return msd.get_s();
 }
 
+double MSDAnimator::get_s_delta()
+{
+    const auto s = get_s();
+    const auto delta = s - m_last_s;
+    m_last_s = s;
+    return delta;
+}
+
 bool MSDAnimator::is_running() const
 {
     return running;
@@ -36,6 +44,7 @@ void MSDAnimator::start(double init)
     running = true;
     start_time = 0;
     target = init;
+    m_last_s = init;
 }
 
 void MSDAnimator::set_params(const MSD::Params &p)

@@ -224,6 +224,7 @@ json CanvasPreferences::serialize() const
     j["dark_theme"] = dark_theme;
     j["pick_path"] = path_to_string(pick_path);
     j["error_overlay"] = error_overlay;
+    j["zoom_to_cursor"] = zoom_to_cursor;
     return j;
 }
 
@@ -274,6 +275,7 @@ void CanvasPreferences::load_from_json(const json &j)
     dark_theme = j.value("dark_theme", false);
     pick_path = path_from_string(j.value("pick_path", ""));
     error_overlay = j.value("error_overlay", true);
+    zoom_to_cursor = j.value("zoom_to_cursor", true);
     load_colors_from_json(j);
 }
 

@@ -407,7 +407,7 @@ void Canvas::zoom_gesture_begin_cb(Gdk::EventSequence *seq)
 void Canvas::zoom_gesture_update_cb(Gdk::EventSequence *seq)
 {
     auto delta = m_gesture_zoom->get_scale_delta();
-    m_cam_distance = m_gesture_zoom_cam_dist_orig / delta;
+    set_cam_distance(m_gesture_zoom_cam_dist_orig / delta);
     queue_draw();
 }
 
@@ -445,7 +445,13 @@ void Canvas::set_cam_quat(const glm::quat &q)
 
 void Canvas::set_cam_distance(float dist)
 {
+    update_mats();
+    glm::vec3 before = get_cursor_pos();
     m_cam_distance = dist;
+    update_mats();
+    glm::vec3 after = get_cursor_pos();
+    if (m_zoom_to_cursor)
+        set_center(get_center() - (after - before));
     queue_draw();
     m_signal_view_changed.emit();
 }
@@ -1309,8 +1315,9 @@ int Canvas::animate_step(GdkFrameClock *frame_clock)
 
     set_cam_quat(glm::quat(m_quat_w_animator.get_s(), m_quat_x_animator.get_s(), m_quat_y_animator.get_s(),
                            m_quat_z_animator.get_s()));
+    const auto ca = glm::vec3{m_cx_animator.get_s_delta(), m_cy_animator.get_s_delta(), m_cz_animator.get_s_delta()};
     set_cam_distance(cam_dist_from_anim(m_zoom_animator.get_s()));
-    set_center({m_cx_animator.get_s(), m_cy_animator.get_s(), m_cz_animator.get_s()});
+    set_center(get_center() + ca);
 
     if (stop)
         return G_SOURCE_REMOVE;

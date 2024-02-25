@@ -21,6 +21,7 @@ public:
     bool enable_animations = true;
     bool error_overlay = true;
     bool dark_theme = false;
+    bool zoom_to_cursor = true;
     std::string theme = "Default";
     enum class ThemeVariant { AUTO, DARK, LIGHT };
     ThemeVariant theme_variant = ThemeVariant::AUTO;

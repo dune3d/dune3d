@@ -130,6 +130,11 @@ public:
         return m_enable_animations;
     }
 
+    void set_zoom_to_cursor(bool s)
+    {
+        m_zoom_to_cursor = s;
+    }
+
     typedef sigc::signal<void()> type_signal_view_changed;
     type_signal_view_changed signal_view_changed()
     {
@@ -519,6 +524,7 @@ private:
     const ISelectionFilter *m_selection_filter = nullptr;
 
     bool m_show_error_overlay = false;
+    bool m_zoom_to_cursor = true;
 };
 
 } // namespace dune3d
