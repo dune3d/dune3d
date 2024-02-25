@@ -220,6 +220,8 @@ void Canvas::setup_controllers()
         grab_focus();
         m_last_x = x;
         m_last_y = y;
+        m_cursor_pos.x = (x / m_width) * 2. - 1.;
+        m_cursor_pos.y = (y / m_height) * -2. + 1.;
         if (m_dragging && !m_inhibit_drag_selection) {
             if (m_selection_mode == SelectionMode::DRAG) {
                 update_drag_selection({x, y});
@@ -252,9 +254,6 @@ void Canvas::setup_controllers()
             queue_draw();
         }
         else {
-            m_cursor_pos.x = (x / m_width) * 2. - 1.;
-            m_cursor_pos.y = (y / m_height) * -2. + 1.;
-
             update_hover_selection();
             m_signal_cursor_moved.emit();
         }
