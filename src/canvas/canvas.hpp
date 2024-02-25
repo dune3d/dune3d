@@ -231,6 +231,8 @@ private:
     glm::mat3 m_screenmat;
     glm::vec3 m_cam_normal;
 
+    void update_mats();
+
     glm::dvec2 m_cursor_pos;
 
     enum class PickState { QUEUED, CURRENT, INVALID };

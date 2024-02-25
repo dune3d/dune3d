@@ -775,6 +775,48 @@ void Canvas::add_faces(const face::Faces &faces)
     }
 }
 
+void Canvas::update_mats()
+{
+    float r = m_cam_distance;
+    auto cam_offset = glm::rotate(m_cam_quat, glm::vec3(0, 0, r));
+    auto cam_pos = cam_offset + m_center;
+
+
+    m_viewmat = glm::lookAt(cam_pos, m_center, glm::rotate(m_cam_quat, glm::vec3(0, 1, 0)));
+
+    float cam_dist_min = 1e6;
+    float cam_dist_max = -1e6;
+
+    std::array<glm::vec3, 8> bbs = {glm::vec3(m_bbox.first.x, m_bbox.first.y, m_bbox.first.z),
+                                    glm::vec3(m_bbox.first.x, m_bbox.second.y, m_bbox.first.z),
+                                    glm::vec3(m_bbox.second.x, m_bbox.first.y, m_bbox.first.z),
+                                    glm::vec3(m_bbox.second.x, m_bbox.second.y, m_bbox.first.z),
+                                    glm::vec3(m_bbox.first.x, m_bbox.first.y, m_bbox.second.z),
+                                    glm::vec3(m_bbox.first.x, m_bbox.second.y, m_bbox.second.z),
+                                    glm::vec3(m_bbox.second.x, m_bbox.first.y, m_bbox.second.z),
+                                    glm::vec3(m_bbox.second.x, m_bbox.second.y, m_bbox.second.z)};
+
+    for (const auto &bb : bbs) {
+        float dist = glm::length(bb - cam_pos);
+        cam_dist_max = std::max(dist, cam_dist_max);
+        cam_dist_min = std::min(dist, cam_dist_min);
+    }
+
+    const float m = get_magic_number();
+    float d = cam_dist_max * 2;
+
+    if (m_projection == Projection::PERSP) {
+        m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_dev_width / m_dev_height, cam_dist_min / 2,
+                                     cam_dist_max * 2);
+    }
+    else {
+        m_projmat = glm::ortho(-m_dev_width * m, m_dev_width * m, -m_dev_height * m, m_dev_height * m, -d, d);
+    }
+    m_cam_normal = glm::normalize(cam_offset);
+
+    m_projmat_viewmat_inv = glm::inverse(m_projmat * m_viewmat);
+}
+
 bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
 {
     const bool first_render = m_vertex_type_picks.size() == 0;
@@ -820,46 +862,7 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
 
     m_push_flags = PF_NONE;
 
-    {
-        float r = m_cam_distance;
-        auto cam_offset = glm::rotate(m_cam_quat, glm::vec3(0, 0, r));
-        auto cam_pos = cam_offset + m_center;
-
-
-        m_viewmat = glm::lookAt(cam_pos, m_center, glm::rotate(m_cam_quat, glm::vec3(0, 1, 0)));
-
-        float cam_dist_min = 1e6;
-        float cam_dist_max = -1e6;
-
-        std::array<glm::vec3, 8> bbs = {glm::vec3(m_bbox.first.x, m_bbox.first.y, m_bbox.first.z),
-                                        glm::vec3(m_bbox.first.x, m_bbox.second.y, m_bbox.first.z),
-                                        glm::vec3(m_bbox.second.x, m_bbox.first.y, m_bbox.first.z),
-                                        glm::vec3(m_bbox.second.x, m_bbox.second.y, m_bbox.first.z),
-                                        glm::vec3(m_bbox.first.x, m_bbox.first.y, m_bbox.second.z),
-                                        glm::vec3(m_bbox.first.x, m_bbox.second.y, m_bbox.second.z),
-                                        glm::vec3(m_bbox.second.x, m_bbox.first.y, m_bbox.second.z),
-                                        glm::vec3(m_bbox.second.x, m_bbox.second.y, m_bbox.second.z)};
-
-        for (const auto &bb : bbs) {
-            float dist = glm::length(bb - cam_pos);
-            cam_dist_max = std::max(dist, cam_dist_max);
-            cam_dist_min = std::min(dist, cam_dist_min);
-        }
-
-        const float m = get_magic_number();
-        const float d = cam_dist_max * 2;
-
-        if (m_projection == Projection::PERSP) {
-            m_projmat = glm::perspective(glm::radians(m_cam_fov), (float)m_dev_width / m_dev_height, cam_dist_min / 2,
-                                         cam_dist_max * 2);
-        }
-        else {
-            m_projmat = glm::ortho(-m_dev_width * m, m_dev_width * m, -m_dev_height * m, m_dev_height * m, -d, d);
-        }
-        m_cam_normal = glm::normalize(cam_offset);
-
-        m_projmat_viewmat_inv = glm::inverse(m_projmat * m_viewmat);
-    }
+    update_mats();
 
     m_pick_base = 1;
     m_face_renderer.render();
