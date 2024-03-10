@@ -49,14 +49,12 @@ int SpinButtonAngle::on_input(double &v)
 {
     auto txt = get_text().raw();
     std::replace(txt.begin(), txt.end(), ',', '.');
-    int64_t va = 0;
     try {
         double d = std::fmod(std::stod(txt), 360.0);
         if (d < 0) {
             d += 360.0;
         }
-        va = d;
-        v = va;
+        v = d;
     }
     catch (const std::exception &e) {
         return false;
