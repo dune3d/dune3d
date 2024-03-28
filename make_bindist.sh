@@ -116,7 +116,7 @@ LIBS=(
 	rav1e.dll\
 	librsvg-2-2.dll\
 	libspeex-1.dll\
-	libSvtAv1Enc.dll\
+	libSvtAv1Enc-2.dll
 	libtheoradec-1.dll\
 	libtheoraenc-1.dll\
 	libvorbis-0.dll\
