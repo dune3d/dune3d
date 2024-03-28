@@ -654,6 +654,9 @@ glm::vec3 Canvas::get_center_shift(const glm::vec2 &shift) const
 void Canvas::on_realize()
 {
     std::cout << "realize" << std::endl;
+#if GTK_CHECK_VERSION(4, 12, 0)
+    gtk_gl_area_set_allowed_apis(gobj(), GDK_GL_API_GL);
+#endif
     Gtk::GLArea::on_realize();
     make_current();
     m_background_renderer.realize();
