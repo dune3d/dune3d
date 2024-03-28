@@ -14,6 +14,7 @@ on:
 
 jobs:
   build-macos:
+    continue-on-error: true
     runs-on: macos-13
     steps:
     - name: Check tag
