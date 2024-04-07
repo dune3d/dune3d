@@ -389,12 +389,12 @@ bool STEPImporter::processComp(const TopoDS_Shape &shape, const glm::dmat4 &mat_
             break;
 
         case TopAbs_SHELL:
-            if (processShell(subShape, NULL))
+            if (processShell(subShape, NULL, mat))
                 ret = true;
             break;
 
         case TopAbs_FACE:
-            if (processFace(TopoDS::Face(subShape), NULL))
+            if (processFace(TopoDS::Face(subShape), NULL, mat))
                 ret = true;
             break;
 
