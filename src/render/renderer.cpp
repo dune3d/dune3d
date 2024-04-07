@@ -841,7 +841,7 @@ void Renderer::draw_constraints()
         double offset = -(n - 1) / 2 * spacing;
         glm::vec3 v = {NAN, NAN, NAN};
         for (const auto &constraint : constraints) {
-            if (!std::isnan(constraint.v.x)) {
+            if (!std::isnan(constraint.v.x) && (glm::length(constraint.v) != 0)) {
                 v = constraint.v;
                 break;
             }
