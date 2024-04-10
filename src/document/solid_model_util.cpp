@@ -446,6 +446,9 @@ Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID
         if (auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(en.get())) {
             if (en_wrkpl->get_workplane() != wrkpl_uu)
                 continue;
+            if (auto en_line = dynamic_cast<const EntityLine2D *>(en.get()))
+                if (glm::length(en_line->m_p1 - en_line->m_p2) < 1e-6)
+                    continue;
             paths.edges.emplace_back(paths.nodes, *en);
         }
     }
