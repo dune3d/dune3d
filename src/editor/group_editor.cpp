@@ -2,7 +2,7 @@
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
 #include "document/group/group_lathe.hpp"
-#include "document/group/group_fillet.hpp"
+#include "document/group/group_local_operation.hpp"
 #include "document/group/group_reference.hpp"
 #include "document/group/group_linear_array.hpp"
 #include "document/group/group_polar_array.hpp"
@@ -10,7 +10,6 @@
 #include "core/core.hpp"
 #include "core/tool_id.hpp"
 #include "util/gtk_util.hpp"
-#include <iostream>
 
 namespace dune3d {
 
@@ -28,6 +27,8 @@ protected:
         m_operation_combo = Gtk::make_managed<Gtk::DropDown>(items);
         m_operation_combo->set_selected(static_cast<guint>(group.m_operation));
         m_operation_combo->property_selected().signal_changed().connect([this] {
+            if (is_reloading())
+                return;
             auto &group = get_group();
             group.m_operation = static_cast<GroupExtrude::Operation>(m_operation_combo->get_selected());
             m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
@@ -44,9 +45,9 @@ protected:
     }
 
 
-    void reload() override
+    void do_reload() override
     {
-        GroupEditor::reload();
+        GroupEditor::do_reload();
         auto &group = get_group();
         m_operation_combo->set_selected(static_cast<guint>(group.m_operation));
     }
@@ -71,6 +72,8 @@ public:
         m_normal_switch->set_active(group.m_direction == GroupExtrude::Direction::NORMAL);
         grid_attach_label_and_widget(*this, "Along normal", *m_normal_switch, m_top);
         m_normal_switch->property_active().signal_changed().connect([this] {
+            if (is_reloading())
+                return;
             auto &group = get_group();
             if (m_normal_switch->get_active())
                 group.m_direction = GroupExtrude::Direction::NORMAL;
@@ -89,6 +92,8 @@ public:
             m_mode_combo = Gtk::make_managed<Gtk::DropDown>(items);
             m_mode_combo->set_selected(static_cast<guint>(group.m_mode));
             m_mode_combo->property_selected().signal_changed().connect([this] {
+                if (is_reloading())
+                    return;
                 auto &group = get_group();
                 group.m_mode = static_cast<GroupExtrude::Mode>(m_mode_combo->get_selected());
                 m_core.get_current_document().set_group_generate_pending(group.m_uuid);
@@ -98,9 +103,9 @@ public:
         }
     }
 
-    void reload() override
+    void do_reload() override
     {
-        GroupEditorSweep::reload();
+        GroupEditorSweep::do_reload();
         auto &group = get_group();
         m_normal_switch->set_active(group.m_direction == GroupExtrude::Direction::NORMAL);
         m_mode_combo->set_selected(static_cast<guint>(group.m_mode));
@@ -147,9 +152,9 @@ public:
         }
     }
 
-    void reload() override
+    void do_reload() override
     {
-        GroupEditor::reload();
+        GroupEditor::do_reload();
         auto &group = get_group();
         m_radius_sp->set_value(group.m_radius);
     }
@@ -175,6 +180,8 @@ public:
         grid_attach_label_and_widget(*this, "XY", *m_switch_xy, m_top);
         m_switch_xy->set_active(group.m_show_xy);
         m_switch_xy->property_active().signal_changed().connect([this] {
+            if (is_reloading())
+                return;
             get_group().m_show_xy = m_switch_xy->get_active();
             get_group().generate(m_core.get_current_document());
             m_signal_changed.emit();
@@ -186,6 +193,8 @@ public:
         grid_attach_label_and_widget(*this, "YZ", *m_switch_yz, m_top);
         m_switch_yz->set_active(group.m_show_yz);
         m_switch_yz->property_active().signal_changed().connect([this] {
+            if (is_reloading())
+                return;
             get_group().m_show_yz = m_switch_yz->get_active();
             get_group().generate(m_core.get_current_document());
             m_signal_changed.emit();
@@ -197,15 +206,17 @@ public:
         grid_attach_label_and_widget(*this, "ZX", *m_switch_zx, m_top);
         m_switch_zx->set_active(group.m_show_zx);
         m_switch_zx->property_active().signal_changed().connect([this] {
+            if (is_reloading())
+                return;
             get_group().m_show_zx = m_switch_zx->get_active();
             get_group().generate(m_core.get_current_document());
             m_signal_changed.emit();
         });
     }
 
-    void reload() override
+    void do_reload() override
     {
-        GroupEditor::reload();
+        GroupEditor::do_reload();
         auto &group = get_group();
         m_switch_xy->set_active(group.m_show_xy);
         m_switch_yz->set_active(group.m_show_yz);
@@ -249,6 +260,8 @@ public:
         m_offset_combo = Gtk::make_managed<Gtk::DropDown>(items);
         m_offset_combo->set_selected(static_cast<guint>(group.m_offset));
         m_offset_combo->property_selected().signal_changed().connect([this] {
+            if (is_reloading())
+                return;
             auto &group = get_group();
             group.m_offset = static_cast<GroupLinearArray::Offset>(m_offset_combo->get_selected());
             m_core.get_current_document().set_group_generate_pending(group.m_uuid);
@@ -257,9 +270,9 @@ public:
         grid_attach_label_and_widget(*this, "Offset", *m_offset_combo, m_top);
     }
 
-    void reload() override
+    void do_reload() override
     {
-        GroupEditor::reload();
+        GroupEditor::do_reload();
         auto &group = get_group();
         m_sp_count->set_value(group.m_count);
     }
@@ -342,6 +355,8 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
         m_signal_changed.emit();
     });
     m_body_cb->signal_toggled().connect([this] {
+        if (is_reloading())
+            return;
         auto &group = m_core.get_current_document().get_group(m_group_uu);
         if (m_body_cb->get_active())
             group.m_body.emplace();
@@ -374,13 +389,20 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
     }
 }
 
-void GroupEditor::reload()
+void GroupEditor::do_reload()
 {
     auto &group = m_core.get_current_document().get_group(m_group_uu);
     m_name_entry->set_text(group.m_name);
     if (group.m_body.has_value())
         m_body_entry->set_text(group.m_body->m_name);
     m_body_cb->set_active(group.m_body.has_value());
+}
+
+void GroupEditor::reload()
+{
+    m_reloading = true;
+    do_reload();
+    m_reloading = false;
 }
 
 GroupEditor::~GroupEditor()

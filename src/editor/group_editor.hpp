@@ -12,7 +12,7 @@ class GroupEditor : public Gtk::Grid, public Changeable {
 public:
     GroupEditor(Core &core, const UUID &group);
     static GroupEditor *create(Core &core, const UUID &group);
-    virtual void reload();
+    void reload();
 
     const UUID &get_group() const
     {
@@ -35,6 +35,8 @@ private:
     Gtk::CheckButton *m_body_cb = nullptr;
     Gtk::Entry *m_body_entry = nullptr;
 
+    bool m_reloading = false;
+
 
 protected:
     Core &m_core;
@@ -42,5 +44,10 @@ protected:
     int m_top = 0;
 
     type_signal_trigger_action m_signal_trigger_action;
+    virtual void do_reload();
+    bool is_reloading() const
+    {
+        return m_reloading;
+    }
 };
 } // namespace dune3d
