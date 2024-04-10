@@ -27,5 +27,7 @@ public:
     virtual void visit(const ConstraintPointPlaneDistance &constraint) = 0;
     virtual void visit(const ConstraintLockRotation &constraint) = 0;
     virtual void visit(const ConstraintPointInWorkplane &constraint) = 0;
+    virtual void visit(const ConstraintSymmetricHV &constraint) = 0;
+    virtual void visit(const ConstraintSymmetricLine &constraint) = 0;
 };
 } // namespace dune3d

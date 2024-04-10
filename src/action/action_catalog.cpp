@@ -130,6 +130,12 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::SELECTION_FILTER, {"Selection filter", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_POINT_IN_WORKPLANE,
          {"Constrain point in workplane", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_SYMMETRIC_HORIZONTAL,
+         {"Constrain symmetric horizontally", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_SYMMETRIC_VERTICAL,
+         {"Constrain symmetric vertically", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_SYMMETRIC_LINE,
+         {"Constrain symmetric about line", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -245,6 +251,9 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(DRAW_REGULAR_POLYGON),
         TOOL_LUT_ITEM(DRAW_RECTANGLE),
         TOOL_LUT_ITEM(FLIP_ARC),
+        TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_HORIZONTAL),
+        TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_VERTICAL),
+        TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_LINE),
 };
 
 

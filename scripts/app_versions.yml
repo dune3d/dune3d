@@ -11,3 +11,4 @@ versions:
     9: add lock rotation constraint
     10: add intersection solid model operation
     11: add point in workplane constraint
+    12: add symmetry constraints

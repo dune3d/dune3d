@@ -29,18 +29,21 @@ ToolBase::CanBegin ToolConstrainDistance::can_begin()
         for (auto constraint : constraints) {
             switch (m_tool_id) {
             case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
-                if (constraint->of_type(Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::VERTICAL))
+                if (constraint->of_type(Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::VERTICAL,
+                                        Constraint::Type::SYMMETRIC_VERTICAL))
                     return false;
                 break;
 
             case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
-                if (constraint->of_type(Constraint::Type::POINT_DISTANCE_VERTICAL, Constraint::Type::HORIZONTAL))
+                if (constraint->of_type(Constraint::Type::POINT_DISTANCE_VERTICAL, Constraint::Type::HORIZONTAL,
+                                        Constraint::Type::SYMMETRIC_HORIZONTAL))
                     return false;
                 break;
 
             case ToolID::CONSTRAIN_DISTANCE:
                 if (constraint->of_type(Constraint::Type::POINT_DISTANCE, Constraint::Type::HORIZONTAL,
-                                        Constraint::Type::VERTICAL))
+                                        Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_HORIZONTAL,
+                                        Constraint::Type::SYMMETRIC_VERTICAL))
                     return false;
                 break;
             default:

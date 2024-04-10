@@ -69,6 +69,12 @@ std::string Constraint::get_type_name(Type type)
         return "Lock rotation";
     case Type::POINT_IN_WORKPLANE:
         return "Point in workplane";
+    case Type::SYMMETRIC_HORIZONTAL:
+        return "Symmetric horizontally";
+    case Type::SYMMETRIC_VERTICAL:
+        return "Symmetric vertically";
+    case Type::SYMMETRIC_LINE:
+        return "Symmetric about line";
     }
     return "Constraint";
 }
@@ -112,6 +118,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                      {Constraint::Type::POINT_PLANE_DISTANCE, "point_plane_distance"},
                                      {Constraint::Type::LOCK_ROTATION, "lock_rotation"},
                                      {Constraint::Type::POINT_IN_WORKPLANE, "point_in_workplane"},
+                                     {Constraint::Type::SYMMETRIC_HORIZONTAL, "symmetric_horizontal"},
+                                     {Constraint::Type::SYMMETRIC_VERTICAL, "symmetric_vertical"},
+                                     {Constraint::Type::SYMMETRIC_LINE, "symmetric_line"},
                              })
 
 json Constraint::serialize() const
@@ -175,6 +184,12 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintLockRotation>(uu, j);
     case Type::POINT_IN_WORKPLANE:
         return std::make_unique<ConstraintPointInWorkplane>(uu, j);
+    case Type::SYMMETRIC_HORIZONTAL:
+        return std::make_unique<ConstraintSymmetricHorizontal>(uu, j);
+    case Type::SYMMETRIC_VERTICAL:
+        return std::make_unique<ConstraintSymmetricVertical>(uu, j);
+    case Type::SYMMETRIC_LINE:
+        return std::make_unique<ConstraintSymmetricLine>(uu, j);
     }
     throw std::runtime_error("unknown constraint type");
 }

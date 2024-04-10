@@ -591,6 +591,22 @@ void Renderer::visit(const ConstraintHV &constraint)
     add_constraint((p1 + p2) / 2., icon, constraint.m_uuid, p2 - p1);
 }
 
+void Renderer::visit(const ConstraintSymmetricHV &constraint)
+{
+    auto p1 = m_doc->get_point(constraint.m_entity1);
+    auto p2 = m_doc->get_point(constraint.m_entity2);
+    auto icon = IconID::CONSTRAINT_SYMMETRIC_VERTICAL;
+    add_constraint((p1 + p2) / 2., icon, constraint.m_uuid, p2 - p1);
+}
+
+void Renderer::visit(const ConstraintSymmetricLine &constraint)
+{
+    auto p1 = m_doc->get_point(constraint.m_entity1);
+    auto p2 = m_doc->get_point(constraint.m_entity2);
+    auto icon = IconID::CONSTRAINT_SYMMETRIC_LINE;
+    add_constraint((p1 + p2) / 2., icon, constraint.m_uuid, p2 - p1);
+}
+
 static glm::dvec3 get_vec(const UUID &uu, const Document &doc)
 {
     return doc.get_point({uu, 2}) - doc.get_point({uu, 1});

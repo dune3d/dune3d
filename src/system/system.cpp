@@ -1288,6 +1288,42 @@ void System::visit(const ConstraintHV &constraint)
     SK.constraint.Add(&cb);
 }
 
+void System::visit(const ConstraintSymmetricHV &constraint)
+{
+    const auto group = get_group_index(constraint);
+    const auto c = n_constraint++;
+
+    ConstraintBase cb = {};
+    if (constraint.get_type() == Constraint::Type::SYMMETRIC_HORIZONTAL)
+        cb.type = ConstraintBase::Type::SYMMETRIC_HORIZ;
+    else
+        cb.type = ConstraintBase::Type::SYMMETRIC_VERT;
+    cb.h.v = c;
+    cb.group.v = group;
+    cb.workplane.v = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
+    cb.ptA.v = m_entity_refs_r.at(constraint.m_entity1);
+    cb.ptB.v = m_entity_refs_r.at(constraint.m_entity2);
+
+    SK.constraint.Add(&cb);
+}
+
+void System::visit(const ConstraintSymmetricLine &constraint)
+{
+    const auto group = get_group_index(constraint);
+    const auto c = n_constraint++;
+
+    ConstraintBase cb = {};
+    cb.type = ConstraintBase::Type::SYMMETRIC_LINE;
+    cb.h.v = c;
+    cb.group.v = group;
+    cb.workplane.v = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
+    cb.ptA.v = m_entity_refs_r.at(constraint.m_entity1);
+    cb.ptB.v = m_entity_refs_r.at(constraint.m_entity2);
+    cb.entityA.v = m_entity_refs_r.at(EntityRef{constraint.m_line, 0});
+
+    SK.constraint.Add(&cb);
+}
+
 void System::visit(const ConstraintMidpoint &constraint)
 {
     const auto group = get_group_index(constraint);

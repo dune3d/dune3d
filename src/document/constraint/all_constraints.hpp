@@ -22,3 +22,5 @@
 #include "constraint_point_plane_distance.hpp"
 #include "constraint_lock_rotation.hpp"
 #include "constraint_point_in_workplane.hpp"
+#include "constraint_symmetric_hv.hpp"
+#include "constraint_symmetric_line.hpp"

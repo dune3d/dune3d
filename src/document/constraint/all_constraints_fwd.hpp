@@ -25,4 +25,8 @@ class ConstraintPointLineDistance;
 class ConstraintPointPlaneDistance;
 class ConstraintLockRotation;
 class ConstraintPointInWorkplane;
+class ConstraintSymmetricHV;
+class ConstraintSymmetricVertical;
+class ConstraintSymmetricHorizontal;
+class ConstraintSymmetricLine;
 } // namespace dune3d
