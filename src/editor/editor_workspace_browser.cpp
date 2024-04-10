@@ -9,9 +9,11 @@
 #include "workspace_browser.hpp"
 #include "util/template_util.hpp"
 #include "core/tool_id.hpp"
-#include <iostream>
+#include "nlohmann/json.hpp"
+#include "action/action_id.hpp"
 
 namespace dune3d {
+using json = nlohmann::json;
 
 void Editor::init_workspace_browser()
 {
@@ -31,10 +33,10 @@ void Editor::init_workspace_browser()
             sigc::mem_fun(*this, &Editor::on_workspace_browser_body_checked));
     m_workspace_browser->signal_body_solid_model_checked().connect(
             sigc::mem_fun(*this, &Editor::on_workspace_browser_body_solid_model_checked));
-
+    m_workspace_browser->signale_active_link().connect(
+            sigc::mem_fun(*this, &Editor::on_workspace_browser_activate_link));
 
     m_workspace_browser->set_sensitive(m_core.has_documents());
-
 
     m_core.signal_rebuilt().connect([this] {
         Glib::signal_idle().connect_once([this] { m_workspace_browser->update_documents(m_document_view); });
@@ -226,10 +228,22 @@ void Editor::on_workspace_browser_body_checked(const UUID &uu_doc, const UUID &u
 
 void Editor::on_workspace_browser_body_solid_model_checked(const UUID &uu_doc, const UUID &uu_group, bool checked)
 {
-
     m_document_view.m_body_views[uu_group].m_solid_model_visible = checked;
     m_workspace_browser->update_current_group(m_document_view);
     canvas_update_keep_selection();
 }
 
+void Editor::on_workspace_browser_activate_link(const std::string &link)
+{
+    const auto j = json::parse(link);
+    const auto op = j.at("op").get<std::string>();
+    if (op == "find-redundant-constraints") {
+        m_properties_notebook->set_current_page(m_properties_notebook->page_num(*m_constraints_box));
+        m_constraints_box->set_redundant_only();
+    }
+    else if (op == "undo") {
+        if (!m_core.tool_is_active())
+            trigger_action(ActionID::UNDO);
+    }
+}
 } // namespace dune3d

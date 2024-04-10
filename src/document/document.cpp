@@ -246,6 +246,12 @@ void Document::update_solid_model(Group &group)
         gr->update_solid_model(*this);
 }
 
+static std::string make_json_link(const std::string &label, const json &j)
+{
+    return "<a href=\"" + Glib::Markup::escape_text(j.dump()) + "\">" + label + "</a>";
+}
+
+
 void Document::solve_group(Group &group, const std::vector<EntityAndPoint> &dragged)
 {
     if (group.get_type() == Group::Type::REFERENCE) {
@@ -261,21 +267,28 @@ void Document::solve_group(Group &group, const std::vector<EntityAndPoint> &drag
     group.m_solve_result = res.result;
     group.m_dof = res.dof;
     group.m_solve_messages.clear();
+    const json j_find = {{"op", "find-redundant-constraints"}};
+    const json j_undo = {{"op", "undo"}};
     switch (res.result) {
     case SolveResult::DIDNT_CONVERGE:
-        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "Solver did not converge");
+        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR,
+                                            "Solver did not converge " + make_json_link("Undo", j_undo));
         break;
 
     case SolveResult::REDUNDANT_DIDNT_CONVERGE:
         group.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR,
-                                            "Solver did not converge, redundant constraints");
+                                            "Solver did not converge, redundant constraints "
+                                                    + make_json_link("Find them", j_find) + " "
+                                                    + make_json_link("Undo", j_undo));
         break;
 
     case SolveResult::OKAY:
         break;
 
     case SolveResult::REDUNDANT_OKAY:
-        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::WARN, "Redundant constraints");
+        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::WARN,
+                                            "Redundant constraints " + make_json_link("Find them", j_find) + " "
+                                                    + make_json_link("Undo", j_undo));
         break;
 
     case SolveResult::TOO_MANY_UNKNOWNS:

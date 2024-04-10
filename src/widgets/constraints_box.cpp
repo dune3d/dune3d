@@ -132,4 +132,10 @@ void ConstraintsBox::update_internal()
     m_selection_model->set_model(new_store);
 }
 
+void ConstraintsBox::set_redundant_only()
+{
+    if (m_redundant_only_cb->get_sensitive())
+        m_redundant_only_cb->set_active(true);
+}
+
 } // namespace dune3d

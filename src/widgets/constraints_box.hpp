@@ -19,6 +19,7 @@ public:
     }
 
     void update();
+    void set_redundant_only();
 
 private:
     Gtk::ListView *m_view = nullptr;

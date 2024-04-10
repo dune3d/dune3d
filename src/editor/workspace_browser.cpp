@@ -275,7 +275,7 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
                     txt += "\n";
                 txt += msg.message;
             }
-            m_info_bar_label->set_text(txt);
+            m_info_bar_label->set_markup(txt);
         }
         else {
             m_info_bar->set_revealed(false);
@@ -339,6 +339,14 @@ public:
         m_status_label = Gtk::make_managed<Gtk::Label>();
         m_status_label->set_hexpand(true);
         m_status_label->set_halign(Gtk::Align::START);
+        m_status_label->set_use_markup(true);
+        m_status_label->signal_activate_link().connect(
+                [this](const std::string &link) {
+                    m_browser.m_signal_activate_link.emit(link);
+                    return true;
+                },
+                false);
+
 
         m_close_button = Gtk::make_managed<Gtk::Button>();
         m_close_button->set_icon_name("window-close-symbolic");
@@ -599,6 +607,13 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
     m_info_bar->set_message_type(Gtk::MessageType::ERROR);
     m_info_bar_icon = Gtk::make_managed<Gtk::Image>();
     m_info_bar_label = Gtk::make_managed<Gtk::Label>("foo");
+    m_info_bar_label->signal_activate_link().connect(
+            [this](const std::string &link) {
+                m_signal_activate_link.emit(link);
+                return true;
+            },
+            false);
+
     m_info_bar_label->set_wrap(true);
     {
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 10);

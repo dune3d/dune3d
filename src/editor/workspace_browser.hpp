@@ -64,9 +64,15 @@ public:
         return m_signal_close_document;
     }
 
+    using type_signal_activate_link = sigc::signal<void(std::string)>;
+    type_signal_activate_link signale_active_link()
+    {
+        return m_signal_activate_link;
+    }
+
+
     void group_prev_next(int dir);
     void select_group(const UUID &uu);
-
 
 private:
     Gtk::ListView *m_view = nullptr;
@@ -98,6 +104,7 @@ private:
     type_signal_add_group m_signal_add_group;
     type_signal_move_group m_signal_move_group;
     type_signal_close_document m_signal_close_document;
+    type_signal_activate_link m_signal_activate_link;
 
     void block_signals();
     void unblock_signals();
