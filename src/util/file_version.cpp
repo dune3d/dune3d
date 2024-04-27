@@ -28,7 +28,8 @@ void FileVersion::update_file_from_app()
     m_file = m_app;
 }
 
-const std::string FileVersion::learn_more_markup = "<a href=\"https://dune3d.org\">Learn more</a>";
+const std::string FileVersion::learn_more_markup =
+        "<a href=\"https://docs.dune3d.org/en/latest/version.html\">Learn more</a>";
 
 std::string FileVersion::get_message() const
 {
