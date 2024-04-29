@@ -646,7 +646,7 @@ float Canvas::get_magic_number() const
 glm::vec3 Canvas::get_center_shift(const glm::vec2 &shift) const
 {
     const float m = 2 * get_magic_number();
-    auto s = -shift * m;
+    auto s = -shift * m * (float)m_scale_factor;
     return glm::rotate(m_cam_quat, glm::vec3(s, 0));
 }
 
