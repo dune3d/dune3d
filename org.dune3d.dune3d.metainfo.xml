@@ -48,6 +48,18 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="1.1.0" date="2024-05-01">
+      <url>https://github.com/dune3d/dune3d/releases/tag/v1.1.0</url>
+      <description>
+        <p>What's new</p>
+        <ul>
+          <li>Improved navigation</li>
+          <li>Feedback about deleted items</li>
+          <li>Identification of redundant constraints and underconstrained points</li>
+          <li>Symmetry constraints</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.0.0" date="2024-01-31">
       <url>https://github.com/dune3d/dune3d/releases/tag/v1.0.0</url>
       <description>
