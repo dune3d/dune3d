@@ -10,7 +10,7 @@ def rep(match) :
 		return f"[{m}](https://github.com/{m[1:]})"
 	else :
 		commit,_ = repo.resolve_refish(m)
-		return "[%s](https://github.com/horizon-eda/horizon/commit/%s)"%(commit.short_id, m)
+		return "[%s](https://github.com/dune3d/dune3d/commit/%s)"%(commit.short_id, m)
 
 with open("scripts/CHANGELOG.md.in", "r") as infile :
 	changelog = infile.read()
