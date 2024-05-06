@@ -9,8 +9,8 @@ is_windows = target_machine.system() == 'windows'
 
 
 
-gtk4 = dependency('gtk4', version: '>=4.0')
-gtkmm = dependency('gtkmm-4.0', version: '>=4.0.0')
+gtk4 = dependency('gtk4', version: '>=4.10')
+gtkmm = dependency('gtkmm-4.0', version: '>=4.10')
 epoxy = dependency('epoxy')
 eigen = dependency('eigen3')
 glm = dependency('glm')
