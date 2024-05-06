@@ -659,6 +659,8 @@ void Canvas::on_realize()
     std::cout << "realize" << std::endl;
     Gtk::GLArea::on_realize();
     make_current();
+    std::cout << "is legacy " << get_context()->is_legacy() << std::endl;
+    std::cout << "is es " << get_context()->get_use_es() << std::endl;
     m_background_renderer.realize();
     m_face_renderer.realize();
     m_point_renderer.realize();
