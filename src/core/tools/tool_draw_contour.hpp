@@ -50,6 +50,11 @@ private:
     bool m_constrain = true;
     bool m_constrain_hv = true;
     bool m_constrain_tangent = true;
+    bool m_constrain_tangent_head = true;
+    bool m_has_tangent_head = false;
+    std::optional<ConstraintType> get_head_constraint(const Entity &en_head, const Entity &en_target);
+    Constraint *constrain_point_and_add_head_tangent_constraint(const UUID &wrkpl,
+                                                                const EntityAndPoint &enp_to_constrain);
 
     ToolResponse end_tool();
 
@@ -58,6 +63,7 @@ private:
     void set_flip_arc(bool flip);
     unsigned int get_arc_tail_point() const;
     unsigned int get_arc_head_point() const;
+    unsigned int get_head_point() const;
 
     unsigned int get_last_point() const;
     glm::dvec2 get_last_tangent();

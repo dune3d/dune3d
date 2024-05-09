@@ -101,6 +101,14 @@ unsigned int ToolDrawContour::get_arc_head_point() const
         return 2;
 }
 
+unsigned int ToolDrawContour::get_head_point() const
+{
+    if (m_temp_arc)
+        return get_arc_head_point();
+    else
+        return 2;
+}
+
 void ToolDrawContour::update_arc_center()
 {
     if (m_last_tangent_point && m_constrain_tangent) {
@@ -145,6 +153,66 @@ static double sq(double x)
 {
     return x * x;
 };
+
+Constraint *ToolDrawContour::constrain_point_and_add_head_tangent_constraint(const UUID &wrkpl,
+                                                                             const EntityAndPoint &enp_to_constrain)
+{
+    auto coincident_constraint = constrain_point(wrkpl, enp_to_constrain);
+    if (coincident_constraint) {
+        if (coincident_constraint->of_type(Constraint::Type::POINTS_COINCIDENT) && m_has_tangent_head
+            && m_constrain_tangent_head) {
+            auto &en_head = *get_temp_entity();
+            const auto enp_head = EntityAndPoint{en_head.m_uuid, get_head_point()};
+            const auto enp_target = m_intf.get_hover_selection().value().get_entity_and_point();
+            auto &en_target = get_entity(enp_target.entity);
+            const auto head_constraint_type = get_head_constraint(en_head, en_target);
+            if (head_constraint_type) {
+                const auto redundant_before = current_group_has_redundant_constraints();
+                Constraint *new_constraint = nullptr;
+                switch (*head_constraint_type) {
+                case Constraint::Type::ARC_LINE_TANGENT: {
+                    auto &constraint = add_constraint<ConstraintArcLineTangent>();
+                    if (en_head.of_type(Entity::Type::ARC_2D)) {
+                        constraint.m_line = en_target.m_uuid;
+                        constraint.m_arc = enp_head;
+                    }
+                    else {
+                        constraint.m_line = en_head.m_uuid;
+                        constraint.m_arc = enp_target;
+                    }
+                    new_constraint = &constraint;
+                } break;
+                case Constraint::Type::ARC_ARC_TANGENT: {
+                    auto &constraint = add_constraint<ConstraintArcArcTangent>();
+                    constraint.m_arc1 = enp_head;
+                    constraint.m_arc2 = enp_target;
+                    new_constraint = &constraint;
+                } break;
+                case Constraint::Type::PARALLEL: {
+                    auto &constraint = add_constraint<ConstraintParallel>();
+                    constraint.m_modify_to_satisfy = true;
+                    constraint.m_entity1 = enp_head.entity;
+                    constraint.m_entity2 = enp_target.entity;
+                    constraint.m_wrkpl = get_workplane_uuid();
+                    new_constraint = &constraint;
+                } break;
+                default:;
+                }
+                if (!redundant_before) {
+                    const auto redundant_after = current_group_has_redundant_constraints();
+                    if (redundant_after) {
+                        get_doc().m_constraints.erase(new_constraint->m_uuid);
+                        new_constraint = nullptr;
+                    }
+                }
+                if (new_constraint)
+                    m_constraints.insert(new_constraint);
+            }
+        }
+    }
+    return coincident_constraint;
+}
+
 
 ToolResponse ToolDrawContour::update(const ToolArgs &args)
 {
@@ -214,7 +282,8 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
         case InToolActionID::LMB: {
         case InToolActionID::LMB_DOUBLE:
             if (m_temp_arc && !m_placing_center && !(m_constrain_tangent && m_last_tangent_point)) {
-                constrain_point(m_wrkpl->m_uuid, {m_temp_arc->m_uuid, get_last_point()});
+                constrain_point_and_add_head_tangent_constraint(m_wrkpl->m_uuid,
+                                                                {m_temp_arc->m_uuid, get_last_point()});
                 m_placing_center = true;
                 update_tip();
                 return ToolResponse();
@@ -278,8 +347,8 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             bool commit = false;
 
             if (m_constrain && m_entities.size()) {
-                if (constrain_point(m_wrkpl->m_uuid,
-                                    {m_entities.back()->m_uuid, was_placing_center ? 3 : last_point})) {
+                if (constrain_point_and_add_head_tangent_constraint(
+                            m_wrkpl->m_uuid, {m_entities.back()->m_uuid, was_placing_center ? 3 : last_point})) {
                     if (auto hsel = m_intf.get_hover_selection()) {
                         const auto paths = solid_model_util::Paths::from_document(get_doc(), m_wrkpl->m_uuid,
                                                                                   m_core.get_current_group());
@@ -421,7 +490,10 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
         } break;
 
         case InToolActionID::TOGGLE_TANGENT_CONSTRAINT: {
-            m_constrain_tangent = !m_constrain_tangent;
+            if (m_has_tangent_head)
+                m_constrain_tangent_head = !m_constrain_tangent_head;
+            else
+                m_constrain_tangent = !m_constrain_tangent;
         } break;
 
         case InToolActionID::TOGGLE_ARC: {
@@ -540,6 +612,25 @@ ToolResponse ToolDrawContour::end_tool()
     return ToolResponse();
 }
 
+std::optional<ConstraintType> ToolDrawContour::get_head_constraint(const Entity &en_head, const Entity &en_target)
+{
+    if (m_placing_center)
+        return {};
+    auto t_head = en_head.get_type();
+    auto t_target = en_target.get_type();
+    using ET = Entity::Type;
+
+    if ((t_head == ET::LINE_2D && t_target == ET::ARC_2D) || (t_head == ET::ARC_2D && t_target == ET::LINE_2D))
+        return Constraint::Type::ARC_LINE_TANGENT;
+    else if (t_head == ET::LINE_2D && t_target == ET::LINE_2D)
+        return Constraint::Type::PARALLEL;
+    else if (t_head == ET::ARC_2D && t_target == ET::ARC_2D)
+        return Constraint::Type::ARC_ARC_TANGENT;
+    else
+        return {};
+}
+
+
 void ToolDrawContour::update_tip()
 {
     std::vector<ActionLabelInfo> actions;
@@ -571,7 +662,49 @@ void ToolDrawContour::update_tip()
             actions.emplace_back(InToolActionID::TOGGLE_HV_CONSTRAINT, "h/v constraint on");
     }
 
-    if (m_last_tangent_point) {
+    std::vector<ConstraintType> constraint_icons;
+
+    m_has_tangent_head = false;
+    std::string constraint_tip;
+    if (m_constrain) {
+        std::string what = "to";
+        if (m_placing_center)
+            what = "center";
+        constraint_tip = get_constrain_tip(what);
+        if (auto ct = get_constraint_type()) {
+            constraint_icons.push_back(*ct);
+            if (*ct == ConstraintType::POINTS_COINCIDENT) {
+                if (auto en_a = dynamic_cast<const IEntityTangent *>(get_temp_entity())) {
+                    auto enp = m_intf.get_hover_selection().value().get_entity_and_point();
+                    if (auto en_t = dynamic_cast<const IEntityTangent *>(&get_entity(enp.entity))) {
+                        auto arc_tangent = glm::normalize(en_a->get_tangent_at_point(get_head_point()));
+                        auto target_tanget = glm::normalize(en_t->get_tangent_at_point(enp.point));
+                        auto angle = glm::degrees(acos(glm::dot(arc_tangent, target_tanget)));
+                        if (std::abs(angle - 180) < 45)
+                            m_has_tangent_head = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if (m_has_tangent_head && m_constrain_tangent_head) {
+        auto &en_head = *get_temp_entity();
+        auto &en_target = get_entity(m_intf.get_hover_selection().value().get_entity_and_point().entity);
+        const auto constraint_type = get_head_constraint(en_head, en_target);
+        if (constraint_type) {
+            constraint_icons.push_back(*constraint_type);
+        }
+    }
+
+
+    if (m_has_tangent_head) {
+        if (m_constrain_tangent_head)
+            actions.emplace_back(InToolActionID::TOGGLE_TANGENT_CONSTRAINT, "head tangent constraint off");
+        else
+            actions.emplace_back(InToolActionID::TOGGLE_TANGENT_CONSTRAINT, "head tangent constraint on");
+    }
+    else if (m_last_tangent_point) {
         if (m_constrain_tangent)
             actions.emplace_back(InToolActionID::TOGGLE_TANGENT_CONSTRAINT, "tangent constraint off");
         else
@@ -590,17 +723,7 @@ void ToolDrawContour::update_tip()
         tip += "invalid tangent ";
     }
 
-    std::vector<ConstraintType> constraint_icons;
-
-    if (m_constrain) {
-        std::string what = "to";
-        if (m_placing_center)
-            what = "center";
-        tip += get_constrain_tip(what);
-        if (auto ct = get_constraint_type()) {
-            constraint_icons.push_back(*ct);
-        }
-    }
+    tip += constraint_tip;
 
     if (auto ct = get_auto_constraint()) {
         if (*ct == Constraint::Type::HORIZONTAL)
@@ -621,10 +744,7 @@ void ToolDrawContour::update_tip()
                 tangent_point = 2;
             }
             else if (m_temp_arc) {
-                if (m_flip_arc)
-                    tangent_point = 1;
-                else
-                    tangent_point = 2;
+                tangent_point = get_arc_head_point();
             }
             v = m_wrkpl->transform_relative(en_t->get_tangent_at_point(tangent_point));
         }
