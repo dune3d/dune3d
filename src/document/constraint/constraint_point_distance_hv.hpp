@@ -12,7 +12,7 @@ public:
 
     std::pair<double, double> get_datum_range() const override
     {
-        return {-1e3, 1e3};
+        return {-1e6, 1e6};
     }
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;

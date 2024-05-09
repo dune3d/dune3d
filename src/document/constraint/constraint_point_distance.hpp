@@ -89,7 +89,7 @@ public:
 
     std::pair<double, double> get_datum_range() const override
     {
-        return {0, 1e3};
+        return {0, 1e6};
     }
 
     std::unique_ptr<Constraint> clone() const override;

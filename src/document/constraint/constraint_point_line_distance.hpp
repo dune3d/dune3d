@@ -81,9 +81,9 @@ public:
     std::pair<double, double> get_datum_range() const override
     {
         if (m_wrkpl)
-            return {-1e3, 1e3};
+            return {-1e6, 1e6};
         else
-            return {0, 1e3};
+            return {0, 1e6};
     }
 
     void accept(ConstraintVisitor &visitor) const override;

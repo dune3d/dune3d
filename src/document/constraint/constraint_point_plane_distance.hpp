@@ -66,7 +66,7 @@ public:
 
     std::pair<double, double> get_datum_range() const override
     {
-        return {-1e3, 1e3};
+        return {-1e6, 1e6};
     }
 
     EntityAndPoint m_point;

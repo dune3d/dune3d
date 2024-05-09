@@ -61,7 +61,7 @@ public:
 
     std::pair<double, double> get_datum_range() const override
     {
-        return {0, 1e3};
+        return {0, 1e6};
     }
 
     const UUID &get_workplane(const Document &doc) const override;
