@@ -41,9 +41,6 @@ jobs:
           pygobject3 \
           librsvg
 
-        # the stable meson version seems to crash with the cmake dependency
-        brew install --HEAD meson
-
         # glibmm's bottle appears to be broken and will currently result in the following error:
         #
         # ld: Undefined symbols:
