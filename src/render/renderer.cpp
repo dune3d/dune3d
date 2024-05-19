@@ -52,9 +52,8 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
                                 ICanvas::FaceColor::SOLID_MODEL);
             for (const auto &[edge_idx, path] : last_solid_model->m_edges) {
                 for (size_t i = 1; i < path.size(); i++) {
-                    m_ca.add_selectable(
-                            m_ca.draw_line(path.at(i - 1), path.at(i)),
-                            SelectableRef{m_document_uuid, SelectableRef::Type::SOLID_MODEL_EDGE, UUID(), edge_idx});
+                    m_ca.add_selectable(m_ca.draw_line(path.at(i - 1), path.at(i)),
+                                        SelectableRef{SelectableRef::Type::SOLID_MODEL_EDGE, UUID(), edge_idx});
                 }
             }
         }
@@ -135,14 +134,12 @@ void Renderer::render(const Entity &entity)
 void Renderer::visit(const EntityLine3D &line)
 {
     m_ca.add_selectable(m_ca.draw_line(line.m_p1, line.m_p2),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, line.m_uuid, 0});
+                        SelectableRef{SelectableRef::Type::ENTITY, line.m_uuid, 0});
     if (line.m_no_points)
         return;
 
-    m_ca.add_selectable(m_ca.draw_point(line.m_p1),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, line.m_uuid, 1});
-    m_ca.add_selectable(m_ca.draw_point(line.m_p2),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, line.m_uuid, 2});
+    m_ca.add_selectable(m_ca.draw_point(line.m_p1), SelectableRef{SelectableRef::Type::ENTITY, line.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(line.m_p2), SelectableRef{SelectableRef::Type::ENTITY, line.m_uuid, 2});
 }
 
 void Renderer::visit(const EntityLine2D &line)
@@ -150,20 +147,16 @@ void Renderer::visit(const EntityLine2D &line)
     auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(line.m_wrkpl));
     const auto p1 = wrkpl.transform(line.m_p1);
     const auto p2 = wrkpl.transform(line.m_p2);
-    m_ca.add_selectable(m_ca.draw_line(p1, p2),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, line.m_uuid, 0});
-    m_ca.add_selectable(m_ca.draw_point(p1),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, line.m_uuid, 1});
-    m_ca.add_selectable(m_ca.draw_point(p2),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, line.m_uuid, 2});
+    m_ca.add_selectable(m_ca.draw_line(p1, p2), SelectableRef{SelectableRef::Type::ENTITY, line.m_uuid, 0});
+    m_ca.add_selectable(m_ca.draw_point(p1), SelectableRef{SelectableRef::Type::ENTITY, line.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(p2), SelectableRef{SelectableRef::Type::ENTITY, line.m_uuid, 2});
 }
 
 void Renderer::visit(const EntityPoint2D &point)
 {
     auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(point.m_wrkpl));
     const auto p = wrkpl.transform(point.m_p);
-    m_ca.add_selectable(m_ca.draw_point(p),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, point.m_uuid, 0});
+    m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, point.m_uuid, 0});
 }
 static double angle(const glm::dvec2 &v)
 {
@@ -205,17 +198,17 @@ void Renderer::visit(const EntityArc2D &arc)
             const auto p0 = center + euler(radius0, a);
             const auto p1 = center + euler(radius0, a + dphi);
             m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(p0), wrkpl.transform(p1)),
-                                SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, arc.m_uuid, 0});
+                                SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 0});
             a += dphi;
         }
     }
 
     m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(arc.m_from)),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, arc.m_uuid, 1});
+                        SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 1});
     m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(arc.m_to)),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, arc.m_uuid, 2});
+                        SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 2});
     m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(arc.m_center)),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, arc.m_uuid, 3});
+                        SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 3});
 }
 
 void Renderer::visit(const EntityCircle2D &circle)
@@ -232,13 +225,13 @@ void Renderer::visit(const EntityCircle2D &circle)
             const auto p0 = circle.m_center + euler(circle.m_radius, a);
             const auto p1 = circle.m_center + euler(circle.m_radius, a + dphi);
             m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(p0), wrkpl.transform(p1)),
-                                SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, circle.m_uuid, 0});
+                                SelectableRef{SelectableRef::Type::ENTITY, circle.m_uuid, 0});
             a += dphi;
         }
     }
 
     m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(circle.m_center)),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, circle.m_uuid, 1});
+                        SelectableRef{SelectableRef::Type::ENTITY, circle.m_uuid, 1});
 }
 void Renderer::visit(const EntityCircle3D &circle)
 {
@@ -252,14 +245,12 @@ void Renderer::visit(const EntityCircle3D &circle)
             const auto p0 = circle.m_center + glm::rotate(circle.m_normal, glm::dvec3(euler(circle.m_radius, a), 0));
             const auto p1 =
                     circle.m_center + glm::rotate(circle.m_normal, glm::dvec3(euler(circle.m_radius, a + dphi), 0));
-            m_ca.add_selectable(m_ca.draw_line(p0, p1),
-                                SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, circle.m_uuid, 0});
+            m_ca.add_selectable(m_ca.draw_line(p0, p1), SelectableRef{SelectableRef::Type::ENTITY, circle.m_uuid, 0});
             a += dphi;
         }
     }
 
-    m_ca.add_selectable(m_ca.draw_point(circle.m_center),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, circle.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(circle.m_center), SelectableRef{SelectableRef::Type::ENTITY, circle.m_uuid, 1});
 }
 
 void Renderer::visit(const EntityArc3D &arc)
@@ -292,23 +283,19 @@ void Renderer::visit(const EntityArc3D &arc)
             const auto p0 = euler(radius0, a);
             const auto p1 = euler(radius0, a + dphi);
             m_ca.add_selectable(m_ca.draw_line(transform(p0), transform(p1)),
-                                SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, arc.m_uuid, 0});
+                                SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 0});
             a += dphi;
         }
     }
 
-    m_ca.add_selectable(m_ca.draw_point(arc.m_from),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, arc.m_uuid, 1});
-    m_ca.add_selectable(m_ca.draw_point(arc.m_to),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, arc.m_uuid, 2});
-    m_ca.add_selectable(m_ca.draw_point(arc.m_center),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, arc.m_uuid, 3});
+    m_ca.add_selectable(m_ca.draw_point(arc.m_from), SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(arc.m_to), SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 2});
+    m_ca.add_selectable(m_ca.draw_point(arc.m_center), SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 3});
 }
 
 void Renderer::visit(const EntityWorkplane &wrkpl)
 {
-    m_ca.add_selectable(m_ca.draw_point(wrkpl.m_origin),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, wrkpl.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(wrkpl.m_origin), SelectableRef{SelectableRef::Type::ENTITY, wrkpl.m_uuid, 1});
     glm::vec2 sz = wrkpl.m_size / 2.;
     std::array<glm::vec2, 4> pts = {
             glm::vec2(-sz),
@@ -316,7 +303,7 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
             glm::vec2(sz),
             glm::vec2(sz * glm::vec2(-1, 1)),
     };
-    const auto sr = SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, wrkpl.m_uuid, 0};
+    const auto sr = SelectableRef{SelectableRef::Type::ENTITY, wrkpl.m_uuid, 0};
 
     for (size_t i = 0; i < pts.size(); i++) {
         const auto p1 = wrkpl.transform(pts.at(i));
@@ -349,25 +336,24 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
 
 void Renderer::visit(const EntitySTEP &en)
 {
-    m_ca.add_selectable(m_ca.draw_point(en.m_origin),
-                        SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, en.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(en.m_origin), SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, 1});
 
     if (!en.m_show_points) {
         for (const auto &[idx, p] : en.m_anchors) {
             m_ca.add_selectable(m_ca.draw_point(en.transform(p)),
-                                SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, en.m_uuid, idx});
+                                SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, idx});
         }
     }
 
     if (en.m_imported) {
         m_ca.add_selectable(
                 m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal, ICanvas::FaceColor::AS_IS),
-                SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, en.m_uuid, 0});
+                SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, 0});
         if (en.m_show_points) {
             unsigned int idx = EntitySTEP::s_imported_point_offset;
             for (auto &pt : en.m_imported->result.points) {
                 m_ca.add_selectable(m_ca.draw_point(en.transform({pt.x, pt.y, pt.z})),
-                                    SelectableRef{m_document_uuid, SelectableRef::Type::ENTITY, en.m_uuid, idx++});
+                                    SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, idx++});
             }
         }
     }
@@ -413,7 +399,7 @@ void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, co
     auto p1 = project_point_onto_plane(from, n, text_p);
     auto p2 = project_point_onto_plane(to, n, text_p);
 
-    SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, uu, 0};
+    SelectableRef sr{SelectableRef::Type::CONSTRAINT, uu, 0};
     m_ca.add_selectable(m_ca.draw_line(p1, p2), sr);
     m_ca.add_selectable(m_ca.draw_line(from, p1), sr);
     m_ca.add_selectable(m_ca.draw_line(to, p2), sr);
@@ -508,7 +494,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     auto l = glm::normalize(from - to);
     glm::vec3 n = wrkpl.transform_relative(glm::vec2(-offset_norm.y, offset_norm.x));
 
-    SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
+    SelectableRef sr{SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
     m_ca.add_selectable(m_ca.draw_line(from, to), sr);
     const auto scale = constraint_arrow_scale;
     const auto aspect = constraint_arrow_aspect;
@@ -536,7 +522,7 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
     const double scale = constraint_arrow_scale;
     const double aspect = constraint_arrow_aspect;
     const double ext = constraint_line_extension;
-    SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
+    SelectableRef sr{SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
 
     glm::dvec2 pf, pt;
     if (constr.get_type() == Constraint::Type::POINT_DISTANCE_HORIZONTAL) {
@@ -760,7 +746,7 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
 
     auto transform = [&](const glm::dvec2 &p) { return is + p.x * vecs.u + p.y * vecs.v; };
 
-    SelectableRef sr{m_document_uuid, SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
+    SelectableRef sr{SelectableRef::Type::CONSTRAINT, constr.m_uuid, 0};
 
     {
         float a0 = 0;
@@ -870,8 +856,7 @@ void Renderer::draw_constraints()
             const auto vr = m_ca.draw_icon(constraint.icon, pos, glm::vec2(offset, -.9), v);
             m_ca.set_selection_invisible(false);
             if (constraint.constraint)
-                m_ca.add_selectable(
-                        vr, SelectableRef{m_document_uuid, SelectableRef::Type::CONSTRAINT, constraint.constraint, 0});
+                m_ca.add_selectable(vr, SelectableRef{SelectableRef::Type::CONSTRAINT, constraint.constraint, 0});
             offset += spacing;
         }
     }

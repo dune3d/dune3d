@@ -24,7 +24,7 @@ ToolResponse ToolSelectEdges::begin(const ToolArgs &args)
     m_intf.set_solid_model_edge_select_mode(true);
     m_selection.clear();
     for (const auto idx : m_group->m_edges) {
-        m_selection.insert(SelectableRef{UUID(), SelectableRef::Type::SOLID_MODEL_EDGE, UUID(), idx});
+        m_selection.insert(SelectableRef{SelectableRef::Type::SOLID_MODEL_EDGE, UUID(), idx});
     }
     m_intf.enable_hover_selection();
     {

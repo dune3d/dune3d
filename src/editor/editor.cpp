@@ -133,7 +133,7 @@ void Editor::init()
         sys.solve(&free_points);
         std::set<SelectableRef> sel;
         for (const auto &enp : free_points) {
-            sel.emplace(UUID(), SelectableRef::Type::ENTITY, enp.entity, enp.point);
+            sel.emplace(SelectableRef::Type::ENTITY, enp.entity, enp.point);
         }
         get_canvas().set_selection(sel, true);
         get_canvas().set_selection_mode(SelectionMode::NORMAL);
@@ -382,16 +382,16 @@ void Editor::init_canvas()
             // ignore constraint workplanes
             if (enp.entity == constraint_wrkpl)
                 continue;
-            sel.emplace(UUID(), SelectableRef::Type::ENTITY, enp.entity, enp.point);
+            sel.emplace(SelectableRef::Type::ENTITY, enp.entity, enp.point);
             if (enp.point != 0)
-                sel.emplace(UUID(), SelectableRef::Type::ENTITY, enp.entity, 0);
+                sel.emplace(SelectableRef::Type::ENTITY, enp.entity, 0);
             enps[enp.entity].insert(enp.point);
         }
         for (const auto &[uu, pts] : enps) {
             auto &entity = m_core.get_current_document().get_entity(uu);
             if (entity.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D)) {
                 if (pts.contains(1) && pts.contains(2)) {
-                    sel.emplace(UUID(), SelectableRef::Type::ENTITY, uu, 0);
+                    sel.emplace(SelectableRef::Type::ENTITY, uu, 0);
                 }
             }
         }
@@ -514,7 +514,7 @@ void Editor::init_properties_notebook()
     m_core.signal_rebuilt().connect([this] { m_constraints_box->update(); });
     m_core.signal_documents_changed().connect([this] { m_constraints_box->update(); });
     m_constraints_box->signal_constraint_selected().connect([this](const UUID &uu) {
-        SelectableRef sr{.document = UUID(), .type = SelectableRef::Type::CONSTRAINT, .item = uu};
+        SelectableRef sr{.type = SelectableRef::Type::CONSTRAINT, .item = uu};
         get_canvas().set_selection({sr}, true);
         get_canvas().set_selection_mode(SelectionMode::NORMAL);
     });
@@ -722,7 +722,7 @@ void Editor::init_actions()
                 if (edge.entity.m_uuid == en.m_uuid) {
                     std::set<SelectableRef> sel;
                     for (auto &[node2, edge2] : path) {
-                        sel.emplace(UUID(), SelectableRef::Type::ENTITY, edge2.entity.m_uuid, 0);
+                        sel.emplace(SelectableRef::Type::ENTITY, edge2.entity.m_uuid, 0);
                     }
                     get_canvas().set_selection(sel, true);
                     get_canvas().set_selection_mode(SelectionMode::NORMAL);
@@ -742,7 +742,7 @@ void Editor::init_actions()
         std::set<SelectableRef> sel;
         for (auto &[uu, en] : doc.m_entities) {
             if (en->m_group == group)
-                sel.emplace(UUID(), SelectableRef::Type::ENTITY, uu, 0);
+                sel.emplace(SelectableRef::Type::ENTITY, uu, 0);
         }
         get_canvas().set_selection(sel, true);
         get_canvas().set_selection_mode(SelectionMode::NORMAL);
