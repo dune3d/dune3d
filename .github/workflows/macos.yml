@@ -28,18 +28,22 @@ jobs:
     - name: Install
       shell: bash
       run: |
+        # Keep this package list in sync with the docs:
+        # https://github.com/dune3d/dune3d-docs/blob/main/build-macos.rst
         brew install \
-          llvm \
+          adwaita-icon-theme \
+          cmake \
           eigen \
-          opencascade \
-          pkg-config \
+          glm \
           gtk4 \
           gtkmm4 \
-          glm \
-          range-v3 \
-          mimalloc \
+          librsvg \
+          llvm \
+          meson \
+          opencascade \
+          pkg-config \
           pygobject3 \
-          librsvg
+          python@3
 
         # glibmm's bottle appears to be broken and will currently result in the following error:
         #
