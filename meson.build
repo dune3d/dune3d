@@ -16,7 +16,7 @@ eigen = dependency('eigen3')
 glm = dependency('glm')
 
 
-opencascade = dependency('OpenCASCADE', method : 'cmake', required:target_machine.system() != 'darwin')
+opencascade = dependency('OpenCASCADE', method : 'cmake')
 if target_machine.system() == 'darwin'
   message('meson\'s framework handling on macos with the cmake method is broken, replacing')
   opencascade_link_args = []
