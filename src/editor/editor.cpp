@@ -696,6 +696,18 @@ void Editor::init_actions()
         get_canvas().animate_to_cam_quat(r * q);
     });
 
+    connect_action(ActionID::VIEW_ROLL_LEFT, [this](auto &a) {
+        const auto q = get_canvas().get_cam_quat();
+        auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, glm::vec3(0, 0, -1)));
+        get_canvas().animate_to_cam_quat(r * q);
+    });
+
+    connect_action(ActionID::VIEW_ROLL_RIGHT, [this](auto &a) {
+        const auto q = get_canvas().get_cam_quat();
+        auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, glm::vec3(0, 0, 1)));
+        get_canvas().animate_to_cam_quat(r * q);
+    });
+
     connect_action(ActionID::ALIGN_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
     connect_action(ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
     connect_action(ActionID::CENTER_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_center_to_workplane));

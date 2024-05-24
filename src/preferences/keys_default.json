@@ -193,6 +193,28 @@
         ]
     },
     {
+        "action": "VIEW_ROLL_LEFT",
+        "keys": [
+            [
+                {
+                    "key": "Left",
+                    "mod": 8
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ROLL_RIGHT",
+        "keys": [
+            [
+                {
+                    "key": "Right",
+                    "mod": 8
+                }
+            ]
+        ]
+    },
+    {
         "action": "VIEW_TOGGLE_PERSP_ORTHO",
         "keys": [
             [
