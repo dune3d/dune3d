@@ -53,6 +53,7 @@ public:
             else if (auto constraint_type = std::get_if<Constraint::Type>(&type)) {
                 type_name = Constraint::get_type_name(*constraint_type);
             }
+            type_name += ":";
             {
                 auto la = Gtk::make_managed<Gtk::Label>(type_name);
                 la->set_xalign(1);
