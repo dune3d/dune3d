@@ -149,6 +149,50 @@
         ]
     },
     {
+        "action": "VIEW_ROTATE_UP",
+        "keys": [
+            [
+                {
+                    "key": "Up",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ROTATE_DOWN",
+        "keys": [
+            [
+                {
+                    "key": "Down",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ROTATE_LEFT",
+        "keys": [
+            [
+                {
+                    "key": "Left",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ROTATE_RIGHT",
+        "keys": [
+            [
+                {
+                    "key": "Right",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
         "action": "VIEW_TOGGLE_PERSP_ORTHO",
         "keys": [
             [
