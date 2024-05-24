@@ -35,7 +35,9 @@ public:
     using Type = EntityType;
     virtual Type get_type() const = 0;
     static std::string get_type_name(Type type);
+    static std::string get_type_name_plural(Type type);
     std::string get_type_name() const;
+    std::string get_type_name_plural() const;
 
     template <typename... Args> bool of_type(Args &&...args) const
     {
