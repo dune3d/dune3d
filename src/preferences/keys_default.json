@@ -215,6 +215,28 @@
         ]
     },
     {
+        "action": "VIEW_ZOOM_IN",
+        "keys": [
+            [
+                {
+                    "key": "z",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ZOOM_OUT",
+        "keys": [
+            [
+                {
+                    "key": "Z",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
         "action": "VIEW_TOGGLE_PERSP_ORTHO",
         "keys": [
             [

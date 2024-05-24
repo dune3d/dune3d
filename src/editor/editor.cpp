@@ -708,6 +708,20 @@ void Editor::init_actions()
         get_canvas().animate_to_cam_quat(r * q);
     });
 
+    connect_action(ActionID::VIEW_ZOOM_IN, [this](auto &a) {
+        get_canvas().set_zoom_to_cursor(false);
+        const auto cam_distance = get_canvas().get_cam_distance();
+        get_canvas().set_cam_distance(cam_distance / 1.25);
+        get_canvas().set_zoom_to_cursor(m_preferences.canvas.zoom_to_cursor);
+    });
+
+    connect_action(ActionID::VIEW_ZOOM_OUT, [this](auto &a) {
+        get_canvas().set_zoom_to_cursor(false);
+        const auto cam_distance = get_canvas().get_cam_distance();
+        get_canvas().set_cam_distance(cam_distance * 1.25);
+        get_canvas().set_zoom_to_cursor(m_preferences.canvas.zoom_to_cursor);
+    });
+
     connect_action(ActionID::ALIGN_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
     connect_action(ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
     connect_action(ActionID::CENTER_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_center_to_workplane));
