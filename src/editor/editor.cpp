@@ -1379,6 +1379,7 @@ void Editor::apply_preferences()
     }
     get_canvas().set_enable_animations(m_preferences.canvas.enable_animations);
     get_canvas().set_zoom_to_cursor(m_preferences.canvas.zoom_to_cursor);
+    get_canvas().set_rotation_scheme(m_preferences.canvas.rotation_scheme);
 
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     update_action_bar_visibility();

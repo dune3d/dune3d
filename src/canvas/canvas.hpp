@@ -17,6 +17,7 @@
 #include "appearance.hpp"
 #include "util/msd_animator.hpp"
 #include "clipping_planes.hpp"
+#include "rotation_scheme.hpp"
 #include <glm/glm.hpp>
 #include <filesystem>
 
@@ -182,6 +183,11 @@ public:
     void set_selection_filter(const ISelectionFilter &filter)
     {
         m_selection_filter = &filter;
+    }
+
+    void set_rotation_scheme(RotationScheme scheme)
+    {
+        m_rotation_scheme = scheme;
     }
 
     void set_show_error_overlay(bool show);
@@ -525,6 +531,7 @@ private:
 
     bool m_show_error_overlay = false;
     bool m_zoom_to_cursor = true;
+    RotationScheme m_rotation_scheme = RotationScheme::DEFAULT;
 };
 
 } // namespace dune3d

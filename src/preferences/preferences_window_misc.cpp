@@ -37,6 +37,17 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
                                                                  m_preferences.canvas.zoom_to_cursor);
             gr->add_row(*r);
         }
+        {
+            static const std::vector<std::pair<RotationScheme, std::string>> rotation_schemes = {
+                    {RotationScheme::DEFAULT, "Default"},
+                    {RotationScheme::LEGACY, "Legacy"},
+            };
+            auto r = Gtk::make_managed<PreferencesRowEnum<RotationScheme>>(
+                    "Rotation scheme", "How to translate mouse movement to rotation", m_preferences,
+                    m_preferences.canvas.rotation_scheme, rotation_schemes);
+            r->bind();
+            gr->add_row(*r);
+        }
     }
     {
         auto gr = Gtk::make_managed<PreferencesGroup>("Action Bar");

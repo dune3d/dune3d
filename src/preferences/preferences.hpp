@@ -6,6 +6,7 @@
 #include "action/action_catalog.hpp"
 #include "util/changeable.hpp"
 #include "canvas/appearance.hpp"
+#include "canvas/rotation_scheme.hpp"
 
 namespace dune3d {
 using json = nlohmann::json;
@@ -22,6 +23,7 @@ public:
     bool error_overlay = true;
     bool dark_theme = false;
     bool zoom_to_cursor = true;
+    RotationScheme rotation_scheme = RotationScheme::DEFAULT;
     std::string theme = "Default";
     enum class ThemeVariant { AUTO, DARK, LIGHT };
     ThemeVariant theme_variant = ThemeVariant::AUTO;

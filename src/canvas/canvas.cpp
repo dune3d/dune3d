@@ -239,7 +239,13 @@ void Canvas::setup_controllers()
         }
         const auto delta = glm::mat2(1, 0, 0, -1) * (glm::vec2(x, y) - m_pointer_pos_orig);
         if (m_pan_mode == PanMode::ROTATE) {
-            auto rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360), glm::vec3(0, 0, 1));
+            glm::quat rz;
+            if (m_rotation_scheme == RotationScheme::DEFAULT)
+                rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360),
+                                    glm::rotate(m_cam_quat_orig, glm::vec3(0, 1, 0)));
+            else
+                rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360), glm::vec3(0, 0, 1));
+
             auto rx = glm::angleAxis(glm::radians((delta.y / m_height) * 90),
                                      glm::rotate(m_cam_quat_orig, glm::vec3(1, 0, 0)));
             set_cam_quat(rz * rx * m_cam_quat_orig);
@@ -362,7 +368,12 @@ void Canvas::scroll_rotate(double dx, double dy, Gtk::EventController &ctrl)
 {
     auto delta = -glm::vec2(dx, dy);
 
-    auto rz = glm::angleAxis(glm::radians(delta.x * -9.f), glm::vec3(0, 0, 1));
+    // auto rz = glm::angleAxis(glm::radians(delta.x * -9.f), glm::vec3(0, 0, 1));
+    glm::quat rz;
+    if (m_rotation_scheme == RotationScheme::DEFAULT)
+        rz = glm::angleAxis(glm::radians(delta.x * -9.f), glm::rotate(m_cam_quat, glm::vec3(0, 1, 0)));
+    else
+        rz = glm::angleAxis(glm::radians(delta.x * -9.f), glm::vec3(0, 0, 1));
     auto rx = glm::angleAxis(glm::radians(delta.y * -9.f), glm::rotate(m_cam_quat, glm::vec3(1, 0, 0)));
     set_cam_quat(rz * rx * m_cam_quat);
 }
@@ -430,7 +441,11 @@ void Canvas::rotate_gesture_update_cb(Gdk::EventSequence *seq)
     double cx, cy;
     m_gesture_rotate->get_bounding_box_center(cx, cy);
     float dy = cy - m_gesture_rotate_pos_orig.y;
-    auto rz = glm::angleAxis((float)delta, glm::vec3(0, 0, 1));
+    glm::quat rz;
+    if (m_rotation_scheme == RotationScheme::DEFAULT)
+        rz = glm::angleAxis((float)delta, glm::rotate(m_gesture_rotate_cam_quat_orig, glm::vec3(0, 0, 1)));
+    else
+        rz = glm::angleAxis((float)delta, glm::vec3(0, 0, 1));
     auto rx = glm::angleAxis(glm::radians((dy / m_height) * -180),
                              glm::rotate(m_gesture_rotate_cam_quat_orig, glm::vec3(1, 0, 0)));
     set_cam_quat(rz * rx * m_gesture_rotate_cam_quat_orig);

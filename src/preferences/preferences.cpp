@@ -213,6 +213,11 @@ static const LutEnumStr<CanvasPreferences::ThemeVariant> theme_variant_lut = {
         {"dark", CanvasPreferences::ThemeVariant::DARK},
 };
 
+static const LutEnumStr<RotationScheme> rotation_scheme_lut = {
+        {"default", RotationScheme::DEFAULT},
+        {"legacy", RotationScheme::LEGACY},
+};
+
 json CanvasPreferences::serialize() const
 {
     json j = serialize_colors();
@@ -225,6 +230,7 @@ json CanvasPreferences::serialize() const
     j["pick_path"] = path_to_string(pick_path);
     j["error_overlay"] = error_overlay;
     j["zoom_to_cursor"] = zoom_to_cursor;
+    j["rotation_scheme"] = rotation_scheme_lut.lookup_reverse(rotation_scheme);
     return j;
 }
 
@@ -276,6 +282,8 @@ void CanvasPreferences::load_from_json(const json &j)
     pick_path = path_from_string(j.value("pick_path", ""));
     error_overlay = j.value("error_overlay", true);
     zoom_to_cursor = j.value("zoom_to_cursor", true);
+    if (j.contains("rotation_scheme"))
+        rotation_scheme = rotation_scheme_lut.lookup(j.at("rotation_scheme"), RotationScheme::DEFAULT);
     load_colors_from_json(j);
 }
 
