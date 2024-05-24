@@ -239,7 +239,8 @@ void Canvas::setup_controllers()
         }
         const auto delta = glm::mat2(1, 0, 0, -1) * (glm::vec2(x, y) - m_pointer_pos_orig);
         if (m_pan_mode == PanMode::ROTATE) {
-            auto rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360), glm::vec3(0, 0, 1));
+            auto rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360),
+                                     glm::rotate(m_cam_quat_orig, glm::vec3(0, 1, 0)));
             auto rx = glm::angleAxis(glm::radians((delta.y / m_height) * 90),
                                      glm::rotate(m_cam_quat_orig, glm::vec3(1, 0, 0)));
             set_cam_quat(rz * rx * m_cam_quat_orig);
