@@ -653,12 +653,14 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
                 button->set_menu_model(top);
             }
             button->set_icon_name("list-add-symbolic");
+            button->set_tooltip_text("Add new group");
             button->set_direction(Gtk::ArrowType::UP);
             box->append(*button);
         }
         {
             auto button = Gtk::make_managed<Gtk::Button>();
             button->set_icon_name("list-remove-symbolic");
+            button->set_tooltip_text("Delete current group");
             button->signal_clicked().connect([this] { m_signal_delete_current_group.emit(); });
             box->append(*button);
         }
