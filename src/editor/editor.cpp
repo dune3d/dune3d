@@ -672,41 +672,13 @@ void Editor::init_actions()
         get_canvas().animate_to_cam_quat(ry * q);
     });
 
-    connect_action(ActionID::VIEW_ROTATE_UP, [this](auto &a) {
-        const auto q = get_canvas().get_cam_quat();
-        auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, glm::vec3(1, 0, 0)));
-        get_canvas().animate_to_cam_quat(r * q);
-    });
+    connect_action(ActionID::VIEW_ROTATE_UP, sigc::mem_fun(*this, &Editor::on_rotate_camera));
+    connect_action(ActionID::VIEW_ROTATE_DOWN, sigc::mem_fun(*this, &Editor::on_rotate_camera));
+    connect_action(ActionID::VIEW_ROTATE_LEFT, sigc::mem_fun(*this, &Editor::on_rotate_camera));
+    connect_action(ActionID::VIEW_ROTATE_RIGHT, sigc::mem_fun(*this, &Editor::on_rotate_camera));
 
-    connect_action(ActionID::VIEW_ROTATE_DOWN, [this](auto &a) {
-        const auto q = get_canvas().get_cam_quat();
-        auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, glm::vec3(-1, 0, 0)));
-        get_canvas().animate_to_cam_quat(r * q);
-    });
-
-    connect_action(ActionID::VIEW_ROTATE_LEFT, [this](auto &a) {
-        const auto q = get_canvas().get_cam_quat();
-        auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, glm::vec3(0, 1, 0)));
-        get_canvas().animate_to_cam_quat(r * q);
-    });
-
-    connect_action(ActionID::VIEW_ROTATE_RIGHT, [this](auto &a) {
-        const auto q = get_canvas().get_cam_quat();
-        auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, glm::vec3(0, -1, 0)));
-        get_canvas().animate_to_cam_quat(r * q);
-    });
-
-    connect_action(ActionID::VIEW_ROLL_LEFT, [this](auto &a) {
-        const auto q = get_canvas().get_cam_quat();
-        auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, glm::vec3(0, 0, -1)));
-        get_canvas().animate_to_cam_quat(r * q);
-    });
-
-    connect_action(ActionID::VIEW_ROLL_RIGHT, [this](auto &a) {
-        const auto q = get_canvas().get_cam_quat();
-        auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, glm::vec3(0, 0, 1)));
-        get_canvas().animate_to_cam_quat(r * q);
-    });
+    connect_action(ActionID::VIEW_ROLL_LEFT, sigc::mem_fun(*this, &Editor::on_rotate_camera));
+    connect_action(ActionID::VIEW_ROLL_RIGHT, sigc::mem_fun(*this, &Editor::on_rotate_camera));
 
     connect_action(ActionID::VIEW_ZOOM_IN, [this](auto &a) {
         get_canvas().set_zoom_to_cursor(false);
@@ -877,6 +849,29 @@ void Editor::on_center_to_workplane(const ActionConnection &conn)
     get_canvas().animate_to_center_abs(wrkpl.m_origin);
 }
 
+void Editor::on_rotate_camera(const ActionConnection &conn)
+{
+    const auto action = std::get<ActionID>(conn.id);
+
+    glm::vec3 direction = {0, 0, 0};
+    if (action == ActionID::VIEW_ROTATE_UP) {
+        direction = glm::vec3(1, 0, 0);
+    } else if (action == ActionID::VIEW_ROTATE_DOWN) {
+        direction = glm::vec3(-1, 0, 0);
+    } else if (action == ActionID::VIEW_ROTATE_LEFT) {
+        direction = glm::vec3(0, 1, 0);
+    } else if (action == ActionID::VIEW_ROTATE_RIGHT) {
+        direction = glm::vec3(0, -1, 0);
+    } else if (action == ActionID::VIEW_ROLL_LEFT) {
+        direction = glm::vec3(0, 0, -1);
+    } else if (action == ActionID::VIEW_ROLL_RIGHT) {
+        direction = glm::vec3(0, 0, 1);
+    }
+
+    const auto q = get_canvas().get_cam_quat();
+    auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, direction));
+    get_canvas().animate_to_cam_quat(r * q);
+}
 
 void Editor::on_export_solid_model(const ActionConnection &conn)
 {
