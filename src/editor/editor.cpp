@@ -680,19 +680,8 @@ void Editor::init_actions()
     connect_action(ActionID::VIEW_ROLL_LEFT, sigc::mem_fun(*this, &Editor::on_rotate_camera));
     connect_action(ActionID::VIEW_ROLL_RIGHT, sigc::mem_fun(*this, &Editor::on_rotate_camera));
 
-    connect_action(ActionID::VIEW_ZOOM_IN, [this](auto &a) {
-        get_canvas().set_zoom_to_cursor(false);
-        const auto cam_distance = get_canvas().get_cam_distance();
-        get_canvas().set_cam_distance(cam_distance / 1.25);
-        get_canvas().set_zoom_to_cursor(m_preferences.canvas.zoom_to_cursor);
-    });
-
-    connect_action(ActionID::VIEW_ZOOM_OUT, [this](auto &a) {
-        get_canvas().set_zoom_to_cursor(false);
-        const auto cam_distance = get_canvas().get_cam_distance();
-        get_canvas().set_cam_distance(cam_distance * 1.25);
-        get_canvas().set_zoom_to_cursor(m_preferences.canvas.zoom_to_cursor);
-    });
+    connect_action(ActionID::VIEW_ZOOM_IN, sigc::mem_fun(*this, &Editor::on_view_zoom));
+    connect_action(ActionID::VIEW_ZOOM_OUT, sigc::mem_fun(*this, &Editor::on_view_zoom));
 
     connect_action(ActionID::ALIGN_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
     connect_action(ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
@@ -871,6 +860,22 @@ void Editor::on_rotate_camera(const ActionConnection &conn)
     const auto q = get_canvas().get_cam_quat();
     auto r = glm::angleAxis(glm::radians(90.f), glm::rotate(q, direction));
     get_canvas().animate_to_cam_quat(r * q);
+}
+
+void Editor::on_view_zoom(const ActionConnection &conn)
+{
+    const auto action = std::get<ActionID>(conn.id);
+
+    auto cam_distance = get_canvas().get_cam_distance();
+    if (action == ActionID::VIEW_ZOOM_IN) {
+        cam_distance /= 1.25;
+    } else if (action == ActionID::VIEW_ZOOM_OUT) {
+        cam_distance *= 1.25;
+    }
+
+    get_canvas().set_zoom_to_cursor(false);
+    get_canvas().set_cam_distance(cam_distance);
+    get_canvas().set_zoom_to_cursor(m_preferences.canvas.zoom_to_cursor);
 }
 
 void Editor::on_export_solid_model(const ActionConnection &conn)

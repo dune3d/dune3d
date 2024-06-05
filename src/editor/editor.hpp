@@ -83,6 +83,7 @@ private:
     void on_workspace_browser_body_solid_model_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
     void on_workspace_browser_activate_link(const std::string &link);
     void on_rotate_camera(const ActionConnection &conn);
+    void on_view_zoom(const ActionConnection &conn);
 
     void on_export_solid_model(const ActionConnection &conn);
     void on_export_paths(const ActionConnection &conn);
