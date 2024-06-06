@@ -55,13 +55,6 @@
                 <property name="css-classes">dim-label</property>
                 <property name="halign">end</property>
                 <property name="label">Antialiasing</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="css-classes">dim-label</property>
-                    <property name="halign">end</property>
-                    <property name="label">Antialiasing</property>
-                  </object>
-                </child>
                 <layout>
                   <property name="column">0</property>
                   <property name="column-span">1</property>
