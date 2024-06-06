@@ -1,11 +1,9 @@
 #include "preferences_window.hpp"
 #include "preferences.hpp"
-#include "util/gtk_util.hpp"
 #include "preferences_window_keys.hpp"
 #include "preferences_window_in_tool_keys.hpp"
 #include "preferences_window_canvas.hpp"
 #include "preferences_window_misc.hpp"
-#include <map>
 
 namespace dune3d {
 

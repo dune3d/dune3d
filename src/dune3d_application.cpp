@@ -123,11 +123,12 @@ PreferencesWindow *Dune3DApplication::show_preferences_window(guint32 timestamp)
 {
     if (!m_preferences_window) {
         m_preferences_window = new PreferencesWindow(m_preferences);
-
-        m_preferences_window->signal_destroy().connect([this] {
+        m_preferences_window->set_hide_on_close(true);
+        m_preferences_window->signal_hide().connect([this] {
             std::cout << "pref save" << std::endl;
-            m_preferences_window = nullptr;
             m_preferences.save();
+            delete m_preferences_window;
+            m_preferences_window = nullptr;
         });
     }
     m_preferences_window->present(timestamp);

@@ -1,7 +1,6 @@
 #pragma once
-#include <array>
 #include <gtkmm.h>
-#include <set>
+
 namespace dune3d {
 
 class PreferencesWindow : public Gtk::Window {
