@@ -496,8 +496,17 @@ void Editor::init_properties_notebook()
     m_properties_notebook->set_tab_pos(Gtk::PositionType::BOTTOM);
     m_win.get_left_bar().set_end_child(*m_properties_notebook);
     {
+        auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
         m_group_editor_box = Gtk::make_managed<Gtk::Box>();
-        m_properties_notebook->append_page(*m_group_editor_box, "Group");
+        m_group_editor_box->set_vexpand(true);
+        box->append(*m_group_editor_box);
+        auto label = Gtk::make_managed<Gtk::Label>("Commit pending");
+        label->set_margin(3);
+        m_commit_pending_revealer = Gtk::make_managed<Gtk::Revealer>();
+        m_commit_pending_revealer->set_transition_type(Gtk::RevealerTransitionType::CROSSFADE);
+        m_commit_pending_revealer->set_child(*label);
+        box->append(*m_commit_pending_revealer);
+        m_properties_notebook->append_page(*box, "Group");
     }
     m_core.signal_rebuilt().connect([this] {
         if (m_group_editor) {
@@ -1165,21 +1174,44 @@ void Editor::close_document(const UUID &doc_uu, std::function<void()> save_cb, s
 void Editor::update_group_editor()
 {
     if (m_group_editor) {
+        if (m_delayed_commit_connection.connected()) {
+            commit_from_group_editor();
+        }
         m_group_editor_box->remove(*m_group_editor);
         m_group_editor = nullptr;
     }
     if (!m_core.has_documents())
         return;
     m_group_editor = GroupEditor::create(m_core, m_core.get_current_group());
-    m_group_editor->signal_changed().connect([this] {
+    m_group_editor->signal_changed().connect([this](GroupEditor::CommitMode mode) {
+        if (mode == GroupEditor::CommitMode::DELAYED) {
+            m_core.get_current_document().update_pending(m_core.get_current_group());
+            m_delayed_commit_connection.disconnect(); // stop old timer
+            m_delayed_commit_connection = Glib::signal_timeout().connect(
+                    [this] {
+                        commit_from_group_editor();
+                        return false;
+                    },
+                    1000);
+            m_commit_pending_revealer->set_reveal_child(true);
+        }
+        else if (mode == GroupEditor::CommitMode::IMMEDIATE
+                 || (mode == GroupEditor::CommitMode::EXECUTE_DELAYED && m_delayed_commit_connection.connected())) {
+            commit_from_group_editor();
+        }
         m_core.set_needs_save();
-        m_core.rebuild("group edited");
         canvas_update_keep_selection();
     });
     m_group_editor->signal_trigger_action().connect([this](auto act) { trigger_action(act); });
     m_group_editor_box->append(*m_group_editor);
 }
 
+void Editor::commit_from_group_editor()
+{
+    m_delayed_commit_connection.disconnect();
+    m_commit_pending_revealer->set_reveal_child(false);
+    m_core.rebuild("group edited");
+}
 
 void Editor::update_workplane_label()
 {

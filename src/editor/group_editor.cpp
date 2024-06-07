@@ -10,6 +10,7 @@
 #include "core/core.hpp"
 #include "core/tool_id.hpp"
 #include "util/gtk_util.hpp"
+#include <iostream>
 
 namespace dune3d {
 
@@ -32,7 +33,7 @@ protected:
             auto &group = get_group();
             group.m_operation = static_cast<GroupExtrude::Operation>(m_operation_combo->get_selected());
             m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
         grid_attach_label_and_widget(*this, "Operation", *m_operation_combo, m_top);
 
@@ -80,7 +81,7 @@ public:
             else
                 group.m_direction = GroupExtrude::Direction::ARBITRARY;
             m_core.get_current_document().set_group_solve_pending(group.m_uuid);
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
         add_operation_combo();
         {
@@ -97,7 +98,7 @@ public:
                 auto &group = get_group();
                 group.m_mode = static_cast<GroupExtrude::Mode>(m_mode_combo->get_selected());
                 m_core.get_current_document().set_group_generate_pending(group.m_uuid);
-                m_signal_changed.emit();
+                m_signal_changed.emit(CommitMode::IMMEDIATE);
             });
             grid_attach_label_and_widget(*this, "Mode", *m_mode_combo, m_top);
         }
@@ -137,11 +138,7 @@ public:
         m_radius_sp->set_range(0, 1000);
         auto &group = get_group();
         m_radius_sp->set_value(group.m_radius);
-        spinbutton_connect_activate_immediate(*m_radius_sp, [this] {
-            get_group().m_radius = m_radius_sp->get_value();
-            m_core.get_current_document().set_group_update_solid_model_pending(get_group().m_uuid);
-            m_signal_changed.emit();
-        });
+        connect_spinbutton(*m_radius_sp, sigc::mem_fun(*this, &GroupEditorFillet::update_radius));
 
         grid_attach_label_and_widget(*this, "Radius", *m_radius_sp, m_top);
 
@@ -165,6 +162,17 @@ private:
         return m_core.get_current_document().get_group<GroupLocalOperation>(m_group_uu);
     }
 
+    bool update_radius()
+    {
+        if (is_reloading())
+            return false;
+        if (get_group().m_radius == m_radius_sp->get_value())
+            return false;
+        get_group().m_radius = m_radius_sp->get_value();
+        m_core.get_current_document().set_group_update_solid_model_pending(get_group().m_uuid);
+        return true;
+    }
+
     SpinButtonDim *m_radius_sp = nullptr;
 };
 
@@ -184,7 +192,7 @@ public:
                 return;
             get_group().m_show_xy = m_switch_xy->get_active();
             get_group().generate(m_core.get_current_document());
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
 
         m_switch_yz = Gtk::make_managed<Gtk::Switch>();
@@ -197,7 +205,7 @@ public:
                 return;
             get_group().m_show_yz = m_switch_yz->get_active();
             get_group().generate(m_core.get_current_document());
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
 
         m_switch_zx = Gtk::make_managed<Gtk::Switch>();
@@ -210,7 +218,7 @@ public:
                 return;
             get_group().m_show_zx = m_switch_zx->get_active();
             get_group().generate(m_core.get_current_document());
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
     }
 
@@ -245,11 +253,7 @@ public:
         m_sp_count->set_increments(1, 10);
         grid_attach_label_and_widget(*this, "Count", *m_sp_count, m_top);
         m_sp_count->set_value(group.m_count);
-        spinbutton_connect_activate_immediate(*m_sp_count, [this] {
-            get_group().m_count = m_sp_count->get_value_as_int();
-            m_core.get_current_document().set_group_generate_pending(get_group().m_uuid);
-            m_signal_changed.emit();
-        });
+        connect_spinbutton(*m_sp_count, sigc::mem_fun(*this, &GroupEditorArray::update_count));
 
 
         auto items = Gtk::StringList::create();
@@ -265,7 +269,7 @@ public:
             auto &group = get_group();
             group.m_offset = static_cast<GroupLinearArray::Offset>(m_offset_combo->get_selected());
             m_core.get_current_document().set_group_generate_pending(group.m_uuid);
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
         grid_attach_label_and_widget(*this, "Offset", *m_offset_combo, m_top);
     }
@@ -283,9 +287,44 @@ private:
         return m_core.get_current_document().get_group<GroupArray>(m_group_uu);
     }
 
+    bool update_count()
+    {
+        if (is_reloading())
+            return false;
+        if (get_group().m_count == m_sp_count->get_value_as_int())
+            return false;
+
+        get_group().m_count = m_sp_count->get_value_as_int();
+        m_core.get_current_document().set_group_generate_pending(get_group().m_uuid);
+        return true;
+    }
+
     Gtk::SpinButton *m_sp_count = nullptr;
     Gtk::DropDown *m_offset_combo = nullptr;
 };
+
+void GroupEditor::update_name()
+{
+    auto &group = m_core.get_current_document().get_group(m_group_uu);
+    const std::string new_name = m_name_entry->get_text();
+    if (group.m_name != new_name) {
+        group.m_name = new_name;
+        m_signal_changed.emit(CommitMode::IMMEDIATE);
+    }
+}
+
+void GroupEditor::update_body_name()
+{
+    auto &group = m_core.get_current_document().get_group(m_group_uu);
+    if (!group.m_body)
+        return;
+    auto &body = *group.m_body;
+    const std::string new_name = m_body_entry->get_text();
+    if (body.m_name != new_name) {
+        body.m_name = new_name;
+        m_signal_changed.emit(CommitMode::IMMEDIATE);
+    }
+}
 
 GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_group_uu(group_uu)
 {
@@ -328,11 +367,12 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
     m_name_entry = Gtk::make_managed<Gtk::Entry>();
     m_name_entry->set_text(group.m_name);
     grid_attach_label_and_widget(*this, "Name", *m_name_entry, m_top);
-    m_name_entry->signal_activate().connect([this] {
-        auto &group = m_core.get_current_document().get_group(m_group_uu);
-        group.m_name = m_name_entry->get_text();
-        m_signal_changed.emit();
-    });
+    m_name_entry->signal_activate().connect(sigc::mem_fun(*this, &GroupEditor::update_name));
+    {
+        auto controller = Gtk::EventControllerFocus::create();
+        controller->signal_leave().connect(sigc::mem_fun(*this, &GroupEditor::update_name));
+        m_name_entry->add_controller(controller);
+    }
 
     m_body_entry = Gtk::make_managed<Gtk::Entry>();
     if (group.m_body.has_value())
@@ -348,12 +388,13 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
         box->append(*m_body_entry);
         grid_attach_label_and_widget(*this, "Body", *box, m_top);
     }
-    m_body_entry->signal_activate().connect([this] {
-        auto &group = m_core.get_current_document().get_group(m_group_uu);
-        if (group.m_body.has_value())
-            group.m_body->m_name = m_body_entry->get_text();
-        m_signal_changed.emit();
-    });
+    m_body_entry->signal_activate().connect(sigc::mem_fun(*this, &GroupEditor::update_body_name));
+    {
+        auto controller = Gtk::EventControllerFocus::create();
+        controller->signal_leave().connect(sigc::mem_fun(*this, &GroupEditor::update_body_name));
+        m_body_entry->add_controller(controller);
+    }
+
     m_body_cb->signal_toggled().connect([this] {
         if (is_reloading())
             return;
@@ -364,7 +405,7 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
             group.m_body.reset();
         m_body_entry->set_sensitive(group.m_body.has_value());
         m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
-        m_signal_changed.emit();
+        m_signal_changed.emit(CommitMode::IMMEDIATE);
     });
 }
 
@@ -403,6 +444,29 @@ void GroupEditor::reload()
     m_reloading = true;
     do_reload();
     m_reloading = false;
+}
+
+void GroupEditor::connect_spinbutton(Gtk::SpinButton &sp, std::function<bool()> fn)
+{
+
+    sp.signal_value_changed().connect([this, fn] {
+        if (fn())
+            m_signal_changed.emit(CommitMode::DELAYED);
+    });
+
+    spinbutton_connect_activate_immediate(sp, [this, fn] {
+        if (fn())
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
+    });
+    {
+        auto psp = &sp;
+        auto controller = Gtk::EventControllerFocus::create();
+        controller->signal_leave().connect([this, psp] {
+            psp->update();
+            m_signal_changed.emit(GroupEditor::CommitMode::EXECUTE_DELAYED);
+        });
+        sp.add_controller(controller);
+    }
 }
 
 GroupEditor::~GroupEditor()
