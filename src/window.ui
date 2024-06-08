@@ -57,6 +57,7 @@
         <child type="start">
           <object class="GtkButton" id="new_button">
             <property name="icon-name">document-new-symbolic</property>
+            <property name="tooltip-text">Create new document</property>
           </object>
         </child>
         <child>
@@ -76,6 +77,7 @@
             <child>
               <object class="GtkButton" id="save_as_button">
                 <property name="icon-name">document-save-as-symbolic</property>
+                <property name="tooltip-text">Save As</property>
               </object>
             </child>
           </object>

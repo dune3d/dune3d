@@ -546,9 +546,6 @@ void Editor::init_header_bar()
     attach_action_button(m_win.get_save_button(), ActionID::SAVE);
     attach_action_button(m_win.get_save_as_button(), ActionID::SAVE_AS);
 
-    m_win.get_new_button().set_tooltip_text("Create new document");
-    m_win.get_save_as_button().set_tooltip_text("Save As");
-
     {
         auto undo_redo_box = Gtk::manage(new Gtk::Box(Gtk::Orientation::HORIZONTAL, 0));
         undo_redo_box->add_css_class("linked");
