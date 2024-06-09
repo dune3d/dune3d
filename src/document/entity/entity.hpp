@@ -36,8 +36,10 @@ public:
     virtual Type get_type() const = 0;
     static std::string get_type_name(Type type);
     static std::string get_type_name_plural(Type type);
+    static std::string get_type_name_for_n(Type type, std::size_t n);
     std::string get_type_name() const;
     std::string get_type_name_plural() const;
+    std::string get_type_name_for_n(std::size_t n) const;
 
     template <typename... Args> bool of_type(Args &&...args) const
     {

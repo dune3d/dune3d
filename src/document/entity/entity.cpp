@@ -74,6 +74,16 @@ std::string Entity::get_type_name_plural() const
     return get_type_name_plural(get_type());
 }
 
+std::string Entity::get_type_name_for_n(Type type, std::size_t n)
+{
+    return n == 1 ? get_type_name(type) : get_type_name_plural(type);
+}
+
+std::string Entity::get_type_name_for_n(std::size_t n) const
+{
+    return get_type_name_for_n(get_type(), n);
+}
+
 Entity::Entity(const UUID &uu, const json &j)
     : m_uuid(uu), m_name(j.value("name", "")), m_construction(j.value("construction", false))
 {
