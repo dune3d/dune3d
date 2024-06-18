@@ -43,6 +43,47 @@ std::string Entity::get_type_name() const
     return get_type_name(get_type());
 }
 
+std::string Entity::get_type_name_plural(Type type)
+{
+    switch (type) {
+    case Type::LINE_2D:
+        return "Lines in workplane";
+    case Type::LINE_3D:
+        return "Lines in 3D";
+    case Type::ARC_2D:
+        return "Arcs in workplane";
+    case Type::ARC_3D:
+        return "Arcs in 3D";
+    case Type::CIRCLE_2D:
+        return "Circles in workplane";
+    case Type::CIRCLE_3D:
+        return "Circles in 3D";
+    case Type::STEP:
+        return "STEP models";
+    case Type::WORKPLANE:
+        return "Workplanes";
+    case Type::POINT_2D:
+        return "Points in workplane";
+    default:
+        return "Entities";
+    }
+}
+
+std::string Entity::get_type_name_plural() const
+{
+    return get_type_name_plural(get_type());
+}
+
+std::string Entity::get_type_name_for_n(Type type, std::size_t n)
+{
+    return n == 1 ? get_type_name(type) : get_type_name_plural(type);
+}
+
+std::string Entity::get_type_name_for_n(std::size_t n) const
+{
+    return get_type_name_for_n(get_type(), n);
+}
+
 Entity::Entity(const UUID &uu, const json &j)
     : m_uuid(uu), m_name(j.value("name", "")), m_construction(j.value("construction", false))
 {

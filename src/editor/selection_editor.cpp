@@ -47,11 +47,12 @@ public:
         for (const auto &[type, count] : item_count) {
             std::string type_name;
             if (auto entity_type = std::get_if<Entity::Type>(&type)) {
-                type_name = Entity::get_type_name(*entity_type);
+                type_name = Entity::get_type_name_for_n(*entity_type, count);
             }
             else if (auto constraint_type = std::get_if<Constraint::Type>(&type)) {
                 type_name = Constraint::get_type_name(*constraint_type);
             }
+            type_name += ":";
             {
                 auto la = Gtk::make_managed<Gtk::Label>(type_name);
                 la->set_xalign(1);
