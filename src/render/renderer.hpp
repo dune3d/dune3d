@@ -1,12 +1,12 @@
 #pragma once
 #include "util/uuid.hpp"
-#include <map>
 #include <glm/glm.hpp>
 #include <list>
 #include "document/group/all_groups_fwd.hpp"
 #include "document/entity/entity_visitor.hpp"
 #include "document/constraint/constraint_visitor.hpp"
 #include "canvas/icanvas.hpp"
+#include <optional>
 
 namespace dune3d {
 
@@ -23,7 +23,8 @@ enum class ConstraintType;
 class Renderer : private EntityVisitor, private ConstraintVisitor {
 public:
     Renderer(ICanvas &ca);
-    void render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view);
+    void render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view,
+                std::optional<SelectableRef> sr);
 
     bool m_solid_model_edge_select_mode = false;
 
@@ -70,6 +71,7 @@ private:
     const IDocumentView *m_doc_view = nullptr;
     const Group *m_current_group = nullptr;
     const Group *m_current_body_group = nullptr;
+    bool m_is_current_document = true;
     UUID m_document_uuid;
 
     bool group_is_visible(const UUID &uu) const;

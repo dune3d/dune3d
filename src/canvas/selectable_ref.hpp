@@ -5,7 +5,7 @@
 namespace dune3d {
 class SelectableRef {
 public:
-    enum class Type { ENTITY, CONSTRAINT, SOLID_MODEL_EDGE };
+    enum class Type { ENTITY, CONSTRAINT, SOLID_MODEL_EDGE, DOCUMENT };
     Type type;
     UUID item;
     unsigned int point;
@@ -23,6 +23,11 @@ public:
     bool is_solid_model_edge() const
     {
         return type == Type::SOLID_MODEL_EDGE;
+    }
+
+    bool is_document() const
+    {
+        return type == Type::DOCUMENT;
     }
 
     EntityAndPoint get_entity_and_point() const;

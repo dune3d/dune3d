@@ -26,6 +26,12 @@ public:
     bool body_is_visible(const UUID &uu) const override;
     bool body_solid_model_is_visible(const UUID &uu) const override;
     bool group_is_visible(const UUID &uu) const override;
+
+    bool m_document_is_visible = true;
+    bool document_is_visible() const override
+    {
+        return m_document_is_visible;
+    }
 };
 
 } // namespace dune3d

@@ -51,5 +51,6 @@ struct LinesAndPoint {
 };
 
 std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
+std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel);
 
 } // namespace dune3d

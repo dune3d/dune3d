@@ -1156,8 +1156,11 @@ void Canvas::add_selectable(const VertexRef &vref, const SelectableRef &sref)
 {
     if (vref.type == VertexType::SELECTION_INVISIBLE)
         return;
-    m_vertex_to_selectable_map.emplace(vref, sref);
-    m_selectable_to_vertex_map[sref].push_back(vref);
+    SelectableRef sr = sref;
+    if (m_override_selectable.has_value())
+        sr = m_override_selectable.value();
+    m_vertex_to_selectable_map.emplace(vref, sr);
+    m_selectable_to_vertex_map[sr].push_back(vref);
 }
 
 Canvas::VertexFlags &Canvas::get_vertex_flags(const VertexRef &vref)
@@ -1408,6 +1411,22 @@ void Canvas::set_show_error_overlay(bool show)
 {
     m_show_error_overlay = show;
     queue_draw();
+}
+
+
+void Canvas::set_override_selectable(const SelectableRef &sr)
+{
+    if (m_override_selectable_count == 0)
+        m_override_selectable = sr;
+    m_override_selectable_count++;
+}
+
+void Canvas::unset_override_selectable()
+{
+    if (m_override_selectable_count)
+        m_override_selectable_count--;
+    if (m_override_selectable_count == 0)
+        m_override_selectable.reset();
 }
 
 } // namespace dune3d

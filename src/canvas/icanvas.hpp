@@ -27,8 +27,8 @@ public:
     virtual VertexRef draw_point(glm::vec3 p) = 0;
     virtual VertexRef draw_line(glm::vec3 from, glm::vec3 to) = 0;
     virtual VertexRef draw_screen_line(glm::vec3 origin, glm::vec3 direction) = 0;
-    virtual std::vector<VertexRef> draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext) = 0;
-    virtual std::vector<VertexRef> draw_bitmap_text_3d(const glm::vec3 p, const glm::quat &norm, float size,
+    virtual std::vector<VertexRef> draw_bitmap_text(glm::vec3 p, float size, const std::string &rtext) = 0;
+    virtual std::vector<VertexRef> draw_bitmap_text_3d(glm::vec3 p, const glm::quat &norm, float size,
                                                        const std::string &rtext) = 0;
 
     // virtual void add_faces(const face::Faces &faces) = 0;
@@ -43,6 +43,9 @@ public:
 
     virtual void add_selectable(const VertexRef &vref, const SelectableRef &sref) = 0;
     virtual void set_selection_invisible(bool selection_invisible) = 0;
+
+    virtual void set_override_selectable(const SelectableRef &sr) = 0;
+    virtual void unset_override_selectable() = 0;
 
     virtual void update_bbox() = 0;
 };

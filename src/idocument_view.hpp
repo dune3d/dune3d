@@ -5,6 +5,7 @@ namespace dune3d {
 
 class IDocumentView {
 public:
+    virtual bool document_is_visible() const = 0;
     virtual bool body_is_visible(const UUID &uu) const = 0;
     virtual bool body_solid_model_is_visible(const UUID &uu) const = 0;
     virtual bool group_is_visible(const UUID &uu) const = 0;

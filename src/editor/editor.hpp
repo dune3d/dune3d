@@ -78,6 +78,7 @@ private:
     void on_add_group(Group::Type group_type);
     void on_delete_current_group();
     void on_move_group(Document::MoveGroup op);
+    void on_workspace_browser_document_checked(const UUID &uu_doc, bool checked);
     void on_workspace_browser_group_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
     void on_workspace_browser_body_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
     void on_workspace_browser_body_solid_model_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
@@ -103,6 +104,7 @@ private:
 
     void canvas_update();
     void canvas_update_keep_selection();
+    void render_document(const Core::IDocumentInfo &doc);
 
     void tool_begin(ToolID id);
     void tool_process(ToolResponse &resp);
@@ -194,13 +196,13 @@ private:
 
     void set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints) override;
 
-    DocumentView m_document_view;
+    std::map<UUID, DocumentView> m_document_views;
 
     void handle_tool_change();
 
     void reset_key_hint_label();
 
-    void show_save_dialog(std::function<void()> save_cb, std::function<void()> no_save_cb);
+    void show_save_dialog(const std::string &doc_name, std::function<void()> save_cb, std::function<void()> no_save_cb);
     std::function<void()> m_after_save_cb;
     void close_document(const UUID &uu, std::function<void()> save_cb, std::function<void()> no_save_cb);
 

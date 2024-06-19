@@ -102,6 +102,9 @@ public:
 
 
     Glib::Property<Glib::ustring> m_name;
+    Glib::Property<bool> m_active;
+    Glib::Property<bool> m_check_active;
+    Glib::Property<bool> m_check_sensitive;
     UUID m_uuid;
     Glib::RefPtr<Gio::ListStore<BodyItem>> m_body_store;
 
@@ -117,7 +120,9 @@ public:
     }
 
 private:
-    DocumentItem() : Glib::ObjectBase("DocumentItem"), m_name(*this, "name")
+    DocumentItem()
+        : Glib::ObjectBase("DocumentItem"), m_name(*this, "name"), m_active(*this, "active"),
+          m_check_active(*this, "check_active", false), m_check_sensitive(*this, "check_sensitive", true)
     {
         m_body_store = Gio::ListStore<BodyItem>::create();
     }
@@ -127,7 +132,7 @@ private:
 
 GType WorkspaceBrowser::DocumentItem::gtype;
 
-void WorkspaceBrowser::update_documents(const DocumentView &doc_view)
+void WorkspaceBrowser::update_documents(const std::map<UUID, DocumentView> &doc_views)
 {
     block_signals();
     auto store = Gio::ListStore<DocumentItem>::create();
@@ -135,12 +140,14 @@ void WorkspaceBrowser::update_documents(const DocumentView &doc_view)
         auto mi = DocumentItem::create();
         mi->m_uuid = doci->get_uuid();
         Glib::RefPtr<BodyItem> body_item = BodyItem::create();
+        body_item->m_doc = mi->m_uuid;
         body_item->m_name = "Missing";
         for (auto gr : doci->get_document().get_groups_sorted()) {
             if (gr->m_body.has_value()) {
                 body_item = BodyItem::create();
                 body_item->m_name = gr->m_body->m_name;
                 body_item->m_uuid = gr->m_uuid;
+                body_item->m_doc = mi->m_uuid;
                 mi->m_body_store->append(body_item);
             }
 
@@ -157,13 +164,14 @@ void WorkspaceBrowser::update_documents(const DocumentView &doc_view)
                                          /* passthrough */ false, /* autoexpand */ true);
     m_selection_model->set_model(m_model);
     unblock_signals();
-    update_current_group(doc_view);
+    update_current_group(doc_views);
     // m_selection_model->set_selected(sel);
 }
 
 void WorkspaceBrowser::block_signals()
 {
     m_signal_group_checked.block();
+    m_signal_document_checked.block();
     m_signal_body_checked.block();
     m_signal_group_selected.block();
     m_signal_body_solid_model_checked.block();
@@ -172,6 +180,7 @@ void WorkspaceBrowser::block_signals()
 void WorkspaceBrowser::unblock_signals()
 {
     m_signal_group_checked.unblock();
+    m_signal_document_checked.unblock();
     m_signal_body_checked.unblock();
     m_signal_group_selected.unblock();
     m_signal_body_solid_model_checked.unblock();
@@ -196,17 +205,24 @@ static std::string icon_name_from_status(GroupStatusMessage::Status st)
     return "face-worried-symbolic";
 }
 
-void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
+void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &doc_views)
 {
     block_signals();
     for (size_t i_doc = 0; i_doc < m_document_store->get_n_items(); i_doc++) {
         auto &it_doc = *m_document_store->get_item(i_doc);
         auto &doci = m_core.get_idocument_info(it_doc.m_uuid);
+        auto &doc_view = doc_views.at(doci.get_uuid());
+        const auto is_current_doc = doci.get_uuid() == m_core.get_current_idocument_info().get_uuid();
+        it_doc.m_check_sensitive = !is_current_doc;
+        it_doc.m_check_active = is_current_doc || doc_view.document_is_visible();
+        it_doc.m_active = is_current_doc;
         const auto bn = doci.get_basename();
         if (bn.size())
             it_doc.m_name = bn;
         else
             it_doc.m_name = "New Document";
+        if (doci.get_needs_save())
+            it_doc.m_name = it_doc.m_name + " *";
         const auto &current_group = doci.get_document().get_group(doci.get_current_group());
         UUID source_group;
         if (auto group_src = dynamic_cast<const IGroupSourceGroup *>(&current_group))
@@ -217,8 +233,8 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
         for (size_t i_body = 0; i_body < it_doc.m_body_store->get_n_items(); i_body++) {
             auto &it_body = *it_doc.m_body_store->get_item(i_body);
 
-            it_body.m_check_sensitive = body_uu != it_body.m_uuid;
-            if (body_uu == it_body.m_uuid)
+            it_body.m_check_sensitive = (body_uu != it_body.m_uuid) || !is_current_doc;
+            if (body_uu == it_body.m_uuid && is_current_doc)
                 it_body.m_check_active = true;
             else
                 it_body.m_check_active = doc_view.body_is_visible(it_body.m_uuid);
@@ -228,12 +244,12 @@ void WorkspaceBrowser::update_current_group(const DocumentView &doc_view)
             for (size_t i_group = 0; i_group < it_body.m_group_store->get_n_items(); i_group++) {
                 auto &it_group = *it_body.m_group_store->get_item(i_group);
                 bool is_current = doci.get_current_group() == it_group.m_uuid;
-                it_group.m_active = is_current;
+                it_group.m_active = is_current && is_current_doc;
                 auto &gr = doci.get_document().get_group(it_group.m_uuid);
                 it_group.m_dof = gr.m_dof;
                 it_group.m_name = gr.m_name;
                 it_group.m_source_group = it_group.m_uuid == source_group;
-                if (is_current) {
+                if (is_current && is_current_doc) {
                     it_group.m_check_active = true;
                     it_group.m_check_sensitive = false;
                 }
@@ -370,6 +386,8 @@ public:
                 m_browser.signal_body_checked().emit(m_body->m_doc, m_body->m_uuid, m_checkbutton->get_active());
             if (m_group)
                 m_browser.signal_group_checked().emit(m_group->m_doc, m_group->m_uuid, m_checkbutton->get_active());
+            if (m_doc)
+                m_browser.signal_document_checked().emit(m_doc->m_uuid, m_checkbutton->get_active());
         });
 
         m_dof_label = Gtk::make_managed<Gtk::Label>("0");
@@ -396,15 +414,26 @@ public:
     {
         m_doc = &it;
         m_browser.block_signals();
-        m_checkbutton->set_visible(false);
+        m_checkbutton->set_visible(true);
         m_solid_toggle->set_visible(false);
         m_dof_label->set_visible(false);
         m_status_button->set_visible(false);
         m_close_button->set_visible(true);
         m_source_group_image->set_visible(false);
         m_label->set_attributes(m_attrs_normal);
+        m_bindings.push_back(Glib::Binding::bind_property_value(
+                it.m_check_active.get_proxy(), m_checkbutton->property_active(), Glib::Binding::Flags::SYNC_CREATE));
+        m_bindings.push_back(Glib::Binding::bind_property_value(it.m_check_sensitive.get_proxy(),
+                                                                m_checkbutton->property_sensitive(),
+                                                                Glib::Binding::Flags::SYNC_CREATE));
         m_bindings.push_back(Glib::Binding::bind_property_value(it.m_name.get_proxy(), m_label->property_label(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
+        update_label_attrs(it);
+
+
+        m_connections.push_back(
+                it.m_active.get_proxy().signal_changed().connect([this, &it] { update_label_attrs(it); }));
+
         m_browser.unblock_signals();
     }
     void bind(BodyItem &it)
@@ -504,7 +533,15 @@ private:
 
     void update_label_attrs(GroupItem &it)
     {
-        if (it.m_active.get_value())
+        update_label_attrs(it.m_active);
+    }
+    void update_label_attrs(DocumentItem &it)
+    {
+        update_label_attrs(it.m_active);
+    }
+    void update_label_attrs(const Glib::Property<bool> &prop)
+    {
+        if (prop.get_value())
             m_label->set_attributes(m_attrs_bold);
         else
             m_label->set_attributes(m_attrs_normal);

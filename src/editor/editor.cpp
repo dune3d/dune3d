@@ -55,7 +55,10 @@ void Editor::init()
     init_tool_popover();
     init_canvas();
 
-    m_core.signal_needs_save().connect([this] { update_action_sensitivity(); });
+    m_core.signal_needs_save().connect([this] {
+        update_action_sensitivity();
+        m_workspace_browser->update_current_group(m_document_views);
+    });
     get_canvas().signal_selection_changed().connect([this] { update_action_sensitivity(); });
 
     m_win.signal_close_request().connect(
@@ -85,7 +88,7 @@ void Editor::init()
 
     m_core.signal_documents_changed().connect([this] {
         canvas_update_keep_selection();
-        m_workspace_browser->update_documents(m_document_view);
+        m_workspace_browser->update_documents(m_document_views);
         update_group_editor();
         update_workplane_label();
         update_action_sensitivity();
@@ -619,7 +622,10 @@ void Editor::init_actions()
     });
 
 
-    connect_action(ActionID::NEW_DOCUMENT, [this](auto &a) { m_core.add_document(); });
+    connect_action(ActionID::NEW_DOCUMENT, [this](auto &a) {
+        auto uu = m_core.add_document();
+        m_document_views[uu];
+    });
     connect_action(ActionID::OPEN_DOCUMENT, sigc::mem_fun(*this, &Editor::on_open_document));
 
 
@@ -633,10 +639,10 @@ void Editor::init_actions()
         auto &doc = m_core.get_current_document();
         auto &group = doc.get_group(m_core.get_current_group());
         auto &body_group = group.find_body(doc).group.m_uuid;
+        auto &doc_view = m_document_views[m_core.get_current_idocument_info().get_uuid()];
 
-        m_document_view.m_body_views[body_group].m_solid_model_visible =
-                !m_document_view.body_solid_model_is_visible(body_group);
-        m_workspace_browser->update_current_group(m_document_view);
+        doc_view.m_body_views[body_group].m_solid_model_visible = !doc_view.body_solid_model_is_visible(body_group);
+        m_workspace_browser->update_current_group(m_document_views);
         canvas_update_keep_selection();
     });
 
@@ -756,6 +762,14 @@ void Editor::init_actions()
         get_canvas().set_selection(sel, true);
         get_canvas().set_selection_mode(SelectionMode::NORMAL);
         return;
+    });
+
+    connect_action(ActionID::SET_CURRENT_DOCUMENT, [this](const auto &a) {
+        if (auto doc = document_from_selection(get_canvas().get_selection())) {
+            m_core.set_current_document(doc.value());
+            m_workspace_browser->update_current_group(m_document_views);
+            canvas_update_keep_selection();
+        }
     });
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
@@ -918,8 +932,9 @@ void Editor::on_export_paths(const ActionConnection &conn)
                 if (action == ActionID::EXPORT_PATHS_IN_CURRENT_GROUP)
                     return false;
                 auto &body_group = group.find_body(m_core.get_current_document()).group;
-                auto group_visible = m_document_view.group_is_visible(group.m_uuid);
-                auto body_visible = m_document_view.body_is_visible(body_group.m_uuid);
+                auto &doc_view = m_document_views[m_core.get_current_idocument_info().get_uuid()];
+                auto group_visible = doc_view.group_is_visible(group.m_uuid);
+                auto body_visible = doc_view.body_is_visible(body_group.m_uuid);
                 return body_visible && group_visible;
             };
             export_paths(path, m_core.get_current_document(), m_core.get_current_group(), group_filter);
@@ -1067,7 +1082,7 @@ void Editor::on_save_as(const ActionConnection &conn)
             // std::cout << "File selected: " << filename << std::endl;
             m_win.get_app().add_recent_item(filename);
             m_core.save_as(filename);
-            m_workspace_browser->update_documents(m_document_view);
+            m_workspace_browser->update_documents(m_document_views);
             update_version_info();
             if (m_after_save_cb)
                 m_after_save_cb();
@@ -1126,9 +1141,10 @@ const Canvas &Editor::get_canvas() const
 }
 
 
-void Editor::show_save_dialog(std::function<void()> save_cb, std::function<void()> no_save_cb)
+void Editor::show_save_dialog(const std::string &doc_name, std::function<void()> save_cb,
+                              std::function<void()> no_save_cb)
 {
-    auto dialog = Gtk::AlertDialog::create("Save changes before closing?");
+    auto dialog = Gtk::AlertDialog::create("Save changes to document \"" + doc_name + "\" before closing?");
     dialog->set_detail(
             "If you don't save, all your changes will be permanently "
             "lost.");
@@ -1152,6 +1168,7 @@ void Editor::close_document(const UUID &doc_uu, std::function<void()> save_cb, s
     const auto &doci = m_core.get_idocument_info(doc_uu);
     if (doci.get_needs_save()) {
         show_save_dialog(
+                doci.get_basename(),
                 [this, doc_uu, save_cb, no_save_cb] {
                     m_after_save_cb = [this, doc_uu, save_cb] {
                         m_core.close_document(doc_uu);
@@ -1252,10 +1269,10 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::SAVE] = m_core.get_needs_save();
     m_action_sensitivity[ActionID::SAVE_AS] = m_core.has_documents();
     m_action_sensitivity[ActionID::CLOSE_DOCUMENT] = m_core.has_documents();
-    m_action_sensitivity[ActionID::OPEN_DOCUMENT] = !m_core.has_documents();
+    m_action_sensitivity[ActionID::OPEN_DOCUMENT] = true;
 
     m_action_sensitivity[ActionID::TOGGLE_SOLID_MODEL] = m_core.has_documents();
-    m_action_sensitivity[ActionID::NEW_DOCUMENT] = !m_core.has_documents();
+    m_action_sensitivity[ActionID::NEW_DOCUMENT] = true;
     m_action_sensitivity[ActionID::TOGGLE_WORKPLANE] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_UNDERCONSTRAINED] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP] = m_core.has_documents();
@@ -1305,6 +1322,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
 
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = has_current_wrkpl;
+        m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = document_from_selection(sel).has_value();
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
@@ -1317,6 +1335,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::SELECT_PATH] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = false;
+        m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = false;
     }
 
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = has_solid_model;
@@ -1503,20 +1522,38 @@ void Editor::update_error_overlay()
     }
 }
 
+void Editor::render_document(const Core::IDocumentInfo &doc)
+{
+    auto &doc_view = m_document_views[doc.get_uuid()];
+    if (!doc_view.m_document_is_visible && (doc.get_uuid() != m_core.get_current_idocument_info().get_uuid()))
+        return;
+    std::optional<SelectableRef> sr;
+    if (doc.get_uuid() != m_core.get_current_idocument_info().get_uuid()) {
+        sr = SelectableRef{SelectableRef::Type::DOCUMENT, doc.get_uuid()};
+    }
+    Renderer renderer(get_canvas());
+    renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
+
+    if (doc.get_uuid() == m_core.get_current_idocument_info().get_uuid())
+        renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
+
+    renderer.render(doc.get_document(), doc.get_current_group(), doc_view, sr);
+}
+
 void Editor::canvas_update()
 {
     auto docs = m_core.get_documents();
     auto hover_sel = get_canvas().get_hover_selection();
     get_canvas().clear();
+
+    if (m_core.has_documents())
+        render_document(m_core.get_current_idocument_info());
+
     for (const auto doc : docs) {
-        Renderer renderer(get_canvas());
-        renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
-
-        if (doc->get_uuid() == m_core.get_current_idocument_info().get_uuid())
-            renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
-
-        renderer.render(doc->get_document(), doc->get_current_group(), m_document_view);
+        if (doc->get_uuid() != m_core.get_current_idocument_info().get_uuid())
+            render_document(*doc);
     }
+
     get_canvas().set_hover_selection(hover_sel);
     update_error_overlay();
     get_canvas().request_push();
@@ -1737,6 +1774,9 @@ std::optional<ActionToolID> Editor::get_doubleclick_action(const SelectableRef &
             return ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE;
         default:;
         }
+    }
+    else if (sr.type == SelectableRef::Type::DOCUMENT) {
+        return ActionID::SET_CURRENT_DOCUMENT;
     }
     return {};
 }
@@ -2026,8 +2066,6 @@ void Editor::update_version_info()
 
 void Editor::open_file(const std::filesystem::path &path)
 {
-    if (m_core.has_documents())
-        return;
     m_core.add_document(path);
     m_win.get_app().add_recent_item(path);
 }

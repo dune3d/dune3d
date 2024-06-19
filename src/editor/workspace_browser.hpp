@@ -13,8 +13,8 @@ class WorkspaceBrowser : public Gtk::Box {
 public:
     WorkspaceBrowser(Core &core);
 
-    void update_documents(const DocumentView &doc_view);
-    void update_current_group(const DocumentView &doc_view);
+    void update_documents(const std::map<UUID, DocumentView> &doc_views);
+    void update_current_group(const std::map<UUID, DocumentView> &doc_views);
 
 
     using type_signal_group_selected = sigc::signal<void(UUID, UUID)>;
@@ -24,6 +24,7 @@ public:
     }
 
     using type_signal_group_checked = sigc::signal<void(UUID, UUID, bool)>;
+    using type_signal_document_checked = sigc::signal<void(UUID, bool)>;
     type_signal_group_checked signal_group_checked()
     {
         return m_signal_group_checked;
@@ -37,6 +38,11 @@ public:
     type_signal_group_checked signal_body_solid_model_checked()
     {
         return m_signal_body_solid_model_checked;
+    }
+
+    type_signal_document_checked signal_document_checked()
+    {
+        return m_signal_document_checked;
     }
 
     using type_signal_delete_current_group = sigc::signal<void()>;
@@ -99,6 +105,7 @@ private:
     type_signal_group_checked m_signal_group_checked;
     type_signal_group_checked m_signal_body_checked;
     type_signal_group_checked m_signal_body_solid_model_checked;
+    type_signal_document_checked m_signal_document_checked;
 
     type_signal_delete_current_group m_signal_delete_current_group;
     type_signal_add_group m_signal_add_group;

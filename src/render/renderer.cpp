@@ -37,12 +37,17 @@ bool Renderer::group_is_visible(const UUID &uu) const
     return true;
 }
 
-void Renderer::render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view)
+void Renderer::render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view,
+                      std::optional<SelectableRef> sr)
 {
     m_doc = &doc;
     m_doc_view = &doc_view;
     m_current_group = &doc.get_group(current_group);
     m_current_body_group = &m_current_group->find_body(doc).group;
+    m_is_current_document = !sr.has_value();
+
+    if (sr)
+        m_ca.set_override_selectable(*sr);
 
 
     if (m_solid_model_edge_select_mode) {
@@ -95,32 +100,38 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
                     body_groups.groups, [current_group](auto group) { return group->m_uuid == current_group; });
             const auto color =
                     is_current ? ICanvas::FaceColor::SOLID_MODEL : ICanvas::FaceColor::OTHER_BODY_SOLID_MODEL;
-            m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0}, glm::quat_identity<float, glm::defaultp>(),
-                                color);
+            const auto vref = m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0},
+                                                  glm::quat_identity<float, glm::defaultp>(), color);
+            if (sr)
+                m_ca.add_selectable(vref, *sr);
         }
     }
 
 
-    for (const auto &[uu, el] : doc.m_constraints) {
-        if (m_current_group->m_uuid != el->m_group)
-            continue;
-        el->accept(*this);
-    }
+    if (!sr) {
+        for (const auto &[uu, el] : doc.m_constraints) {
 
-    draw_constraints();
+            if (m_current_group->m_uuid != el->m_group)
+                continue;
+            el->accept(*this);
+        }
+        draw_constraints();
+    }
 
     m_ca.update_bbox();
 
     m_doc = nullptr;
     m_doc_view = nullptr;
     m_current_group = nullptr;
+    if (sr)
+        m_ca.unset_override_selectable();
 }
 
 void Renderer::render(const Entity &entity)
 {
     if (!entity.m_visible)
         return;
-    if (entity.m_construction && entity.m_group != m_current_group->m_uuid)
+    if (entity.m_construction && (entity.m_group != m_current_group->m_uuid || !m_is_current_document))
         return;
     m_ca.set_vertex_inactive(entity.m_group != m_current_group->m_uuid);
     m_ca.set_selection_invisible(entity.m_selection_invisible);
@@ -295,6 +306,9 @@ void Renderer::visit(const EntityArc3D &arc)
 
 void Renderer::visit(const EntityWorkplane &wrkpl)
 {
+    if (!m_is_current_document)
+        return;
+
     m_ca.add_selectable(m_ca.draw_point(wrkpl.m_origin), SelectableRef{SelectableRef::Type::ENTITY, wrkpl.m_uuid, 1});
     glm::vec2 sz = wrkpl.m_size / 2.;
     std::array<glm::vec2, 4> pts = {

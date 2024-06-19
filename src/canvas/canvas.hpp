@@ -46,8 +46,8 @@ public:
     VertexRef draw_point(glm::vec3 p) override;
     VertexRef draw_line(glm::vec3 from, glm::vec3 to) override;
     VertexRef draw_screen_line(glm::vec3 origin, glm::vec3 direction) override;
-    std::vector<VertexRef> draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext) override;
-    std::vector<VertexRef> draw_bitmap_text_3d(const glm::vec3 p, const glm::quat &norm, float size,
+    std::vector<VertexRef> draw_bitmap_text(glm::vec3 p, float size, const std::string &rtext) override;
+    std::vector<VertexRef> draw_bitmap_text_3d(glm::vec3 p, const glm::quat &norm, float size,
                                                const std::string &rtext) override;
     void add_selectable(const VertexRef &vref, const SelectableRef &sref) override;
     void set_vertex_inactive(bool inactive) override
@@ -195,6 +195,9 @@ public:
     void setup_controllers();
 
     void update_bbox() override;
+
+    void set_override_selectable(const SelectableRef &sr) override;
+    void unset_override_selectable() override;
 
 private:
     BackgroundRenderer m_background_renderer;
@@ -532,6 +535,9 @@ private:
     bool m_show_error_overlay = false;
     bool m_zoom_to_cursor = true;
     RotationScheme m_rotation_scheme = RotationScheme::DEFAULT;
+
+    std::optional<SelectableRef> m_override_selectable;
+    unsigned int m_override_selectable_count = 0;
 };
 
 } // namespace dune3d

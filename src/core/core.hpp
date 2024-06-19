@@ -130,6 +130,11 @@ public:
         if (get_current_document().get_groups().contains(uu))
             get_current_document_info().m_current_group = uu;
     }
+    void set_current_document(const UUID &uu)
+    {
+        if (m_documents.contains(uu))
+            m_current_document = uu;
+    }
 
     UUID get_current_workplane() const override
     {

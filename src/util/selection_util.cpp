@@ -228,4 +228,14 @@ std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc,
 }
 
 
+std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel)
+{
+    if (sel.size() != 1)
+        return {};
+    auto &it = *sel.begin();
+    if (!it.is_document())
+        return {};
+    return it.item;
+}
+
 } // namespace dune3d
