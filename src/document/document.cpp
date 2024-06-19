@@ -114,11 +114,7 @@ Document::Document(const Document &other) : m_version(other.m_version)
 
 Document Document::new_from_file(const std::filesystem::path &path)
 {
-    try {
-        return Document{load_json_from_file(path), path.parent_path()};
-    }
-    CATCH_LOG(Logger::Level::WARNING, "error opening document" + path_to_string(path), Logger::Domain::DOCUMENT)
-    return {};
+    return Document{load_json_from_file(path), path.parent_path()};
 }
 
 std::vector<Group *> Document::get_groups_sorted()

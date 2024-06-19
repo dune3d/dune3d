@@ -34,6 +34,7 @@
 #include "widgets/clipping_plane_window.hpp"
 #include "widgets/selection_filter_window.hpp"
 #include "system/system.hpp"
+#include "logger/log_util.hpp"
 #include <iostream>
 #include <format>
 
@@ -2066,8 +2067,12 @@ void Editor::update_version_info()
 
 void Editor::open_file(const std::filesystem::path &path)
 {
-    m_core.add_document(path);
-    m_win.get_app().add_recent_item(path);
+    try {
+        auto uu = m_core.add_document(path);
+        m_document_views[uu];
+        m_win.get_app().add_recent_item(path);
+    }
+    CATCH_LOG(Logger::Level::WARNING, "error opening document" + path_to_string(path), Logger::Domain::DOCUMENT)
 }
 
 void Editor::tool_bar_set_tool_tip(const std::string &s)
