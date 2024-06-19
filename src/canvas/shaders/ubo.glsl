@@ -21,6 +21,13 @@ vec3 get_color(uint flags)
     return colors[flags & VERTEX_FLAG_COLOR_MASK];
 }
 
+float get_depth_shift(uint flags)
+{
+    if((flags & (VERTEX_FLAG_SELECTED)) != uint(0))
+        return -0.0005;
+    return 0.;
+}
+
 struct GlyphInfo
 {
   float x;
