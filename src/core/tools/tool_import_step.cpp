@@ -7,19 +7,9 @@
 #include <gtkmm.h>
 #include "util/fs_util.hpp"
 #include "tool_common_impl.hpp"
+#include "core/tool_data_path.hpp"
 
 namespace dune3d {
-
-class ToolDataPath : public ToolData {
-public:
-    ToolDataPath(const std::filesystem::path &p) : path(p)
-    {
-    }
-    ToolDataPath()
-    {
-    }
-    std::filesystem::path path;
-};
 
 ToolResponse ToolImportSTEP::begin(const ToolArgs &args)
 {
