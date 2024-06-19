@@ -1522,7 +1522,7 @@ void Editor::update_error_overlay()
     }
 }
 
-void Editor::render_document(const Core::IDocumentInfo &doc)
+void Editor::render_document(const IDocumentInfo &doc)
 {
     auto &doc_view = m_document_views[doc.get_uuid()];
     if (!doc_view.m_document_is_visible && (doc.get_uuid() != m_core.get_current_idocument_info().get_uuid()))

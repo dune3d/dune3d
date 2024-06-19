@@ -65,7 +65,7 @@ void Core::close_document(const UUID &uu)
     m_signal_documents_changed.emit();
 }
 
-std::vector<Core::IDocumentInfo *> Core::get_documents()
+std::vector<IDocumentInfo *> Core::get_documents()
 {
     std::vector<IDocumentInfo *> r;
     r.reserve(m_documents.size());

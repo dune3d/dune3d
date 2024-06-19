@@ -104,7 +104,7 @@ private:
 
     void canvas_update();
     void canvas_update_keep_selection();
-    void render_document(const Core::IDocumentInfo &doc);
+    void render_document(const IDocumentInfo &doc);
 
     void tool_begin(ToolID id);
     void tool_process(ToolResponse &resp);
