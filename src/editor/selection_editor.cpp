@@ -144,7 +144,9 @@ public:
             auto filter_any = Gtk::FileFilter::create();
             filter_any->set_name("STEP");
             filter_any->add_pattern("*.step");
+            filter_any->add_pattern("*.STEP");
             filter_any->add_pattern("*.stp");
+            filter_any->add_pattern("*.STP");
             filters->append(filter_any);
 
             dialog->set_filters(filters);
