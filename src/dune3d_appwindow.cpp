@@ -107,6 +107,7 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_open_recent_listbox->set_header_func(sigc::ptr_fun(header_func_separator));
     m_open_recent_listbox->signal_row_activated().connect([this](Gtk::ListBoxRow *row) {
         auto &ch = dynamic_cast<RecentItemBox &>(*row->get_child());
+        m_open_popover->popdown();
         m_editor.open_file(ch.m_path);
     });
     m_open_popover->signal_show().connect([this] {
