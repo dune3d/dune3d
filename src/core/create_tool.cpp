@@ -34,6 +34,7 @@
 #include "tools/tool_constrain_point_in_workplane.hpp"
 #include "tools/tool_constrain_symmetric_hv.hpp"
 #include "tools/tool_constrain_symmetric_line.hpp"
+#include "tools/tool_link_document.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -158,6 +159,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_SYMMETRIC_LINE:
         return std::make_unique<ToolConstrainSymmetricLine>(tool_id, *this, m_intf, flags);
+
+    case ToolID::LINK_DOCUMENT:
+        return std::make_unique<ToolLinkDocument>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

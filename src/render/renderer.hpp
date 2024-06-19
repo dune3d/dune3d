@@ -7,6 +7,7 @@
 #include "document/constraint/constraint_visitor.hpp"
 #include "canvas/icanvas.hpp"
 #include <optional>
+#include <filesystem>
 
 namespace dune3d {
 
@@ -15,6 +16,7 @@ enum class IconTextureID;
 }
 
 class ICanvas;
+class IDocumentProvider;
 class Document;
 class IDocumentView;
 class SelectableRef;
@@ -22,9 +24,9 @@ enum class ConstraintType;
 
 class Renderer : private EntityVisitor, private ConstraintVisitor {
 public:
-    Renderer(ICanvas &ca);
+    Renderer(ICanvas &ca, IDocumentProvider &docprv);
     void render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view,
-                std::optional<SelectableRef> sr);
+                const std::filesystem::path &containing_dir, std::optional<SelectableRef> sr);
 
     bool m_solid_model_edge_select_mode = false;
 
@@ -41,6 +43,7 @@ private:
     void visit(const EntityWorkplane &en) override;
     void visit(const EntitySTEP &en) override;
     void visit(const EntityPoint2D &en) override;
+    void visit(const EntityDocument &en) override;
     void visit(const ConstraintPointDistance &constr) override;
     void visit(const ConstraintPointDistanceHV &constr) override;
     void visit(const ConstraintPointsCoincident &constr) override;
@@ -67,10 +70,12 @@ private:
     void visit(const ConstraintSymmetricHV &constr) override;
     void visit(const ConstraintSymmetricLine &constr) override;
     ICanvas &m_ca;
+    IDocumentProvider &m_doc_prv;
     const Document *m_doc = nullptr;
     const IDocumentView *m_doc_view = nullptr;
     const Group *m_current_group = nullptr;
     const Group *m_current_body_group = nullptr;
+    std::filesystem::path m_containing_dir;
     bool m_is_current_document = true;
     UUID m_document_uuid;
 

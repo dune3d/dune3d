@@ -770,6 +770,7 @@ void Editor::init_actions()
             m_core.set_current_document(doc.value());
             m_workspace_browser->update_current_group(m_document_views);
             canvas_update_keep_selection();
+            update_version_info();
         }
     });
 
@@ -1532,15 +1533,14 @@ void Editor::render_document(const IDocumentInfo &doc)
     if (doc.get_uuid() != m_core.get_current_idocument_info().get_uuid()) {
         sr = SelectableRef{SelectableRef::Type::DOCUMENT, doc.get_uuid()};
     }
-    Renderer renderer(get_canvas());
+    Renderer renderer(get_canvas(), m_core);
     renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
 
     if (doc.get_uuid() == m_core.get_current_idocument_info().get_uuid())
         renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
 
-    renderer.render(doc.get_document(), doc.get_current_group(), doc_view, sr);
+    renderer.render(doc.get_document(), doc.get_current_group(), doc_view, doc.get_dirname(), sr);
 }
-
 void Editor::canvas_update()
 {
     auto docs = m_core.get_documents();

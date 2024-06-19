@@ -10,6 +10,9 @@
 #include "util/util.hpp"
 #include "util/glm_util.hpp"
 #include "icon_texture_id.hpp"
+#include "core/idocument_provider.hpp"
+#include "core/idocument_info.hpp"
+#include "util/fs_util.hpp"
 #include <iostream>
 #include <array>
 #include <format>
@@ -18,7 +21,7 @@
 
 namespace dune3d {
 
-Renderer::Renderer(ICanvas &ca) : m_ca(ca)
+Renderer::Renderer(ICanvas &ca, IDocumentProvider &docprv) : m_ca(ca), m_doc_prv(docprv)
 {
 }
 
@@ -38,13 +41,14 @@ bool Renderer::group_is_visible(const UUID &uu) const
 }
 
 void Renderer::render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view,
-                      std::optional<SelectableRef> sr)
+                      const std::filesystem::path &containing_dir, std::optional<SelectableRef> sr)
 {
     m_doc = &doc;
     m_doc_view = &doc_view;
     m_current_group = &doc.get_group(current_group);
     m_current_body_group = &m_current_group->find_body(doc).group;
     m_is_current_document = !sr.has_value();
+    m_containing_dir = containing_dir;
 
     if (sr)
         m_ca.set_override_selectable(*sr);
@@ -371,6 +375,49 @@ void Renderer::visit(const EntitySTEP &en)
             }
         }
     }
+}
+
+class FakeDocumentView : public IDocumentView {
+public:
+    bool document_is_visible() const override
+    {
+        return true;
+    }
+    bool body_is_visible(const UUID &uu) const override
+    {
+        return true;
+    }
+    bool body_solid_model_is_visible(const UUID &uu) const override
+    {
+        return true;
+    }
+    bool group_is_visible(const UUID &uu) const override
+    {
+        return true;
+    }
+};
+
+
+void Renderer::visit(const EntityDocument &en)
+{
+    auto path = en.get_path(m_containing_dir);
+    SelectableRef sr_origin{SelectableRef::Type::ENTITY, en.m_uuid, 1};
+    m_ca.add_selectable(m_ca.draw_point(en.m_origin), sr_origin);
+    auto m = glm::translate(glm::mat4(1), glm::vec3(en.m_origin)) * glm::toMat4(glm::quat(en.m_normal));
+    m_ca.set_transform(m);
+
+    auto doc = m_doc_prv.get_idocument_info_by_path(path);
+    if (doc) {
+        Renderer renderer{m_ca, m_doc_prv};
+        SelectableRef sr{SelectableRef::Type::ENTITY, en.m_uuid, 0};
+        renderer.render(doc->get_document(), doc->get_document().get_groups_sorted().back()->m_uuid, FakeDocumentView{},
+                        doc->get_dirname(), sr);
+    }
+    else {
+        add_selectables(sr_origin, m_ca.draw_bitmap_text({0, 0, 0}, 1, path_to_string(en.m_path) + " not loaded"));
+    }
+
+    m_ca.set_transform(glm::mat4(1));
 }
 
 static glm::vec3 project_point_onto_plane(const glm::vec3 &plane_origin, const glm::vec3 &plane_normal,

@@ -13,5 +13,6 @@ public:
     virtual void visit(const EntityWorkplane &en) = 0;
     virtual void visit(const EntitySTEP &en) = 0;
     virtual void visit(const EntityPoint2D &en) = 0;
+    virtual void visit(const EntityDocument &en) = 0;
 };
 } // namespace dune3d

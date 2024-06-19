@@ -9,3 +9,4 @@
 #include "entity_workplane.hpp"
 #include "entity_step.hpp"
 #include "entity_point2d.hpp"
+#include "entity_document.hpp"

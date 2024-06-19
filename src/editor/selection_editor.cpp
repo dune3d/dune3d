@@ -4,6 +4,7 @@
 #include "document/entity/entity.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
+#include "document/entity/entity_document.hpp"
 #include "document/constraint/constraint.hpp"
 #include "util/selection_util.hpp"
 #include "util/gtk_util.hpp"
@@ -192,6 +193,76 @@ private:
     Gtk::Button *m_path_button = nullptr;
 };
 
+class DocumentEditor : public Gtk::Grid, public Changeable {
+public:
+    DocumentEditor(const std::filesystem::path &document_dir, EntityDocument &doc) : m_doc_dir(document_dir), m_doc(doc)
+    {
+        set_row_spacing(5);
+        set_column_spacing(5);
+
+        auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 0);
+        m_path_entry = Gtk::make_managed<Gtk::Entry>();
+        m_path_entry->set_hexpand(true);
+        m_path_button = Gtk::make_managed<Gtk::Button>();
+        m_path_button->set_image_from_icon_name("document-open-symbolic");
+        box->append(*m_path_entry);
+        box->append(*m_path_button);
+        box->add_css_class("linked");
+        m_path_entry->set_text(path_to_string(doc.m_path));
+        m_path_entry->signal_activate().connect([this] { update_doc(); });
+        m_path_button->signal_clicked().connect([this] {
+            auto dialog = Gtk::FileDialog::create();
+
+            // Add filters, so that only certain file types can be selected:
+            auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+
+            auto filter_any = Gtk::FileFilter::create();
+            filter_any->set_name("Dune 3D document");
+            filter_any->add_pattern("*.d3ddoc");
+            filters->append(filter_any);
+
+            dialog->set_filters(filters);
+
+            // Show the dialog and wait for a user response:
+            dialog->open(*dynamic_cast<Gtk::Window *>(get_ancestor(GTK_TYPE_WINDOW)),
+                         [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+                             try {
+                                 auto file = dialog->open_finish(result);
+                                 // Notice that this is a std::string, not a Glib::ustring.
+                                 auto path = path_from_string(file->get_path());
+                                 if (auto rel = get_relative_filename(path, m_doc_dir)) {
+                                     m_path_entry->set_text(path_to_string(*rel));
+                                 }
+                                 else {
+                                     m_path_entry->set_text(path_to_string(path));
+                                 }
+                                 update_doc();
+                             }
+                             catch (const Gtk::DialogError &err) {
+                             }
+                             catch (const Glib::Error &err) {
+                             }
+                         });
+        });
+
+        int top = 0;
+        grid_attach_label_and_widget(*this, "Path", *box, top);
+    }
+
+private:
+    const std::filesystem::path m_doc_dir;
+    EntityDocument &m_doc;
+    void update_doc()
+    {
+        m_doc.m_path = path_from_string(m_path_entry->get_text());
+        m_signal_changed.emit();
+    }
+
+
+    Gtk::Entry *m_path_entry = nullptr;
+    Gtk::Button *m_path_button = nullptr;
+};
+
 void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
 {
     if (m_editor) {
@@ -211,6 +282,16 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
             m_title->set_tooltip_text((std::string)step->entity);
             auto ed = Gtk::make_managed<STEPEditor>(m_core.get_current_document_directory(),
                                                     m_core.get_current_document().get_entity<EntitySTEP>(step->entity));
+            m_editor = ed;
+            ed->signal_changed().connect([this] { m_signal_changed.emit(); });
+        }
+        else if (auto doc =
+                         entity_and_point_from_selection(m_core.get_current_document(), sel, Entity::Type::DOCUMENT)) {
+            m_title->set_label("Document");
+            m_title->set_tooltip_text((std::string)doc->entity);
+            auto ed = Gtk::make_managed<DocumentEditor>(
+                    m_core.get_current_document_directory(),
+                    m_core.get_current_document().get_entity<EntityDocument>(doc->entity));
             m_editor = ed;
             ed->signal_changed().connect([this] { m_signal_changed.emit(); });
         }

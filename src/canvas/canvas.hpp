@@ -199,6 +199,8 @@ public:
     void set_override_selectable(const SelectableRef &sr) override;
     void unset_override_selectable() override;
 
+    void set_transform(const glm::mat4 &transform) override;
+
 private:
     BackgroundRenderer m_background_renderer;
     FaceRenderer m_face_renderer;
@@ -538,6 +540,10 @@ private:
 
     std::optional<SelectableRef> m_override_selectable;
     unsigned int m_override_selectable_count = 0;
+
+    glm::mat4 m_transform;
+    glm::vec3 transform_point(glm::vec3 pt) const;
+    glm::vec3 transform_point_rel(glm::vec3 pt) const;
 };
 
 } // namespace dune3d

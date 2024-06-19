@@ -70,6 +70,7 @@ private:
     void visit(const EntityWorkplane &wrkpl) override;
     void visit(const EntitySTEP &step) override;
     void visit(const EntityPoint2D &point) override;
+    void visit(const EntityDocument &point) override;
     void visit(const ConstraintPointsCoincident &constraint) override;
     void visit(const ConstraintParallel &constraint) override;
     void visit(const ConstraintPointOnLine &constraint) override;

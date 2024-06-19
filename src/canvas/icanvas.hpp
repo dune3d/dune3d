@@ -44,6 +44,7 @@ public:
     virtual void add_selectable(const VertexRef &vref, const SelectableRef &sref) = 0;
     virtual void set_selection_invisible(bool selection_invisible) = 0;
 
+    virtual void set_transform(const glm::mat4 &transform) = 0;
     virtual void set_override_selectable(const SelectableRef &sr) = 0;
     virtual void unset_override_selectable() = 0;
 

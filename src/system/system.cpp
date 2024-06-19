@@ -12,6 +12,7 @@
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
 #include "document/entity/entity_point2d.hpp"
+#include "document/entity/entity_document.hpp"
 #include "document/constraint/all_constraints.hpp"
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
@@ -424,6 +425,36 @@ void System::visit(const EntitySTEP &step)
             AddEq(&m_sys->eq, ex.y);
             AddEq(&m_sys->eq, ex.z);
         }
+    }
+}
+
+void System::visit(const EntityDocument &en_doc)
+{
+    const auto group = get_group_index(en_doc);
+
+    auto en_origin = get_entity_ref(EntityRef{en_doc.m_uuid, 1});
+    {
+        EntityBase eb = {};
+        eb.type = EntityBase::Type::POINT_IN_3D;
+        eb.h.v = en_origin;
+        eb.group.v = group;
+        for (unsigned int axis = 0; axis < 3; axis++) {
+            eb.param[axis].v = add_param(en_doc.m_group, en_doc.m_uuid, 1, axis);
+        }
+        SK.entity.Add(&eb);
+    }
+
+
+    auto en_normal = get_entity_ref(EntityRef{en_doc.m_uuid, 2});
+    {
+        EntityBase eb = {};
+        eb.type = EntityBase::Type::NORMAL_IN_3D;
+        eb.h.v = en_normal;
+        eb.group.v = group;
+        for (unsigned int axis = 0; axis < 4; axis++) {
+            eb.param[axis].v = add_param(en_doc.m_group, en_doc.m_uuid, 2, (axis + 3) % 4);
+        }
+        SK.entity.Add(&eb);
     }
 }
 

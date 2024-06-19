@@ -105,6 +105,7 @@ public:
     Glib::Property<bool> m_active;
     Glib::Property<bool> m_check_active;
     Glib::Property<bool> m_check_sensitive;
+    Glib::Property<bool> m_close_sensitive;
     UUID m_uuid;
     Glib::RefPtr<Gio::ListStore<BodyItem>> m_body_store;
 
@@ -122,7 +123,8 @@ public:
 private:
     DocumentItem()
         : Glib::ObjectBase("DocumentItem"), m_name(*this, "name"), m_active(*this, "active"),
-          m_check_active(*this, "check_active", false), m_check_sensitive(*this, "check_sensitive", true)
+          m_check_active(*this, "check_active", false), m_check_sensitive(*this, "check_sensitive", true),
+          m_close_sensitive(*this, "close_sensitive", true)
     {
         m_body_store = Gio::ListStore<BodyItem>::create();
     }
@@ -139,6 +141,7 @@ void WorkspaceBrowser::update_documents(const std::map<UUID, DocumentView> &doc_
     for (auto doci : m_core.get_documents()) {
         auto mi = DocumentItem::create();
         mi->m_uuid = doci->get_uuid();
+        mi->m_close_sensitive = doci->can_close();
         Glib::RefPtr<BodyItem> body_item = BodyItem::create();
         body_item->m_doc = mi->m_uuid;
         body_item->m_name = "Missing";
@@ -427,6 +430,9 @@ public:
                                                                 m_checkbutton->property_sensitive(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
         m_bindings.push_back(Glib::Binding::bind_property_value(it.m_name.get_proxy(), m_label->property_label(),
+                                                                Glib::Binding::Flags::SYNC_CREATE));
+        m_bindings.push_back(Glib::Binding::bind_property_value(it.m_close_sensitive.get_proxy(),
+                                                                m_close_button->property_sensitive(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
         update_label_attrs(it);
 

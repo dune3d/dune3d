@@ -41,6 +41,7 @@ Canvas::Canvas()
     set_focusable(true);
 
     m_cam_quat = glm::quat_identity<float, glm::defaultp>();
+    m_transform = glm::mat4(1);
 
 #ifdef HAVE_SPNAV
     if (spnav_open() != -1) {
@@ -783,8 +784,10 @@ void Canvas::add_faces(const face::Faces &faces)
         for (size_t i = 0; i < face.vertices.size(); i++) {
             const auto &v = face.vertices.at(i);
             const auto &n = face.normals.at(i);
-            m_face_vertex_buffer.emplace_back(v.x, v.y, v.z, n.x, n.y, n.z, face.color.r * 255, face.color.g * 255,
-                                              face.color.b * 255);
+            auto vt = transform_point({v.x, v.y, v.z});
+            auto nt = transform_point_rel({n.x, n.y, n.z});
+            m_face_vertex_buffer.emplace_back(vt.x, vt.y, vt.z, nt.x, nt.y, nt.z, face.color.r * 255,
+                                              face.color.g * 255, face.color.b * 255);
         }
 
         for (const auto &tri : face.triangle_indices) {
@@ -1010,7 +1013,7 @@ void Canvas::clear()
 ICanvas::VertexRef Canvas::draw_point(glm::vec3 p)
 {
     auto &pts = m_selection_invisible ? m_points_selection_invisible : m_points;
-    auto &pt = pts.emplace_back(p);
+    auto &pt = pts.emplace_back(transform_point(p));
     apply_flags(pt.flags);
     if (m_selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
@@ -1020,7 +1023,7 @@ ICanvas::VertexRef Canvas::draw_point(glm::vec3 p)
 ICanvas::VertexRef Canvas::draw_line(glm::vec3 a, glm::vec3 b)
 {
     auto &lines = m_selection_invisible ? m_lines_selection_invisible : m_lines;
-    auto &li = lines.emplace_back(a, b);
+    auto &li = lines.emplace_back(transform_point(a), transform_point(b));
     apply_flags(li.flags);
 
     if (m_selection_invisible)
@@ -1032,7 +1035,7 @@ ICanvas::VertexRef Canvas::draw_screen_line(glm::vec3 a, glm::vec3 b)
 {
     auto &lines = m_selection_invisible ? m_lines_selection_invisible : m_lines;
 
-    auto &li = lines.emplace_back(a, b);
+    auto &li = lines.emplace_back(transform_point(a), transform_point_rel(b));
     li.flags |= VertexFlags::SCREEN;
     apply_flags(li.flags);
     if (m_selection_invisible)
@@ -1058,8 +1061,9 @@ static uint32_t pack_bits(const bitmap_font::GlyphInfo &info)
            | ((info.get_x() & 0x3ff) << 22);
 }
 
-std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(const glm::vec3 p, float size, const std::string &rtext)
+std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(glm::vec3 p, float size, const std::string &rtext)
 {
+    p = transform_point(p);
     std::vector<ICanvas::VertexRef> vrefs;
     Glib::ustring text(rtext);
     float sc = size * .75;
@@ -1097,9 +1101,11 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(const glm::vec3 p, floa
     return vrefs;
 }
 
-std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(const glm::vec3 p, const glm::quat &norm, float size,
+std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(glm::vec3 p, const glm::quat &norm_in, float size,
                                                             const std::string &rtext)
 {
+    p = transform_point(p);
+    auto norm = glm::quat_cast(m_transform) * norm_in;
     std::vector<ICanvas::VertexRef> vrefs;
     Glib::ustring text(rtext);
 
@@ -1143,6 +1149,7 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(const glm::vec3 p, c
 
 ICanvas::VertexRef Canvas::draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift, glm::vec3 v)
 {
+    origin = transform_point(origin);
     auto &icons = m_selection_invisible ? m_icons_selection_invisible : m_icons;
     auto icon_pos = IconTexture::icon_texture_map.at(id);
     auto &icon =
@@ -1429,4 +1436,20 @@ void Canvas::unset_override_selectable()
         m_override_selectable.reset();
 }
 
+glm::vec3 Canvas::transform_point(glm::vec3 p) const
+{
+    auto r = m_transform * glm::vec4(p, 1);
+    return r;
+}
+
+glm::vec3 Canvas::transform_point_rel(glm::vec3 p) const
+{
+    auto r = m_transform * glm::vec4(p, 0);
+    return r;
+}
+
+void Canvas::set_transform(const glm::mat4 &transform)
+{
+    m_transform = transform;
+}
 } // namespace dune3d

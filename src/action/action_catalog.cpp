@@ -137,6 +137,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::CONSTRAIN_SYMMETRIC_LINE,
          {"Constrain symmetric about line", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::SET_CURRENT_DOCUMENT, {"Make active", ActionGroup::DOCUMENT, ActionCatalogItem::FLAGS_SPECIFIC}},
+        {ToolID::LINK_DOCUMENT, {"Link document", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -256,6 +257,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_HORIZONTAL),
         TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_VERTICAL),
         TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_LINE),
+        TOOL_LUT_ITEM(LINK_DOCUMENT),
 };
 
 

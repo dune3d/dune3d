@@ -7,12 +7,13 @@
 #include <sigc++/sigc++.h>
 #include "tool.hpp"
 #include "idocument_info.hpp"
+#include "idocument_provider.hpp"
 
 namespace dune3d {
 
 class EditorInterface;
 
-class Core : public ICore {
+class Core : public ICore, public IDocumentProvider {
 public:
     explicit Core(EditorInterface &intf);
 
@@ -99,10 +100,12 @@ public:
 
 
     std::vector<IDocumentInfo *> get_documents();
-    IDocumentInfo &get_idocument_info(const UUID &uu)
+    IDocumentInfo &get_idocument_info(const UUID &uu) override
     {
         return m_documents.at(uu);
     }
+    IDocumentInfo *get_idocument_info_by_path(const std::filesystem::path &path) override;
+
 
     IDocumentInfo &get_current_idocument_info()
     {
@@ -175,6 +178,7 @@ private:
 
         const Document &get_last_document() const;
         std::string get_basename() const override;
+        std::filesystem::path get_dirname() const override;
 
         UUID get_current_group() const override
         {
@@ -189,10 +193,17 @@ private:
         }
         const UUID m_uuid;
 
+        bool can_close() const override
+        {
+            return m_can_close;
+        }
+
         std::filesystem::path m_path;
         std::optional<Document> m_doc;
         bool m_needs_save = false;
         UUID m_current_group;
+        bool m_from_entity = false;
+        bool m_can_close = true;
         HistoryManager m_history_manager;
     };
 
@@ -235,6 +246,8 @@ private:
     std::vector<Group *> m_current_groups_sorted;
 
     void fix_current_group();
+    void update_can_close();
+    void load_linked_documents(const UUID &uu_doc);
 
     class ToolStateSetter {
     public:

@@ -12,3 +12,4 @@ versions:
     10: add intersection solid model operation
     11: add point in workplane constraint
     12: add symmetry constraints
+    13: add document entities

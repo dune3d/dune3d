@@ -7,8 +7,10 @@
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
 #include "document/entity/entity_workplane.hpp"
+#include "document/entity/entity_document.hpp"
 #include "system/system.hpp"
 #include "util/fs_util.hpp"
+#include "logger/log_util.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -49,20 +51,69 @@ UUID Core::add_document(const std::filesystem::path &path)
     }
     auto uu = UUID::random();
 
+
     m_documents.emplace(std::piecewise_construct, std::forward_as_tuple(uu), std::forward_as_tuple(uu, path));
     if (m_documents.size() == 1)
         m_current_document = uu;
+
+    load_linked_documents(uu);
+    update_can_close();
     m_signal_documents_changed.emit();
     return uu;
 }
 
 void Core::close_document(const UUID &uu)
 {
+    if (!m_documents.at(uu).m_can_close)
+        return;
     m_documents.erase(uu);
     if (m_current_document == uu && m_documents.size()) {
         m_current_document = m_documents.begin()->first;
     }
+    update_can_close();
     m_signal_documents_changed.emit();
+}
+
+void Core::update_can_close()
+{
+    for (auto &[uu, doc] : m_documents) {
+        doc.m_can_close = true;
+    }
+    for (const auto &[uu_doc, doci] : m_documents) {
+        for (const auto &[uu, en] : doci.get_document().m_entities) {
+            if (auto en_doc = dynamic_cast<const EntityDocument *>(en.get())) {
+                auto path = en_doc->get_path(doci.m_path.parent_path());
+                if (auto doc2 = get_idocument_info_by_path(path)) {
+                    m_documents.at(doc2->get_uuid()).m_can_close = false;
+                }
+            }
+        }
+    }
+}
+
+void Core::load_linked_documents(const UUID &uu_doc)
+{
+    if (!has_documents())
+        return;
+    auto &doci = m_documents.at(uu_doc);
+    for (auto &[uu, en] : doci.get_document().m_entities) {
+        if (auto en_doc = dynamic_cast<EntityDocument *>(en.get())) {
+            // fill in referenced document
+            const auto path = en_doc->get_path(doci.m_path.parent_path());
+            auto referenced_doc =
+                    std::ranges::find_if(m_documents, [&path](const auto &x) { return x.second.m_path == path; });
+            if (referenced_doc == m_documents.end()) {
+                UUID loaded_doc_uu;
+                try {
+                    loaded_doc_uu = add_document(path);
+                    auto &loaded_doci = m_documents.at(loaded_doc_uu);
+                    loaded_doci.m_from_entity = true;
+                }
+                CATCH_LOG(Logger::Level::WARNING, "error opening document" + path_to_string(path),
+                          Logger::Domain::DOCUMENT)
+            }
+        }
+    }
 }
 
 std::vector<IDocumentInfo *> Core::get_documents()
@@ -81,6 +132,8 @@ void Core::undo()
         return;
     if (get_current_document_info().undo()) {
         fix_current_group();
+        update_can_close();
+        load_linked_documents(m_current_document);
         m_signal_rebuilt.emit();
         m_signal_needs_save.emit();
     }
@@ -92,6 +145,8 @@ void Core::redo()
         return;
     if (get_current_document_info().redo()) {
         fix_current_group();
+        update_can_close();
+        load_linked_documents(m_current_document);
         m_signal_rebuilt.emit();
         m_signal_needs_save.emit();
     }
@@ -204,6 +259,11 @@ std::string Core::DocumentInfo::get_basename() const
     return path_to_string(m_path.filename());
 }
 
+std::filesystem::path Core::DocumentInfo::get_dirname() const
+{
+    return m_path.parent_path();
+}
+
 UUID Core::DocumentInfo::get_current_workplane() const
 {
     if (!m_doc->get_groups().contains(m_current_group))
@@ -219,6 +279,15 @@ UUID Core::DocumentInfo::get_current_workplane() const
         return UUID();
     else
         return cur_group.m_active_wrkpl;
+}
+
+IDocumentInfo *Core::get_idocument_info_by_path(const std::filesystem::path &path)
+{
+    for (auto &[uu, doc] : m_documents) {
+        if (doc.m_path == path)
+            return &doc;
+    }
+    return nullptr;
 }
 
 std::set<InToolActionID> Core::get_tool_actions() const
@@ -543,7 +612,8 @@ void Core::rebuild_internal(bool from_undo, const std::string &comment)
         en->m_selection_invisible = false;
     }
     get_current_document().update_pending();
-    //  frame.expand();
+    update_can_close();
+    load_linked_documents(m_current_document);
     rebuild_finish(from_undo, comment);
 }
 

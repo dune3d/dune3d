@@ -27,6 +27,7 @@ enum class EntityType {
     CIRCLE_3D,
     STEP,
     POINT_2D,
+    DOCUMENT,
 };
 
 class Entity {

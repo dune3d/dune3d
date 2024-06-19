@@ -10,6 +10,7 @@
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
 #include "document/entity/entity_point2d.hpp"
+#include "document/entity/entity_document.hpp"
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_diameter_radius.hpp"
 #include "document/constraint/constraint_angle.hpp"
@@ -112,6 +113,11 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                     en->m_origin = en_last.m_origin + delta;
                 else if (en->m_anchors_transformed.contains(point) && en_last.m_anchors_transformed.contains(point))
                     en->m_anchors_transformed.at(point) = en_last.m_anchors_transformed.at(point) + delta;
+            }
+            if (auto en = dynamic_cast<EntityDocument *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityDocument &>(*last_doc.m_entities.at(entity->m_uuid));
+                if (point == 0 || point == 1)
+                    en->m_origin = en_last.m_origin + delta;
             }
             if (auto en = dynamic_cast<EntityLine2D *>(entity)) {
                 auto &en_last = dynamic_cast<const EntityLine2D &>(*last_doc.m_entities.at(entity->m_uuid));

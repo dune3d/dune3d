@@ -55,6 +55,7 @@ void Editor::on_workspace_browser_group_selected(const UUID &uu_doc, const UUID 
     if (idoc.get_uuid() == uu_doc && idoc.get_current_group() == uu_group)
         return;
     m_core.set_current_document(uu_doc);
+    update_version_info();
     m_core.set_current_group(uu_group);
     m_workspace_browser->update_current_group(m_document_views);
     canvas_update_keep_selection();
