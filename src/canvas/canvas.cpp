@@ -316,7 +316,7 @@ void Canvas::update_drag_selection(glm::vec2 pos)
     for (int x = x0; x <= x1; x++) {
         for (int y = y0; y <= y1; y++) {
             const bool is_border = (x == x0) || (x == x1) || (y == y0) || (y == y1);
-            const auto pick = read_pick_buf(x, y);
+            const auto pick = read_pick_buf(m_pick_buf, x, y);
             if (pick) {
                 if (is_border)
                     picks_border.insert(pick);
@@ -560,6 +560,41 @@ void Canvas::clear_flags(VertexFlags mask)
     }
 }
 
+unsigned int Canvas::get_hover_pick(const std::vector<pick_buf_t> &pick_buf) const
+{
+    auto pick = read_pick_buf(pick_buf, m_last_x, m_last_y);
+    if (!pick || get_vertex_ref_for_pick(pick).type == VertexType::FACE_GROUP) {
+        int box_size = 10;
+        float best_distance = glm::vec2(box_size, box_size).length();
+        unsigned int best_pick = pick;
+        for (int dx = -box_size; dx <= box_size; dx++) {
+            for (int dy = -box_size; dy <= box_size; dy++) {
+                int px = m_last_x + dx;
+                int py = m_last_y + dy;
+                if (px >= 0 && px < m_dev_width && py >= 0 && py < m_dev_height) {
+                    if (auto p = read_pick_buf(pick_buf, px, py)) {
+                        if (get_vertex_ref_for_pick(p).type == VertexType::FACE_GROUP)
+                            continue;
+                        const auto d = glm::vec2(dx, dy).length();
+                        if (d <= best_distance) {
+                            best_distance = d;
+                            best_pick = p;
+                        }
+                    }
+                }
+            }
+        }
+        pick = best_pick;
+    }
+    return pick;
+}
+
+unsigned int Canvas::get_hover_pick() const
+{
+    return get_hover_pick(m_pick_buf);
+}
+
+
 void Canvas::update_hover_selection()
 {
     if (m_vertex_type_picks.size() == 0)
@@ -567,31 +602,7 @@ void Canvas::update_hover_selection()
     if (m_selection_mode != SelectionMode::NONE) {
         auto last_hover_selection = m_hover_selection;
         m_hover_selection.reset();
-        auto pick = read_pick_buf(m_last_x, m_last_y);
-        if (!pick || get_vertex_ref_for_pick(pick).type == VertexType::FACE_GROUP) {
-            int box_size = 10;
-            float best_distance = glm::vec2(box_size, box_size).length();
-            unsigned int best_pick = pick;
-            for (int dx = -box_size; dx <= box_size; dx++) {
-                for (int dy = -box_size; dy <= box_size; dy++) {
-                    int px = m_last_x + dx;
-                    int py = m_last_y + dy;
-                    if (px >= 0 && px < m_dev_width && py >= 0 && py < m_dev_height) {
-                        if (auto p = read_pick_buf(px, py)) {
-                            if (get_vertex_ref_for_pick(p).type == VertexType::FACE_GROUP)
-                                continue;
-                            const auto d = glm::vec2(dx, dy).length();
-                            if (d <= best_distance) {
-                                best_distance = d;
-                                best_pick = p;
-                            }
-                        }
-                    }
-                }
-            }
-            pick = best_pick;
-        }
-
+        auto pick = get_hover_pick();
 
         if (auto sr = get_selectable_ref_for_pick(pick))
             m_hover_selection = *sr;
@@ -617,14 +628,14 @@ void Canvas::update_hover_selection()
     }
 }
 
-Canvas::pick_buf_t Canvas::read_pick_buf(int x, int y) const
+Canvas::pick_buf_t Canvas::read_pick_buf(const std::vector<pick_buf_t> &pick_buf, int x, int y) const
 {
     int xi = x * m_scale_factor;
     int yi = y * m_scale_factor;
     if (xi >= m_dev_width || yi >= m_dev_height || x < 0 || y < 0)
         return 0;
     const int idx = ((m_dev_height)-yi - 1) * m_dev_width + xi;
-    return m_pick_buf.at(idx);
+    return pick_buf.at(idx);
 }
 
 glm::dvec3 Canvas::get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const

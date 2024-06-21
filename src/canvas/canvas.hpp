@@ -214,6 +214,8 @@ private:
 
     Appearance m_appearance;
 
+    using pick_buf_t = uint32_t;
+
     void on_realize() override;
     bool on_render(const Glib::RefPtr<Gdk::GLContext> &context) override;
     void on_resize(int width, int height) override;
@@ -255,9 +257,9 @@ private:
     PickState m_pick_state = PickState::INVALID;
     std::filesystem::path m_pick_path;
 
-    using pick_buf_t = uint32_t;
+
     std::vector<pick_buf_t> m_pick_buf;
-    pick_buf_t read_pick_buf(int x, int y) const;
+    pick_buf_t read_pick_buf(const std::vector<pick_buf_t> &pick_buf, int x, int y) const;
 
     GLuint m_renderbuffer;
     GLuint m_fbo;
@@ -507,6 +509,8 @@ private:
 
     double m_last_x = 0, m_last_y = 0;
     void update_hover_selection();
+    unsigned int get_hover_pick() const;
+    unsigned int get_hover_pick(const std::vector<pick_buf_t> &pick_buf) const;
 
     type_signal_view_changed m_signal_view_changed;
     type_signal_view_changed m_signal_cursor_moved;
