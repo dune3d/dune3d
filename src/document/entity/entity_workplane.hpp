@@ -16,6 +16,11 @@ public:
     json serialize() const override;
     std::unique_ptr<Entity> clone() const override;
 
+    virtual bool has_name() const override
+    {
+        return true;
+    }
+
     double get_param(unsigned int point, unsigned int axis) const override;
     void set_param(unsigned int point, unsigned int axis, double value) override;
 

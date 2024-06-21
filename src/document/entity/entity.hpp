@@ -68,6 +68,10 @@ public:
 
     UUID m_group;
     std::string m_name;
+    virtual bool has_name() const
+    {
+        return false;
+    }
 
     bool m_construction = false;
 
