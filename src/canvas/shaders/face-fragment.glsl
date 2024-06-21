@@ -25,6 +25,8 @@ bool should_clip(int op, float clip_value, float value)
 }
 
 void main() {
+  if(test_peel(pick_base))
+		discard;
   if(should_clip(clipping_op.x, clipping_value.x, pos_to_fragment.x))
     discard;
   if(should_clip(clipping_op.y, clipping_value.y, pos_to_fragment.y))

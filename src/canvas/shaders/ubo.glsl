@@ -14,6 +14,7 @@ layout (std140) uniform color_setup
 {
     // keep in sync with base_renderer.cpp
 	vec3 colors[64];
+    uint peeled_picks[8];
 };
 
 vec3 get_color(uint flags)
@@ -26,6 +27,18 @@ float get_depth_shift(uint flags)
     if((flags & (VERTEX_FLAG_SELECTED)) != uint(0))
         return -0.0005;
     return 0.;
+}
+
+bool test_peel(uint pick)
+{
+    for(int i = 0; i < peeled_picks.length(); i++)
+	{
+		if(peeled_picks[i] == 0u)
+			return false;
+		if(peeled_picks[i] == pick)
+			return true;
+	}
+	return false;
 }
 
 struct GlyphInfo

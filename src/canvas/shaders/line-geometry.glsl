@@ -16,6 +16,8 @@ flat out float depth_shift_to_frag;
 void main() {
 	color_to_frag = get_color(flags_to_geom[0]);
 	depth_shift_to_frag = get_depth_shift(flags_to_geom[0]);
+	if(test_peel(pick_to_geom[0]))
+		return;
 	
 	pick_to_frag = pick_to_geom[0];
 	gl_Position = p1_to_geom[0];

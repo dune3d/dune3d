@@ -8,7 +8,7 @@
 #include "dialogs/dialogs.hpp"
 #include "util/action_label.hpp"
 #include "document/group/group.hpp"
-
+#include "selection_menu_creator.hpp"
 
 namespace dune3d {
 
@@ -226,6 +226,8 @@ private:
     glm::vec3 m_constraint_tip_vec;
 
     std::unique_ptr<SelectionFilterWindow> m_selection_filter_window;
+
+    SelectionMenuCreator m_selection_menu_creator;
 
     void update_error_overlay();
 };

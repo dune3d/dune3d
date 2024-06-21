@@ -40,7 +40,7 @@
 
 namespace dune3d {
 Editor::Editor(Dune3DAppWindow &win, Preferences &prefs)
-    : m_preferences(prefs), m_dialogs(win, *this), m_win(win), m_core(*this)
+    : m_preferences(prefs), m_dialogs(win, *this), m_win(win), m_core(*this), m_selection_menu_creator(m_core)
 {
     m_drag_tool = ToolID::NONE;
 }
@@ -404,6 +404,8 @@ void Editor::init_canvas()
 
     get_canvas().signal_selection_mode_changed().connect(sigc::mem_fun(*this, &Editor::update_selection_mode_label));
     update_selection_mode_label();
+
+    get_canvas().set_selection_menu_creator(m_selection_menu_creator);
 
     /*
      * we want the canvas click event controllers to run before the one in the editor,

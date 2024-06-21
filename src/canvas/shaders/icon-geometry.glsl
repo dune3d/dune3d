@@ -35,6 +35,8 @@ vec2 scale_size(vec2 v)
 }
 
 void main() {
+	if(test_peel(pick_to_geom[0]))
+		return;
 	color_to_frag = get_color(flags_to_geom[0]);
 	
 	vec4 o = origin_to_geom[0];

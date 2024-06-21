@@ -43,3 +43,4 @@ button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
 
 .delete-revealer {border-radius: 5px;}
 .delete-revealer button {border-radius: 0px;}
+.selection-menu contents,arrow {background-color: alpha(@theme_bg_color, .75);}

@@ -14,6 +14,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/io.hpp>
 #include <fstream>
+#include "iselection_menu_creator.hpp"
+#include "selectable_checkbutton.hpp"
 
 #ifdef HAVE_SPNAV
 #include <spnav.h>
@@ -37,6 +39,12 @@ Canvas::Canvas()
     : m_background_renderer(*this), m_face_renderer(*this), m_point_renderer(*this), m_line_renderer(*this),
       m_glyph_renderer(*this), m_glyph_3d_renderer(*this), m_icon_renderer(*this), m_box_selection(*this)
 {
+    m_all_renderers.push_back(&m_face_renderer);
+    m_all_renderers.push_back(&m_point_renderer);
+    m_all_renderers.push_back(&m_line_renderer);
+    m_all_renderers.push_back(&m_glyph_renderer);
+    m_all_renderers.push_back(&m_glyph_3d_renderer);
+    m_all_renderers.push_back(&m_icon_renderer);
     set_can_focus(true);
     set_focusable(true);
 
@@ -71,6 +79,14 @@ Canvas::Canvas()
     m_animators.push_back(&m_cx_animator);
     m_animators.push_back(&m_cy_animator);
     m_animators.push_back(&m_cz_animator);
+
+    m_selection_menu = Gtk::make_managed<Gtk::Popover>();
+    m_selection_menu->add_css_class("selection-menu");
+    m_selection_menu->set_parent(*this);
+    {
+        auto label = Gtk::make_managed<Gtk::Label>("foo");
+        m_selection_menu->set_child(*label);
+    }
 }
 
 void Canvas::set_translation_rotation_animator_params(const MSD::Params &params)
@@ -289,12 +305,18 @@ void Canvas::handle_click_release()
     }
     else if (m_selection_mode == SelectionMode::NORMAL) {
         if (m_hover_selection.has_value()) {
-            auto sel = get_selection();
-            if (sel.contains(m_hover_selection.value()))
-                sel.erase(m_hover_selection.value());
-            else
-                sel.insert(m_hover_selection.value());
-            set_selection(sel, true);
+            if (m_selection_menu_creator) {
+                m_selection_peeling = true;
+                queue_draw();
+            }
+            else {
+                auto sel = get_selection();
+                if (sel.contains(m_hover_selection.value()))
+                    sel.erase(m_hover_selection.value());
+                else
+                    sel.insert(m_hover_selection.value());
+                set_selection(sel, true);
+            }
         }
         else {
             set_selection({}, true);
@@ -707,6 +729,7 @@ void Canvas::on_realize()
     glGenRenderbuffers(1, &m_depthrenderbuffer);
     glGenRenderbuffers(1, &m_pickrenderbuffer);
     glGenRenderbuffers(1, &m_pickrenderbuffer_downsampled);
+    glGenRenderbuffers(1, &m_last_frame_renderbuffer);
 
     resize_buffers();
 
@@ -715,6 +738,20 @@ void Canvas::on_realize()
     glGenFramebuffers(1, &m_fbo_downsampled);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo_downsampled);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_pickrenderbuffer_downsampled);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        // Gtk::MessageDialog md("Error setting up framebuffer, will now exit", false /* use_markup */,
+        // Gtk::MESSAGE_ERROR,
+        //                      Gtk::BUTTONS_OK);
+        // md.run();
+        abort();
+    }
+
+    GL_CHECK_ERROR
+
+    glGenFramebuffers(1, &m_fbo_last_frame);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo_last_frame);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_last_frame_renderbuffer);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         // Gtk::MessageDialog md("Error setting up framebuffer, will now exit", false /* use_markup */,
@@ -767,6 +804,9 @@ void Canvas::resize_buffers()
 
     glBindRenderbuffer(GL_RENDERBUFFER, m_pickrenderbuffer_downsampled);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_R32UI, m_dev_width, m_dev_height);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, m_last_frame_renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, m_dev_width, m_dev_height);
 
     glBindRenderbuffer(GL_RENDERBUFFER, rb);
 }
@@ -854,25 +894,10 @@ void Canvas::update_mats()
     m_projmat_viewmat_inv = glm::inverse(m_projmat * m_viewmat);
 }
 
-bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
+void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
 {
-    const bool first_render = m_vertex_type_picks.size() == 0;
-
-    Gtk::GLArea::on_render(context);
-
-    if (m_needs_resize) {
-        resize_buffers();
-        m_needs_resize = false;
-    }
-
-    GLint fb;
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fb); // save fb
-
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
-#ifdef __APPLE__
-    glDisable(GL_MULTISAMPLE);
-#endif
     glClearColor(0, 0, 0, 0);
     glClearDepth(10);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -881,6 +906,7 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
         const std::array<GLenum, 2> bufs = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
         glDrawBuffers(bufs.size(), bufs.data());
     }
+
 
     glDisable(GL_DEPTH_TEST);
     m_background_renderer.render();
@@ -932,11 +958,140 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_downsampled);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    m_pick_buf.resize(m_dev_width * m_dev_height);
+    pick_buf.resize(m_dev_width * m_dev_height);
     GL_CHECK_ERROR
 
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
-    glReadPixels(0, 0, m_dev_width, m_dev_height, GL_RED_INTEGER, GL_UNSIGNED_INT, m_pick_buf.data());
+    glReadPixels(0, 0, m_dev_width, m_dev_height, GL_RED_INTEGER, GL_UNSIGNED_INT, pick_buf.data());
+}
+
+void Canvas::peel_selection()
+{
+    std::vector<pick_buf_t> pick_buf;
+    std::vector<unsigned int> peeled_picks;
+    for (auto pick = get_hover_pick(m_pick_buf); pick; pick = get_hover_pick(pick_buf)) {
+        peeled_picks.push_back(pick);
+        if (peeled_picks.size() > s_peel_max) {
+            break;
+        }
+        for (auto renderer : m_all_renderers) {
+            renderer->set_peeled_picks(peeled_picks);
+        }
+        render_all(pick_buf);
+    }
+
+    ISelectionMenuCreator::SelectableRefAndVertexTypeList srv_list;
+
+    {
+        std::set<SelectableRef> seen_selctables;
+        for (const auto pick : peeled_picks) {
+            const auto vref = get_vertex_ref_for_pick(pick);
+            const auto sr = get_selectable_ref_for_vertex_ref(vref);
+            if (sr.has_value()) {
+                if (!seen_selctables.insert(sr.value()).second)
+                    continue;
+            }
+            // only add face groups if they're first
+            bool add = true;
+            if (vref.type == VertexType::FACE_GROUP)
+                add = srv_list.size() == 0;
+            if (add)
+                srv_list.emplace_back(vref.type, sr);
+
+            if (vref.type == VertexType::FACE_GROUP)
+                break;
+        }
+    }
+
+    bool need_menu = false;
+    std::optional<SelectableRef> the_selectable;
+    if (srv_list.size() == 0) {
+        need_menu = false;
+    }
+    else if (!srv_list.front().selectable.has_value()) { // first item is not selectable, should not happen
+        need_menu = false;
+    }
+    else if (srv_list.size() == 1) {
+        need_menu = false;
+        the_selectable = srv_list.front().selectable;
+    }
+    else {
+        need_menu = true;
+    }
+
+    if (the_selectable.has_value()) {
+        auto sel = get_selection();
+        if (sel.contains(the_selectable.value()))
+            sel.erase(the_selectable.value());
+        else
+            sel.insert(the_selectable.value());
+        Glib::signal_idle().connect_once([this, sel] { set_selection(sel, true); });
+    }
+
+
+    if (need_menu) {
+        Gdk::Rectangle rect;
+        rect.set_x(m_last_x);
+        rect.set_y(m_last_y);
+        if (m_selection_menu_creator) {
+            auto buttons = m_selection_menu_creator->create(*m_selection_menu, srv_list);
+            auto sel = get_selection();
+            for (auto button : buttons) {
+                button->set_active(sel.contains(button->m_selectable));
+                button->signal_toggled().connect([this, button, sel] {
+                    auto sel2 = sel;
+                    if (button->get_active())
+                        sel2.insert(button->m_selectable);
+                    else
+                        sel2.erase(button->m_selectable);
+                    set_selection(sel2, true);
+                    const auto state = button->get_display()->get_default_seat()->get_keyboard()->get_modifier_state();
+                    if ((state & Gdk::ModifierType::SHIFT_MASK) == Gdk::ModifierType::NO_MODIFIER_MASK)
+                        m_selection_menu->popdown();
+                });
+                auto controller = Gtk::EventControllerMotion::create();
+                controller->signal_leave().connect([this] { set_highlight({}); });
+                controller->signal_enter().connect(
+                        [this, button](double, double) { set_highlight({button->m_selectable}); });
+                button->add_controller(controller);
+            }
+        }
+
+        m_selection_menu->set_pointing_to(rect);
+        Glib::signal_idle().connect_once([this] { m_selection_menu->popup(); });
+    }
+}
+
+bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
+{
+    const bool first_render = m_vertex_type_picks.size() == 0;
+
+    Gtk::GLArea::on_render(context);
+
+    if (m_needs_resize) {
+        resize_buffers();
+        m_needs_resize = false;
+    }
+
+    GLint fb;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fb); // save fb
+
+
+#ifdef __APPLE__
+    glDisable(GL_MULTISAMPLE);
+#endif
+
+
+    if (m_selection_peeling) {
+        peel_selection();
+    }
+    else {
+        for (auto renderer : m_all_renderers) {
+            renderer->set_peeled_picks({});
+        }
+        render_all(m_pick_buf);
+    }
+
 
     GL_CHECK_ERROR
     if (m_pick_state == PickState::QUEUED) {
@@ -949,8 +1104,19 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
             ofs << std::endl;
         }
     }
+
+
+    if (!m_selection_peeling) {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo_last_frame);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glBlitFramebuffer(0, 0, m_dev_width, m_dev_height, 0, 0, m_dev_width, m_dev_height, GL_COLOR_BUFFER_BIT,
+                          GL_NEAREST);
+    }
+
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_last_frame);
     glDrawBuffer(fb ? GL_COLOR_ATTACHMENT0 : GL_FRONT);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glBlitFramebuffer(0, 0, m_dev_width, m_dev_height, 0, 0, m_dev_width, m_dev_height, GL_COLOR_BUFFER_BIT,
@@ -959,6 +1125,8 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
     GL_CHECK_ERROR
     glFlush();
+
+    m_selection_peeling = false;
 
     if (first_render) {
         update_hover_selection();

@@ -29,6 +29,12 @@ void BaseRenderer::realize_base()
 struct UBOBuffer {
     // keep in sync with ubo.glsl
     std::array<std::array<float, 4>, 64> colors;
+    struct I {
+        unsigned int value;
+        uint8_t pad[16 - sizeof(unsigned int)];
+    };
+    static_assert(sizeof(I) == 16);
+    std::array<I, 8> peeled_picks;
     void set_colors(const Appearance &appearance, SelectionMode selection_mode, Canvas::VertexType type)
     {
         using F = Canvas::VertexFlags;
@@ -73,6 +79,14 @@ struct UBOBuffer {
         }
     }
 
+    void set_peeled_picks(const std::vector<unsigned int> &peeled_picks_vec)
+    {
+        std::ranges::fill(peeled_picks, I{0});
+        for (size_t i = 0; i < std::min(peeled_picks_vec.size(), peeled_picks.size()); i++) {
+            peeled_picks.at(i).value = peeled_picks_vec.at(i);
+        }
+    }
+
 private:
     void set_color(Canvas::VertexFlags flags, const Appearance &appearance, ColorP colorp)
     {
@@ -87,6 +101,8 @@ private:
 
 void BaseRenderer::load_uniforms()
 {
+    static_assert(Canvas::s_peel_max == std::tuple_size_v<decltype(UBOBuffer::peeled_picks)>);
+
     glUniformMatrix4fv(m_view_loc, 1, GL_FALSE, glm::value_ptr(m_ca.m_viewmat));
     glUniformMatrix4fv(m_proj_loc, 1, GL_FALSE, glm::value_ptr(m_ca.m_projmat));
     glUniform1ui(m_pick_base_loc, m_ca.m_pick_base);
@@ -96,10 +112,17 @@ void BaseRenderer::load_uniforms()
     {
         UBOBuffer buf;
         buf.set_colors(m_ca.m_appearance, m_ca.m_selection_mode, m_vertex_type);
+        buf.set_peeled_picks(m_peeled_picks);
         glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
         glBufferData(GL_UNIFORM_BUFFER, sizeof(buf), &buf, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 }
+
+void BaseRenderer::set_peeled_picks(const std::vector<unsigned int> &peeled_picks)
+{
+    m_peeled_picks = peeled_picks;
+}
+
 
 } // namespace dune3d

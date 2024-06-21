@@ -24,6 +24,7 @@
 namespace dune3d {
 
 class ISelectionFilter;
+class ISelectionMenuCreator;
 
 class Canvas : public Gtk::GLArea, public ICanvas {
 public:
@@ -201,6 +202,11 @@ public:
 
     void set_transform(const glm::mat4 &transform) override;
 
+    void set_selection_menu_creator(ISelectionMenuCreator &creator)
+    {
+        m_selection_menu_creator = &creator;
+    }
+
 private:
     BackgroundRenderer m_background_renderer;
     FaceRenderer m_face_renderer;
@@ -210,6 +216,7 @@ private:
     Glyph3DRenderer m_glyph_3d_renderer;
     IconRenderer m_icon_renderer;
     BoxSelection m_box_selection;
+    std::vector<BaseRenderer *> m_all_renderers;
     unsigned int m_pick_base = 1;
 
     Appearance m_appearance;
@@ -218,6 +225,8 @@ private:
 
     void on_realize() override;
     bool on_render(const Glib::RefPtr<Gdk::GLContext> &context) override;
+    void render_all(std::vector<pick_buf_t> &pick_buf);
+    void peel_selection();
     void on_resize(int width, int height) override;
     void resize_buffers();
 
@@ -268,6 +277,9 @@ private:
 
     GLuint m_fbo_downsampled;
     GLuint m_pickrenderbuffer_downsampled;
+
+    GLuint m_fbo_last_frame;
+    GLuint m_last_frame_renderbuffer;
 
     enum PushFlags {
         PF_NONE = 0,
@@ -548,6 +560,12 @@ private:
     glm::mat4 m_transform;
     glm::vec3 transform_point(glm::vec3 pt) const;
     glm::vec3 transform_point_rel(glm::vec3 pt) const;
+
+    bool m_selection_peeling = false;
+    static constexpr unsigned int s_peel_max = 8;
+
+    Gtk::Popover *m_selection_menu = nullptr;
+    ISelectionMenuCreator *m_selection_menu_creator = nullptr;
 };
 
 } // namespace dune3d
