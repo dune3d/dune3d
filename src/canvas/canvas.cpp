@@ -1046,7 +1046,7 @@ void Canvas::peel_selection()
                         sel2.erase(button->m_selectable);
                     set_selection(sel2, true);
                     const auto state = button->get_display()->get_default_seat()->get_keyboard()->get_modifier_state();
-                    if ((state & Gdk::ModifierType::SHIFT_MASK) == Gdk::ModifierType::NO_MODIFIER_MASK)
+                    if ((state & Gdk::ModifierType::SHIFT_MASK) != Gdk::ModifierType::SHIFT_MASK)
                         m_selection_menu->popdown();
                 });
                 auto controller = Gtk::EventControllerMotion::create();
