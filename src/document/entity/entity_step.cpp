@@ -3,6 +3,7 @@
 #include "util/glm_util.hpp"
 #include "import_step/step_import_manager.hpp"
 #include "entity_visitor.hpp"
+#include <format>
 
 namespace dune3d {
 EntitySTEP::EntitySTEP(const UUID &uu) : Entity(uu), m_normal(glm::quat_identity<double, glm::defaultp>())
@@ -86,6 +87,21 @@ void EntitySTEP::set_param(unsigned int point, unsigned int axis, double value)
 std::unique_ptr<Entity> EntitySTEP::clone() const
 {
     return std::make_unique<EntitySTEP>(*this);
+}
+
+std::string EntitySTEP::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 0:
+        return "";
+    case 1:
+        return "origin";
+    default:
+        if (m_anchors.contains(point))
+            return std::format("anchor {}", point);
+        else
+            return "";
+    }
 }
 
 glm::dvec3 EntitySTEP::get_point(unsigned int point, const Document &doc) const

@@ -2,6 +2,7 @@
 #include "nlohmann/json.hpp"
 #include "util/glm_util.hpp"
 #include "entity_visitor.hpp"
+#include <format>
 
 namespace dune3d {
 EntityDocument::EntityDocument(const UUID &uu) : Entity(uu), m_normal(glm::quat_identity<double, glm::defaultp>())
@@ -76,6 +77,21 @@ glm::dvec3 EntityDocument::get_point(unsigned int point, const Document &doc) co
     if (m_anchors_transformed.contains(point))
         return m_anchors_transformed.at(point);
     return {NAN, NAN, NAN};
+}
+
+std::string EntityDocument::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 0:
+        return "";
+    case 1:
+        return "origin";
+    default:
+        if (m_anchors.contains(point))
+            return std::format("anchor {}", point);
+        else
+            return "";
+    }
 }
 
 bool EntityDocument::is_valid_point(unsigned int point) const

@@ -41,6 +41,8 @@ public:
     void update_anchor(unsigned int i, const glm::dvec3 &pt);
     void remove_anchor(unsigned int i);
 
+    std::string get_point_name(unsigned int point) const override;
+
     void set_normal(const glm::dquat &q) override
     {
         m_normal = q;

@@ -45,6 +45,16 @@ void EntityCircle2D::set_param(unsigned int point, unsigned int axis, double val
         m_center[axis] = value;
 }
 
+std::string EntityCircle2D::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 1:
+        return "center";
+    default:
+        return "";
+    }
+}
+
 glm::dvec2 EntityCircle2D::get_point_in_workplane(unsigned int point) const
 {
     if (point == 1)

@@ -27,6 +27,20 @@ json EntityArc2D::serialize() const
     return j;
 }
 
+std::string EntityArc2D::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 1:
+        return "from";
+    case 2:
+        return "to";
+    case 3:
+        return "center";
+    default:
+        return "";
+    }
+}
+
 double EntityArc2D::get_param(unsigned int point, unsigned int axis) const
 {
     if (point == 1) {

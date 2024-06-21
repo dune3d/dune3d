@@ -49,6 +49,20 @@ void EntityArc3D::set_param(unsigned int point, unsigned int axis, double value)
     }
 }
 
+std::string EntityArc3D::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 1:
+        return "from";
+    case 2:
+        return "to";
+    case 3:
+        return "center";
+    default:
+        return "";
+    }
+}
+
 glm::dvec3 EntityArc3D::get_point(unsigned int point, const Document &doc) const
 {
     if (point == 1)

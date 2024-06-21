@@ -67,6 +67,18 @@ void EntityLine3D::set_param(unsigned int point, unsigned int axis, double value
     }
 }
 
+std::string EntityLine3D::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 1:
+        return "from";
+    case 2:
+        return "to";
+    default:
+        return "";
+    }
+}
+
 glm::dvec3 EntityLine3D::get_point(unsigned int point, const Document &doc) const
 {
     if (point == 1)

@@ -73,6 +73,11 @@ public:
         return false;
     }
 
+    virtual std::string get_point_name(unsigned int point) const
+    {
+        return "";
+    }
+
     bool m_construction = false;
 
     ItemKind m_kind = ItemKind::USER;

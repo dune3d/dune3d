@@ -79,6 +79,16 @@ glm::dvec3 EntityWorkplane::project3(glm::dvec3 p) const
     return transform(project(p));
 }
 
+std::string EntityWorkplane::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 1:
+        return "origin";
+    default:
+        return "";
+    }
+}
+
 glm::dvec3 EntityWorkplane::get_point(unsigned int point, const Document &doc) const
 {
     if (point == 1)

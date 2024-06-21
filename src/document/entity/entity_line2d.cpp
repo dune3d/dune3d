@@ -48,6 +48,18 @@ void EntityLine2D::set_param(unsigned int point, unsigned int axis, double value
     }
 }
 
+std::string EntityLine2D::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 1:
+        return "from";
+    case 2:
+        return "to";
+    default:
+        return "";
+    }
+}
+
 glm::dvec2 EntityLine2D::get_point_in_workplane(unsigned int point) const
 {
     if (point == 1)

@@ -49,6 +49,7 @@ public:
 
     void update_imported(const std::filesystem::path &containing_dir);
 
+    std::string get_point_name(unsigned int point) const override;
 
     void set_normal(const glm::dquat &q) override
     {

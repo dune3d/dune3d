@@ -26,6 +26,8 @@ public:
     glm::dvec3 m_p1;
     glm::dvec3 m_p2;
 
+    std::string get_point_name(unsigned int point) const override;
+
     bool m_no_points = false;
 };
 

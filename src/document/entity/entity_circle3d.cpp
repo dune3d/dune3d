@@ -48,6 +48,16 @@ void EntityCircle3D::set_param(unsigned int point, unsigned int axis, double val
         m_normal[axis] = value;
 }
 
+std::string EntityCircle3D::get_point_name(unsigned int point) const
+{
+    switch (point) {
+    case 1:
+        return "center";
+    default:
+        return "";
+    }
+}
+
 glm::dvec3 EntityCircle3D::get_point(unsigned int point, const Document &doc) const
 {
     if (point == 1)

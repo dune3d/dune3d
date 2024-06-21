@@ -45,6 +45,8 @@ public:
         return m_center;
     }
 
+    std::string get_point_name(unsigned int point) const override;
+
     std::set<UUID> get_referenced_entities() const override;
 };
 

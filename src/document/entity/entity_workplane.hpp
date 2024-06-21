@@ -39,6 +39,8 @@ public:
     glm::dquat m_normal;
     glm::dvec2 m_size;
 
+    std::string get_point_name(unsigned int point) const override;
+
     void set_normal(const glm::dquat &q) override
     {
         m_normal = q;

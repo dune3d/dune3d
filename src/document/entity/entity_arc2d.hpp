@@ -38,6 +38,8 @@ public:
         return m_wrkpl;
     }
 
+    std::string get_point_name(unsigned int point) const override;
+
     void accept(EntityVisitor &visitor) const override;
 
     std::set<UUID> get_referenced_entities() const override;

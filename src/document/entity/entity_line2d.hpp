@@ -32,6 +32,8 @@ public:
     glm::dvec2 m_p2;
     UUID m_wrkpl;
 
+    std::string get_point_name(unsigned int point) const override;
+
     const UUID &get_workplane() const override
     {
         return m_wrkpl;
