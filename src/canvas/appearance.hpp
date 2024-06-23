@@ -14,5 +14,6 @@ public:
 
     unsigned int msaa = 4;
     float line_width = 2.5;
+    bool selection_glow = true;
 };
 } // namespace dune3d

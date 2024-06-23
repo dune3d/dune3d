@@ -7,12 +7,16 @@ in vec3 color;
 out vec3 normal_to_fragment;
 out vec3 color_to_fragment;
 out vec3 pos_to_fragment;
+flat out float select_alpha_to_frag;
 
 uniform mat4 view;
 uniform mat4 proj;
 uniform vec3 origin;
 uniform mat3 normal_mat;
 uniform vec3 override_color;
+uniform uint flags;
+
+##ubo
 
 void main()
 {
@@ -26,4 +30,5 @@ void main()
     gl_Position = (proj * view) * p4;
     pos_to_fragment = p4.xyz;
     normal_to_fragment = normalize(n4.xyz);
+    select_alpha_to_frag = get_select_alpha(flags);
 }

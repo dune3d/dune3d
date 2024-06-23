@@ -122,8 +122,6 @@ CanvasPreferencesEditor::CanvasPreferencesEditor(BaseObjectType *cobject, const 
         auto msaa_dropdown = x->get_widget<Gtk::DropDown>("msaa_dropdown");
         //
         auto items = Gtk::StringList::create();
-        items->append("Off");
-        m_msaa_settings.push_back(0);
         for (int i = 1; i < 5; i *= 2) {
             items->append(std::to_string(i) + "× MSAA");
             m_msaa_settings.push_back(i);

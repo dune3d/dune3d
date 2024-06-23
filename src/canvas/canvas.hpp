@@ -8,6 +8,7 @@
 #include "glyph_3d_renderer.hpp"
 #include "icon_renderer.hpp"
 #include "box_selection.hpp"
+#include "selection_texture_renderer.hpp"
 #include "icanvas.hpp"
 #include "selection_mode.hpp"
 #include "color.hpp"
@@ -38,6 +39,7 @@ public:
     friend BaseRenderer;
     friend struct UBOBuffer;
     friend BoxSelection;
+    friend SelectionTextureRenderer;
     Canvas();
 
     void request_push();
@@ -216,8 +218,11 @@ private:
     Glyph3DRenderer m_glyph_3d_renderer;
     IconRenderer m_icon_renderer;
     BoxSelection m_box_selection;
+    SelectionTextureRenderer m_selection_texture_renderer;
     std::vector<BaseRenderer *> m_all_renderers;
     unsigned int m_pick_base = 1;
+
+    GLint get_samples() const;
 
     Appearance m_appearance;
 
@@ -274,6 +279,7 @@ private:
     GLuint m_fbo;
     GLuint m_depthrenderbuffer;
     GLuint m_pickrenderbuffer;
+    GLuint m_selection_texture;
 
     GLuint m_fbo_downsampled;
     GLuint m_pickrenderbuffer_downsampled;

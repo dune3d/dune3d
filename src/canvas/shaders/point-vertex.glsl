@@ -9,12 +9,14 @@ uniform uint pick_base;
 flat out uint pick_to_frag;
 flat out vec3 color_to_frag;
 flat out float depth_shift_to_frag;
+flat out float select_alpha_to_frag;
 
 ##ubo
 
 void main() {
   color_to_frag = get_color(flags);
   depth_shift_to_frag = get_depth_shift(flags);
+  select_alpha_to_frag = get_select_alpha(flags);
   
   gl_Position = proj*view*(vec4(position, 1) + vec4(0,0,z_offset, 0));
   pick_to_frag = uint(gl_VertexID+int(pick_base));

@@ -26,6 +26,12 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
         }
         {
             auto r = Gtk::make_managed<PreferencesRowBool>(
+                    "Let selected items glow", "Render a halo around selected items to make them easier to see",
+                    m_preferences, m_preferences.canvas.appearance.selection_glow);
+            gr->add_row(*r);
+        }
+        {
+            auto r = Gtk::make_managed<PreferencesRowBool>(
                     "Enable error overlay",
                     "Turn canvas red if there are redundant constraints or the sketch is overconstrained",
                     m_preferences, m_preferences.canvas.error_overlay);

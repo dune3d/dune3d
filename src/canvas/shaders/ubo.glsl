@@ -29,6 +29,14 @@ float get_depth_shift(uint flags)
     return 0.;
 }
 
+float get_select_alpha(uint flags)
+{
+    if((flags & (VERTEX_FLAG_SELECTED)) != uint(0))
+        return 1.;
+    else
+        return 0.;
+}
+
 bool test_peel(uint pick)
 {
     for(int i = 0; i < peeled_picks.length(); i++)

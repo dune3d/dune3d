@@ -37,7 +37,8 @@ static const MSD::Params msd_params_slow{
 
 Canvas::Canvas()
     : m_background_renderer(*this), m_face_renderer(*this), m_point_renderer(*this), m_line_renderer(*this),
-      m_glyph_renderer(*this), m_glyph_3d_renderer(*this), m_icon_renderer(*this), m_box_selection(*this)
+      m_glyph_renderer(*this), m_glyph_3d_renderer(*this), m_icon_renderer(*this), m_box_selection(*this),
+      m_selection_texture_renderer(*this)
 {
     m_all_renderers.push_back(&m_face_renderer);
     m_all_renderers.push_back(&m_point_renderer);
@@ -716,6 +717,7 @@ void Canvas::on_realize()
     m_glyph_3d_renderer.realize();
     m_icon_renderer.realize();
     m_box_selection.realize();
+    m_selection_texture_renderer.realize();
     GL_CHECK_ERROR
 
 
@@ -730,6 +732,7 @@ void Canvas::on_realize()
     glGenRenderbuffers(1, &m_pickrenderbuffer);
     glGenRenderbuffers(1, &m_pickrenderbuffer_downsampled);
     glGenRenderbuffers(1, &m_last_frame_renderbuffer);
+    glGenTextures(1, &m_selection_texture);
 
     resize_buffers();
 
@@ -768,6 +771,7 @@ void Canvas::on_realize()
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_renderbuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER, m_pickrenderbuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D_MULTISAMPLE, m_selection_texture, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthrenderbuffer);
 
     GL_CHECK_ERROR
@@ -784,15 +788,20 @@ void Canvas::on_realize()
     GL_CHECK_ERROR
 }
 
+GLint Canvas::get_samples() const
+{
+#ifndef __APPLE__
+    return m_appearance.msaa;
+#else
+    // samples above 1 does not seem to work on macOS
+    return 1;
+#endif
+}
+
 void Canvas::resize_buffers()
 {
     GLint rb;
-#ifndef __APPLE__
-    GLint samples = m_appearance.msaa;
-#else
-    // samples above 1 does not seem to work on macOS
-    GLint samples = 1;
-#endif
+    const auto samples = get_samples();
 
     glGetIntegerv(GL_RENDERBUFFER_BINDING, &rb); // save rb
     glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
@@ -809,6 +818,12 @@ void Canvas::resize_buffers()
     glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, m_dev_width, m_dev_height);
 
     glBindRenderbuffer(GL_RENDERBUFFER, rb);
+
+
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_selection_texture);
+    GL_CHECK_ERROR
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA8, m_dev_width, m_dev_height, GL_TRUE);
+    GL_CHECK_ERROR
 }
 
 ICanvas::VertexRef Canvas::add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal,
@@ -903,7 +918,7 @@ void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GL_CHECK_ERROR
     {
-        const std::array<GLenum, 2> bufs = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+        const std::array<GLenum, 3> bufs = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
         glDrawBuffers(bufs.size(), bufs.data());
     }
 
@@ -937,6 +952,7 @@ void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
     m_point_renderer.render();
     m_line_renderer.render();
     glEnablei(GL_BLEND, 0);
+    glEnablei(GL_BLEND, 2);
     m_glyph_renderer.render();
     m_glyph_3d_renderer.render();
     m_icon_renderer.render();
@@ -944,8 +960,20 @@ void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
     m_box_selection.render();
     if (m_show_error_overlay)
         m_background_renderer.render_error();
+
+    if (!m_selection_peeling && m_appearance.selection_glow) {
+        glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA);
+        glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        glColorMaski(2, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        m_selection_texture_renderer.render();
+        glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glColorMaski(2, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA);
+    }
     glEnable(GL_DEPTH_TEST);
+
     glDisablei(GL_BLEND, 0);
+    glDisablei(GL_BLEND, 2);
     // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     GL_CHECK_ERROR
 

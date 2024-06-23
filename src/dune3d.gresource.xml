@@ -20,6 +20,8 @@
     <file>canvas/shaders/icon-vertex.glsl</file>
     <file>canvas/shaders/icon-fragment.glsl</file>
     <file>canvas/shaders/icon-geometry.glsl</file>
+    <file>canvas/shaders/selection-texture-fragment.glsl</file>
+    <file>canvas/shaders/selection-texture-vertex.glsl</file>
     <file>canvas/shaders/ubo.glsl</file>
     <file>canvas/shaders/selection-vertex.glsl</file>
     <file>canvas/shaders/selection-fragment.glsl</file>

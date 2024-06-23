@@ -2,8 +2,11 @@
 
 layout(location = 0) out vec4 outputColor;
 layout(location = 1) out uint pick;
+layout(location = 2) out vec4 select;
+
 flat in uint pick_to_frag;
 flat in vec3 color_to_frag;
+flat in float select_alpha_to_frag;
 uniform sampler2D msdf;
 smooth in vec2 texcoord_to_fragment;
 
@@ -28,4 +31,5 @@ void main() {
         discard;
   outputColor = vec4(color, clamp((1-opacity), 0, 1));
   pick = pick_to_frag;
+  select = outputColor*select_alpha_to_frag;
 }

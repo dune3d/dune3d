@@ -12,7 +12,9 @@ flat in uint bits_to_geom[1];
 flat in uint pick_to_geom[1];
 flat out uint pick_to_frag;
 flat out vec3 color_to_frag;
+flat out float select_alpha_to_frag;
 smooth out vec2 texcoord_to_fragment;
+
 
 ##ubo
 
@@ -20,6 +22,7 @@ void main() {
 	if(test_peel(pick_to_geom[0]))
 		return;
 	color_to_frag = get_color(flags_to_geom[0]);
+	select_alpha_to_frag = get_select_alpha(flags_to_geom[0]);
 	
 	vec4 o = origin_to_geom[0];
     vec4 right = right_to_geom[0];

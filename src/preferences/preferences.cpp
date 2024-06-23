@@ -223,6 +223,7 @@ json CanvasPreferences::serialize() const
     json j = serialize_colors();
     j["msaa"] = appearance.msaa;
     j["line_width"] = appearance.line_width;
+    j["selection_glow"] = appearance.selection_glow;
     j["enable_animations"] = enable_animations;
     j["theme"] = theme;
     j["theme_variant"] = theme_variant_lut.lookup_reverse(theme_variant);
@@ -272,8 +273,9 @@ void CanvasPreferences::load_colors_from_json(const json &j)
 
 void CanvasPreferences::load_from_json(const json &j)
 {
-    appearance.msaa = j.value("msaa", 0);
+    appearance.msaa = std::max(j.value("msaa", 0), 1);
     appearance.line_width = j.value("line_width", 2.5);
+    appearance.selection_glow = j.value("selection_glow", true);
     enable_animations = j.value("enable_animations", true);
     theme = j.value("theme", "Default");
     if (j.contains("theme_variant"))
