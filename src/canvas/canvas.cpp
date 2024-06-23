@@ -1101,6 +1101,10 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
         m_needs_resize = false;
     }
 
+    // fixes glitches on AMD??
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_selection_texture);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, get_samples(), GL_RGBA8, m_dev_width, m_dev_height, GL_TRUE);
+
     GLint fb;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fb); // save fb
 
