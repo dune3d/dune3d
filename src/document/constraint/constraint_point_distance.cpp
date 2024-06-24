@@ -15,7 +15,8 @@ ConstraintPointDistanceBase::ConstraintPointDistanceBase(const UUID &uu) : Const
 ConstraintPointDistanceBase::ConstraintPointDistanceBase(const UUID &uu, const json &j)
     : Constraint(uu, j), m_entity1(j.at("entity1").get<EntityAndPoint>()),
       m_entity2(j.at("entity2").get<EntityAndPoint>()), m_wrkpl(j.at("wrkpl").get<UUID>()),
-      m_distance(j.at("distance").get<double>()), m_offset(j.at("offset").get<glm::dvec3>())
+      m_measurement(j.value("measurement", false)), m_distance(j.at("distance").get<double>()),
+      m_offset(j.at("offset").get<glm::dvec3>())
 {
 }
 
@@ -27,6 +28,8 @@ json ConstraintPointDistanceBase::serialize() const
     j["wrkpl"] = m_wrkpl;
     j["offset"] = m_offset;
     j["distance"] = m_distance;
+    if (m_measurement)
+        j["measurement"] = true;
     return j;
 }
 
@@ -77,6 +80,14 @@ glm::dvec3 ConstraintPointDistanceBase::get_origin(const Document &doc) const
     glm::vec3 to = doc.get_point(m_entity2);
     glm::vec3 mid = (from + to) / 2.f;
     return mid;
+}
+
+double ConstraintPointDistanceBase::get_display_distance(const Document &doc) const
+{
+    if (m_measurement)
+        return measure_distance(doc);
+    else
+        return m_distance;
 }
 
 } // namespace dune3d

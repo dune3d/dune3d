@@ -13,9 +13,6 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolConstrainDiameterRadius::can_begin()
 {
-    if (!get_workplane_uuid())
-        return false;
-
     auto enp = entity_and_point_from_selection(get_doc(), m_selection);
     if (!enp)
         return false;
@@ -23,8 +20,12 @@ ToolBase::CanBegin ToolConstrainDiameterRadius::can_begin()
         return false;
     auto &doc = get_doc();
     auto &en = get_entity(enp->entity);
+
     if (!en.of_type(Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D))
         return false;
+
+    if (any_of(m_tool_id, ToolID::MEASURE_DIAMETER, ToolID::MEASURE_RADIUS))
+        return true;
 
     const auto constraint_types = en.get_constraint_types(doc);
     if (set_contains(constraint_types, Constraint::Type::RADIUS, Constraint::Type::DIAMETER))
@@ -42,10 +43,12 @@ ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
     ConstraintDiameterRadius *constraint = nullptr;
     switch (m_tool_id) {
     case ToolID::CONSTRAIN_RADIUS:
+    case ToolID::MEASURE_RADIUS:
         constraint = &add_constraint<ConstraintRadius>();
         break;
 
     case ToolID::CONSTRAIN_DIAMETER:
+    case ToolID::MEASURE_DIAMETER:
         constraint = &add_constraint<ConstraintDiameter>();
         break;
 
@@ -55,6 +58,7 @@ ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
 
     constraint->m_entity = enp->entity;
     constraint->measure(get_doc());
+    constraint->m_measurement = any_of(m_tool_id, ToolID::MEASURE_DIAMETER, ToolID::MEASURE_RADIUS);
 
     reset_selection_after_constrain();
     return ToolResponse::commit();

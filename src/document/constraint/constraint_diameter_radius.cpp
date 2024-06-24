@@ -16,7 +16,7 @@ ConstraintDiameterRadius::ConstraintDiameterRadius(const UUID &uu) : Constraint(
 
 ConstraintDiameterRadius::ConstraintDiameterRadius(const UUID &uu, const json &j)
     : Constraint(uu, j), m_entity(j.at("entity").get<UUID>()), m_distance(j.at("distance").get<double>()),
-      m_offset(j.at("offset").get<glm::dvec2>())
+      m_offset(j.at("offset").get<glm::dvec2>()), m_measurement(j.value("measurement", false))
 {
 }
 
@@ -26,6 +26,7 @@ json ConstraintDiameterRadius::serialize() const
     j["entity"] = m_entity;
     j["offset"] = m_offset;
     j["distance"] = m_distance;
+    j["measurement"] = m_measurement;
     return j;
 }
 
@@ -44,17 +45,22 @@ std::set<EntityAndPoint> ConstraintDiameterRadius::get_referenced_entities_and_p
     return {{m_entity, 0}};
 }
 
-void ConstraintRadius::measure(const Document &doc)
+void ConstraintDiameterRadius::measure(const Document &doc)
 {
-    m_distance = measure_radius(doc);
+    m_distance = measure_distance(doc);
 }
 
-void ConstraintDiameter::measure(const Document &doc)
+double ConstraintDiameter::measure_distance(const Document &doc) const
 {
-    m_distance = 2 * measure_radius(doc);
+    return 2 * measure_radius(doc);
 }
 
-double ConstraintDiameterRadius::measure_radius(const Document &doc)
+double ConstraintRadius::measure_distance(const Document &doc) const
+{
+    return measure_radius(doc);
+}
+
+double ConstraintDiameterRadius::measure_radius(const Document &doc) const
 {
     auto &entity = doc.get_entity<IEntityRadius>(m_entity);
     return entity.get_radius();
@@ -76,6 +82,14 @@ const UUID &ConstraintDiameterRadius::get_workplane(const Document &doc) const
 {
     auto &en = doc.get_entity(m_entity);
     return dynamic_cast<const IEntityInWorkplane &>(en).get_workplane();
+}
+
+double ConstraintDiameterRadius::get_display_distance(const Document &doc) const
+{
+    if (m_measurement)
+        return measure_distance(doc);
+    else
+        return m_distance;
 }
 
 

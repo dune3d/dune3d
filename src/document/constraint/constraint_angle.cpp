@@ -53,7 +53,7 @@ std::unique_ptr<Constraint> ConstraintLinesAngle::clone() const
 
 ConstraintLinesAngle::ConstraintLinesAngle(const UUID &uu, const json &j)
     : ConstraintAngleBase(uu, j), m_angle(j.at("angle").get<double>()), m_negative(j.at("negative").get<bool>()),
-      m_offset(j.at("offset").get<glm::dvec3>())
+      m_offset(j.at("offset").get<glm::dvec3>()), m_measurement(j.value("measurement", false))
 {
 }
 
@@ -110,7 +110,20 @@ json ConstraintLinesAngle::serialize() const
     j["angle"] = m_angle;
     j["offset"] = m_offset;
     j["negative"] = m_negative;
+    j["measurement"] = m_measurement;
     return j;
 }
+
+double ConstraintLinesAngle::get_display_angle(const Document &doc) const
+{
+    if (m_measurement) {
+        auto vs = get_vectors(doc);
+        return glm::degrees(acos(glm::dot(glm::normalize(vs.l1v), glm::normalize(vs.l2v))));
+    }
+    else {
+        return m_angle;
+    }
+}
+
 
 } // namespace dune3d

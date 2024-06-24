@@ -3,6 +3,7 @@
 #include "core/core.hpp"
 #include "document/entity/entity.hpp"
 #include "document/constraint/constraint.hpp"
+#include "document/constraint/iconstraint_datum.hpp"
 #include "document/group/group.hpp"
 
 namespace dune3d {
@@ -43,7 +44,12 @@ std::vector<SelectableCheckButton *> SelectionMenuCreator::create(Gtk::Popover &
                 auto &doc = m_core.get_current_document();
                 auto &constraint = doc.get_constraint(it.selectable->item);
                 auto &group = doc.get_group(constraint.m_group);
-                label = constraint.get_type_name() + " constraint in group " + group.m_name;
+
+                std::string name = "constraint";
+                if (auto dat = dynamic_cast<const IConstraintDatum *>(&constraint); dat && dat->is_measurement())
+                    name = "measurement";
+
+                label = constraint.get_type_name() + " " + name + " in group " + group.m_name;
             } break;
 
             case SelectableRef::Type::DOCUMENT: {

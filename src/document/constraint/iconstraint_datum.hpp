@@ -11,5 +11,6 @@ public:
     virtual std::pair<double, double> get_datum_range() const = 0;
     virtual std::string get_datum_name() const = 0;
     virtual DatumUnit get_datum_unit() const = 0;
+    virtual bool is_measurement() const = 0;
 };
 } // namespace dune3d

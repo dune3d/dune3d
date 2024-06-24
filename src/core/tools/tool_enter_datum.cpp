@@ -30,7 +30,12 @@ ToolBase::CanBegin ToolEnterDatum::can_begin()
     if (!uu)
         return false;
     auto &constr = get_doc().get_constraint(*uu);
-    return dynamic_cast<IConstraintDatum *>(&constr);
+    auto dat = dynamic_cast<IConstraintDatum *>(&constr);
+    if (!dat)
+        return false;
+    if (dat->is_measurement())
+        return false;
+    return true;
 }
 
 ToolResponse ToolEnterDatum::begin(const ToolArgs &args)

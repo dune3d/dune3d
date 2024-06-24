@@ -2,6 +2,7 @@
 #include "nlohmann/json.hpp"
 #include "entity/entity.hpp"
 #include "constraint/constraint.hpp"
+#include "constraint/iconstraint_datum.hpp"
 #include "group/group.hpp"
 #include "util/util.hpp"
 #include "util/fs_util.hpp"
@@ -50,7 +51,7 @@ json Document::serialize() const
     return j;
 }
 
-static const unsigned int app_version = 13;
+static const unsigned int app_version = 14;
 
 unsigned int Document::get_app_version()
 {
@@ -595,6 +596,10 @@ std::set<const Constraint *> Document::find_constraints(const std::set<EntityAnd
 {
     std::set<const Constraint *> r;
     for (const auto &[uu, constr] : m_constraints) {
+        if (auto iconstraint_datum = dynamic_cast<const IConstraintDatum *>(constr.get())) {
+            if (iconstraint_datum->is_measurement())
+                continue;
+        }
         auto refs = constr->get_referenced_entities_and_points();
         if (std::ranges::includes(refs, enps))
             r.insert(constr.get());

@@ -5,6 +5,7 @@
 #include "document/document.hpp"
 #include "document/group/group.hpp"
 #include "document/constraint/constraint.hpp"
+#include "document/constraint/iconstraint_datum.hpp"
 
 namespace dune3d {
 
@@ -176,6 +177,10 @@ std::set<const Constraint *> Entity::get_constraints(const Document &doc) const
     for (const auto &[uu, constraint] : doc.m_constraints) {
         if (constraint->m_group != m_group)
             continue;
+        if (auto iconstraint_datum = dynamic_cast<const IConstraintDatum *>(constraint.get())) {
+            if (iconstraint_datum->is_measurement())
+                continue;
+        }
         if (constraint->get_referenced_entities().contains(m_uuid))
             constraints.insert(constraint.get());
     }

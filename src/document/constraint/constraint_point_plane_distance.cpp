@@ -14,8 +14,8 @@ ConstraintPointPlaneDistance::ConstraintPointPlaneDistance(const UUID &uu) : Con
 
 ConstraintPointPlaneDistance::ConstraintPointPlaneDistance(const UUID &uu, const json &j)
     : Constraint(uu, j), m_distance(j.at("distance").get<double>()), m_offset(j.at("offset").get<glm::dvec3>()),
-      m_point(j.at("point").get<EntityAndPoint>()), m_line1(j.at("line1").get<UUID>()),
-      m_line2(j.at("line2").get<UUID>())
+      m_measurement(j.value("measurement", false)), m_point(j.at("point").get<EntityAndPoint>()),
+      m_line1(j.at("line1").get<UUID>()), m_line2(j.at("line2").get<UUID>())
 {
 }
 
@@ -26,6 +26,7 @@ json ConstraintPointPlaneDistance::serialize() const
     j["line1"] = m_line1;
     j["line2"] = m_line2;
     j["offset"] = m_offset;
+    j["measurement"] = m_measurement;
     j["distance"] = m_distance;
     return j;
 }
@@ -83,6 +84,14 @@ std::set<EntityAndPoint> ConstraintPointPlaneDistance::get_referenced_entities_a
 void ConstraintPointPlaneDistance::accept(ConstraintVisitor &visitor) const
 {
     visitor.visit(*this);
+}
+
+double ConstraintPointPlaneDistance::get_display_distance(const Document &doc) const
+{
+    if (m_measurement)
+        return measure_distance(doc);
+    else
+        return m_distance;
 }
 
 bool ConstraintPointPlaneDistance::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)

@@ -60,6 +60,13 @@ public:
     glm::dvec3 m_offset = {0, 0, 0};
     glm::dvec3 get_origin(const Document &doc) const override;
 
+    bool m_measurement = false;
+
+    bool is_measurement() const override
+    {
+        return m_measurement;
+    }
+
     glm::dvec3 get_offset() const override
     {
         return m_offset;
@@ -113,6 +120,8 @@ public:
 
     std::unique_ptr<Constraint> clone() const override;
     void accept(ConstraintVisitor &visitor) const override;
+
+    double get_display_angle(const Document &doc) const;
 };
 
 } // namespace dune3d

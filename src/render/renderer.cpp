@@ -428,6 +428,19 @@ static glm::vec3 project_point_onto_plane(const glm::vec3 &plane_origin, const g
     return point - dist * plane_normal;
 }
 
+static std::string format_measurement(bool is_meas, const std::string &s)
+{
+    if (is_meas)
+        return "(" + s + ")";
+    else
+        return s;
+}
+
+static std::string format_measurement(bool is_meas, double v)
+{
+    return format_measurement(is_meas, std::format(" {:.3f}", v));
+}
+
 void Renderer::visit(const ConstraintPointDistance &constr)
 {
     m_ca.set_vertex_constraint(true);
@@ -443,7 +456,9 @@ void Renderer::visit(const ConstraintPointDistance &constr)
         to = wrkpl.project3(to);
     }
 
-    draw_distance_line(from, to, p, constr.m_distance, constr.m_uuid, fallback_normal);
+    std::string label =
+            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_distance(*m_doc)));
+    draw_distance_line(from, to, p, label, constr.m_uuid, fallback_normal);
 
     m_ca.set_vertex_constraint(false);
 }
@@ -453,8 +468,8 @@ static const float constraint_arrow_scale = .015;
 static const float constraint_arrow_aspect = 1.5;
 static const float constraint_line_extension = 2.0;
 
-void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p, double distance,
-                                  const UUID &uu, const glm::vec3 &fallback_normal)
+void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p,
+                                  const std::string &label, const UUID &uu, const glm::vec3 &fallback_normal)
 {
     auto n = glm::normalize(from - to);
     auto p1 = project_point_onto_plane(from, n, text_p);
@@ -465,7 +480,6 @@ void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, co
     m_ca.add_selectable(m_ca.draw_line(from, p1), sr);
     m_ca.add_selectable(m_ca.draw_line(to, p2), sr);
 
-    std::string label = std::format(" {:.3f}", distance);
     add_selectables(sr, m_ca.draw_bitmap_text(text_p, 1, label));
 
     const float scale = constraint_arrow_scale;
@@ -512,7 +526,9 @@ void Renderer::visit(const ConstraintPointLineDistance &constr)
         pp = wrkpl.project3(pp);
     }
 
-    draw_distance_line(pproj, pp, p, std::abs(constr.m_distance), constr.m_uuid, fallback_normal);
+    draw_distance_line(pproj, pp, p,
+                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_distance(*m_doc))),
+                       constr.m_uuid, fallback_normal);
 
     m_ca.set_vertex_constraint(false);
 }
@@ -528,7 +544,9 @@ void Renderer::visit(const ConstraintPointPlaneDistance &constr)
     const auto &l1 = m_doc->get_entity(constr.m_line1);
     const auto fallback_normal = l1.get_point(2, *m_doc) - l1.get_point(1, *m_doc);
 
-    draw_distance_line(pproj, pp, p, std::abs(constr.m_distance), constr.m_uuid, fallback_normal);
+    draw_distance_line(pproj, pp, p,
+                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_distance(*m_doc))),
+                       constr.m_uuid, fallback_normal);
 
     m_ca.set_vertex_constraint(false);
 }
@@ -566,7 +584,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(to, (+n + l * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * aspect) * scale), sr);
 
-    std::string label = std::format(" {:.3f}", constr.m_distance);
+    const auto label = format_measurement(constr.is_measurement(), constr.get_display_distance(*m_doc));
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 
     m_ca.set_vertex_constraint(false);
@@ -613,7 +631,9 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(ptt, (-dnt + d * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_line(ptt, wrkpl.transform(to)), sr);
 
-    std::string label = std::format(" {:.3f}", constr.m_distance);
+    std::string label = std::format(" {:.3f}", constr.get_display_distance(*m_doc));
+    if (constr.is_measurement())
+        label = "(" + label + ")";
     add_selectables(sr, m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label));
 
     m_ca.set_vertex_constraint(false);
@@ -832,7 +852,8 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
         }
     }
 
-    std::string label = std::format(" {:.1f}°", constr.m_angle);
+    const auto label =
+            format_measurement(constr.is_measurement(), std::format(" {:.1f}°", constr.get_display_angle(*m_doc)));
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 
     m_ca.set_vertex_constraint(false);

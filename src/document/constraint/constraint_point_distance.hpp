@@ -22,9 +22,18 @@ public:
 
     UUID m_wrkpl;
 
+    bool m_measurement = false;
+
+    bool is_measurement() const override
+    {
+        return m_measurement;
+    }
+
     double m_distance = 1;
     glm::dvec3 m_offset = {0, 0, 0};
     glm::dvec3 get_origin(const Document &doc) const override;
+
+    double get_display_distance(const Document &doc) const;
 
     glm::dvec3 get_offset() const override
     {

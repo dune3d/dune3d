@@ -24,6 +24,13 @@ public:
     double m_distance = 1;
     glm::dvec3 m_offset = {0, 0, 0};
 
+    bool m_measurement = false;
+
+    bool is_measurement() const override
+    {
+        return m_measurement;
+    }
+
     double measure_distance(const Document &doc) const;
 
     glm::dvec3 get_projected(const Document &doc) const;
@@ -68,6 +75,8 @@ public:
     {
         return {-1e6, 1e6};
     }
+
+    double get_display_distance(const Document &doc) const;
 
     EntityAndPoint m_point;
     UUID m_line1;

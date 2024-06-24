@@ -15,7 +15,7 @@ ConstraintPointLineDistance::ConstraintPointLineDistance(const UUID &uu) : Const
 ConstraintPointLineDistance::ConstraintPointLineDistance(const UUID &uu, const json &j)
     : Constraint(uu, j), m_point(j.at("point").get<EntityAndPoint>()), m_line(j.at("line").get<UUID>()),
       m_wrkpl(j.at("wrkpl").get<UUID>()), m_distance(j.at("distance").get<double>()),
-      m_offset(j.at("offset").get<glm::dvec3>())
+      m_offset(j.at("offset").get<glm::dvec3>()), m_measurement(j.value("measurement", false))
 {
 }
 
@@ -26,6 +26,7 @@ json ConstraintPointLineDistance::serialize() const
     j["line"] = m_line;
     j["wrkpl"] = m_wrkpl;
     j["offset"] = m_offset;
+    j["measurement"] = m_measurement;
     j["distance"] = m_distance;
     return j;
 }
@@ -61,6 +62,30 @@ std::set<EntityAndPoint> ConstraintPointLineDistance::get_referenced_entities_an
     if (m_wrkpl)
         r.emplace(m_wrkpl, 0);
     return r;
+}
+
+double ConstraintPointLineDistance::measure_distance(const Document &doc) const
+{
+    auto lp1 = doc.get_point({m_line, 1});
+    auto lp2 = doc.get_point({m_line, 2});
+    auto pp = doc.get_point(m_point);
+    if (m_wrkpl) {
+        auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
+        lp1 = wrkpl.project3(lp1);
+        lp2 = wrkpl.project3(lp2);
+        pp = wrkpl.project3(pp);
+    }
+    const auto v = glm::normalize(lp2 - lp1);
+    const auto t = glm::dot(v, pp - lp1);
+    return glm::length(pp - (lp1 + v * t));
+}
+
+double ConstraintPointLineDistance::get_display_distance(const Document &doc) const
+{
+    if (m_measurement)
+        return measure_distance(doc);
+    else
+        return m_distance;
 }
 
 void ConstraintPointLineDistance::accept(ConstraintVisitor &visitor) const

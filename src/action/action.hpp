@@ -17,6 +17,7 @@ enum class ActionGroup {
     UNKNOWN,
     DRAW,
     CONSTRAIN,
+    MEASURE,
     UNDO,
     MOVE,
     DOCUMENT,

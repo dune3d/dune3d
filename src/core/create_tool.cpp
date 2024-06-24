@@ -77,6 +77,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::CONSTRAIN_DISTANCE:
     case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
     case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
+    case ToolID::MEASURE_DISTANCE:
+    case ToolID::MEASURE_DISTANCE_HORIZONTAL:
+    case ToolID::MEASURE_DISTANCE_VERTICAL:
         return std::make_unique<ToolConstrainDistance>(tool_id, *this, m_intf, flags);
 
     case ToolID::ENTER_DATUM:
@@ -119,6 +122,8 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_DIAMETER:
     case ToolID::CONSTRAIN_RADIUS:
+    case ToolID::MEASURE_RADIUS:
+    case ToolID::MEASURE_DIAMETER:
         return std::make_unique<ToolConstrainDiameterRadius>(tool_id, *this, m_intf, flags);
 
     case ToolID::SELECT_EDGES:
@@ -126,6 +131,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_PERPENDICULAR:
     case ToolID::CONSTRAIN_ANGLE:
+    case ToolID::MEASURE_ANGLE:
         return std::make_unique<ToolConstrainPerpendicular>(tool_id, *this, m_intf, flags);
 
     case ToolID::SET_WORKPLANE:

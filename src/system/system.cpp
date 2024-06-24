@@ -1376,6 +1376,9 @@ void System::visit(const ConstraintMidpoint &constraint)
 
 void System::visit(const ConstraintPointDistance &constraint)
 {
+    if (constraint.m_measurement)
+        return;
+
     const auto group = get_group_index(constraint);
     const auto c = n_constraint++;
 
@@ -1397,6 +1400,8 @@ void System::visit(const ConstraintPointDistance &constraint)
 
 void System::visit(const ConstraintPointDistanceHV &constraint)
 {
+    if (constraint.m_measurement)
+        return;
     const auto c = n_constraint++;
 
     auto en1 = SK.GetEntity({get_entity_ref(constraint.m_entity1)});
@@ -1417,6 +1422,9 @@ void System::visit(const ConstraintPointDistanceHV &constraint)
 
 void System::visit(const ConstraintPointLineDistance &constraint)
 {
+    if (constraint.m_measurement)
+        return;
+
     const auto group = get_group_index(constraint);
     const auto c = n_constraint++;
 
@@ -1552,6 +1560,9 @@ void System::visit(const ConstraintEqualRadius &constraint)
 
 void System::visit(const ConstraintDiameterRadius &constraint)
 {
+    if (constraint.m_measurement)
+        return;
+
     const auto group = get_group_index(constraint);
 
     const auto c = n_constraint++;
@@ -1675,6 +1686,9 @@ void System::visit(const ConstraintLinesPerpendicular &constraint)
 
 void System::visit(const ConstraintLinesAngle &constraint)
 {
+    if (constraint.m_measurement)
+        return;
+
     const auto group = get_group_index(constraint);
 
     const auto c = n_constraint++;
@@ -1728,6 +1742,9 @@ void System::visit(const ConstraintPointInWorkplane &constraint)
 
 void System::visit(const ConstraintPointPlaneDistance &constraint)
 {
+    if (constraint.m_measurement)
+        return;
+
     const auto c = n_constraint++;
 
     auto en_p_ref = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_line1, 1})});

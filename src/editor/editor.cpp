@@ -446,6 +446,8 @@ void Editor::open_context_menu()
         sel = {*hover_sel};
     m_context_menu_selection = sel;
     update_action_sensitivity(sel);
+
+    std::list<Glib::RefPtr<Gio::MenuItem>> meas_items;
     for (const auto &[action_group, action_group_name] : action_group_catalog) {
         for (const auto &[id, it_cat] : action_catalog) {
             if (it_cat.group == action_group && !(it_cat.flags & ActionCatalogItem::FLAGS_NO_MENU)) {
@@ -453,7 +455,10 @@ void Editor::open_context_menu()
                     auto r = m_core.tool_can_begin(*tool, sel);
                     if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
                         auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
-                        menu->append_item(item);
+                        if (it_cat.group == ActionGroup::MEASURE)
+                            meas_items.push_back(item);
+                        else
+                            menu->append_item(item);
                     }
                 }
                 else if (auto act = std::get_if<ActionID>(&id)) {
@@ -465,6 +470,18 @@ void Editor::open_context_menu()
             }
         }
     }
+    if (meas_items.size() > 1) {
+        auto measurement_submenu = Gio::Menu::create();
+        for (auto it : meas_items) {
+            measurement_submenu->append_item(it);
+        }
+        auto item = Gio::MenuItem::create("Measure", measurement_submenu);
+        menu->append_item(item);
+    }
+    else if (meas_items.size() == 1) {
+        menu->append_item(meas_items.front());
+    }
+
     if (m_core.has_documents()) {
         auto &doc = m_core.get_current_document();
         if (auto enp = entity_and_point_from_selection(doc, m_context_menu_selection)) {

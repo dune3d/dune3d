@@ -24,6 +24,13 @@ public:
     glm::dvec2 m_offset = {1, 0};
     glm::dvec3 get_origin(const Document &doc) const override;
 
+    bool m_measurement = false;
+
+    bool is_measurement() const override
+    {
+        return m_measurement;
+    }
+
     glm::dvec3 get_offset() const override
     {
         return glm::dvec3(m_offset, 0);
@@ -40,7 +47,8 @@ public:
     }
 
     virtual double get_diameter() const = 0;
-    virtual void measure(const Document &doc) = 0;
+    void measure(const Document &doc);
+    virtual double measure_distance(const Document &doc) const = 0;
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 
@@ -66,10 +74,12 @@ public:
 
     const UUID &get_workplane(const Document &doc) const override;
 
+    double get_display_distance(const Document &doc) const;
+
     void accept(ConstraintVisitor &visitor) const override;
 
 protected:
-    double measure_radius(const Document &doc);
+    double measure_radius(const Document &doc) const;
 };
 
 class ConstraintDiameter : public ConstraintDiameterRadius {
@@ -91,7 +101,7 @@ public:
         return "Diameter";
     }
 
-    void measure(const Document &doc) override;
+    double measure_distance(const Document &doc) const override;
 
     std::unique_ptr<Constraint> clone() const override;
 };
@@ -115,7 +125,7 @@ public:
         return "Radius";
     }
 
-    void measure(const Document &doc) override;
+    double measure_distance(const Document &doc) const override;
 
     std::unique_ptr<Constraint> clone() const override;
 };

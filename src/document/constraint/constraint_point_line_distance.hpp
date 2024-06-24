@@ -36,6 +36,13 @@ public:
     double m_distance = 1;
     glm::dvec3 m_offset = {0, 0, 0};
 
+    bool m_measurement = false;
+
+    bool is_measurement() const override
+    {
+        return m_measurement;
+    }
+
     glm::dvec3 get_projected(const Document &doc) const;
     glm::dvec3 get_origin(const Document &doc) const override;
 
@@ -85,6 +92,9 @@ public:
         else
             return {0, 1e6};
     }
+
+    double measure_distance(const Document &doc) const;
+    double get_display_distance(const Document &doc) const;
 
     void accept(ConstraintVisitor &visitor) const override;
 };

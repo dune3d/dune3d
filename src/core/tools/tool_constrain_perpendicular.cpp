@@ -136,7 +136,10 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
             const auto l2p1 = doc.get_point({tl->second, 1});
             const auto l2p2 = doc.get_point({tl->second, 2});
             c.m_negative = (l1p1 == l2p2 || l1p2 == l2p1);
-            constraint->m_modify_to_satisfy = true;
+            if (m_tool_id == ToolID::MEASURE_ANGLE)
+                c.m_measurement = true;
+            else
+                c.m_modify_to_satisfy = true;
         }
         constraint->m_wrkpl = get_workplane_uuid();
         constraint->m_entity1 = tl->first;
