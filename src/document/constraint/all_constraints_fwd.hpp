@@ -29,4 +29,5 @@ class ConstraintSymmetricHV;
 class ConstraintSymmetricVertical;
 class ConstraintSymmetricHorizontal;
 class ConstraintSymmetricLine;
+class ConstraintPointDistanceAligned;
 } // namespace dune3d

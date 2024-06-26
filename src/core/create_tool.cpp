@@ -35,6 +35,7 @@
 #include "tools/tool_constrain_symmetric_hv.hpp"
 #include "tools/tool_constrain_symmetric_line.hpp"
 #include "tools/tool_link_document.hpp"
+#include "tools/tool_constrain_distance_aligned.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -168,6 +169,10 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::LINK_DOCUMENT:
         return std::make_unique<ToolLinkDocument>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_DISTANCE_ALIGNED:
+    case ToolID::MEASURE_DISTANCE_ALIGNED:
+        return std::make_unique<ToolConstrainDistanceAligned>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

@@ -463,15 +463,48 @@ void Renderer::visit(const ConstraintPointDistance &constr)
     m_ca.set_vertex_constraint(false);
 }
 
+void Renderer::visit(const ConstraintPointDistanceAligned &constr)
+{
+    m_ca.set_vertex_constraint(true);
+    glm::vec3 from = m_doc->get_point(constr.m_entity1);
+    glm::vec3 to = m_doc->get_point(constr.m_entity2);
+    auto p = constr.get_origin(*m_doc) + constr.m_offset;
+    glm::vec3 fallback_normal = {NAN, NAN, NAN};
+    if (constr.m_wrkpl) {
+        auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constr.m_wrkpl);
+        p = wrkpl.project3(p);
+        fallback_normal = wrkpl.get_normal_vector();
+        from = wrkpl.project3(from);
+        to = wrkpl.project3(to);
+    }
+
+    std::string label =
+            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_distance(*m_doc)));
+    draw_distance_line_with_direction(from, to, constr.get_align_vector(*m_doc), p, label, constr.m_uuid,
+                                      fallback_normal);
+
+    m_ca.set_vertex_constraint(false);
+}
+
 
 static const float constraint_arrow_scale = .015;
 static const float constraint_arrow_aspect = 1.5;
 static const float constraint_line_extension = 2.0;
 
+
 void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p,
                                   const std::string &label, const UUID &uu, const glm::vec3 &fallback_normal)
 {
-    auto n = glm::normalize(from - to);
+    draw_distance_line_with_direction(from, to, from - to, text_p, label, uu, fallback_normal);
+}
+
+void Renderer::draw_distance_line_with_direction(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &dir,
+                                                 const glm::vec3 &text_p, const std::string &label, const UUID &uu,
+                                                 const glm::vec3 &fallback_normal)
+{
+    auto n = glm::normalize(dir);
+    if (glm::dot(glm::normalize(from - to), n) < 0)
+        n *= -1;
     auto p1 = project_point_onto_plane(from, n, text_p);
     auto p2 = project_point_onto_plane(to, n, text_p);
 
@@ -485,22 +518,31 @@ void Renderer::draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, co
     const float scale = constraint_arrow_scale;
     const float aspect = constraint_arrow_aspect;
     const float ext = constraint_line_extension;
-    auto d = p1 - from;
-    if (glm::length(d) > 1e-6) {
-        d = glm::normalize(d);
+    auto d1 = p1 - from;
+    if (glm::length(d1) > 1e-6) {
+        d1 = glm::normalize(d1);
     }
     else {
         if (std::isnan(fallback_normal.x))
             return;
-        d = glm::normalize(glm::cross(n, fallback_normal));
+        d1 = glm::normalize(glm::cross(n, fallback_normal));
+    }
+    auto d2 = p2 - to;
+    if (glm::length(d2) > 1e-6) {
+        d2 = glm::normalize(d2);
+    }
+    else {
+        if (std::isnan(fallback_normal.x))
+            return;
+        d2 = glm::normalize(glm::cross(n, fallback_normal));
     }
 
-    m_ca.add_selectable(m_ca.draw_screen_line(p1, d * ext * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p2, d * ext * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p1, (+d - n * aspect) * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p1, (-d - n * aspect) * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p2, (+d + n * aspect) * scale), sr);
-    m_ca.add_selectable(m_ca.draw_screen_line(p2, (-d + n * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p1, d1 * ext * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p2, d2 * ext * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p1, (+d1 - n * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p1, (-d1 - n * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p2, (+d2 + n * aspect) * scale), sr);
+    m_ca.add_selectable(m_ca.draw_screen_line(p2, (-d2 + n * aspect) * scale), sr);
 }
 
 void Renderer::add_selectables(const SelectableRef &sr, const std::vector<ICanvas::VertexRef> &vrs)

@@ -1420,6 +1420,43 @@ void System::visit(const ConstraintPointDistanceHV &constraint)
     }
 }
 
+void System::visit(const ConstraintPointDistanceAligned &constraint)
+{
+    if (constraint.m_measurement)
+        return;
+
+    const auto c = n_constraint++;
+
+    auto en1 = SK.GetEntity({get_entity_ref(constraint.m_entity1)});
+    auto en2 = SK.GetEntity({get_entity_ref(constraint.m_entity2)});
+
+    ExprVector v1;
+    ExprVector v2;
+    ExprVector align_vec;
+
+    if (constraint.m_wrkpl) {
+        auto en_align = SK.GetEntity({get_entity_ref({constraint.m_align_entity, 0})});
+        auto wrkpl = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
+        v1 = en1->PointGetExprsInWorkplane({wrkpl});
+        v2 = en2->PointGetExprsInWorkplane({wrkpl});
+        align_vec = en_align->VectorGetExprsInWorkplane({wrkpl}).WithMagnitude(Expr::From(1));
+    }
+    else {
+        v1 = en1->PointGetExprs();
+        v2 = en2->PointGetExprs();
+
+        if (m_doc.get_entity(constraint.m_align_entity).of_type(Entity::Type::WORKPLANE)) {
+            auto en_align = SK.GetEntity({get_entity_ref({constraint.m_align_entity, 2})}); // normal
+            align_vec = en_align->NormalExprsN();
+        }
+        else {
+            auto en_align = SK.GetEntity({get_entity_ref({constraint.m_align_entity, 0})}); // line
+            align_vec = en_align->VectorGetExprs().WithMagnitude(Expr::From(1));
+        }
+    }
+    AddEq(hConstraint{c}, &m_sys->eq, align_vec.Dot(v2.Minus(v1))->Minus(Expr::From(constraint.m_distance)), 0);
+}
+
 void System::visit(const ConstraintPointLineDistance &constraint)
 {
     if (constraint.m_measurement)

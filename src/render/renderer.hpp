@@ -69,6 +69,7 @@ private:
     void visit(const ConstraintPointInWorkplane &constr) override;
     void visit(const ConstraintSymmetricHV &constr) override;
     void visit(const ConstraintSymmetricLine &constr) override;
+    void visit(const ConstraintPointDistanceAligned &constr) override;
     ICanvas &m_ca;
     IDocumentProvider &m_doc_prv;
     const Document *m_doc = nullptr;
@@ -95,6 +96,9 @@ private:
     void draw_distance_line(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &text_p,
                             const std::string &label, const UUID &uu,
                             const glm::vec3 &fallback_normal = {NAN, NAN, NAN});
+    void draw_distance_line_with_direction(const glm::vec3 &from, const glm::vec3 &to, const glm::vec3 &dir,
+                                           const glm::vec3 &text_p, const std::string &label, const UUID &uu,
+                                           const glm::vec3 &fallback_normal = {NAN, NAN, NAN});
     void add_selectables(const SelectableRef &sr, const std::vector<ICanvas::VertexRef> &vrs);
 };
 

@@ -24,3 +24,4 @@
 #include "constraint_point_in_workplane.hpp"
 #include "constraint_symmetric_hv.hpp"
 #include "constraint_symmetric_line.hpp"
+#include "constraint_point_distance_aligned.hpp"

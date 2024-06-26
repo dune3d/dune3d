@@ -37,6 +37,8 @@ std::string Constraint::get_type_name(Type type)
         return "Vertical";
     case Type::POINT_DISTANCE:
         return "Distance";
+    case Type::POINT_DISTANCE_ALIGNED:
+        return "Aligned distance";
     case Type::WORKPLANE_NORMAL:
         return "Workplane normal";
     case Type::POINT_DISTANCE_HORIZONTAL:
@@ -101,6 +103,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                      {Constraint::Type::VERTICAL, "vertical"},
                                      {Constraint::Type::HORIZONTAL, "horizontal"},
                                      {Constraint::Type::POINT_DISTANCE, "point_distance"},
+                                     {Constraint::Type::POINT_DISTANCE_ALIGNED, "point_distance_aligned"},
                                      {Constraint::Type::SAME_ORIENTATION, "same_orientation"},
                                      {Constraint::Type::WORKPLANE_NORMAL, "workplane_normal"},
                                      {Constraint::Type::POINT_DISTANCE_HORIZONTAL, "point_distance_horizontal"},
@@ -190,6 +193,8 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintSymmetricVertical>(uu, j);
     case Type::SYMMETRIC_LINE:
         return std::make_unique<ConstraintSymmetricLine>(uu, j);
+    case Type::POINT_DISTANCE_ALIGNED:
+        return std::make_unique<ConstraintPointDistanceAligned>(uu, j);
     }
     throw std::runtime_error("unknown constraint type");
 }
