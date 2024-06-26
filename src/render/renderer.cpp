@@ -6,7 +6,7 @@
 #include "document/constraint/all_constraints.hpp"
 #include "document/solid_model.hpp"
 #include "canvas/selectable_ref.hpp"
-#include "idocument_view.hpp"
+#include "workspace/idocument_view.hpp"
 #include "util/util.hpp"
 #include "util/glm_util.hpp"
 #include "icon_texture_id.hpp"

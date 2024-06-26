@@ -1,6 +1,6 @@
 #pragma once
 #include "util/uuid.hpp"
-#include "idocument_view.hpp"
+#include "workspace/idocument_view.hpp"
 #include <map>
 
 namespace dune3d {
