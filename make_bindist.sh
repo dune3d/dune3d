@@ -125,7 +125,7 @@ LIBS=(
 	libx264-164.dll\
 	libwebpmux-3.dll\
 	xvidcore.dll\
-	libx265.dll\
+	libx265-209.dll\
 	swresample-3.dll\
 	vulkan-1.dll\
 	libjxrglue.dll\
