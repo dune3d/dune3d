@@ -216,6 +216,7 @@ src = files(
   'src/util/msd_animator.cpp',
   'src/util/exception_util.cpp',
   'src/util/key_util.cpp',
+  'src/workspace/entity_view.cpp',
 )
 
 prog_python = find_program('python3')

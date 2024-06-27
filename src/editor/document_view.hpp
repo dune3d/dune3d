@@ -1,6 +1,7 @@
 #pragma once
 #include "util/uuid.hpp"
 #include "workspace/idocument_view.hpp"
+#include "workspace/entity_view.hpp"
 #include <map>
 
 namespace dune3d {
@@ -23,6 +24,8 @@ public:
     };
     std::map<UUID, BodyView> m_body_views;
 
+    std::map<UUID, std::unique_ptr<EntityView>> m_entity_views;
+
     bool body_is_visible(const UUID &uu) const override;
     bool body_solid_model_is_visible(const UUID &uu) const override;
     bool group_is_visible(const UUID &uu) const override;
@@ -32,6 +35,9 @@ public:
     {
         return m_document_is_visible;
     }
+
+    const EntityView *get_entity_view(const UUID &uu) const override;
+    EntityView *get_or_create_entity_view(const UUID &en, EntityType type);
 };
 
 } // namespace dune3d

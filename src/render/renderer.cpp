@@ -7,6 +7,7 @@
 #include "document/solid_model.hpp"
 #include "canvas/selectable_ref.hpp"
 #include "workspace/idocument_view.hpp"
+#include "workspace/entity_view.hpp"
 #include "util/util.hpp"
 #include "util/glm_util.hpp"
 #include "icon_texture_id.hpp"
@@ -363,10 +364,16 @@ void Renderer::visit(const EntitySTEP &en)
         }
     }
 
+    auto view = dynamic_cast<const EntityViewSTEP *>(m_doc_view->get_entity_view(en.m_uuid));
+    auto display = EntityViewSTEP::Display::SOLID;
+    if (view)
+        display = view->display;
+
     if (en.m_imported) {
-        m_ca.add_selectable(
-                m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal, ICanvas::FaceColor::AS_IS),
-                SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, 0});
+        if (display == EntityViewSTEP::Display::SOLID)
+            m_ca.add_selectable(m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal,
+                                                    ICanvas::FaceColor::AS_IS),
+                                SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, 0});
         if (en.m_show_points) {
             unsigned int idx = EntitySTEP::s_imported_point_offset;
             for (auto &pt : en.m_imported->result.points) {
@@ -394,6 +401,10 @@ public:
     bool group_is_visible(const UUID &uu) const override
     {
         return true;
+    }
+    const EntityView *get_entity_view(const UUID &uu) const override
+    {
+        return nullptr;
     }
 };
 

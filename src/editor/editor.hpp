@@ -9,6 +9,7 @@
 #include "util/action_label.hpp"
 #include "document/group/group.hpp"
 #include "selection_menu_creator.hpp"
+#include "idocument_view_provider.hpp"
 
 namespace dune3d {
 
@@ -27,7 +28,7 @@ class ClippingPlaneWindow;
 class SelectionFilterWindow;
 enum class SelectionMode;
 
-class Editor : private EditorInterface {
+class Editor : private EditorInterface, private IDocumentViewProvider {
 public:
     Editor(Dune3DAppWindow &win, Preferences &prefs);
 
@@ -197,6 +198,8 @@ private:
     void set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints) override;
 
     std::map<UUID, DocumentView> m_document_views;
+
+    DocumentView &get_current_document_view() override;
 
     void handle_tool_change();
 

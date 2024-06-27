@@ -10,10 +10,14 @@
 #include "util/gtk_util.hpp"
 #include "util/fs_util.hpp"
 #include "widgets/spin_button_dim.hpp"
+#include "document_view.hpp"
+#include "workspace/entity_view.hpp"
+#include "idocument_view_provider.hpp"
 #include <variant>
 
 namespace dune3d {
-SelectionEditor::SelectionEditor(Core &core) : Gtk::Box(Gtk::Orientation::VERTICAL), m_core(core)
+SelectionEditor::SelectionEditor(Core &core, IDocumentViewProvider &prv)
+    : Gtk::Box(Gtk::Orientation::VERTICAL), m_core(core), m_doc_view_prv(prv)
 {
     m_title = Gtk::make_managed<Gtk::Label>();
     m_title->set_margin(10);
@@ -263,11 +267,51 @@ private:
     Gtk::Button *m_path_button = nullptr;
 };
 
+class EntityViewEditorSTEP : public Gtk::Grid, public Changeable {
+public:
+    EntityViewEditorSTEP(DocumentView &view, const UUID &uu) : m_view(view), m_entity_uuid(uu)
+    {
+        set_row_spacing(5);
+        set_column_spacing(5);
+
+        int top = 0;
+        auto items = Gtk::StringList::create();
+        items->append("Solid");
+        items->append("Hidden");
+
+        m_display_combo = Gtk::make_managed<Gtk::DropDown>(items);
+        m_display_combo->set_hexpand(true);
+        m_display_combo->set_selected(0);
+        if (auto ev = dynamic_cast<const EntityViewSTEP *>(view.get_entity_view(uu))) {
+            m_display_combo->set_selected(static_cast<guint>(ev->display));
+        }
+        m_display_combo->property_selected().signal_changed().connect([this] {
+            auto ev =
+                    dynamic_cast<EntityViewSTEP *>(m_view.get_or_create_entity_view(m_entity_uuid, Entity::Type::STEP));
+            if (!ev)
+                return;
+            ev->display = static_cast<EntityViewSTEP::Display>(m_display_combo->get_selected());
+            m_signal_changed.emit();
+        });
+        grid_attach_label_and_widget(*this, "Display", *m_display_combo, top);
+    }
+
+private:
+    DocumentView &m_view;
+    const UUID m_entity_uuid;
+
+    Gtk::DropDown *m_display_combo = nullptr;
+};
+
 void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
 {
     if (m_editor) {
         remove(*m_editor);
         m_editor = nullptr;
+    }
+    if (m_view_editor) {
+        remove(*m_view_editor);
+        m_view_editor = nullptr;
     }
     if (m_core.has_documents()) {
         if (auto wrkpl = entity_and_point_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE)) {
@@ -284,6 +328,11 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
                                                     m_core.get_current_document().get_entity<EntitySTEP>(step->entity));
             m_editor = ed;
             ed->signal_changed().connect([this] { m_signal_changed.emit(); });
+
+            auto ved =
+                    Gtk::make_managed<EntityViewEditorSTEP>(m_doc_view_prv.get_current_document_view(), step->entity);
+            m_view_editor = ved;
+            ved->signal_changed().connect([this] { m_signal_view_changed.emit(); });
         }
         else if (auto doc =
                          entity_and_point_from_selection(m_core.get_current_document(), sel, Entity::Type::DOCUMENT)) {
@@ -310,6 +359,10 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
     m_editor->set_margin(10);
 
     append(*m_editor);
+    if (m_view_editor) {
+        m_view_editor->set_margin(10);
+        append(*m_view_editor);
+    }
 }
 
 } // namespace dune3d

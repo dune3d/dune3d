@@ -552,12 +552,13 @@ void Editor::init_properties_notebook()
     });
     m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
 
-    m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core);
+    m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core, static_cast<IDocumentViewProvider &>(*this));
     m_selection_editor->signal_changed().connect([this] {
         m_core.set_needs_save();
         m_core.rebuild("selection edited");
         canvas_update_keep_selection();
     });
+    m_selection_editor->signal_view_changed().connect([this] { canvas_update_keep_selection(); });
     m_properties_notebook->append_page(*m_selection_editor, "Selection");
     get_canvas().signal_selection_changed().connect(sigc::mem_fun(*this, &Editor::update_selection_editor));
 }
@@ -2249,6 +2250,11 @@ void Editor::show_delete_items_popup(const ItemsToDelete &items_selected, const 
 
     m_win.show_delete_items_popup("Deleting " + ex + " also deleted", make_summary(items_extra, doc, "\n", "• "),
                                   detail);
+}
+
+DocumentView &Editor::get_current_document_view()
+{
+    return m_document_views[m_core.get_current_idocument_info().get_uuid()];
 }
 
 } // namespace dune3d
