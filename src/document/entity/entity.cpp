@@ -109,6 +109,11 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Entity::Type, {
                                                    {Entity::Type::DOCUMENT, "document"},
                                            })
 
+json Entity::serialize_type(Type type)
+{
+    return type;
+}
+
 json Entity::serialize() const
 {
     return json{{"type", get_type()}, {"group", m_group}, {"construction", m_construction}, {"name", m_name}};

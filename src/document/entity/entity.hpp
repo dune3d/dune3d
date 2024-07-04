@@ -49,6 +49,7 @@ public:
     }
 
     virtual ~Entity();
+    static json serialize_type(Type type);
     virtual json serialize() const;
 
     static std::unique_ptr<Entity> new_from_json(const UUID &uu, const json &j,
