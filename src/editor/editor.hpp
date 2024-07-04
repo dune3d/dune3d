@@ -211,6 +211,7 @@ private:
     void close_workspace_view(const UUID &uu);
     void auto_close_workspace_views();
     void rename_workspace_view(const UUID &uu);
+    static std::filesystem::path get_workspace_filename_from_document_filename(const std::filesystem::path &path);
 
     void load_linked_documents(const UUID &uu_doc);
 
