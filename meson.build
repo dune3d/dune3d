@@ -45,6 +45,7 @@ src = files(
   'src/editor/editor_workspace_view.cpp',
   'src/editor/editor_action.cpp',
   'src/editor/editor_delete_items_popup.cpp',
+  'src/editor/editor_tool.cpp',
   'src/canvas/canvas.cpp',
   'src/canvas/gl_util.cpp',
   'src/canvas/base_renderer.cpp',
