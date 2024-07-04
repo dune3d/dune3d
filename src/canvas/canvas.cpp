@@ -275,6 +275,7 @@ void Canvas::setup_controllers()
         }
         else if (m_pan_mode == PanMode::MOVE) {
             m_center = m_center_orig + get_center_shift(delta);
+            m_signal_view_changed.emit();
             queue_draw();
         }
         else {
@@ -385,6 +386,7 @@ void Canvas::scroll_move(double dx, double dy, Gtk::EventController &ctrl)
 {
     auto delta = glm::vec2(dx * -83, dy * 83);
     m_center += get_center_shift(delta);
+    m_signal_view_changed.emit();
     queue_draw();
 }
 
@@ -425,6 +427,7 @@ void Canvas::drag_gesture_update_cb(Gdk::EventSequence *seq)
     double x, y;
     if (m_gesture_drag->get_offset(x, y)) {
         m_center = m_gesture_drag_center_orig + get_center_shift({x, -y});
+        m_signal_view_changed.emit();
         queue_draw();
     }
 }
@@ -1532,6 +1535,7 @@ void Canvas::set_projection(Projection proj)
 {
     m_projection = proj;
     queue_draw();
+    m_signal_view_changed.emit();
 }
 
 static const float zoom_base = 1.5;

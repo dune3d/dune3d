@@ -132,13 +132,19 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_tool_bar_stack->set_visible_child(*m_tool_bar_box);
 
 
+    m_workspace_notebook = refBuilder->get_widget<Gtk::Notebook>("workspace_notebook");
+
+    m_workspace_add_button = Gtk::make_managed<Gtk::Button>();
+    m_workspace_add_button->set_has_frame(false);
+    m_workspace_add_button->set_icon_name("list-add-symbolic");
+    m_workspace_notebook->set_action_widget(m_workspace_add_button, Gtk::PackType::END);
+
     refBuilder->get_widget<Gtk::Box>("canvas_box")->insert_child_at_start(*m_canvas);
     get_canvas().set_vexpand(true);
     get_canvas().set_hexpand(true);
     m_key_hint_label = refBuilder->get_widget<Gtk::Label>("key_hint_label");
     m_workplane_checkbutton = refBuilder->get_widget<Gtk::CheckButton>("workplane_checkbutton");
     m_workplane_label = refBuilder->get_widget<Gtk::Label>("workplane_label");
-
 
     {
         Gtk::Box *lollipop_box = refBuilder->get_widget<Gtk::Box>("lollipop_box");
@@ -419,6 +425,79 @@ void Dune3DAppWindow::hide_delete_items_popup()
 {
     m_delete_revealer->set_visible(false);
     m_delete_timeout_connection.disconnect();
+}
+
+Dune3DAppWindow::WorkspaceTabLabel::WorkspaceTabLabel(const std::string &label) : Gtk::Box(Gtk::Orientation::HORIZONTAL)
+{
+    m_label = Gtk::make_managed<Gtk::Label>(label);
+    append(*m_label);
+
+    m_close_button = Gtk::make_managed<Gtk::Button>();
+    m_close_button->set_image_from_icon_name("window-close-symbolic");
+    m_close_button->set_has_frame(false);
+    m_close_button->signal_clicked().connect([this] { m_signal_close.emit(); });
+    append(*m_close_button);
+
+    {
+        auto controller = Gtk::GestureClick::create();
+        controller->set_button(2);
+        controller->signal_pressed().connect([this](int, double, double) { m_signal_close.emit(); });
+        add_controller(controller);
+    }
+    {
+        auto controller = Gtk::GestureClick::create();
+        controller->set_button(1);
+        controller->signal_pressed().connect([this](int n_press, double, double) {
+            if (n_press == 2)
+                m_signal_rename.emit();
+        });
+        add_controller(controller);
+    }
+}
+
+void Dune3DAppWindow::WorkspaceTabLabel::set_label(const std::string &label)
+{
+    m_label->set_label(label);
+}
+
+void Dune3DAppWindow::WorkspaceTabLabel::set_can_close(bool can_close)
+{
+    m_close_button->set_sensitive(can_close);
+}
+
+Dune3DAppWindow::WorkspaceTabLabel &Dune3DAppWindow::append_workspace_view_page(const std::string &name, const UUID &uu)
+{
+    auto pg = Gtk::make_managed<WorkspaceViewPage>(uu);
+    auto la = Gtk::make_managed<WorkspaceTabLabel>(name);
+    m_workspace_notebook->append_page(*pg, *la);
+    update_can_close_workspace_pages();
+    return *la;
+}
+
+void Dune3DAppWindow::remove_workspace_view_page(const UUID &uu)
+{
+    auto pages = m_workspace_notebook->get_pages();
+    for (size_t i = 0; i < pages->get_n_items(); i++) {
+        auto &page = dynamic_cast<Gtk::NotebookPage &>(*pages->get_object(i).get());
+        auto &it = dynamic_cast<WorkspaceViewPage &>(*page.get_child());
+        if (it.m_uuid == uu) {
+            m_workspace_notebook->remove_page(it);
+            update_can_close_workspace_pages();
+            return;
+        }
+    }
+}
+
+void Dune3DAppWindow::update_can_close_workspace_pages()
+{
+    const auto can_close = m_workspace_notebook->get_n_pages() > 1;
+    auto pages = m_workspace_notebook->get_pages();
+    for (size_t i = 0; i < pages->get_n_items(); i++) {
+        auto &page = dynamic_cast<Gtk::NotebookPage &>(*pages->get_object(i).get());
+        auto &it = dynamic_cast<WorkspaceViewPage &>(*page.get_child());
+        auto &la = dynamic_cast<WorkspaceTabLabel &>(*m_workspace_notebook->get_tab_label(it));
+        la.set_can_close(can_close);
+    }
 }
 
 

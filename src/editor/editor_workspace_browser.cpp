@@ -20,7 +20,6 @@ void Editor::init_workspace_browser()
     m_workspace_browser = Gtk::make_managed<WorkspaceBrowser>(m_core);
     m_workspace_browser->signal_close_document().connect(
             [this](const UUID &doc_uu) { close_document(doc_uu, nullptr, nullptr); });
-    m_workspace_browser->update_documents(m_document_views);
 
     m_workspace_browser->signal_group_selected().connect(
             sigc::mem_fun(*this, &Editor::on_workspace_browser_group_selected));
@@ -41,7 +40,11 @@ void Editor::init_workspace_browser()
     m_workspace_browser->set_sensitive(m_core.has_documents());
 
     m_core.signal_rebuilt().connect([this] {
-        Glib::signal_idle().connect_once([this] { m_workspace_browser->update_documents(m_document_views); });
+        Glib::signal_idle().connect_once([this] {
+            if (!m_current_workspace_view)
+                return;
+            m_workspace_browser->update_documents(m_workspace_views.at(m_current_workspace_view).m_documents);
+        });
     });
 
     m_win.get_left_bar().set_start_child(*m_workspace_browser);
@@ -55,9 +58,11 @@ void Editor::on_workspace_browser_group_selected(const UUID &uu_doc, const UUID 
     if (idoc.get_uuid() == uu_doc && idoc.get_current_group() == uu_group)
         return;
     m_core.set_current_document(uu_doc);
+    m_workspace_views.at(m_current_workspace_view).m_current_document = uu_doc;
     update_version_info();
     m_core.set_current_group(uu_group);
-    m_workspace_browser->update_current_group(m_document_views);
+    get_current_document_view().m_current_group = uu_group;
+    m_workspace_browser->update_current_group(get_current_document_views());
     canvas_update_keep_selection();
     update_workplane_label();
     m_constraints_box->update();
@@ -149,7 +154,7 @@ void Editor::on_add_group(Group::Type group_type)
         doc.set_group_generate_pending(new_group->m_uuid);
         m_core.set_needs_save();
         m_core.rebuild("add group");
-        m_workspace_browser->update_documents(m_document_views);
+        m_workspace_browser->update_documents(get_current_document_views());
         canvas_update_keep_selection();
         m_workspace_browser->select_group(new_group->m_uuid);
         if (any_of(group_type, Group::Type::FILLET, Group::Type::CHAMFER)) {
@@ -189,11 +194,12 @@ void Editor::on_delete_current_group()
     }
 
     m_core.set_current_group(previous_group);
+    get_current_document_view().m_current_group = previous_group;
 
     m_core.set_needs_save();
     m_core.rebuild("delete group");
     canvas_update_keep_selection();
-    m_workspace_browser->update_documents(m_document_views);
+    m_workspace_browser->update_documents(get_current_document_views());
 }
 
 void Editor::on_move_group(Document::MoveGroup op)
@@ -212,34 +218,34 @@ void Editor::on_move_group(Document::MoveGroup op)
     m_core.set_needs_save();
     m_core.rebuild("reorder_group");
     canvas_update_keep_selection();
-    m_workspace_browser->update_documents(m_document_views);
+    m_workspace_browser->update_documents(get_current_document_views());
 }
 
 void Editor::on_workspace_browser_document_checked(const UUID &uu_doc, bool checked)
 {
-    m_document_views[uu_doc].m_document_is_visible = checked;
-    m_workspace_browser->update_current_group(m_document_views);
+    get_current_document_views()[uu_doc].m_document_is_visible = checked;
+    m_workspace_browser->update_current_group(get_current_document_views());
     canvas_update_keep_selection();
 }
 
 void Editor::on_workspace_browser_group_checked(const UUID &uu_doc, const UUID &uu_group, bool checked)
 {
-    m_document_views[uu_doc].m_group_views[uu_group].m_visible = checked;
-    m_workspace_browser->update_current_group(m_document_views);
+    get_current_document_views()[uu_doc].m_group_views[uu_group].m_visible = checked;
+    m_workspace_browser->update_current_group(get_current_document_views());
     canvas_update_keep_selection();
 }
 
 void Editor::on_workspace_browser_body_checked(const UUID &uu_doc, const UUID &uu_group, bool checked)
 {
-    m_document_views[uu_doc].m_body_views[uu_group].m_visible = checked;
-    m_workspace_browser->update_current_group(m_document_views);
+    get_current_document_views()[uu_doc].m_body_views[uu_group].m_visible = checked;
+    m_workspace_browser->update_current_group(get_current_document_views());
     canvas_update_keep_selection();
 }
 
 void Editor::on_workspace_browser_body_solid_model_checked(const UUID &uu_doc, const UUID &uu_group, bool checked)
 {
-    m_document_views[uu_doc].m_body_views[uu_group].m_solid_model_visible = checked;
-    m_workspace_browser->update_current_group(m_document_views);
+    get_current_document_views()[uu_doc].m_body_views[uu_group].m_solid_model_visible = checked;
+    m_workspace_browser->update_current_group(get_current_document_views());
     canvas_update_keep_selection();
 }
 

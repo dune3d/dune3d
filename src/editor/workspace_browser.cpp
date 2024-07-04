@@ -3,7 +3,7 @@
 #include "document/document.hpp"
 #include "document/group/group.hpp"
 #include "document/group/igroup_source_group.hpp"
-#include "document_view.hpp"
+#include "workspace/document_view.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -646,7 +646,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
     append(*m_sc);
 
     m_info_bar = Gtk::make_managed<Gtk::InfoBar>();
-    m_info_bar->set_revealed(true);
+    m_info_bar->set_revealed(false);
     m_info_bar->set_message_type(Gtk::MessageType::ERROR);
     m_info_bar_icon = Gtk::make_managed<Gtk::Image>();
     m_info_bar_label = Gtk::make_managed<Gtk::Label>("foo");

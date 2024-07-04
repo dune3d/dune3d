@@ -9,6 +9,7 @@
 #include "document/solid_model.hpp"
 #include "canvas/canvas.hpp"
 #include "document/entity/entity.hpp"
+#include "document/entity/entity_document.hpp"
 #include "document/entity/ientity_in_workplane.hpp"
 #include "tool_popover.hpp"
 #include "dune3d_application.hpp"
@@ -35,6 +36,7 @@
 #include "widgets/selection_filter_window.hpp"
 #include "system/system.hpp"
 #include "logger/log_util.hpp"
+#include "nlohmann/json.hpp"
 #include <iostream>
 #include <format>
 
@@ -58,7 +60,7 @@ void Editor::init()
 
     m_core.signal_needs_save().connect([this] {
         update_action_sensitivity();
-        m_workspace_browser->update_current_group(m_document_views);
+        m_workspace_browser->update_current_group(get_current_document_views());
     });
     get_canvas().signal_selection_changed().connect([this] { update_action_sensitivity(); });
 
@@ -88,8 +90,14 @@ void Editor::init()
 
 
     m_core.signal_documents_changed().connect([this] {
+        for (auto doc : m_core.get_documents()) {
+            for (auto &[uu, wsv] : m_workspace_views) {
+                wsv.m_documents[doc->get_uuid()];
+            }
+        }
+        m_win.get_workspace_notebook().set_visible(m_core.has_documents());
         canvas_update_keep_selection();
-        m_workspace_browser->update_documents(m_document_views);
+        m_workspace_browser->update_documents(get_current_document_views());
         update_group_editor();
         update_workplane_label();
         update_action_sensitivity();
@@ -147,6 +155,29 @@ void Editor::init()
 
     update_action_sensitivity();
     reset_key_hint_label();
+
+    m_win.get_workspace_add_button().signal_clicked().connect([this] {
+        auto new_wv_uu = create_workspace_view_from_current();
+        set_current_workspace_view(new_wv_uu);
+    });
+
+    m_win.get_canvas().signal_view_changed().connect([this] {
+        if (!m_current_workspace_view)
+            return;
+        if (m_workspace_view_loading)
+            return;
+        auto &wv = m_workspace_views.at(m_current_workspace_view);
+        auto &ca = m_win.get_canvas();
+        wv.m_cam_distance = ca.get_cam_distance();
+        wv.m_cam_quat = ca.get_cam_quat();
+        wv.m_center = ca.get_center();
+        wv.m_projection = ca.get_projection();
+    });
+
+    m_win.get_workspace_notebook().signal_switch_page().connect([this](Gtk::Widget *page, guint index) {
+        auto &pg = dynamic_cast<WorkspaceViewPage &>(*page);
+        set_current_workspace_view(pg.m_uuid);
+    });
 
     apply_preferences();
 }
@@ -619,12 +650,27 @@ static const std::set<ActionID> move_group_actions = {
         ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT,
 };
 
+static std::filesystem::path get_workspace_filename_from_document_filename(const std::filesystem::path &path)
+{
+    const auto dn = path.parent_path();
+    auto fn = path_to_string(path.filename());
+    auto wsn = fn.substr(0, fn.size() - 3);
+    return dn / path_from_string(wsn + "wrk");
+}
+
 void Editor::init_actions()
 {
-    connect_action(ActionID::SAVE_ALL, [this](auto &a) { m_core.save_all(); });
+    connect_action(ActionID::SAVE_ALL, [this](auto &a) {
+        m_core.save_all();
+        for (auto doc : m_core.get_documents()) {
+            save_workspace_view(doc->get_uuid());
+        }
+    });
     connect_action(ActionID::SAVE, [this](auto &a) {
         if (m_core.get_current_idocument_info().has_path()) {
-            m_core.save();
+            if (m_core.get_needs_save())
+                m_core.save();
+            save_workspace_view(m_core.get_current_idocument_info().get_uuid());
             update_version_info();
             if (m_after_save_cb)
                 m_after_save_cb();
@@ -644,8 +690,13 @@ void Editor::init_actions()
 
 
     connect_action(ActionID::NEW_DOCUMENT, [this](auto &a) {
+        auto wsv = create_workspace_view();
         auto uu = m_core.add_document();
-        m_document_views[uu];
+        auto &dv = m_workspace_views.at(wsv).m_documents[uu];
+        dv.m_document_is_visible = true;
+        dv.m_current_group = m_core.get_idocument_info(uu).get_current_group();
+        m_workspace_views.at(wsv).m_current_document = uu;
+        set_current_workspace_view(wsv);
     });
     connect_action(ActionID::OPEN_DOCUMENT, sigc::mem_fun(*this, &Editor::on_open_document));
 
@@ -660,10 +711,10 @@ void Editor::init_actions()
         auto &doc = m_core.get_current_document();
         auto &group = doc.get_group(m_core.get_current_group());
         auto &body_group = group.find_body(doc).group.m_uuid;
-        auto &doc_view = m_document_views[m_core.get_current_idocument_info().get_uuid()];
+        auto &doc_view = get_current_document_view();
 
         doc_view.m_body_views[body_group].m_solid_model_visible = !doc_view.body_solid_model_is_visible(body_group);
-        m_workspace_browser->update_current_group(m_document_views);
+        m_workspace_browser->update_current_group(get_current_document_views());
         canvas_update_keep_selection();
     });
 
@@ -788,13 +839,22 @@ void Editor::init_actions()
     connect_action(ActionID::SET_CURRENT_DOCUMENT, [this](const auto &a) {
         if (auto doc = document_from_selection(get_canvas().get_selection())) {
             m_core.set_current_document(doc.value());
-            m_workspace_browser->update_current_group(m_document_views);
+            m_workspace_views.at(m_current_workspace_view).m_current_document = doc.value();
+            m_workspace_browser->update_current_group(get_current_document_views());
             canvas_update_keep_selection();
             update_version_info();
         }
     });
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
+    m_core.signal_rebuilt().connect([this] {
+        if (!m_current_workspace_view)
+            return;
+        if (!m_core.has_documents())
+            return;
+        get_current_document_view().m_current_group = m_core.get_current_group();
+    });
+    m_core.signal_rebuilt().connect([this] { load_linked_documents(m_core.get_current_idocument_info().get_uuid()); });
 }
 
 void Editor::set_perspective_projection(bool persp)
@@ -954,7 +1014,7 @@ void Editor::on_export_paths(const ActionConnection &conn)
                 if (action == ActionID::EXPORT_PATHS_IN_CURRENT_GROUP)
                     return false;
                 auto &body_group = group.find_body(m_core.get_current_document()).group;
-                auto &doc_view = m_document_views[m_core.get_current_idocument_info().get_uuid()];
+                auto &doc_view = get_current_document_view();
                 auto group_visible = doc_view.group_is_visible(group.m_uuid);
                 auto body_visible = doc_view.body_is_visible(body_group.m_uuid);
                 return body_visible && group_visible;
@@ -1104,7 +1164,8 @@ void Editor::on_save_as(const ActionConnection &conn)
             // std::cout << "File selected: " << filename << std::endl;
             m_win.get_app().add_recent_item(filename);
             m_core.save_as(filename);
-            m_workspace_browser->update_documents(m_document_views);
+            save_workspace_view(m_core.get_current_idocument_info().get_uuid());
+            m_workspace_browser->update_documents(get_current_document_views());
             update_version_info();
             if (m_after_save_cb)
                 m_after_save_cb();
@@ -1194,6 +1255,7 @@ void Editor::close_document(const UUID &doc_uu, std::function<void()> save_cb, s
                 [this, doc_uu, save_cb, no_save_cb] {
                     m_after_save_cb = [this, doc_uu, save_cb] {
                         m_core.close_document(doc_uu);
+                        auto_close_workspace_views();
                         if (save_cb)
                             save_cb();
                     };
@@ -1201,12 +1263,14 @@ void Editor::close_document(const UUID &doc_uu, std::function<void()> save_cb, s
                 },
                 [this, doc_uu, no_save_cb] {
                     m_core.close_document(doc_uu);
+                    auto_close_workspace_views();
                     if (no_save_cb)
                         no_save_cb();
                 });
     }
     else {
         m_core.close_document(doc_uu);
+        auto_close_workspace_views();
     }
 }
 
@@ -1288,7 +1352,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::UNDO] = m_core.can_undo();
     m_action_sensitivity[ActionID::REDO] = m_core.can_redo();
     m_action_sensitivity[ActionID::SAVE_ALL] = m_core.get_needs_save_any();
-    m_action_sensitivity[ActionID::SAVE] = m_core.get_needs_save();
+    m_action_sensitivity[ActionID::SAVE] = m_core.has_documents();
     m_action_sensitivity[ActionID::SAVE_AS] = m_core.has_documents();
     m_action_sensitivity[ActionID::CLOSE_DOCUMENT] = m_core.has_documents();
     m_action_sensitivity[ActionID::OPEN_DOCUMENT] = true;
@@ -1546,7 +1610,7 @@ void Editor::update_error_overlay()
 
 void Editor::render_document(const IDocumentInfo &doc)
 {
-    auto &doc_view = m_document_views[doc.get_uuid()];
+    auto &doc_view = get_current_document_views()[doc.get_uuid()];
     if (!doc_view.m_document_is_visible && (doc.get_uuid() != m_core.get_current_idocument_info().get_uuid()))
         return;
     std::optional<SelectableRef> sr;
@@ -2088,11 +2152,85 @@ void Editor::update_version_info()
 void Editor::open_file(const std::filesystem::path &path)
 {
     try {
-        auto uu = m_core.add_document(path);
-        m_document_views[uu];
+        const UUID doc_uu = UUID::random();
+
+        std::map<UUID, WorkspaceView> loaded_workspace_views;
+        try {
+            const auto workspace_filename = get_workspace_filename_from_document_filename(path);
+            if (std::filesystem::is_regular_file(workspace_filename)) {
+                const auto j = load_json_from_file(workspace_filename);
+                loaded_workspace_views = WorkspaceView::load_from_json(j.at("workspace_views"));
+            }
+        }
+        catch (...) {
+            loaded_workspace_views.clear();
+        }
+
+        DocumentView *new_dv = nullptr;
+        UUID wsv;
+        UUID current_wsv;
+        if (loaded_workspace_views.size()) {
+            for (const auto &[uu, wv] : loaded_workspace_views) {
+                auto &dv = wv.m_documents.at({});
+                auto r = m_workspace_views.emplace(uu, wv);
+                auto &inserted_wv = r.first->second;
+                inserted_wv.m_documents.emplace(doc_uu, dv);
+                if (r.second) {
+                    inserted_wv.m_current_document = doc_uu;
+                    append_workspace_view_page(wv.m_name, uu);
+                    set_current_workspace_view(uu);
+                    current_wsv = uu;
+                }
+            }
+        }
+        else {
+            wsv = create_workspace_view();
+            set_current_workspace_view(wsv);
+            auto &dv = m_workspace_views.at(wsv).m_documents[doc_uu];
+            dv.m_document_is_visible = true;
+            new_dv = &dv;
+        }
+
+        m_core.add_document(path, doc_uu);
+
+        if (new_dv) {
+            new_dv->m_current_group = m_core.get_idocument_info(doc_uu).get_current_group();
+            m_workspace_views.at(wsv).m_name = m_core.get_idocument_info(doc_uu).get_basename();
+        }
+        if (current_wsv && m_core.get_current_idocument_info().get_uuid() == doc_uu) {
+            auto &dv = m_workspace_views.at(current_wsv).m_documents[doc_uu];
+            m_core.set_current_group(dv.m_current_group);
+            canvas_update_keep_selection();
+            m_workspace_browser->update_current_group(get_current_document_views());
+            update_action_sensitivity();
+        }
+
+        update_workspace_view_names();
         m_win.get_app().add_recent_item(path);
+
+        load_linked_documents(doc_uu);
     }
     CATCH_LOG(Logger::Level::WARNING, "error opening document" + path_to_string(path), Logger::Domain::DOCUMENT)
+}
+
+void Editor::load_linked_documents(const UUID &uu_doc)
+{
+    if (!m_core.has_documents())
+        return;
+    auto &doci = m_core.get_idocument_info(uu_doc);
+    auto all_documents = m_core.get_documents();
+    for (auto &[uu, en] : doci.get_document().m_entities) {
+        if (auto en_doc = dynamic_cast<EntityDocument *>(en.get())) {
+            // fill in referenced document
+            const auto path = en_doc->get_path(doci.get_dirname());
+
+            auto referenced_doc =
+                    std::ranges::find_if(all_documents, [&path](const auto &x) { return x->get_path() == path; });
+            if (referenced_doc == all_documents.end()) {
+                open_file(path);
+            }
+        }
+    }
 }
 
 void Editor::tool_bar_set_tool_tip(const std::string &s)
@@ -2254,7 +2392,193 @@ void Editor::show_delete_items_popup(const ItemsToDelete &items_selected, const 
 
 DocumentView &Editor::get_current_document_view()
 {
-    return m_document_views[m_core.get_current_idocument_info().get_uuid()];
+    return m_workspace_views.at(m_current_workspace_view).m_documents[m_core.get_current_idocument_info().get_uuid()];
+}
+
+std::map<UUID, DocumentView> &Editor::get_current_document_views()
+{
+    return m_workspace_views.at(m_current_workspace_view).m_documents;
+}
+
+UUID Editor::create_workspace_view()
+{
+    auto uu = UUID::random();
+    auto &wv = m_workspace_views[uu];
+    wv.m_name = "Default";
+    append_workspace_view_page(wv.m_name, uu);
+    return uu;
+}
+
+UUID Editor::create_workspace_view_from_current()
+{
+    auto uu = UUID::random();
+    auto &wv = m_workspace_views.emplace(uu, m_workspace_views.at(m_current_workspace_view)).first->second;
+    wv.m_name += " (Copy)";
+    append_workspace_view_page(wv.m_name, uu);
+    return uu;
+}
+
+
+void Editor::append_workspace_view_page(const std::string &name, const UUID &uu)
+{
+    auto &la = m_win.append_workspace_view_page(name, uu);
+    la.signal_close().connect([this, uu] { close_workspace_view(uu); });
+    la.signal_rename().connect([this, uu] { rename_workspace_view(uu); });
+}
+
+void Editor::close_workspace_view(const UUID &uu)
+{
+    if (!m_workspace_views.contains(uu))
+        return;
+    if (m_workspace_views.size() == 1 && m_core.has_documents())
+        return;
+    m_workspace_views.erase(uu);
+    m_win.remove_workspace_view_page(uu);
+}
+
+class RenameWindow : public Gtk::Window, public Changeable {
+public:
+    RenameWindow()
+    {
+        auto hb = Gtk::make_managed<Gtk::HeaderBar>();
+        hb->set_show_title_buttons(false);
+        set_title("Rename workspace view");
+        set_titlebar(*hb);
+        auto sg = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::HORIZONTAL);
+        {
+            auto cancel_button = Gtk::make_managed<Gtk::Button>("Cancel");
+            cancel_button->signal_clicked().connect([this] { close(); });
+            hb->pack_start(*cancel_button);
+            sg->add_widget(*cancel_button);
+        }
+        {
+            auto ok_button = Gtk::make_managed<Gtk::Button>("OK");
+            ok_button->add_css_class("suggested-action");
+            ok_button->signal_clicked().connect([this] { ok(); });
+            hb->pack_end(*ok_button);
+            sg->add_widget(*ok_button);
+        }
+
+        m_entry = Gtk::make_managed<Gtk::Entry>();
+        m_entry->set_margin(10);
+        m_entry->signal_activate().connect([this] { ok(); });
+        set_child(*m_entry);
+    }
+
+    std::string get_text() const
+    {
+        return m_entry->get_text();
+    }
+
+    void set_text(const std::string &text)
+    {
+        m_entry->set_text(text);
+    }
+
+private:
+    Gtk::Entry *m_entry = nullptr;
+
+    void ok()
+    {
+        m_signal_changed.emit();
+        close();
+    }
+};
+
+void Editor::rename_workspace_view(const UUID &uu)
+{
+    if (!m_workspace_views.contains(uu))
+        return;
+
+    auto win = new RenameWindow();
+    win->set_text(m_workspace_views.at(uu).m_name);
+    win->set_transient_for(m_win);
+    win->set_modal(true);
+    win->present();
+    win->signal_changed().connect([this, win, uu] {
+        auto txt = win->get_text();
+        m_workspace_views.at(uu).m_name = txt;
+        update_workspace_view_names();
+    });
+}
+
+void Editor::auto_close_workspace_views()
+{
+    // close a workspace view when none of the visible documents exist
+    std::set<UUID> all_docs;
+    for (const auto doc : m_core.get_documents()) {
+        all_docs.insert(doc->get_uuid());
+    }
+    std::vector<UUID> views_to_close;
+    for (const auto &[uu_wv, wv] : m_workspace_views) {
+        const bool has_visible_documents = std::ranges::any_of(wv.m_documents, [&all_docs](auto &x) {
+            return x.second.m_document_is_visible && all_docs.contains(x.first);
+        });
+        if (!has_visible_documents)
+            views_to_close.push_back(uu_wv);
+    }
+    for (const auto &uu : views_to_close) {
+        close_workspace_view(uu);
+    }
+}
+
+
+void Editor::update_workspace_view_names()
+{
+    auto pages = m_win.get_workspace_notebook().get_pages();
+    for (size_t i = 0; i < pages->get_n_items(); i++) {
+        auto &page = dynamic_cast<Gtk::NotebookPage &>(*pages->get_object(i).get());
+        auto &it = dynamic_cast<WorkspaceViewPage &>(*page.get_child());
+        dynamic_cast<Dune3DAppWindow::WorkspaceTabLabel &>(*m_win.get_workspace_notebook().get_tab_label(it))
+                .set_label(m_workspace_views.at(it.m_uuid).m_name);
+    }
+}
+
+void Editor::set_current_workspace_view(const UUID &uu)
+{
+    m_current_workspace_view = uu;
+    auto pages = m_win.get_workspace_notebook().get_pages();
+
+    for (size_t i = 0; i < pages->get_n_items(); i++) {
+        auto &page = dynamic_cast<Gtk::NotebookPage &>(*pages->get_object(i).get());
+        auto &it = dynamic_cast<WorkspaceViewPage &>(*page.get_child());
+        if (it.m_uuid == uu) {
+            m_win.get_workspace_notebook().set_current_page(i);
+            break;
+        }
+    }
+    const auto &wv = m_workspace_views.at(m_current_workspace_view);
+    {
+        m_workspace_view_loading = true;
+        auto &ca = m_win.get_canvas();
+
+        ca.set_cam_distance(wv.m_cam_distance);
+        ca.set_cam_quat(wv.m_cam_quat);
+        ca.set_center(wv.m_center);
+        ca.set_projection(wv.m_projection);
+        update_view_hints();
+        m_workspace_view_loading = false;
+    }
+    if (m_core.has_documents()) {
+        m_core.set_current_document(wv.m_current_document);
+        m_core.set_current_group(get_current_document_view().m_current_group);
+    }
+    update_action_sensitivity();
+    canvas_update_keep_selection();
+    m_workspace_browser->update_current_group(get_current_document_views());
+}
+
+void Editor::save_workspace_view(const UUID &doc_uu)
+{
+    auto &doci = m_core.get_idocument_info(doc_uu);
+    if (!doci.has_path())
+        return;
+    json wsvs = WorkspaceView::serialize(m_workspace_views, doc_uu);
+    if (wsvs.is_null())
+        return;
+
+    json j = {{"workspace_views", wsvs}};
+    save_json_to_file(get_workspace_filename_from_document_filename(doci.get_path()), j);
 }
 
 } // namespace dune3d

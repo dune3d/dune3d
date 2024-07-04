@@ -43,20 +43,17 @@ UUID Core::add_document()
     return uu;
 }
 
-UUID Core::add_document(const std::filesystem::path &path)
+UUID Core::add_document(const std::filesystem::path &path, const UUID &uu)
 {
-    for (const auto &[uu, docinf] : m_documents) {
+    for (const auto &[uu2, docinf] : m_documents) {
         if (docinf.m_path == path)
-            return uu;
+            return uu2;
     }
-    auto uu = UUID::random();
-
 
     m_documents.emplace(std::piecewise_construct, std::forward_as_tuple(uu), std::forward_as_tuple(uu, path));
     if (m_documents.size() == 1)
         m_current_document = uu;
 
-    load_linked_documents(uu);
     update_can_close();
     m_signal_documents_changed.emit();
     return uu;
@@ -91,31 +88,6 @@ void Core::update_can_close()
     }
 }
 
-void Core::load_linked_documents(const UUID &uu_doc)
-{
-    if (!has_documents())
-        return;
-    auto &doci = m_documents.at(uu_doc);
-    for (auto &[uu, en] : doci.get_document().m_entities) {
-        if (auto en_doc = dynamic_cast<EntityDocument *>(en.get())) {
-            // fill in referenced document
-            const auto path = en_doc->get_path(doci.m_path.parent_path());
-            auto referenced_doc =
-                    std::ranges::find_if(m_documents, [&path](const auto &x) { return x.second.m_path == path; });
-            if (referenced_doc == m_documents.end()) {
-                UUID loaded_doc_uu;
-                try {
-                    loaded_doc_uu = add_document(path);
-                    auto &loaded_doci = m_documents.at(loaded_doc_uu);
-                    loaded_doci.m_from_entity = true;
-                }
-                CATCH_LOG(Logger::Level::WARNING, "error opening document" + path_to_string(path),
-                          Logger::Domain::DOCUMENT)
-            }
-        }
-    }
-}
-
 std::vector<IDocumentInfo *> Core::get_documents()
 {
     std::vector<IDocumentInfo *> r;
@@ -133,7 +105,6 @@ void Core::undo()
     if (get_current_document_info().undo()) {
         fix_current_group();
         update_can_close();
-        load_linked_documents(m_current_document);
         m_signal_rebuilt.emit();
         m_signal_needs_save.emit();
     }
@@ -146,7 +117,6 @@ void Core::redo()
     if (get_current_document_info().redo()) {
         fix_current_group();
         update_can_close();
-        load_linked_documents(m_current_document);
         m_signal_rebuilt.emit();
         m_signal_needs_save.emit();
     }
@@ -262,6 +232,11 @@ std::string Core::DocumentInfo::get_basename() const
 std::filesystem::path Core::DocumentInfo::get_dirname() const
 {
     return m_path.parent_path();
+}
+
+std::filesystem::path Core::DocumentInfo::get_path() const
+{
+    return m_path;
 }
 
 UUID Core::DocumentInfo::get_current_workplane() const
@@ -613,7 +588,6 @@ void Core::rebuild_internal(bool from_undo, const std::string &comment)
     }
     get_current_document().update_pending();
     update_can_close();
-    load_linked_documents(m_current_document);
     rebuild_finish(from_undo, comment);
 }
 

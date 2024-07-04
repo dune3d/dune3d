@@ -10,7 +10,7 @@
 #include "util/gtk_util.hpp"
 #include "util/fs_util.hpp"
 #include "widgets/spin_button_dim.hpp"
-#include "document_view.hpp"
+#include "workspace/document_view.hpp"
 #include "workspace/entity_view.hpp"
 #include "idocument_view_provider.hpp"
 #include <variant>

@@ -25,7 +25,7 @@ public:
     const Document &get_current_last_document() const override;
 
     UUID add_document();
-    UUID add_document(const std::filesystem::path &path);
+    UUID add_document(const std::filesystem::path &path, const UUID &uu);
     void close_document(const UUID &uu);
 
     using type_signal_documents_changed = sigc::signal<void()>;
@@ -179,6 +179,7 @@ private:
         const Document &get_last_document() const;
         std::string get_basename() const override;
         std::filesystem::path get_dirname() const override;
+        std::filesystem::path get_path() const override;
 
         UUID get_current_group() const override
         {
@@ -247,7 +248,6 @@ private:
 
     void fix_current_group();
     void update_can_close();
-    void load_linked_documents(const UUID &uu_doc);
 
     class ToolStateSetter {
     public:

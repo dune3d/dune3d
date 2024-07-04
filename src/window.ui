@@ -122,6 +122,7 @@
                 </child>
                 <child>
                   <object class="GtkOverlay">
+                    <property name="vexpand">True</property>
                     <child type="overlay">
                       <object class="GtkBox" id="welcome_box">
                         <property name="css-classes">background
@@ -443,6 +444,12 @@ blah</property>
                         </style>
                       </object>
                     </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkNotebook" id="workspace_notebook">
+                    <property name="show-border">False</property>
+                    <property name="tab-pos">bottom</property>
                   </object>
                 </child>
               </object>

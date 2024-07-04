@@ -4,7 +4,7 @@
 #include <gtkmm.h>
 #include "action/action.hpp"
 #include "preferences/preferences.hpp"
-#include "document_view.hpp"
+#include "workspace/workspace_view.hpp"
 #include "dialogs/dialogs.hpp"
 #include "util/action_label.hpp"
 #include "document/group/group.hpp"
@@ -197,7 +197,22 @@ private:
 
     void set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints) override;
 
-    std::map<UUID, DocumentView> m_document_views;
+    std::map<UUID, WorkspaceView> m_workspace_views;
+    UUID m_current_workspace_view;
+    std::map<UUID, DocumentView> &get_current_document_views();
+
+    UUID create_workspace_view();
+    UUID create_workspace_view_from_current();
+    void set_current_workspace_view(const UUID &uu);
+    void update_workspace_view_names();
+    bool m_workspace_view_loading = false;
+    void save_workspace_view(const UUID &doc_uu);
+    void append_workspace_view_page(const std::string &name, const UUID &uu);
+    void close_workspace_view(const UUID &uu);
+    void auto_close_workspace_views();
+    void rename_workspace_view(const UUID &uu);
+
+    void load_linked_documents(const UUID &uu_doc);
 
     DocumentView &get_current_document_view() override;
 

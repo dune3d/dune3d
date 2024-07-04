@@ -184,7 +184,7 @@ src = files(
   'src/editor/tool_popover.cpp',
   'src/editor/workspace_browser.cpp',
   'src/widgets/constraints_box.cpp',
-  'src/editor/document_view.cpp',
+  'src/workspace/document_view.cpp',
   'src/editor/group_editor.cpp',
   'src/editor/selection_editor.cpp',
   'src/editor/selection_menu_creator.cpp',
@@ -217,6 +217,7 @@ src = files(
   'src/util/exception_util.cpp',
   'src/util/key_util.cpp',
   'src/workspace/entity_view.cpp',
+  'src/workspace/workspace_view.cpp',
 )
 
 prog_python = find_program('python3')

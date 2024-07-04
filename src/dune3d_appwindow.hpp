@@ -7,6 +7,15 @@ namespace dune3d {
 class Dune3DApplication;
 class Canvas;
 
+class WorkspaceViewPage : public Gtk::Widget {
+public:
+    WorkspaceViewPage(const UUID &uu) : m_uuid(uu)
+    {
+    }
+
+    const UUID m_uuid;
+};
+
 class Dune3DAppWindow : public Gtk::ApplicationWindow {
 public:
     static Dune3DAppWindow *create(Dune3DApplication &app);
@@ -102,6 +111,16 @@ public:
         return *m_canvas;
     }
 
+    Gtk::Notebook &get_workspace_notebook()
+    {
+        return *m_workspace_notebook;
+    }
+
+    Gtk::Button &get_workspace_add_button()
+    {
+        return *m_workspace_add_button;
+    }
+
     void set_key_hint_label_text(const std::string &s);
 
     void tool_bar_clear_actions();
@@ -133,6 +152,36 @@ public:
     {
         return m_signal_undo;
     }
+
+    class WorkspaceTabLabel : public Gtk::Box {
+    public:
+        WorkspaceTabLabel(const std::string &label);
+        void set_label(const std::string &label);
+        void set_can_close(bool can_close);
+
+        typedef sigc::signal<void()> type_signal_close;
+        type_signal_close signal_close()
+        {
+            return m_signal_close;
+        }
+
+        type_signal_close signal_rename()
+        {
+            return m_signal_rename;
+        }
+
+
+    private:
+        Gtk::Label *m_label = nullptr;
+        Gtk::Button *m_close_button = nullptr;
+
+        type_signal_close m_signal_close;
+        type_signal_close m_signal_rename;
+    };
+
+    WorkspaceTabLabel &append_workspace_view_page(const std::string &name, const UUID &uu);
+    void remove_workspace_view_page(const UUID &uu);
+
 
 private:
     Dune3DApplication &m_app;
@@ -182,6 +231,10 @@ private:
     Gtk::Label *m_key_hint_label = nullptr;
     Gtk::CheckButton *m_workplane_checkbutton = nullptr;
     Gtk::Label *m_workplane_label = nullptr;
+    Gtk::Notebook *m_workspace_notebook = nullptr;
+    Gtk::Button *m_workspace_add_button = nullptr;
+
+    void update_can_close_workspace_pages();
 
     Gtk::MenuButton *m_view_options_button = nullptr;
     Gtk::Label *m_view_hints_label = nullptr;
