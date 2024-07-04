@@ -14,8 +14,8 @@ public:
 
 class EntityViewSTEP : public EntityView {
 public:
-    enum class Display { SOLID, WIREFRAME, OFF };
-    Display display = Display::SOLID;
+    enum class Display { SOLID, OFF, WIREFRAME };
+    Display m_display = Display::SOLID;
     EntityType get_type() const override;
 };
 

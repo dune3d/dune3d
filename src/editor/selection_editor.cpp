@@ -283,14 +283,14 @@ public:
         m_display_combo->set_hexpand(true);
         m_display_combo->set_selected(0);
         if (auto ev = dynamic_cast<const EntityViewSTEP *>(view.get_entity_view(uu))) {
-            m_display_combo->set_selected(static_cast<guint>(ev->display));
+            m_display_combo->set_selected(static_cast<guint>(ev->m_display));
         }
         m_display_combo->property_selected().signal_changed().connect([this] {
             auto ev =
                     dynamic_cast<EntityViewSTEP *>(m_view.get_or_create_entity_view(m_entity_uuid, Entity::Type::STEP));
             if (!ev)
                 return;
-            ev->display = static_cast<EntityViewSTEP::Display>(m_display_combo->get_selected());
+            ev->m_display = static_cast<EntityViewSTEP::Display>(m_display_combo->get_selected());
             m_signal_changed.emit();
         });
         grid_attach_label_and_widget(*this, "Display", *m_display_combo, top);

@@ -367,7 +367,7 @@ void Renderer::visit(const EntitySTEP &en)
     auto view = dynamic_cast<const EntityViewSTEP *>(m_doc_view->get_entity_view(en.m_uuid));
     auto display = EntityViewSTEP::Display::SOLID;
     if (view)
-        display = view->display;
+        display = view->m_display;
 
     if (en.m_imported) {
         if (display == EntityViewSTEP::Display::SOLID)
