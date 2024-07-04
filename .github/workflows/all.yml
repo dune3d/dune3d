@@ -6,6 +6,7 @@ on:
       - '*'
       - '!win32-*'
       - '!freebsd-*'
+      - '!macos-*'
     tags: [ '*' ]
   pull_request:
     branches: [ main ]
