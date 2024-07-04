@@ -19,6 +19,7 @@
 #include "util/msd_animator.hpp"
 #include "clipping_planes.hpp"
 #include "rotation_scheme.hpp"
+#include "projection.hpp"
 #include <glm/glm.hpp>
 #include <filesystem>
 
@@ -118,7 +119,7 @@ public:
     void animate_to_cam_quat(const glm::quat &quat);
     void animate_to_center_abs(const glm::vec3 &center);
 
-    enum class Projection { PERSP, ORTHO };
+    using Projection = CanvasProjection;
     void set_projection(Projection proj);
     Projection get_projection() const
     {
