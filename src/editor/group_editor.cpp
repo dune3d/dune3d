@@ -336,32 +336,7 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
     m_type_label = Gtk::manage(new Gtk::Label);
     m_type_label->set_xalign(0);
     auto &group = m_core.get_current_document().get_group(group_uu);
-    switch (group.get_type()) {
-    case Group::Type::EXTRUDE:
-        m_type_label->set_text("Extrude");
-        break;
-    case Group::Type::REFERENCE:
-        m_type_label->set_text("Reference");
-        break;
-    case Group::Type::SKETCH:
-        m_type_label->set_text("Sketch");
-        break;
-    case Group::Type::FILLET:
-        m_type_label->set_text("Fillet");
-        break;
-    case Group::Type::CHAMFER:
-        m_type_label->set_text("Chamfer");
-        break;
-    case Group::Type::LATHE:
-        m_type_label->set_text("Lathe");
-        break;
-    case Group::Type::LINEAR_ARRAY:
-        m_type_label->set_text("Linear array");
-        break;
-    case Group::Type::POLAR_ARRAY:
-        m_type_label->set_text("Polar array");
-        break;
-    }
+    m_type_label->set_text(group.get_type_name());
     grid_attach_label_and_widget(*this, "Type", *m_type_label, m_top);
 
     m_name_entry = Gtk::make_managed<Gtk::Entry>();
