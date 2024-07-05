@@ -1,66 +1,24 @@
 #include "group_lathe.hpp"
-#include "nlohmann/json.hpp"
-#include "util/json_util.hpp"
 #include "util/glm_util.hpp"
 #include "util/util.hpp"
 #include "util/template_util.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_line3d.hpp"
-#include "document/entity/entity_arc3d.hpp"
-#include "document/entity/entity_line2d.hpp"
-#include "document/entity/entity_arc2d.hpp"
-#include "document/entity/entity_circle2d.hpp"
 #include "document/entity/entity_circle3d.hpp"
 #include "document/entity/entity_workplane.hpp"
+#include "document/entity/ientity_in_workplane.hpp"
 #include "document/solid_model.hpp"
 
 namespace dune3d {
-GroupLathe::GroupLathe(const UUID &uu) : GroupSweep(uu)
-{
-}
-
-
-GroupLathe::GroupLathe(const UUID &uu, const json &j)
-    : GroupSweep(uu, j), m_normal(j.at("normal").get<UUID>()),
-      m_origin(j.at("origin").get<UUID>(), j.at("origin_point").get<unsigned int>())
-{
-}
-
-json GroupLathe::serialize() const
-{
-    auto j = GroupSweep::serialize();
-    j["normal"] = m_normal;
-    j["origin"] = m_origin.entity;
-    j["origin_point"] = m_origin.point;
-    return j;
-}
 
 std::unique_ptr<Group> GroupLathe::clone() const
 {
     return std::make_unique<GroupLathe>(*this);
 }
 
-
 UUID GroupLathe::get_lathe_circle_uuid(const UUID &uu, unsigned int pt) const
 {
     return hash_uuids("e47e6775-3fe4-473a-84f8-c2c5578a10af", {m_uuid, m_wrkpl, uu},
                       {reinterpret_cast<const uint8_t *>(&pt), sizeof(pt)});
-}
-
-std::optional<glm::dvec3> GroupLathe::get_direction(const Document &doc) const
-{
-
-    const auto &en_normal = doc.get_entity(m_normal);
-    const auto en_type = en_normal.get_type();
-    if (auto wrkpl = dynamic_cast<const EntityWorkplane *>(&en_normal)) {
-        return wrkpl->get_normal_vector();
-    }
-    else if (en_type == Entity::Type::LINE_2D || en_type == Entity::Type::LINE_3D) {
-        return glm::normalize(en_normal.get_point(2, doc) - en_normal.get_point(1, doc));
-    }
-    else {
-        return {};
-    }
 }
 
 static glm::dvec3 project_point_onto_line(const glm::dvec3 &pt, const glm::dvec3 &origin, const glm::dvec3 &dir)
@@ -123,22 +81,5 @@ void GroupLathe::update_solid_model(const Document &doc)
 {
     m_solid_model = SolidModel::create(doc, *this);
 }
-
-std::set<UUID> GroupLathe::get_referenced_entities(const Document &doc) const
-{
-    auto r = GroupSweep::get_referenced_entities(doc);
-    r.insert(m_normal);
-    r.insert(m_origin.entity);
-    return r;
-}
-
-std::set<UUID> GroupLathe::get_required_entities(const Document &doc) const
-{
-    auto r = GroupSweep::get_required_entities(doc);
-    r.insert(m_normal);
-    r.insert(m_origin.entity);
-    return r;
-}
-
 
 } // namespace dune3d

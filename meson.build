@@ -120,6 +120,7 @@ src = files(
   'src/document/group/group_local_operation.cpp',
   'src/document/group/group_fillet.cpp',
   'src/document/group/group_chamfer.cpp',
+  'src/document/group/group_circular_sweep.cpp',
   'src/document/group/group_lathe.cpp',
   'src/document/group/group_sweep.cpp',
   'src/document/group/group_linear_array.cpp',
