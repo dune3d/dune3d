@@ -113,6 +113,27 @@ void Editor::on_add_group(Group::Type group_type)
         group.m_origin = {axis_enp->entity, 1};
         group.m_normal = axis_enp->entity;
     }
+    else if (group_type == Group::Type::REVOLVE) {
+        if (!current_group.m_active_wrkpl)
+            return;
+        auto sel = get_canvas().get_selection();
+        auto axis_enp = entity_and_point_from_selection(doc, sel);
+        if (!axis_enp)
+            return;
+        if (axis_enp->point != 0)
+            return;
+        const auto &axis = doc.get_entity(axis_enp->entity);
+        if (axis.get_type() != Entity::Type::WORKPLANE && axis.get_type() != Entity::Type::LINE_2D
+            && axis.get_type() != Entity::Type::LINE_3D)
+            return;
+
+        auto &group = doc.insert_group<GroupRevolve>(UUID::random(), current_group.m_uuid);
+        new_group = &group;
+        group.m_wrkpl = current_group.m_active_wrkpl;
+        group.m_source_group = current_group.m_uuid;
+        group.m_origin = {axis_enp->entity, 1};
+        group.m_normal = axis_enp->entity;
+    }
     else if (group_type == Group::Type::FILLET) {
         auto &group = doc.insert_group<GroupFillet>(UUID::random(), current_group.m_uuid);
         new_group = &group;

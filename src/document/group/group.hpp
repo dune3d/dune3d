@@ -36,6 +36,7 @@ enum class GroupType {
     SKETCH,
     EXTRUDE,
     LATHE,
+    REVOLVE,
     FILLET,
     CHAMFER,
     LINEAR_ARRAY,

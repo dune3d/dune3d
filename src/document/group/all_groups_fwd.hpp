@@ -4,6 +4,7 @@ namespace dune3d {
 class Group;
 class GroupExtrude;
 class GroupLathe;
+class GroupRevolve;
 class GroupFillet;
 class GroupChamfer;
 class GroupReference;

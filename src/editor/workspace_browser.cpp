@@ -679,6 +679,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
                 actions->add_action("sketch", [this] { m_signal_add_group.emit(Group::Type::SKETCH); });
                 actions->add_action("extrude", [this] { m_signal_add_group.emit(Group::Type::EXTRUDE); });
                 actions->add_action("lathe", [this] { m_signal_add_group.emit(Group::Type::LATHE); });
+                actions->add_action("revolve", [this] { m_signal_add_group.emit(Group::Type::REVOLVE); });
                 actions->add_action("fillet", [this] { m_signal_add_group.emit(Group::Type::FILLET); });
                 actions->add_action("chamfer", [this] { m_signal_add_group.emit(Group::Type::CHAMFER); });
                 actions->add_action("linear_array", [this] { m_signal_add_group.emit(Group::Type::LINEAR_ARRAY); });
@@ -686,6 +687,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
                 top->append_item(Gio::MenuItem::create("Sketch", "groups.sketch"));
                 top->append_item(Gio::MenuItem::create("Extrude", "groups.extrude"));
                 top->append_item(Gio::MenuItem::create("Lathe", "groups.lathe"));
+                top->append_item(Gio::MenuItem::create("Revolve", "groups.revolve"));
                 top->append_item(Gio::MenuItem::create("Linear array", "groups.linear_array"));
                 top->append_item(Gio::MenuItem::create("Polar array", "groups.polar_array"));
                 top->append_item(Gio::MenuItem::create("Fillet", "groups.fillet"));

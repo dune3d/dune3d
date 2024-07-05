@@ -6,5 +6,6 @@
 #include "group_fillet.hpp"
 #include "group_chamfer.hpp"
 #include "group_lathe.hpp"
+#include "group_revolve.hpp"
 #include "group_linear_array.hpp"
 #include "group_polar_array.hpp"

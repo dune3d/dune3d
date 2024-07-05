@@ -19,8 +19,9 @@
 namespace dune3d {
 
 static const std::set<ActionID> create_group_actions = {
-        ActionID::CREATE_GROUP_CHAMFER, ActionID::CREATE_GROUP_FILLET, ActionID::CREATE_GROUP_SKETCH,
-        ActionID::CREATE_GROUP_EXTRUDE, ActionID::CREATE_GROUP_LATHE,  ActionID::CREATE_GROUP_LINEAR_ARRAY,
+        ActionID::CREATE_GROUP_CHAMFER,      ActionID::CREATE_GROUP_FILLET, ActionID::CREATE_GROUP_SKETCH,
+        ActionID::CREATE_GROUP_EXTRUDE,      ActionID::CREATE_GROUP_LATHE,  ActionID::CREATE_GROUP_REVOLVE,
+        ActionID::CREATE_GROUP_LINEAR_ARRAY,
 };
 
 static const std::set<ActionID> move_group_actions = {
@@ -244,6 +245,7 @@ void Editor::on_create_group_action(const ActionConnection &conn)
             {ActionID::CREATE_GROUP_FILLET, Group::Type::FILLET},
             {ActionID::CREATE_GROUP_EXTRUDE, Group::Type::EXTRUDE},
             {ActionID::CREATE_GROUP_LATHE, Group::Type::LATHE},
+            {ActionID::CREATE_GROUP_REVOLVE, Group::Type::REVOLVE},
             {ActionID::CREATE_GROUP_SKETCH, Group::Type::SKETCH},
             {ActionID::CREATE_GROUP_LINEAR_ARRAY, Group::Type::LINEAR_ARRAY},
     };

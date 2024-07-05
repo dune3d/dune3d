@@ -58,6 +58,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Group::Type, {
                                                   {Group::Type::FILLET, "fillet"},
                                                   {Group::Type::CHAMFER, "chamfer"},
                                                   {Group::Type::LATHE, "lathe"},
+                                                  {Group::Type::REVOLVE, "revolve"},
                                                   {Group::Type::LINEAR_ARRAY, "linear_array"},
                                                   {Group::Type::POLAR_ARRAY, "polar_array"},
                                           })
@@ -86,6 +87,8 @@ std::string Group::get_type_name(Type type)
         return "Fillet";
     case Type::LATHE:
         return "Lathe";
+    case Type::REVOLVE:
+        return "Revolve";
     case Type::LINEAR_ARRAY:
         return "Linear array";
     case Type::POLAR_ARRAY:
@@ -117,6 +120,8 @@ std::unique_ptr<Group> Group::new_from_json(const UUID &uu, const json &j)
         return std::make_unique<GroupChamfer>(uu, j);
     case Type::LATHE:
         return std::make_unique<GroupLathe>(uu, j);
+    case Type::REVOLVE:
+        return std::make_unique<GroupRevolve>(uu, j);
     case Type::LINEAR_ARRAY:
         return std::make_unique<GroupLinearArray>(uu, j);
     case Type::POLAR_ARRAY:

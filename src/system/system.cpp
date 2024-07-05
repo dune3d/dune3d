@@ -17,6 +17,7 @@
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
 #include "document/group/group_lathe.hpp"
+#include "document/group/group_revolve.hpp"
 #include "document/group/group_linear_array.hpp"
 #include "document/group/group_polar_array.hpp"
 #include <array>
@@ -72,6 +73,9 @@ System::System(Document &doc, const UUID &grp, const UUID &constraint_exclude)
             break;
         case Group::Type::LATHE:
             add(dynamic_cast<const GroupLathe &>(*group));
+            break;
+        case Group::Type::REVOLVE:
+            add(dynamic_cast<const GroupRevolve &>(*group));
             break;
         case Group::Type::LINEAR_ARRAY:
             add(dynamic_cast<const GroupLinearArray &>(*group));
@@ -710,6 +714,163 @@ void System::add(const GroupLathe &group)
     }
 }
 
+
+static ExprQuaternion quat_from_axis_angle(ExprVector axis, Expr *dtheta)
+{
+    ExprQuaternion q;
+    auto c = dtheta->Times(Expr::From(0.5))->Cos();
+    auto s = dtheta->Times(Expr::From(0.5))->Sin();
+    axis = axis.WithMagnitude(s);
+    q.w = c;
+    q.vx = axis.x;
+    q.vy = axis.y;
+    q.vz = axis.z;
+    return q;
+}
+
+void System::add(const GroupRevolve &group)
+{
+
+    auto angle_param = add_param(group.m_uuid, glm::radians(group.m_angle));
+    m_param_refs.emplace(angle_param, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 0, 0});
+    auto hg = hGroup{(uint32_t)group.get_index() + 1};
+    unsigned int eqi = 0;
+    const auto org = m_doc.get_point(group.m_origin);
+    auto origin = ExprVector::From(org.x, org.y, org.z);
+    const auto axv = group.get_direction(m_doc).value();
+
+    for (const auto side : {GroupRevolve::Side::TOP, GroupRevolve::Side::BOTTOM}) {
+        if (!group.has_side(side))
+            continue;
+
+        auto angle = Expr::From(hParam{angle_param});
+        if (side == GroupRevolve::Side::BOTTOM) {
+            if (group.m_mode == GroupRevolve::Mode::OFFSET_SYMMETRIC) {
+                angle = angle->Times(Expr::From(-1));
+            }
+            else if (group.m_mode == GroupRevolve::Mode::OFFSET) {
+                auto dm = add_param(group.m_uuid, group.m_offset_mul);
+                m_param_refs.emplace(dm, ParamRef{ParamRef::Type::GROUP, group.m_uuid, 1, 0});
+                angle = angle->Times(Expr::From(hParam{dm}));
+            }
+        }
+
+        auto quat = quat_from_axis_angle(ExprVector::From(axv.x, axv.y, axv.z), angle);
+
+
+        for (const auto &[uu, it] : m_doc.m_entities) {
+            if (it->m_group != group.m_source_group)
+                continue;
+            if (it->m_construction)
+                continue;
+            if (it->get_type() == Entity::Type::LINE_2D) {
+                const auto &li = dynamic_cast<const EntityLine2D &>(*it);
+                if (li.m_wrkpl != group.m_wrkpl)
+                    continue;
+                auto new_line_uu = group.get_entity_uuid(side, uu);
+
+
+                for (unsigned int pt = 1; pt <= 2; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_line_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprs();
+                    ExprVector exnew = enew->PointGetExprs();
+                    auto rot = quat.Rotate(exorig.Minus(origin)).Plus(origin);
+                    auto d = rot.Minus(exnew);
+
+                    AddEq(hg, &m_sys->eq, d.x, eqi++);
+                    AddEq(hg, &m_sys->eq, d.y, eqi++);
+                    AddEq(hg, &m_sys->eq, d.z, eqi++);
+                }
+            }
+            else if (it->get_type() == Entity::Type::CIRCLE_2D) {
+                const auto &circle = dynamic_cast<const EntityCircle2D &>(*it);
+                if (circle.m_wrkpl != group.m_wrkpl)
+                    continue;
+                auto new_circle_uu = group.get_entity_uuid(side, uu);
+
+                {
+                    unsigned int pt = 1;
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_circle_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprs();
+                    ExprVector exnew = enew->PointGetExprs();
+
+                    auto rot = quat.Rotate(exorig.Minus(origin)).Plus(origin);
+                    auto d = rot.Minus(exnew);
+
+                    AddEq(hg, &m_sys->eq, d.x, eqi++);
+                    AddEq(hg, &m_sys->eq, d.y, eqi++);
+                    AddEq(hg, &m_sys->eq, d.z, eqi++);
+                }
+
+
+                {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, 0});
+                    auto en_new_p = get_entity_ref(EntityRef{new_circle_uu, 0});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    AddEq(hg, &m_sys->eq, eorig->CircleGetRadiusExpr()->Minus(enew->CircleGetRadiusExpr()), eqi++);
+                }
+
+                {
+                    auto en_orig_n = get_entity_ref(EntityRef{circle.m_wrkpl, 2});
+                    auto en_new_n = get_entity_ref(EntityRef{new_circle_uu, 3});
+                    EntityBase *eorig = SK.GetEntity({en_orig_n});
+                    EntityBase *enew = SK.GetEntity({en_new_n});
+                    enew->noEquation = true;
+                    auto eqo = quat.Times(eorig->NormalGetExprs());
+                    auto eqn = enew->NormalGetExprs();
+                    AddEq(hg, &m_sys->eq, eqo.vx->Minus(eqn.vx), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.vy->Minus(eqn.vy), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.vz->Minus(eqn.vz), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.w->Minus(eqn.w), eqi++);
+                }
+            }
+
+            else if (it->get_type() == Entity::Type::ARC_2D) {
+                const auto &arc = dynamic_cast<const EntityArc2D &>(*it);
+                if (arc.m_wrkpl != group.m_wrkpl)
+                    continue;
+                auto new_arc_uu = group.get_entity_uuid(side, uu);
+
+                for (unsigned int pt = 1; pt <= 3; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_arc_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprs();
+                    ExprVector exnew = enew->PointGetExprs();
+
+                    auto rot = quat.Rotate(exorig.Minus(origin)).Plus(origin);
+                    auto d = rot.Minus(exnew);
+
+                    AddEq(hg, &m_sys->eq, d.x, eqi++);
+                    AddEq(hg, &m_sys->eq, d.y, eqi++);
+                    AddEq(hg, &m_sys->eq, d.z, eqi++);
+                }
+                {
+                    auto en_orig_n = get_entity_ref(EntityRef{arc.m_wrkpl, 2});
+                    auto en_new_n = get_entity_ref(EntityRef{new_arc_uu, 4});
+                    EntityBase *eorig = SK.GetEntity({en_orig_n});
+                    EntityBase *enew = SK.GetEntity({en_new_n});
+                    enew->noEquation = true;
+                    auto eqo = quat.Times(eorig->NormalGetExprs());
+                    auto eqn = enew->NormalGetExprs();
+                    AddEq(hg, &m_sys->eq, eqo.vx->Minus(eqn.vx), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.vy->Minus(eqn.vy), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.vz->Minus(eqn.vz), eqi++);
+                    AddEq(hg, &m_sys->eq, eqo.w->Minus(eqn.w), eqi++);
+                }
+            }
+        }
+    }
+}
+
 void System::add_array(const GroupArray &group, CreateEq create_eq2, CreateEq create_eq3, CreateEqN create_eq_n,
                        unsigned int &eqi)
 {
@@ -927,18 +1088,6 @@ void System::add(const GroupLinearArray &group)
     add_array(group, create_eq2, create_eq3, create_eq_n, eqi);
 }
 
-static ExprQuaternion quat_from_axis_angle(ExprVector axis, Expr *dtheta)
-{
-    ExprQuaternion q;
-    auto c = dtheta->Times(Expr::From(0.5))->Cos();
-    auto s = dtheta->Times(Expr::From(0.5))->Sin();
-    axis = axis.WithMagnitude(s);
-    q.w = c;
-    q.vx = axis.x;
-    q.vy = axis.y;
-    q.vz = axis.z;
-    return q;
-}
 
 void System::add(const GroupPolarArray &group)
 {
@@ -1055,6 +1204,19 @@ void System::update_document()
                     m_doc.get_group<GroupPolarArray>(param_ref.item).m_delta_angle = a;
                 else if (param_ref.point == 1)
                     m_doc.get_group<GroupPolarArray>(param_ref.item).m_offset_angle = a;
+            }
+            if (m_doc.get_group(param_ref.item).get_type() == Group::Type::REVOLVE) {
+                if (param_ref.point == 0) {
+                    auto a = val / M_PI * 180.;
+                    while (a > 360)
+                        a -= 360;
+                    while (a < -360)
+                        a += 360;
+                    m_doc.get_group<GroupRevolve>(param_ref.item).m_angle = a;
+                }
+                else if (param_ref.point == 1) {
+                    m_doc.get_group<GroupRevolve>(param_ref.item).m_offset_mul = val;
+                }
             }
             break;
         }
