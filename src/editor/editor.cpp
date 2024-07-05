@@ -47,10 +47,7 @@ void Editor::init()
     init_tool_popover();
     init_canvas();
 
-    m_core.signal_needs_save().connect([this] {
-        update_action_sensitivity();
-        m_workspace_browser->update_current_group(get_current_document_views());
-    });
+    m_core.signal_needs_save().connect([this] { update_action_sensitivity(); });
     get_canvas().signal_selection_changed().connect([this] { update_action_sensitivity(); });
 
     m_win.signal_close_request().connect(
