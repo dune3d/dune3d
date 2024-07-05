@@ -110,8 +110,7 @@ void Editor::on_add_group(Group::Type group_type)
         new_group = &group;
         group.m_wrkpl = current_group.m_active_wrkpl;
         group.m_source_group = current_group.m_uuid;
-        group.m_origin = axis_enp->entity;
-        group.m_origin_point = 1;
+        group.m_origin = {axis_enp->entity, 1};
         group.m_normal = axis_enp->entity;
     }
     else if (group_type == Group::Type::FILLET) {

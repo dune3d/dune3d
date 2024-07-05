@@ -21,8 +21,8 @@ GroupLathe::GroupLathe(const UUID &uu) : GroupSweep(uu)
 
 
 GroupLathe::GroupLathe(const UUID &uu, const json &j)
-    : GroupSweep(uu, j), m_normal(j.at("normal").get<UUID>()), m_origin(j.at("origin").get<UUID>()),
-      m_origin_point(j.at("origin_point").get<unsigned int>())
+    : GroupSweep(uu, j), m_normal(j.at("normal").get<UUID>()),
+      m_origin(j.at("origin").get<UUID>(), j.at("origin_point").get<unsigned int>())
 {
 }
 
@@ -30,8 +30,8 @@ json GroupLathe::serialize() const
 {
     auto j = GroupSweep::serialize();
     j["normal"] = m_normal;
-    j["origin"] = m_origin;
-    j["origin_point"] = m_origin_point;
+    j["origin"] = m_origin.entity;
+    j["origin_point"] = m_origin.point;
     return j;
 }
 
@@ -85,7 +85,7 @@ void GroupLathe::generate_or_solve(Document &doc, GenerateOrSolve gen_or_solve) 
 {
     auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
     const auto n = get_direction(doc).value();
-    const auto origin = doc.get_point({m_origin, m_origin_point});
+    const auto origin = doc.get_point(m_origin);
 
     for (const auto &[uu, it] : doc.m_entities) {
         if (it->m_group != m_source_group)
@@ -128,7 +128,7 @@ std::set<UUID> GroupLathe::get_referenced_entities(const Document &doc) const
 {
     auto r = GroupSweep::get_referenced_entities(doc);
     r.insert(m_normal);
-    r.insert(m_origin);
+    r.insert(m_origin.entity);
     return r;
 }
 
@@ -136,7 +136,7 @@ std::set<UUID> GroupLathe::get_required_entities(const Document &doc) const
 {
     auto r = GroupSweep::get_required_entities(doc);
     r.insert(m_normal);
-    r.insert(m_origin);
+    r.insert(m_origin.entity);
     return r;
 }
 

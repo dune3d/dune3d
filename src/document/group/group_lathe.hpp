@@ -1,6 +1,7 @@
 #pragma once
 #include "group_sweep.hpp"
 #include "igroup_pre_solve.hpp"
+#include "document/entity/entity_and_point.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -19,8 +20,7 @@ public:
     }
 
     UUID m_normal;
-    UUID m_origin;
-    unsigned int m_origin_point;
+    EntityAndPoint m_origin;
 
     std::optional<glm::dvec3> get_direction(const Document &doc) const;
 

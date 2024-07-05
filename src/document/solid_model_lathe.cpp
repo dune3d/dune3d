@@ -22,7 +22,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupL
             return nullptr;
         }
 
-        auto origin = doc.get_entity(group.m_origin).get_point(group.m_origin_point, doc);
+        auto origin = doc.get_point(group.m_origin);
 
         glm::dvec3 dir;
         if (auto odir = group.get_direction(doc)) {
