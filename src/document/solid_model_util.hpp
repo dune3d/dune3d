@@ -54,14 +54,17 @@ private:
 
 class FaceBuilder {
 public:
+    using Transform = std::function<glm::dvec3(const glm::dvec3 &)>;
     static FaceBuilder from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
                                      const glm::dvec3 &offset);
+    static FaceBuilder from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
+                                     Transform fn_transform, Transform fn_transform_normal);
 
     const TopoDS_Compound &get_faces() const;
     unsigned int get_n_faces() const;
 
 private:
-    FaceBuilder(const EntityWorkplane &wrkpl, const Paths &paths, const glm::dvec3 &offset);
+    FaceBuilder(const EntityWorkplane &wrkpl, const Paths &paths, Transform transform, Transform transform_normal);
 
 
     static bool check_path(const Clipper2Lib::PathD &contour);
@@ -70,7 +73,8 @@ private:
 
     const EntityWorkplane &m_wrkpl;
     const Paths &m_paths;
-    const glm::dvec3 m_offset;
+    Transform m_transform;
+    Transform m_transform_normal;
     TopoDS_Compound m_compound;
     TopoDS_Builder m_builder;
     unsigned int m_n_faces = 0;

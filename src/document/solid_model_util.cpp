@@ -93,8 +93,9 @@ std::array<Edge *, 2> Node::get_edges()
         return {e2.first, e1.first};
 }
 
-FaceBuilder::FaceBuilder(const EntityWorkplane &wrkpl, const Paths &paths, const glm::dvec3 &offset)
-    : m_wrkpl(wrkpl), m_paths(paths), m_offset(offset)
+FaceBuilder::FaceBuilder(const EntityWorkplane &wrkpl, const Paths &paths, Transform transform,
+                         Transform transform_normal)
+    : m_wrkpl(wrkpl), m_paths(paths), m_transform(transform), m_transform_normal(transform_normal)
 {
     m_builder.MakeCompound(m_compound);
 }
@@ -310,9 +311,9 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
     if (orig_path.size() == 1) {
         BRepBuilderAPI_MakeWire wire;
         auto &rad = dynamic_cast<const IEntityRadius &>(orig_path.front().second.entity);
-        const auto center = m_wrkpl.transform(rad.get_center()) + m_offset;
+        const auto center = m_transform(m_wrkpl.transform(rad.get_center()));
 
-        auto normal = m_wrkpl.get_normal_vector();
+        auto normal = m_transform_normal(m_wrkpl.get_normal_vector());
         if (hole)
             normal *= -1;
 
@@ -359,15 +360,15 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
         const auto pa = get_pt(edge.entity, pt);
         const auto pb = get_pt(edge.entity, next_pt);
 
-        const auto pat = m_wrkpl.transform(pa) + m_offset;
-        const auto pbt = m_wrkpl.transform(pb) + m_offset;
+        const auto pat = m_transform(m_wrkpl.transform(pa));
+        const auto pbt = m_transform(m_wrkpl.transform(pb));
 
         if (auto arc = dynamic_cast<const EntityArc2D *>(&edge.entity)) {
-            auto normal = m_wrkpl.get_normal_vector();
+            auto normal = m_transform_normal(m_wrkpl.get_normal_vector());
 
             gp_Pnt sa(pat.x, pat.y, pat.z);
             gp_Pnt ea(pbt.x, pbt.y, pbt.z);
-            const auto center = m_wrkpl.transform(arc->m_center) + m_offset;
+            const auto center = m_transform(m_wrkpl.transform(arc->m_center));
             const auto radius = arc->get_radius();
             if (pt == 2)
                 normal *= -1;
@@ -387,7 +388,7 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
 }
 
 FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
-                                       const glm::dvec3 &offset)
+                                       Transform fn_transform, Transform fn_transform_normal)
 {
     auto paths = Paths::from_document(doc, wrkpl_uu, source_group_uu);
 
@@ -422,13 +423,21 @@ FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu
 
     auto &wrkpl = doc.get_entity<EntityWorkplane>(wrkpl_uu);
 
-    FaceBuilder face_builder{wrkpl, paths, offset};
+    FaceBuilder face_builder{wrkpl, paths, fn_transform, fn_transform_normal};
 
     for (auto &child : poly_tree) {
         face_builder.visit_poly_path(*child);
     }
 
     return face_builder;
+}
+
+FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
+                                       const glm::dvec3 &offset)
+{
+    return from_document(
+            doc, wrkpl_uu, source_group_uu, [offset](const glm::dvec3 &p) { return p + offset; },
+            [](const glm::dvec3 &p) { return p; });
 }
 
 Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu)
