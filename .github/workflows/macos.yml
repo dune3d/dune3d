@@ -45,14 +45,5 @@ jobs:
           pkg-config \
           pygobject3 \
           python@3
-
-        # glibmm's bottle appears to be broken and will currently result in the following error:
-        #
-        # ld: Undefined symbols:
-        #   Glib::DateTime::create_now_local(long long), referenced from:
-        #     dune3d::Dune3DApplication::UserConfig::load(std::__1::__fs::filesystem::path const&) in src_dune3d_application.cpp.o
-        #
-        # Rebuilding glibmm from source appears to work around the issue for now.
-        brew reinstall -s glibmm
     - name: Build
       run: bash scripts/build_macos.sh && otool -L build/dune3d
