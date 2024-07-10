@@ -1,7 +1,7 @@
 #version 330
 uniform mat3 screenmat;
 out vec2 x;
-out vec2 dim;
+flat out vec2 dim;
 uniform vec2 a,b;
 
 void main() {
