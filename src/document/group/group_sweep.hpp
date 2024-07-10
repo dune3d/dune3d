@@ -18,9 +18,9 @@ public:
     UUID m_wrkpl;
     UUID m_source_group;
 
-    UUID get_source_group() const override
+    std::set<UUID> get_source_groups() const override
     {
-        return m_source_group;
+        return {m_source_group};
     }
 
     std::shared_ptr<const SolidModel> m_solid_model;

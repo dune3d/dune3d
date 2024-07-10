@@ -17,9 +17,9 @@ public:
 
     UUID m_source_group;
 
-    UUID get_source_group() const override
+    std::set<UUID> get_source_groups() const override
     {
-        return m_source_group;
+        return {m_source_group};
     }
 
     unsigned int m_count = 3;
