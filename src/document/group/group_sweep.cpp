@@ -2,18 +2,12 @@
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
+#include "igroup_solid_model_json.hpp"
 
 namespace dune3d {
 GroupSweep::GroupSweep(const UUID &uu) : Group(uu)
 {
 }
-
-
-NLOHMANN_JSON_SERIALIZE_ENUM(GroupSweep::Operation, {
-                                                            {GroupSweep::Operation::DIFFERENCE, "difference"},
-                                                            {GroupSweep::Operation::UNION, "union"},
-                                                            {GroupSweep::Operation::INTERSECTION, "intersection"},
-                                                    })
 
 
 GroupSweep::GroupSweep(const UUID &uu, const json &j)

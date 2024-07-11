@@ -4,7 +4,8 @@
   <ui>
 	(1,None,"window.ui","window.ui",None,None,None,None,None,None,None),
 	(2,None,None,"preferences/key_sequences.ui",None,None,None,None,None,None,None),
-	(3,None,None,"preferences/canvas.ui",None,None,None,None,None,None,None)
+	(3,None,None,"preferences/canvas.ui",None,None,None,None,None,None,None),
+	(4,None,None,"widgets/select_groups_dialog.ui",None,None,None,None,None,None,None)
   </ui>
   <ui_library>
 	(1,"gtk","4.10",None),
@@ -133,7 +134,23 @@
 	(3,38,"GtkSeparator",None,35,None,None,None,1,None,None),
 	(3,39,"GtkColorChooserWidget","color_chooser",35,None,None,None,2,None,None),
 	(3,40,"GtkButton","import_button",34,None,None,None,None,None,None),
-	(3,41,"GtkButton","export_button",34,None,None,None,1,None,None)
+	(3,41,"GtkButton","export_button",34,None,None,None,1,None,None),
+	(4,1,"GtkWindow","window",None,None,None,None,-1,None,None),
+	(4,2,"GtkHeaderBar",None,1,None,None,None,-1,None,None),
+	(4,3,"GtkButton","cancel_button",2,None,"start",None,-1,None,None),
+	(4,4,"GtkButton","ok_button",2,None,"end",None,-1,None,None),
+	(4,19,"GtkGrid",None,1,None,None,None,3,None,None),
+	(4,20,"GtkLabel",None,19,None,None,None,None,None,None),
+	(4,21,"GtkScrolledWindow",None,19,None,None,None,1,None,None),
+	(4,22,"GtkListView","available_groups_view",21,None,None,None,None,None,None),
+	(4,23,"GtkLabel",None,19,None,None,None,2,None,None),
+	(4,24,"GtkScrolledWindow",None,19,None,None,None,3,None,None),
+	(4,25,"GtkListView","source_groups_view",24,None,None,None,None,None,None),
+	(4,26,"GtkBox",None,19,None,None,None,4,None,None),
+	(4,27,"GtkButton","include_button",26,None,None,None,None,None,None),
+	(4,28,"GtkButton","exclude_button",26,None,None,None,1,None,None),
+	(4,29,"GtkButton","move_up_button",26,None,None,None,2,None,None),
+	(4,30,"GtkButton","move_down_button",26,None,None,None,3,None,None)
   </object>
   <object_property>
 	(1,1,"GtkWindow","default-height","750",None,None,None,None,None,None,None,None,None),
@@ -416,7 +433,42 @@
 	(3,39,"GtkWidget","margin-start","20",None,None,None,None,None,None,None,None,None),
 	(3,39,"GtkWidget","margin-top","20",None,None,None,None,None,None,None,None,None),
 	(3,40,"GtkButton","label","Import…",None,None,None,None,None,None,None,None,None),
-	(3,41,"GtkButton","label","Export…",None,None,None,None,None,None,None,None,None)
+	(3,41,"GtkButton","label","Export…",None,None,None,None,None,None,None,None,None),
+	(4,1,"GtkWindow","title","Select groups",None,None,None,None,None,None,None,None,None),
+	(4,1,"GtkWindow","titlebar",None,None,None,None,None,2,None,None,None,None),
+	(4,2,"GtkHeaderBar","show-title-buttons","False",None,None,None,None,None,None,None,None,None),
+	(4,3,"GtkButton","label","Cancel",None,None,None,None,None,None,None,None,None),
+	(4,4,"GtkButton","label","OK",None,None,None,None,None,None,None,None,None),
+	(4,19,"GtkGrid","column-spacing","10",None,None,None,None,None,None,None,None,None),
+	(4,19,"GtkGrid","row-spacing","5",None,None,None,None,None,None,None,None,None),
+	(4,19,"GtkWidget","margin-bottom","10",None,None,None,None,None,None,None,None,None),
+	(4,19,"GtkWidget","margin-end","10",None,None,None,None,None,None,None,None,None),
+	(4,19,"GtkWidget","margin-start","10",None,None,None,None,None,None,None,None,None),
+	(4,19,"GtkWidget","margin-top","10",None,None,None,None,None,None,None,None,None),
+	(4,20,"GtkLabel","label","Available groups",None,None,None,None,None,None,None,None,None),
+	(4,20,"GtkLabel","xalign","0.0",None,None,None,None,None,None,None,None,None),
+	(4,21,"GtkScrolledWindow","has-frame","True",None,None,None,None,None,None,None,None,None),
+	(4,21,"GtkScrolledWindow","hscrollbar-policy","never",None,None,None,None,None,None,None,None,None),
+	(4,21,"GtkWidget","hexpand","True",None,None,None,None,None,None,None,None,None),
+	(4,21,"GtkWidget","vexpand","True",None,None,None,None,None,None,None,None,None),
+	(4,22,"GtkWidget","vexpand","True",None,None,None,None,None,None,None,None,None),
+	(4,23,"GtkLabel","label","Source groups",None,None,None,None,None,None,None,None,None),
+	(4,23,"GtkLabel","xalign","0.0",None,None,None,None,None,None,None,None,None),
+	(4,24,"GtkScrolledWindow","has-frame","True",None,None,None,None,None,None,None,None,None),
+	(4,24,"GtkScrolledWindow","hscrollbar-policy","never",None,None,None,None,None,None,None,None,None),
+	(4,24,"GtkWidget","hexpand","True",None,None,None,None,None,None,None,None,None),
+	(4,24,"GtkWidget","vexpand","True",None,None,None,None,None,None,None,None,None),
+	(4,25,"GtkWidget","vexpand","True",None,None,None,None,None,None,None,None,None),
+	(4,26,"GtkBox","spacing","10",None,None,None,None,None,None,None,None,None),
+	(4,26,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
+	(4,26,"GtkWidget","margin-bottom","20",None,None,None,None,None,None,None,None,None),
+	(4,26,"GtkWidget","margin-top","20",None,None,None,None,None,None,None,None,None),
+	(4,26,"GtkWidget","valign","center",None,None,None,None,None,None,None,None,None),
+	(4,27,"GtkButton","icon-name","go-next-symbolic",None,None,None,None,None,None,None,None,None),
+	(4,28,"GtkButton","icon-name","go-previous-symbolic",None,None,None,None,None,None,None,None,None),
+	(4,28,"GtkWidget","margin-bottom","10",None,None,None,None,None,None,None,None,None),
+	(4,29,"GtkButton","icon-name","go-up-symbolic",None,None,None,None,None,None,None,None,None),
+	(4,30,"GtkButton","icon-name","go-down-symbolic",None,None,None,None,None,None,None,None,None)
   </object_property>
   <object_layout_property>
 	(3,8,9,"GtkGridLayoutChild","column","0",None,None,None,None),
@@ -444,17 +496,26 @@
 	(3,8,29,"GtkGridLayoutChild","column","1",None,None,None,None),
 	(3,8,29,"GtkGridLayoutChild","column-span","1",None,None,None,None),
 	(3,8,29,"GtkGridLayoutChild","row","2",None,None,None,None),
-	(3,8,29,"GtkGridLayoutChild","row-span","1",None,None,None,None)
+	(3,8,29,"GtkGridLayoutChild","row-span","1",None,None,None,None),
+	(4,19,21,"GtkGridLayoutChild","row","1",None,None,None,None),
+	(4,19,23,"GtkGridLayoutChild","column","2",None,None,None,None),
+	(4,19,24,"GtkGridLayoutChild","column","2",None,None,None,None),
+	(4,19,24,"GtkGridLayoutChild","row","1",None,None,None,None),
+	(4,19,26,"GtkGridLayoutChild","column","1",None,None,None,None),
+	(4,19,26,"GtkGridLayoutChild","row","1",None,None,None,None)
   </object_layout_property>
   <object_data>
 	(1,33,"GtkWidget",1,1,None,None,None,None,None,None),
 	(1,49,"GtkWidget",1,1,None,None,None,None,None,None),
 	(1,49,"GtkWidget",2,2,None,1,None,None,None,None),
 	(1,47,"GtkWidget",1,1,None,None,None,None,None,None),
-	(1,47,"GtkWidget",2,2,None,1,None,None,None,None)
+	(1,47,"GtkWidget",2,2,None,1,None,None,None,None),
+	(4,4,"GtkWidget",1,1,None,None,None,None,None,None),
+	(4,4,"GtkWidget",2,2,None,1,None,None,None,None)
   </object_data>
   <object_data_arg>
 	(1,49,"GtkWidget",2,2,"name","dune3d-tool-bar-name-label"),
-	(1,47,"GtkWidget",2,2,"name","osd")
+	(1,47,"GtkWidget",2,2,"name","osd"),
+	(4,4,"GtkWidget",2,2,"name","suggested-action")
   </object_data_arg>
 </cambalache-project>

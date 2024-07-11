@@ -61,6 +61,10 @@ public:
                                      Transform fn_transform, Transform fn_transform_normal);
 
     const TopoDS_Compound &get_faces() const;
+    const auto &get_wires() const
+    {
+        return m_wires;
+    }
     unsigned int get_n_faces() const;
 
 private:
@@ -77,6 +81,7 @@ private:
     Transform m_transform_normal;
     TopoDS_Compound m_compound;
     TopoDS_Builder m_builder;
+    std::list<TopoDS_Wire> m_wires;
     unsigned int m_n_faces = 0;
 
     TopoDS_Wire path_to_wire(const Clipper2Lib::PathD &path, bool hole);

@@ -1255,6 +1255,7 @@ void Editor::open_file(const std::filesystem::path &path)
             m_core.set_current_group(dv.m_current_group);
             canvas_update_keep_selection();
             m_workspace_browser->update_current_group(get_current_document_views());
+            update_group_editor();
             update_action_sensitivity();
         }
 

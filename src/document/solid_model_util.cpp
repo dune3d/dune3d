@@ -262,6 +262,7 @@ void FaceBuilder::visit_poly_path(const Clipper2Lib::PolyPathD &path)
         return;
 
     auto wire = path_to_wire(contour, false);
+    m_wires.push_back(wire);
     BRepBuilderAPI_MakeFace make_face(wire);
 
     for (auto &child : path) {

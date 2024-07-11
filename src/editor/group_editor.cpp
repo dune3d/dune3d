@@ -7,7 +7,9 @@
 #include "document/group/group_reference.hpp"
 #include "document/group/group_linear_array.hpp"
 #include "document/group/group_polar_array.hpp"
+#include "document/group/group_loft.hpp"
 #include "widgets/spin_button_dim.hpp"
+#include "widgets/select_groups_dialog.hpp"
 #include "core/core.hpp"
 #include "core/tool_id.hpp"
 #include "util/gtk_util.hpp"
@@ -15,7 +17,7 @@
 
 namespace dune3d {
 
-class GroupEditorSweep : public GroupEditor {
+class GroupEditorSolidModel : public GroupEditor {
 protected:
     using GroupEditor::GroupEditor;
     void add_operation_combo()
@@ -27,23 +29,16 @@ protected:
         items->append("Intersection");
 
         m_operation_combo = Gtk::make_managed<Gtk::DropDown>(items);
-        m_operation_combo->set_selected(static_cast<guint>(group.m_operation));
+        m_operation_combo->set_selected(static_cast<guint>(group.get_operation()));
         m_operation_combo->property_selected().signal_changed().connect([this] {
             if (is_reloading())
                 return;
             auto &group = get_group();
-            group.m_operation = static_cast<GroupExtrude::Operation>(m_operation_combo->get_selected());
-            m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
+            group.set_operation(static_cast<GroupExtrude::Operation>(m_operation_combo->get_selected()));
+            m_core.get_current_document().set_group_update_solid_model_pending(m_group_uu);
             m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
         grid_attach_label_and_widget(*this, "Operation", *m_operation_combo, m_top);
-
-        {
-            auto source_group_name = m_core.get_current_document().get_group(get_group().m_source_group).m_name;
-            auto source_label = Gtk::make_managed<Gtk::Label>(source_group_name);
-            source_label->set_xalign(0);
-            grid_attach_label_and_widget(*this, "Source group", *source_label, m_top);
-        }
     }
 
 
@@ -51,7 +46,34 @@ protected:
     {
         GroupEditor::do_reload();
         auto &group = get_group();
-        m_operation_combo->set_selected(static_cast<guint>(group.m_operation));
+        m_operation_combo->set_selected(static_cast<guint>(group.get_operation()));
+    }
+
+private:
+    IGroupSolidModel &get_group()
+    {
+        return m_core.get_current_document().get_group<IGroupSolidModel>(m_group_uu);
+    }
+
+    Gtk::DropDown *m_operation_combo = nullptr;
+};
+
+class GroupEditorSweep : public GroupEditorSolidModel {
+protected:
+    using GroupEditorSolidModel::GroupEditorSolidModel;
+    void add_operation_combo()
+    {
+        GroupEditorSolidModel::add_operation_combo();
+
+        auto source_group_name = m_core.get_current_document().get_group(get_group().m_source_group).m_name;
+        auto source_label = Gtk::make_managed<Gtk::Label>(source_group_name);
+        source_label->set_xalign(0);
+        grid_attach_label_and_widget(*this, "Source group", *source_label, m_top);
+    }
+
+    void do_reload() override
+    {
+        GroupEditorSolidModel::do_reload();
     }
 
 private:
@@ -59,8 +81,6 @@ private:
     {
         return m_core.get_current_document().get_group<GroupSweep>(m_group_uu);
     }
-
-    Gtk::DropDown *m_operation_combo = nullptr;
 };
 
 class GroupEditorExtrude : public GroupEditorSweep {
@@ -131,6 +151,102 @@ public:
     }
 };
 
+
+class GroupEditorLoft : public GroupEditorSolidModel {
+public:
+    GroupEditorLoft(Core &core, const UUID &group_uu) : GroupEditorSolidModel(core, group_uu)
+    {
+        add_operation_combo();
+
+        m_ruled_switch = Gtk::make_managed<Gtk::Switch>();
+        m_ruled_switch->set_valign(Gtk::Align::CENTER);
+        m_ruled_switch->set_halign(Gtk::Align::START);
+        auto &group = get_group();
+        m_ruled_switch->set_active(group.m_ruled);
+        grid_attach_label_and_widget(*this, "Ruled", *m_ruled_switch, m_top);
+        m_ruled_switch->property_active().signal_changed().connect([this] {
+            if (is_reloading())
+                return;
+            auto &group = get_group();
+            group.m_ruled = m_ruled_switch->get_active();
+            m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
+        });
+
+        m_source_groups_button = Gtk::make_managed<Gtk::Button>();
+        m_source_groups_button->signal_clicked().connect(sigc::mem_fun(*this, &GroupEditorLoft::edit_source_groups));
+        m_source_groups_button_label = Gtk::make_managed<Gtk::Label>();
+        m_source_groups_button_label->set_ellipsize(Pango::EllipsizeMode::END);
+        m_source_groups_button_label->set_xalign(0);
+        m_source_groups_button->set_child(*m_source_groups_button_label);
+        grid_attach_label_and_widget(*this, "Source groups", *m_source_groups_button, m_top);
+        update_source_groups_label(group);
+    }
+
+private:
+    Gtk::Switch *m_ruled_switch = nullptr;
+    Gtk::Button *m_source_groups_button = nullptr;
+    Gtk::Label *m_source_groups_button_label = nullptr;
+
+    void do_reload() override
+    {
+        GroupEditorSolidModel::do_reload();
+        auto &group = get_group();
+        m_ruled_switch->set_active(group.m_ruled);
+        update_source_groups_label(group);
+    }
+
+    void update_source_groups_label(const GroupLoft &group)
+    {
+        std::string s;
+        for (const auto &src : group.m_sources) {
+            auto &gr = m_core.get_current_document().get_group(src.group);
+            if (s.size())
+                s += ", ";
+            s += gr.m_name;
+        }
+        m_source_groups_button_label->set_text(s);
+    }
+
+    void edit_source_groups()
+    {
+        std::vector<UUID> current_source_groups;
+        auto &group = get_group();
+        for (const auto &src : group.m_sources) {
+            current_source_groups.push_back(src.group);
+        }
+        auto dia = SelectGroupsDialog::create(m_core.get_current_document(), group.m_uuid, current_source_groups);
+        dia->set_transient_for(dynamic_cast<Gtk::Window &>(*get_ancestor(GTK_TYPE_WINDOW)));
+        dia->present();
+        dia->signal_changed().connect([this, dia, &group] {
+            auto groups = dia->get_selected_groups();
+            if (groups.size() < 2)
+                return;
+
+            decltype(group.m_sources) new_sources;
+            for (const auto &uu : groups) {
+                auto existing = std::ranges::find_if(group.m_sources, [uu](const auto &x) { return x.group == uu; });
+                if (existing == group.m_sources.end()) {
+                    new_sources.emplace_back(m_core.get_current_document().get_group(uu).m_active_wrkpl, uu);
+                }
+                else {
+                    new_sources.emplace_back(*existing);
+                }
+            }
+            group.m_sources = new_sources;
+
+
+            m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
+        });
+    }
+
+    GroupLoft &get_group()
+    {
+        return m_core.get_current_document().get_group<GroupLoft>(m_group_uu);
+    }
+};
+
 class GroupEditorRevolve : public GroupEditorSweep {
 public:
     GroupEditorRevolve(Core &core, const UUID &group_uu) : GroupEditorSweep(core, group_uu)
@@ -172,7 +288,6 @@ private:
 
     Gtk::DropDown *m_mode_combo = nullptr;
 };
-
 class GroupEditorFillet : public GroupEditor {
 public:
     GroupEditorFillet(Core &core, const UUID &group_uu) : GroupEditor(core, group_uu)
@@ -445,6 +560,8 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
     case Group::Type::LINEAR_ARRAY:
     case Group::Type::POLAR_ARRAY:
         return Gtk::make_managed<GroupEditorArray>(core, group_uu);
+    case Group::Type::LOFT:
+        return Gtk::make_managed<GroupEditorLoft>(core, group_uu);
     default:
         return Gtk::make_managed<GroupEditor>(core, group_uu);
     }

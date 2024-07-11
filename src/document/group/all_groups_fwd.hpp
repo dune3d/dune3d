@@ -11,4 +11,5 @@ class GroupReference;
 class GroupLinearArray;
 class GroupPolarArray;
 class GroupArray;
+class GroupLoft;
 } // namespace dune3d

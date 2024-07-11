@@ -77,6 +77,7 @@ private:
 
     void on_workspace_browser_group_selected(const UUID &uu_doc, const UUID &uu_group);
     void on_add_group(Group::Type group_type);
+    void finish_add_group(Group *new_group);
     void on_delete_current_group();
     void on_move_group(Document::MoveGroup op);
     void on_workspace_browser_document_checked(const UUID &uu_doc, bool checked);

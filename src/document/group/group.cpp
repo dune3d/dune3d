@@ -61,6 +61,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Group::Type, {
                                                   {Group::Type::REVOLVE, "revolve"},
                                                   {Group::Type::LINEAR_ARRAY, "linear_array"},
                                                   {Group::Type::POLAR_ARRAY, "polar_array"},
+                                                  {Group::Type::LOFT, "loft"},
                                           })
 
 json Group::serialize() const
@@ -95,6 +96,8 @@ std::string Group::get_type_name(Type type)
         return "Polar array";
     case Type::REFERENCE:
         return "Reference";
+    case Type::LOFT:
+        return "Loft";
     }
     return "Group";
 }
@@ -126,6 +129,8 @@ std::unique_ptr<Group> Group::new_from_json(const UUID &uu, const json &j)
         return std::make_unique<GroupLinearArray>(uu, j);
     case Type::POLAR_ARRAY:
         return std::make_unique<GroupPolarArray>(uu, j);
+    case Type::LOFT:
+        return std::make_unique<GroupLoft>(uu, j);
     }
     throw std::runtime_error("unknown entity type");
 }

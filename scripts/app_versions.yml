@@ -16,3 +16,4 @@ versions:
     14: add measurements
     15: add aligned distance constraint
     16: add revolve group
+    17: add loft group

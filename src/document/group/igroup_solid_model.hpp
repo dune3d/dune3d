@@ -10,5 +10,6 @@ public:
     virtual void update_solid_model(const Document &doc) = 0;
     enum class Operation { UNION, DIFFERENCE, INTERSECTION };
     virtual Operation get_operation() const = 0;
+    virtual void set_operation(Operation op) = 0;
 };
 } // namespace dune3d

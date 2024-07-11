@@ -27,9 +27,9 @@ if target_machine.system() == 'darwin'
     opencascade_link_args += ['-Wl,-L' + brew_prefix]
   endif
   if opencascade.version().version_compare('>=7.8')
-    opencascade_link_args += ['-lTKDESTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKDESTL', '-lTKFillet']
+    opencascade_link_args += ['-lTKDESTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKDESTL', '-lTKFillet', '-lTKOffset']
   else
-    opencascade_link_args += ['-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKSTL', '-lTKFillet']
+    opencascade_link_args += ['-lTKSTEP', '-lTKernel', '-lTKXCAF', '-lTKXSBase', '-lTKBRep', '-lTKCDF', '-lTKXDESTEP', '-lTKLCAF', '-lTKMath', '-lTKMesh', '-lTKTopAlgo', '-lTKPrim', '-lTKBO', '-lTKShHealing', '-lTKG3d', '-lTKGeomBase', '-lTKHLR', '-lTKSTL', '-lTKFillet', '-lTKOffset']
   endif
 
   opencascade = declare_dependency(dependencies: opencascade.partial_dependency(compile_args: true, includes:true), link_args: opencascade_link_args)
@@ -118,6 +118,7 @@ src = files(
   'src/document/solid_model_circular_sweep.cpp',
   'src/document/solid_model_extrude.cpp',
   'src/document/solid_model_util.cpp',
+  'src/document/solid_model_loft.cpp',
   'src/document/group/group.cpp',
   'src/document/group/group_sketch.cpp',
   'src/document/group/group_reference.cpp',
@@ -132,6 +133,7 @@ src = files(
   'src/document/group/group_linear_array.cpp',
   'src/document/group/group_polar_array.cpp',
   'src/document/group/group_array.cpp',
+  'src/document/group/group_loft.cpp',
   'src/document/export_paths.cpp',
   'src/system/system.cpp',
   'src/logger/logger.cpp',
@@ -230,6 +232,7 @@ src = files(
   'src/util/key_util.cpp',
   'src/workspace/entity_view.cpp',
   'src/workspace/workspace_view.cpp',
+  'src/widgets/select_groups_dialog.cpp',
 )
 
 prog_python = find_program('python3')

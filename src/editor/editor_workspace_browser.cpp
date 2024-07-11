@@ -11,6 +11,7 @@
 #include "core/tool_id.hpp"
 #include "nlohmann/json.hpp"
 #include "action/action_id.hpp"
+#include "widgets/select_groups_dialog.hpp"
 
 namespace dune3d {
 using json = nlohmann::json;
@@ -169,17 +170,40 @@ void Editor::on_add_group(Group::Type group_type)
         group.m_source_group = current_group.m_uuid;
         m_core.set_needs_save();
     }
-    if (new_group) {
-        new_group->m_name = doc.find_next_group_name(group_type);
-        doc.set_group_generate_pending(new_group->m_uuid);
-        m_core.set_needs_save();
-        m_core.rebuild("add group");
-        m_workspace_browser->update_documents(get_current_document_views());
-        canvas_update_keep_selection();
-        m_workspace_browser->select_group(new_group->m_uuid);
-        if (any_of(group_type, Group::Type::FILLET, Group::Type::CHAMFER)) {
-            trigger_action(ToolID::SELECT_EDGES);
-        }
+    else if (group_type == Group::Type::LOFT) {
+        auto dia = SelectGroupsDialog::create(m_core.get_current_document(), m_core.get_current_group(), {});
+        dia->set_transient_for(m_win);
+        dia->present();
+        dia->signal_changed().connect([this, dia, &current_group, &doc] {
+            auto groups = dia->get_selected_groups();
+            if (groups.size() < 2)
+                return;
+            auto &group = doc.insert_group<GroupLoft>(UUID::random(), current_group.m_uuid);
+            for (const auto &uu : groups) {
+                const auto &src = doc.get_group(uu);
+                group.m_sources.emplace_back(src.m_active_wrkpl, src.m_uuid);
+            }
+            finish_add_group(&group);
+        });
+    }
+    finish_add_group(new_group);
+}
+
+void Editor::finish_add_group(Group *new_group)
+{
+    if (!new_group)
+        return;
+    auto &doc = m_core.get_current_document();
+    auto group_type = new_group->get_type();
+    new_group->m_name = doc.find_next_group_name(group_type);
+    doc.set_group_generate_pending(new_group->m_uuid);
+    m_core.set_needs_save();
+    m_core.rebuild("add group");
+    m_workspace_browser->update_documents(get_current_document_views());
+    canvas_update_keep_selection();
+    m_workspace_browser->select_group(new_group->m_uuid);
+    if (any_of(group_type, Group::Type::FILLET, Group::Type::CHAMFER)) {
+        trigger_action(ToolID::SELECT_EDGES);
     }
 }
 

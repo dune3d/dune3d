@@ -40,6 +40,7 @@ LIBS=(
 	libTKTopAlgo.dll\
 	libTKXDESTEP.dll\
 	libTKXSBase.dll\
+	libTKOffset.dll\
 	libgcc_s_seh-1.dll\
 	libfreetype-6.dll\
 	libfontconfig-1.dll\

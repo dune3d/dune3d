@@ -36,6 +36,10 @@ public:
     {
         return m_operation;
     }
+    void set_operation(Operation op) override
+    {
+        m_operation = op;
+    }
 
     std::shared_ptr<const SolidModel> m_solid_model;
 

@@ -25,6 +25,9 @@ public:
     {
         return m_operation;
     }
+    void set_operation(Operation op) override
+    {
+    }
 
     json serialize() const override;
 

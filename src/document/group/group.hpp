@@ -35,6 +35,7 @@ enum class GroupType {
     REFERENCE,
     SKETCH,
     EXTRUDE,
+    LOFT,
     LATHE,
     REVOLVE,
     FILLET,
