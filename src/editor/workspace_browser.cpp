@@ -208,6 +208,17 @@ static std::string icon_name_from_status(GroupStatusMessage::Status st)
     return "face-worried-symbolic";
 }
 
+void WorkspaceBrowser::update_name(DocumentItem &it_doc, IDocumentInfo &doci)
+{
+    const auto bn = doci.get_basename();
+    if (bn.size())
+        it_doc.m_name = bn;
+    else
+        it_doc.m_name = "New Document";
+    if (doci.get_needs_save())
+        it_doc.m_name = it_doc.m_name + " *";
+}
+
 void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &doc_views)
 {
     block_signals();
@@ -219,13 +230,7 @@ void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &
         it_doc.m_check_sensitive = !is_current_doc;
         it_doc.m_check_active = is_current_doc || doc_view.document_is_visible();
         it_doc.m_active = is_current_doc;
-        const auto bn = doci.get_basename();
-        if (bn.size())
-            it_doc.m_name = bn;
-        else
-            it_doc.m_name = "New Document";
-        if (doci.get_needs_save())
-            it_doc.m_name = it_doc.m_name + " *";
+        update_name(it_doc, doci);
         const auto &current_group = doci.get_document().get_group(doci.get_current_group());
         std::set<UUID> source_groups;
         if (auto group_src = dynamic_cast<const IGroupSourceGroup *>(&current_group))
@@ -305,6 +310,15 @@ void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &
     }
 
     unblock_signals();
+}
+
+void WorkspaceBrowser::update_needs_save()
+{
+    for (size_t i_doc = 0; i_doc < m_document_store->get_n_items(); i_doc++) {
+        auto &it_doc = *m_document_store->get_item(i_doc);
+        auto &doci = m_core.get_idocument_info(it_doc.m_uuid);
+        update_name(it_doc, doci);
+    }
 }
 
 class SolidModelToggleButton : public Gtk::ToggleButton {

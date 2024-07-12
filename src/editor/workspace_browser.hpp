@@ -8,6 +8,7 @@ namespace dune3d {
 
 class Core;
 class DocumentView;
+class IDocumentInfo;
 
 class WorkspaceBrowser : public Gtk::Box {
 public:
@@ -15,6 +16,7 @@ public:
 
     void update_documents(const std::map<UUID, DocumentView> &doc_views);
     void update_current_group(const std::map<UUID, DocumentView> &doc_views);
+    void update_needs_save();
 
 
     using type_signal_group_selected = sigc::signal<void(UUID, UUID)>;
@@ -115,5 +117,7 @@ private:
 
     void block_signals();
     void unblock_signals();
+
+    static void update_name(DocumentItem &it, IDocumentInfo &doci);
 };
 } // namespace dune3d
