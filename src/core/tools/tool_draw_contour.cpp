@@ -400,6 +400,15 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             if (m_entities.size() && !is_draw_contour())
                 return ToolResponse::commit();
 
+            if (m_entities.size() == 0) {
+                auto hsel = m_intf.get_hover_selection();
+                if (hsel) {
+                    const auto enp = hsel->get_entity_and_point();
+                    if (is_valid_tangent_point(enp))
+                        m_last_tangent_point = enp;
+                }
+            }
+
             if (m_tool_id == ToolID::DRAW_ARC_2D) {
                 m_temp_line = nullptr;
                 m_temp_arc = &add_entity<EntityArc2D>();
