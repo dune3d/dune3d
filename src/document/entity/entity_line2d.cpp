@@ -2,6 +2,7 @@
 #include "nlohmann/json.hpp"
 #include "util/glm_util.hpp"
 #include "util/json_util.hpp"
+#include "util/template_util.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
 #include "entity_visitor.hpp"
@@ -87,6 +88,11 @@ glm::dvec2 EntityLine2D::get_tangent_at_point(unsigned int point) const
         return m_p1 - m_p2;
     else
         return m_p2 - m_p1;
+}
+
+bool EntityLine2D::is_valid_tangent_point(unsigned int point) const
+{
+    return any_of(point, 1, 2);
 }
 
 std::unique_ptr<Entity> EntityLine2D::clone() const

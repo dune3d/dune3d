@@ -135,7 +135,10 @@ bool ToolDrawContour::is_valid_tangent_point(const EntityAndPoint &enp)
     const auto &en = get_doc().get_entity(enp.entity);
     if (!en.is_valid_point(enp.point))
         return false;
-    if (!dynamic_cast<const IEntityTangent *>(&en))
+    auto en_tangent = dynamic_cast<const IEntityTangent *>(&en);
+    if (!en_tangent)
+        return false;
+    if (!en_tangent->is_valid_tangent_point(enp.point))
         return false;
     // if the point already has a coincident constraint, it's not possible to tell
     // which one got selected, so the tangent would be arbitrary
@@ -213,6 +216,22 @@ Constraint *ToolDrawContour::constrain_point_and_add_head_tangent_constraint(con
     return coincident_constraint;
 }
 
+class AutoReset {
+public:
+    [[nodiscard]]
+    AutoReset(bool &v)
+        : m_v(v)
+    {
+    }
+
+    ~AutoReset()
+    {
+        m_v = false;
+    }
+
+private:
+    bool &m_v;
+};
 
 ToolResponse ToolDrawContour::update(const ToolArgs &args)
 {
@@ -288,8 +307,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 update_tip();
                 return ToolResponse();
             }
-            const bool was_placing_center = m_placing_center;
-            m_placing_center = false;
+            AutoReset autoreset{m_placing_center};
 
             if (get_temp_entity()) {
                 if (m_last == get_cursor_pos_in_plane())
@@ -348,7 +366,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
 
             if (m_constrain && m_entities.size()) {
                 if (constrain_point_and_add_head_tangent_constraint(
-                            m_wrkpl->m_uuid, {m_entities.back()->m_uuid, was_placing_center ? 3 : last_point})) {
+                            m_wrkpl->m_uuid, {m_entities.back()->m_uuid, m_placing_center ? 3 : last_point})) {
                     if (auto hsel = m_intf.get_hover_selection()) {
                         const auto paths = solid_model_util::Paths::from_document(get_doc(), m_wrkpl->m_uuid,
                                                                                   m_core.get_current_group());
@@ -686,11 +704,13 @@ void ToolDrawContour::update_tip()
                 if (auto en_a = dynamic_cast<const IEntityTangent *>(get_temp_entity())) {
                     auto enp = m_intf.get_hover_selection().value().get_entity_and_point();
                     if (auto en_t = dynamic_cast<const IEntityTangent *>(&get_entity(enp.entity))) {
-                        auto arc_tangent = glm::normalize(en_a->get_tangent_at_point(get_head_point()));
-                        auto target_tanget = glm::normalize(en_t->get_tangent_at_point(enp.point));
-                        auto angle = glm::degrees(acos(glm::dot(arc_tangent, target_tanget)));
-                        if (std::abs(angle - 180) < 45)
-                            m_has_tangent_head = true;
+                        if (en_t->is_valid_tangent_point(enp.point)) {
+                            auto arc_tangent = glm::normalize(en_a->get_tangent_at_point(get_head_point()));
+                            auto target_tanget = glm::normalize(en_t->get_tangent_at_point(enp.point));
+                            auto angle = glm::degrees(acos(glm::dot(arc_tangent, target_tanget)));
+                            if (std::abs(angle - 180) < 45)
+                                m_has_tangent_head = true;
+                        }
                     }
                 }
             }
@@ -720,8 +740,12 @@ void ToolDrawContour::update_tip()
             actions.emplace_back(InToolActionID::TOGGLE_TANGENT_CONSTRAINT, "tangent constraint on");
     }
 
-    if (get_temp_entity() && is_draw_contour())
-        actions.emplace_back(InToolActionID::TOGGLE_ARC);
+    if (get_temp_entity() && is_draw_contour()) {
+        if (get_temp_entity()->of_type(Entity::Type::ARC_2D))
+            actions.emplace_back(InToolActionID::TOGGLE_ARC, "arc off");
+        else
+            actions.emplace_back(InToolActionID::TOGGLE_ARC, "arc on");
+    }
 
     if (m_temp_arc && !(m_constrain_tangent && m_last_tangent_point))
         actions.emplace_back(InToolActionID::FLIP_ARC);

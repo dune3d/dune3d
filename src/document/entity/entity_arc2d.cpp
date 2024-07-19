@@ -2,6 +2,7 @@
 #include "nlohmann/json.hpp"
 #include "util/glm_util.hpp"
 #include "util/json_util.hpp"
+#include "util/template_util.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
 #include "entity_visitor.hpp"
@@ -93,6 +94,11 @@ glm::dvec2 EntityArc2D::get_tangent_at_point(unsigned int point) const
         return {r.y, -r.x};
     else
         return {-r.y, r.x};
+}
+
+bool EntityArc2D::is_valid_tangent_point(unsigned int point) const
+{
+    return any_of(point, 1, 2);
 }
 
 double EntityArc2D::get_radius() const

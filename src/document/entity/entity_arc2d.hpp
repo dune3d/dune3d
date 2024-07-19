@@ -32,6 +32,7 @@ public:
     bool m_no_radius_constraint = false;
 
     glm::dvec2 get_tangent_at_point(unsigned int point) const override;
+    bool is_valid_tangent_point(unsigned int point) const override;
 
     const UUID &get_workplane() const override
     {
