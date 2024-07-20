@@ -1069,8 +1069,8 @@ void Canvas::peel_selection()
             auto sel = get_selection();
             for (auto button : buttons) {
                 button->set_active(sel.contains(button->m_selectable));
-                button->signal_toggled().connect([this, button, sel] {
-                    auto sel2 = sel;
+                button->signal_toggled().connect([this, button] {
+                    auto sel2 = get_selection();
                     if (button->get_active())
                         sel2.insert(button->m_selectable);
                     else
