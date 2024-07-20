@@ -161,10 +161,7 @@ const std::vector<std::pair<ActionGroup, std::string>> action_group_catalog = {
         {ActionGroup::DOCUMENT, "Document"},   {ActionGroup::VIEW, "View"},       {ActionGroup::UNKNOWN, "Misc"},
 };
 
-#define ACTION_LUT_ITEM(x)                                                                                             \
-    {                                                                                                                  \
-        #x, ActionID::x                                                                                                \
-    }
+#define ACTION_LUT_ITEM(x) {#x, ActionID::x}
 
 const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(SAVE_ALL),
@@ -217,10 +214,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(SET_CURRENT_DOCUMENT),
 };
 
-#define TOOL_LUT_ITEM(x)                                                                                               \
-    {                                                                                                                  \
-        #x, ToolID::x                                                                                                  \
-    }
+#define TOOL_LUT_ITEM(x) {#x, ToolID::x}
 
 const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(NONE),

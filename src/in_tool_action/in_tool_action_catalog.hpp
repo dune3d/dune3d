@@ -15,7 +15,7 @@ public:
     };
 
     InToolActionCatalogItem(const std::string &n, ToolID t, int fl = FLAGS_DEFAULT)
-        : name(n), tool(t), flags(static_cast<Flags>(fl)){};
+        : name(n), tool(t), flags(static_cast<Flags>(fl)) {};
 
     const std::string name;
     ToolID tool;

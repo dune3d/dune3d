@@ -16,7 +16,7 @@ public:
     };
 
     ActionCatalogItem(const std::string &n, ActionGroup gr, int fl = FLAGS_DEFAULT)
-        : name(n), group(gr), flags(static_cast<Flags>(fl)){};
+        : name(n), group(gr), flags(static_cast<Flags>(fl)) {};
 
     const std::string name;
     const ActionGroup group;

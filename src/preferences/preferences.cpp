@@ -180,10 +180,7 @@ void ToolBarPreferences::load_from_json(const json &j)
 }
 
 
-#define COLORP_LUT_ITEM(x)                                                                                             \
-    {                                                                                                                  \
-        #x, ColorP::x                                                                                                  \
-    }
+#define COLORP_LUT_ITEM(x) {#x, ColorP::x}
 
 static const LutEnumStr<ColorP> colorp_lut = {
         COLORP_LUT_ITEM(ENTITY),

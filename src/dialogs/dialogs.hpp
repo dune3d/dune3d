@@ -20,7 +20,7 @@ class EditorInterface;
 
 class Dialogs {
 public:
-    Dialogs(Gtk::Window &win, EditorInterface &intf) : m_parent(win), m_interface(intf){};
+    Dialogs(Gtk::Window &win, EditorInterface &intf) : m_parent(win), m_interface(intf) {};
 
     // std::optional<double> ask_datum(const std::string &label, double def = 0);
 

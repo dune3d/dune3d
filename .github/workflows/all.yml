@@ -22,11 +22,11 @@ jobs:
     - name: Install preliminary dependencies
       run: sudo apt-get update -y && sudo apt-get install curl gnupg apt-transport-https -y
     - name: Add clang 11.0 to apt sources
-      run: echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main" | sudo tee -a /etc/apt/sources.list
+      run: echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" | sudo tee -a /etc/apt/sources.list
     - name: Add LLVM apt key
       run: curl https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
     - name: Install dependencies
-      run: sudo apt-get update -y && sudo apt-get install git clang-format-16 -y
+      run: sudo apt-get update -y && sudo apt-get install git clang-format-18 -y
     - name: Style checker
       run: bash scripts/stylecheck.sh
 

@@ -29,10 +29,7 @@ const std::map<InToolActionID, InToolActionCatalogItem> in_tool_action_catalog =
 };
 
 
-#define LUT_ITEM(x)                                                                                                    \
-    {                                                                                                                  \
-        #x, InToolActionID::x                                                                                          \
-    }
+#define LUT_ITEM(x) {#x, InToolActionID::x}
 
 const LutEnumStr<InToolActionID> in_tool_action_lut = {
         LUT_ITEM(LMB),
