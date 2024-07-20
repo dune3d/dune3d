@@ -30,6 +30,7 @@ enum class EntityType {
     DOCUMENT,
     BEZIER_2D,
     BEZIER_3D,
+    CLUSTER,
 };
 
 class Entity {

@@ -13,6 +13,7 @@
 #include "document/entity/entity_document.hpp"
 #include "document/entity/entity_bezier2d.hpp"
 #include "document/entity/entity_bezier3d.hpp"
+#include "document/entity/entity_cluster.hpp"
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_diameter_radius.hpp"
 #include "document/constraint/constraint_angle.hpp"
@@ -225,6 +226,16 @@ ToolResponse ToolMove::update(const ToolArgs &args)
                 if (point == 0 || point == 4 || point == 2) {
                     en->m_c2 = en_last.m_c2 + delta;
                 }
+            }
+            if (auto en = dynamic_cast<EntityCluster *>(entity)) {
+                auto &en_last = dynamic_cast<const EntityCluster &>(*last_doc.m_entities.at(entity->m_uuid));
+                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
+                const auto delta2d =
+                        wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
+                if (point == 0 || point == 1)
+                    en->m_origin = en_last.m_origin + delta2d;
+                else if (en->m_anchors_transformed.contains(point) && en_last.m_anchors_transformed.contains(point))
+                    en->m_anchors_transformed.at(point) = en_last.m_anchors_transformed.at(point) + delta2d;
             }
         }
 

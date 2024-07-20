@@ -15,6 +15,7 @@ class Entity;
 class Constraint;
 class Group;
 class Body;
+class GroupReference;
 enum class GroupType;
 
 struct ItemsToDelete {
@@ -169,6 +170,8 @@ public:
     std::set<const Constraint *> find_constraints(const std::set<EntityAndPoint> &enps) const;
 
     std::string find_next_group_name(GroupType type) const;
+
+    const GroupReference &get_reference_group() const;
 
     json serialize() const;
 

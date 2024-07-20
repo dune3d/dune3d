@@ -31,12 +31,15 @@ public:
 
 class Edge {
 public:
-    Edge(std::list<Node> &nodes, const Entity &e);
-    Edge(Node &node, const EntityCircle2D &e);
+    using Transform = std::function<glm::dvec2(glm::dvec2)>;
+    Edge(std::list<Node> &nodes, const Entity &e, Transform tr);
+    Edge(Node &node, const EntityCircle2D &e, Transform tr);
     Node &from;
     Node &to;
     Node &get_other_node(Node &node);
     const Entity &entity;
+    const Transform transform_fn;
+    glm::dvec2 transform(const glm::dvec2 &v) const;
 };
 
 using Path = std::deque<std::pair<Node &, Edge &>>;

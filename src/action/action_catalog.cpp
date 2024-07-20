@@ -76,6 +76,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::UNSET_CONSTRUCTION, {"Unset construction", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::ENTER_DATUM, {"Enter datum", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::ADD_ANCHOR, {"Add anchor", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::ADD_CLUSTER_ANCHOR, {"Add cluster anchor", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::MOVE_ANCHOR, {"Move anchor", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::ENTER_DATUM, {"Enter datum", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::IMPORT_STEP, {"Import STEP", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
@@ -157,7 +158,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC,
          {"Constrain tangent to be symmetric", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::IMPORT_DXF, {"Import DXF", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
-
+        {ToolID::CREATE_CLUSTER, {"Create cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -266,6 +267,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_POINT_IN_WORKPLANE),
         TOOL_LUT_ITEM(ENTER_DATUM),
         TOOL_LUT_ITEM(ADD_ANCHOR),
+        TOOL_LUT_ITEM(ADD_CLUSTER_ANCHOR),
         TOOL_LUT_ITEM(MOVE_ANCHOR),
         TOOL_LUT_ITEM(TOGGLE_CONSTRUCTION),
         TOOL_LUT_ITEM(SET_CONSTRUCTION),
@@ -284,6 +286,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(LINK_DOCUMENT),
         TOOL_LUT_ITEM(CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC),
         TOOL_LUT_ITEM(IMPORT_DXF),
+        TOOL_LUT_ITEM(CREATE_CLUSTER),
 };
 
 

@@ -15,6 +15,7 @@
 #include "document/entity/entity_document.hpp"
 #include "document/entity/entity_bezier2d.hpp"
 #include "document/entity/entity_bezier3d.hpp"
+#include "document/entity/entity_cluster.hpp"
 #include "document/constraint/all_constraints.hpp"
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
@@ -525,6 +526,74 @@ void System::visit(const EntityBezier3D &bezier)
     // m_sys->entity.push_back(Slvs_MakeLineSegment(e, group, SLVS_FREE_IN_3D, points.at(0), points.at(1)));
 }
 
+void System::visit(const EntityCluster &en_cluster)
+{
+    const auto group = get_group_index(en_cluster);
+    auto en_origin = get_entity_ref(EntityRef{en_cluster.m_uuid, 1});
+
+    {
+        EntityBase eb = {};
+        eb.type = EntityBase::Type::POINT_IN_2D;
+        eb.h.v = en_origin;
+        eb.group.v = group;
+        eb.workplane.v = get_entity_ref(EntityRef{en_cluster.m_wrkpl, 0});
+        for (unsigned int axis = 0; axis < 2; axis++) {
+            eb.param[axis].v = add_param(en_cluster.m_group, en_cluster.m_uuid, 1, axis);
+        }
+        SK.entity.Add(&eb);
+    }
+
+    auto param_scale_x = add_param(en_cluster.m_group, en_cluster.m_uuid, 2, 0);
+    auto param_scale_y = add_param(en_cluster.m_group, en_cluster.m_uuid, 2, 1);
+    auto param_angle = add_param(en_cluster.m_group, en_cluster.m_uuid, 3, 0);
+
+    if (en_cluster.m_group == m_solve_group) {
+        if (en_cluster.m_lock_aspect_ratio)
+            AddEq(&m_sys->eq, Expr::From(hParam{param_scale_x})->Minus(Expr::From(hParam{param_scale_y})));
+
+        if (en_cluster.m_lock_scale_x)
+            AddEq(&m_sys->eq, Expr::From(hParam{param_scale_x})->Minus(Expr::From(en_cluster.m_scale_x)));
+
+        if (en_cluster.m_lock_scale_y)
+            AddEq(&m_sys->eq, Expr::From(hParam{param_scale_y})->Minus(Expr::From(en_cluster.m_scale_y)));
+
+        if (en_cluster.m_lock_angle)
+            AddEq(&m_sys->eq, Expr::From(hParam{param_angle})->Minus(Expr::From(glm::radians(en_cluster.m_angle))));
+    }
+
+    auto exangle = Expr::From({hParam{param_angle}});
+    auto exsin = exangle->Sin();
+    auto excos = exangle->Cos();
+    for (auto &[idx, enp] : en_cluster.m_anchors) {
+        auto en_p = get_entity_ref(EntityRef{en_cluster.m_uuid, idx});
+        EntityBase eb = {};
+        eb.type = EntityBase::Type::POINT_IN_2D;
+        eb.h.v = en_p;
+        eb.group.v = group;
+        eb.workplane.v = get_entity_ref(EntityRef{en_cluster.m_wrkpl, 0});
+
+        for (unsigned int axis = 0; axis < 2; axis++) {
+            eb.param[axis].v = add_param(en_cluster.m_group, en_cluster.m_uuid, idx, axis);
+        }
+        SK.entity.Add(&eb);
+
+        if (en_cluster.m_group == m_solve_group) {
+            auto eb_origin = SK.GetEntity({en_origin});
+            auto p = en_cluster.get_anchor_point(enp);
+            auto p_scaled = ExprVector::From(Expr::From(p.x)->Times(Expr::From(hParam{param_scale_x})),
+                                             Expr::From(p.y)->Times(Expr::From(hParam{param_scale_y})), Expr::From(0));
+
+            auto prx = p_scaled.x->Times(excos)->Minus(p_scaled.y->Times(exsin));
+            auto pry = p_scaled.x->Times(exsin)->Plus(p_scaled.y->Times(excos));
+            auto p_scaled_rot = ExprVector::From(prx, pry, Expr::From(0));
+            auto ex = eb.PointGetExprsInWorkplane(eb.workplane)
+                              .Minus(eb_origin->PointGetExprsInWorkplane(eb.workplane).Plus(p_scaled_rot));
+
+            AddEq(&m_sys->eq, ex.x);
+            AddEq(&m_sys->eq, ex.y);
+        }
+    }
+}
 static void AddEq(hGroup h, IdList<Equation, hEquation> *l, Expr *expr, int index)
 {
     Equation eq;
@@ -1442,7 +1511,8 @@ void System::add_dragged(const UUID &entity, unsigned int point)
         }
     } break;
     case Entity::Type::WORKPLANE:
-    case Entity::Type::STEP: {
+    case Entity::Type::STEP:
+    case Entity::Type::CLUSTER: {
         if (point == 0)
             point = 1;
         for (const auto &[idx, param_ref] : m_param_refs) {

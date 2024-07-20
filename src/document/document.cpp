@@ -51,7 +51,7 @@ json Document::serialize() const
     return j;
 }
 
-static const unsigned int app_version = 18;
+static const unsigned int app_version = 19;
 
 unsigned int Document::get_app_version()
 {
@@ -626,6 +626,11 @@ std::string Document::find_next_group_name(GroupType type) const
             return name;
     }
     return Group::get_type_name(type);
+}
+
+const GroupReference &Document::get_reference_group() const
+{
+    return dynamic_cast<const GroupReference &>(*get_groups_sorted().front());
 }
 
 Document::~Document() = default;

@@ -5,6 +5,7 @@
 #include "entity/entity_circle2d.hpp"
 #include "entity/entity_bezier2d.hpp"
 #include "entity/entity_workplane.hpp"
+#include "entity/entity_cluster.hpp"
 #include "document.hpp"
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
@@ -15,7 +16,6 @@
 #include <NCollection_Array1.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <gp_Circ.hxx>
-
 
 namespace dune3d::solid_model_util {
 
@@ -45,20 +45,25 @@ static Node &get_or_create_node(std::list<Node> &nodes, const glm::dvec2 &p)
 }
 
 
-static glm::dvec2 get_pt(const Entity &e, unsigned int pt)
+static glm::dvec2 get_pt(const Entity &e, unsigned int pt, Edge::Transform tr)
 {
     auto &en_wrkpl = dynamic_cast<const IEntityInWorkplane &>(e);
-    return en_wrkpl.get_point_in_workplane(pt);
+    auto p = en_wrkpl.get_point_in_workplane(pt);
+    if (tr)
+        return tr(p);
+    else
+        return p;
 }
 
-Edge::Edge(std::list<Node> &nodes, const Entity &e)
-    : from(get_or_create_node(nodes, get_pt(e, 1))), to(get_or_create_node(nodes, get_pt(e, 2))), entity(e)
+Edge::Edge(std::list<Node> &nodes, const Entity &e, Transform tr)
+    : from(get_or_create_node(nodes, get_pt(e, 1, tr))), to(get_or_create_node(nodes, get_pt(e, 2, tr))), entity(e),
+      transform_fn(tr)
 {
     from.connected_edges.emplace(this, 1);
     to.connected_edges.emplace(this, 2);
 }
 
-Edge::Edge(Node &node, const EntityCircle2D &e) : from(node), to(node), entity(e)
+Edge::Edge(Node &node, const EntityCircle2D &e, Transform tr) : from(node), to(node), entity(e), transform_fn(tr)
 {
 }
 
@@ -69,6 +74,14 @@ Node &Edge::get_other_node(Node &node)
     else if (&node == &to)
         return from;
     assert(false);
+}
+
+glm::dvec2 Edge::transform(const glm::dvec2 &v) const
+{
+    if (transform_fn)
+        return transform_fn(v);
+    else
+        return v;
 }
 
 std::array<Edge *, 2> Node::get_edges()
@@ -169,7 +182,7 @@ static Clipper2Lib::PathD path_to_clipper(const Path &path, unsigned int path_in
                 dphi /= segments;
                 float a = 0;
                 for (unsigned int i = 0; i < segments; i++) {
-                    const auto p0 = circle->m_center + euler(circle->m_radius, a);
+                    const auto p0 = edge.transform(circle->m_center + euler(circle->m_radius, a));
                     cpath.emplace_back(p0.x, p0.y, VertexInfo::make_z(path_index, iv, i, segments));
                     a += dphi;
                 }
@@ -179,13 +192,13 @@ static Clipper2Lib::PathD path_to_clipper(const Path &path, unsigned int path_in
 
 
         auto pt = node.get_pt_for_edge(edge);
-        auto pc = get_pt(edge.entity, pt);
+        auto pc = get_pt(edge.entity, pt, nullptr);
 
 
         if (auto arc = dynamic_cast<const EntityArc2D *>(&edge.entity)) {
             const auto radius0 = glm::length(arc->m_center - arc->m_from);
             const auto a0 = c2pi(angle(pc - arc->m_center));
-            const auto a1 = c2pi(angle(get_pt(edge.entity, pt == 1 ? 2 : 1) - arc->m_center));
+            const auto a1 = c2pi(angle(get_pt(edge.entity, pt == 1 ? 2 : 1, nullptr) - arc->m_center));
             const unsigned int segments = 64;
 
             float dphi = c2pi(a1 - a0);
@@ -198,7 +211,7 @@ static Clipper2Lib::PathD path_to_clipper(const Path &path, unsigned int path_in
             dphi /= segments;
             float a = a0;
             for (unsigned int i = 0; i < segments; i++) {
-                const auto p0 = arc->m_center + euler(radius0, a);
+                const auto p0 = edge.transform(arc->m_center + euler(radius0, a));
                 cpath.emplace_back(p0.x, p0.y, VertexInfo::make_z(path_index, iv, i, segments));
                 a += dphi;
             }
@@ -211,13 +224,14 @@ static Clipper2Lib::PathD path_to_clipper(const Path &path, unsigned int path_in
                 auto t = (double)i / segments;
                 if (!forward)
                     t = 1 - t;
-                const auto p0 = bezier->get_interpolated(t);
+                const auto p0 = edge.transform(bezier->get_interpolated(t));
                 cpath.emplace_back(p0.x, p0.y, VertexInfo::make_z(path_index, iv, i, segments));
             }
         }
         else {
+            const auto pct = edge.transform({pc.x, pc.y});
             cpath.emplace_back(
-                    pc.x, pc.y,
+                    pct.x, pct.y,
                     VertexInfo{.sub = false, .vertex_index = static_cast<unsigned int>(iv), .path_index = path_index}
                             .pack());
         }
@@ -247,11 +261,13 @@ bool FaceBuilder::check_path(const Clipper2Lib::PathD &contour)
     const auto path_index = VertexInfo::unpack(contour.front().z).path_index;
     if (contour.front().z == -1)
         return false;
+
     auto same_z = std::ranges::all_of(contour, [path_index](auto &pt) {
         return VertexInfo::unpack(pt.z).path_index == path_index && pt.z != -1;
     });
     if (!same_z)
         return false;
+
     return true;
 }
 
@@ -310,13 +326,13 @@ static std::pair<const Node &, const Edge &> get_node_and_edge(const Path &path,
 TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
 {
 
-    Path orig_path = m_paths.paths.at(VertexInfo::unpack(path.front().z).path_index);
+    const Path &orig_path = m_paths.paths.at(VertexInfo::unpack(path.front().z).path_index);
     if (orig_path.size() == 1) {
-        if (auto rad = dynamic_cast<const IEntityRadius *>(&orig_path.front().second.entity)) {
+        auto &orig_edge = orig_path.front().second;
+        if (auto rad = dynamic_cast<const IEntityRadius *>(&orig_edge.entity)) {
             BRepBuilderAPI_MakeWire wire;
 
-            const auto center = m_transform(m_wrkpl.transform(rad->get_center()));
-
+            const auto center = m_transform(m_wrkpl.transform(orig_edge.transform(rad->get_center())));
             auto normal = m_transform_normal(m_wrkpl.get_normal_vector());
             if (hole)
                 normal *= -1;
@@ -362,8 +378,8 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
         const auto &[node, edge] = get_node_and_edge(orig_path, i, path_reverse);
         const auto pt = node.get_pt_for_edge(edge);
         const auto next_pt = pt == 1 ? 2 : 1;
-        const auto pa = get_pt(edge.entity, pt);
-        const auto pb = get_pt(edge.entity, next_pt);
+        const auto pa = get_pt(edge.entity, pt, edge.transform_fn);
+        const auto pb = get_pt(edge.entity, next_pt, edge.transform_fn);
 
         const auto pat = m_transform(m_wrkpl.transform(pa));
         const auto pbt = m_transform(m_wrkpl.transform(pb));
@@ -373,23 +389,25 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
 
             gp_Pnt sa(pat.x, pat.y, pat.z);
             gp_Pnt ea(pbt.x, pbt.y, pbt.z);
-            const auto center = m_transform(m_wrkpl.transform(arc->m_center));
+            const auto center = m_transform(m_wrkpl.transform(edge.transform(arc->m_center)));
             const auto radius = arc->get_radius();
             if (pt == 2)
                 normal *= -1;
 
             gp_Circ garc(gp_Ax2(gp_Pnt(center.x, center.y, center.z), gp_Dir(normal.x, normal.y, normal.z)), radius);
 
-            auto edge = BRepBuilderAPI_MakeEdge(garc, sa, ea);
-            wire.Add(edge);
+            auto new_edge = BRepBuilderAPI_MakeEdge(garc, sa, ea);
+            wire.Add(new_edge);
         }
         else if (auto bezier = dynamic_cast<const EntityBezier2D *>(&edge.entity)) {
             TColgp_Array1OfPnt poles(1, 4);
             const auto control_pta = pt == 1 ? 3 : 4;
             const auto control_ptb = pt == 1 ? 4 : 3;
 
-            const auto cat = m_transform(m_wrkpl.transform(bezier->get_point_in_workplane(control_pta)));
-            const auto cbt = m_transform(m_wrkpl.transform(bezier->get_point_in_workplane(control_ptb)));
+            const auto cat =
+                    m_transform(m_wrkpl.transform(edge.transform(bezier->get_point_in_workplane(control_pta))));
+            const auto cbt =
+                    m_transform(m_wrkpl.transform(edge.transform(bezier->get_point_in_workplane(control_ptb))));
 
             poles(1) = gp_Pnt(pat.x, pat.y, pat.z);
             poles(2) = gp_Pnt(cat.x, cat.y, cat.z);
@@ -397,14 +415,14 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
             poles(4) = gp_Pnt(pbt.x, pbt.y, pbt.z);
 
             Handle(Geom_BezierCurve) curve = new Geom_BezierCurve(poles);
-            auto edge = BRepBuilderAPI_MakeEdge(curve);
+            auto new_edge = BRepBuilderAPI_MakeEdge(curve);
 
-            wire.Add(edge);
+            wire.Add(new_edge);
         }
         else {
-            auto edge = BRepBuilderAPI_MakeEdge(gp_Pnt(pat.x, pat.y, pat.z), gp_Pnt(pbt.x, pbt.y, pbt.z));
+            auto new_edge = BRepBuilderAPI_MakeEdge(gp_Pnt(pat.x, pat.y, pat.z), gp_Pnt(pbt.x, pbt.y, pbt.z));
 
-            wire.Add(edge);
+            wire.Add(new_edge);
         }
     }
     return wire;
@@ -426,7 +444,7 @@ FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu
         }
     }
     Clipper2Lib::PolyTreeD poly_tree;
-    Clipper2Lib::ClipperD clipper;
+    Clipper2Lib::ClipperD clipper{3};
     clipper.AddSubject(cpaths);
     if (0) {
         std::ofstream ofs("/tmp/paths.txt");
@@ -463,6 +481,14 @@ FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu
             [](const glm::dvec3 &p) { return p; });
 }
 
+static bool entity_is_valid(const Entity &en, Edge::Transform tr)
+{
+    if (auto en_line = dynamic_cast<const EntityLine2D *>(&en))
+        if (glm::length(tr(en_line->m_p1) - tr(en_line->m_p2)) < 1e-6)
+            return false;
+    return true;
+}
+
 Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu)
 {
     Paths paths;
@@ -478,10 +504,24 @@ Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID
         if (auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(en.get())) {
             if (en_wrkpl->get_workplane() != wrkpl_uu)
                 continue;
-            if (auto en_line = dynamic_cast<const EntityLine2D *>(en.get()))
-                if (glm::length(en_line->m_p1 - en_line->m_p2) < 1e-6)
-                    continue;
-            paths.edges.emplace_back(paths.nodes, *en);
+            if (!entity_is_valid(*en, [](const auto &x) { return x; }))
+                continue;
+            if (auto en_cluster = dynamic_cast<const EntityCluster *>(en.get())) {
+                auto tr = [en_cluster](const glm::dvec2 &v) { return en_cluster->transform(v); };
+                for (const auto &[uu2, en2] : en_cluster->m_entities) {
+                    if (en2->m_construction)
+                        continue;
+                    if (!entity_is_valid(*en2, tr))
+                        continue;
+                    if (en2->of_type(Entity::Type::CIRCLE_2D))
+                        continue;
+
+                    paths.edges.emplace_back(paths.nodes, *en2, tr);
+                }
+            }
+            else {
+                paths.edges.emplace_back(paths.nodes, *en, nullptr);
+            }
         }
     }
 
@@ -542,17 +582,32 @@ Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID
             continue;
         if (en->m_construction)
             continue;
-        if (en->get_type() != Entity::Type::CIRCLE_2D)
-            continue;
-        auto &circle = dynamic_cast<const EntityCircle2D &>(*en);
-        if (circle.get_workplane() != wrkpl_uu)
-            continue;
+        if (en->of_type(Entity::Type::CIRCLE_2D)) {
+            auto &circle = dynamic_cast<const EntityCircle2D &>(*en);
+            if (circle.get_workplane() != wrkpl_uu)
+                continue;
 
-        auto &node = paths.nodes.emplace_back(circle.m_center);
-        auto &edge = paths.edges.emplace_back(node, circle);
-        Path path;
-        path.emplace_back(node, edge);
-        paths.paths.emplace_back(std::move(path));
+            auto &node = paths.nodes.emplace_back(circle.m_center);
+            auto &edge = paths.edges.emplace_back(node, circle, nullptr);
+            Path path;
+            path.emplace_back(node, edge);
+            paths.paths.emplace_back(std::move(path));
+        }
+        else if (auto en_cluster = dynamic_cast<const EntityCluster *>(en.get())) {
+            auto tr = [en_cluster](const glm::dvec2 &v) { return en_cluster->transform(v); };
+            for (const auto &[uu2, en2] : en_cluster->m_entities) {
+                if (en2->m_construction)
+                    continue;
+                if (en2->of_type(Entity::Type::CIRCLE_2D)) {
+                    auto &circle = dynamic_cast<const EntityCircle2D &>(*en2);
+                    auto &node = paths.nodes.emplace_back(en_cluster->transform(circle.m_center));
+                    auto &edge = paths.edges.emplace_back(node, circle, tr);
+                    Path path;
+                    path.emplace_back(node, edge);
+                    paths.paths.emplace_back(std::move(path));
+                }
+            }
+        }
     }
     return paths;
 }
