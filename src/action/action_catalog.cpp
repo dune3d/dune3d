@@ -156,6 +156,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::LINK_DOCUMENT, {"Link document", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC,
          {"Constrain tangent to be symmetric", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::IMPORT_DXF, {"Import DXF", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+
 };
 
 
@@ -281,6 +283,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_LINE),
         TOOL_LUT_ITEM(LINK_DOCUMENT),
         TOOL_LUT_ITEM(CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC),
+        TOOL_LUT_ITEM(IMPORT_DXF),
 };
 
 

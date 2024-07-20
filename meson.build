@@ -183,6 +183,7 @@ src = files(
   'src/core/tools/tool_move_anchor.cpp',
   'src/core/tools/tool_toggle_construction.cpp',
   'src/core/tools/tool_import_step.cpp',
+  'src/core/tools/tool_import_dxf.cpp',
   'src/core/tools/tool_select_edges.cpp',
   'src/core/tools/tool_set_workplane.cpp',
   'src/core/tools/tool_helper_constrain.cpp',
@@ -237,6 +238,7 @@ src = files(
   'src/workspace/entity_view.cpp',
   'src/workspace/workspace_view.cpp',
   'src/widgets/select_groups_dialog.cpp',
+  'src/import_dxf/dxf_importer.cpp',
 )
 
 prog_python = find_program('python3')
@@ -327,6 +329,7 @@ include_directories = [
 
 subdir('3rd_party/solvespace')
 subdir('3rd_party/Clipper2Lib')
+subdir('3rd_party/dxflib')
 
 if is_windows
 	windows = import('windows')
@@ -355,10 +358,11 @@ install_data('src/icons/scalable/apps/dune3d.svg', install_dir: icondir /  'scal
 dune3d = executable('dune3d',
     [src,resources,icon_texture, color_presets, rc_compiled],
     dependencies: [build_dependencies],
-    link_with: [solvespace, clipper],
+    link_with: [solvespace, clipper, dxflib],
     cpp_args: cpp_args,
     include_directories: include_directories,
     gui_app: true, 
     install: true
 )
+
 
