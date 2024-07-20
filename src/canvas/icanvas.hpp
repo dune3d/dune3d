@@ -37,14 +37,19 @@ public:
                                      FaceColor face_color) = 0;
     virtual VertexRef draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift,
                                 glm::vec3 v = {NAN, NAN, NAN}) = 0;
-    virtual void set_vertex_inactive(bool inactive) = 0;
-    virtual void set_vertex_constraint(bool c) = 0;
-    virtual void set_vertex_construction(bool c) = 0;
 
     virtual void add_selectable(const VertexRef &vref, const SelectableRef &sref) = 0;
     virtual void set_selection_invisible(bool selection_invisible) = 0;
 
+    virtual void save() = 0;
+    virtual void restore() = 0;
+
+    // tracked by save/restore
+    virtual void set_vertex_inactive(bool inactive) = 0;
+    virtual void set_vertex_constraint(bool c) = 0;
+    virtual void set_vertex_construction(bool c) = 0;
     virtual void set_transform(const glm::mat4 &transform) = 0;
+
     virtual void set_override_selectable(const SelectableRef &sr) = 0;
     virtual void unset_override_selectable() = 0;
 

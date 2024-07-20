@@ -56,16 +56,18 @@ public:
     void add_selectable(const VertexRef &vref, const SelectableRef &sref) override;
     void set_vertex_inactive(bool inactive) override
     {
-        m_vertex_inactive = inactive;
+        m_state.vertex_inactive = inactive;
     }
     void set_vertex_constraint(bool c) override
     {
-        m_vertex_constraint = c;
+        m_state.vertex_constraint = c;
     }
     void set_vertex_construction(bool c) override
     {
-        m_vertex_construction = c;
+        m_state.vertex_construction = c;
     }
+    void save() override;
+    void restore() override;
 
     VertexRef add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal,
                              FaceColor face_color) override;
@@ -94,7 +96,7 @@ public:
 
     void set_selection_invisible(bool selection_invisible) override
     {
-        m_selection_invisible = selection_invisible;
+        m_state.selection_invisible = selection_invisible;
     }
 
     void set_cam_quat(const glm::quat &q);
@@ -376,9 +378,6 @@ private:
         SCREEN = (1 << 6),
         COLOR_MASK = SELECTED | HOVER | INACTIVE | CONSTRAINT | CONSTRUCTION | HIGHLIGHT,
     };
-    bool m_vertex_inactive = false;
-    bool m_vertex_constraint = false;
-    bool m_vertex_construction = false;
 
     class PointVertex {
     public:
@@ -424,8 +423,6 @@ private:
     std::vector<LineVertex> m_lines_selection_invisible;
     size_t m_n_lines = 0;
     size_t m_n_lines_selection_invisible = 0;
-
-    bool m_selection_invisible = false;
 
     class GlyphVertex {
     public:
@@ -564,7 +561,17 @@ private:
     std::optional<SelectableRef> m_override_selectable;
     unsigned int m_override_selectable_count = 0;
 
-    glm::mat4 m_transform;
+    struct State {
+        glm::mat4 transform;
+        bool selection_invisible = false;
+        bool vertex_inactive = false;
+        bool vertex_constraint = false;
+        bool vertex_construction = false;
+    };
+
+    State m_state;
+    std::vector<State> m_states;
+
     glm::vec3 transform_point(glm::vec3 pt) const;
     glm::vec3 transform_point_rel(glm::vec3 pt) const;
 

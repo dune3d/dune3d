@@ -50,7 +50,7 @@ Canvas::Canvas()
     set_focusable(true);
 
     m_cam_quat = glm::quat_identity<float, glm::defaultp>();
-    m_transform = glm::mat4(1);
+    m_state.transform = glm::mat4(1);
 
 #ifdef HAVE_SPNAV
     if (spnav_open() != -1) {
@@ -1226,44 +1226,44 @@ void Canvas::clear()
 
 ICanvas::VertexRef Canvas::draw_point(glm::vec3 p)
 {
-    auto &pts = m_selection_invisible ? m_points_selection_invisible : m_points;
+    auto &pts = m_state.selection_invisible ? m_points_selection_invisible : m_points;
     auto &pt = pts.emplace_back(transform_point(p));
     apply_flags(pt.flags);
-    if (m_selection_invisible)
+    if (m_state.selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
     return {VertexType::POINT, m_points.size() - 1};
 }
 
 ICanvas::VertexRef Canvas::draw_line(glm::vec3 a, glm::vec3 b)
 {
-    auto &lines = m_selection_invisible ? m_lines_selection_invisible : m_lines;
+    auto &lines = m_state.selection_invisible ? m_lines_selection_invisible : m_lines;
     auto &li = lines.emplace_back(transform_point(a), transform_point(b));
     apply_flags(li.flags);
 
-    if (m_selection_invisible)
+    if (m_state.selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
     return {VertexType::LINE, m_lines.size() - 1};
 }
 
 ICanvas::VertexRef Canvas::draw_screen_line(glm::vec3 a, glm::vec3 b)
 {
-    auto &lines = m_selection_invisible ? m_lines_selection_invisible : m_lines;
+    auto &lines = m_state.selection_invisible ? m_lines_selection_invisible : m_lines;
 
     auto &li = lines.emplace_back(transform_point(a), transform_point_rel(b));
     li.flags |= VertexFlags::SCREEN;
     apply_flags(li.flags);
-    if (m_selection_invisible)
+    if (m_state.selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
     return {VertexType::LINE, m_lines.size() - 1};
 }
 
 void Canvas::apply_flags(VertexFlags &flags)
 {
-    if (m_vertex_inactive)
+    if (m_state.vertex_inactive)
         flags |= VertexFlags::INACTIVE;
-    if (m_vertex_constraint)
+    if (m_state.vertex_constraint)
         flags |= VertexFlags::CONSTRAINT;
-    if (m_vertex_construction)
+    if (m_state.vertex_construction)
         flags |= VertexFlags::CONSTRUCTION;
 }
 
@@ -1319,7 +1319,7 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(glm::vec3 p, const g
                                                             const std::string &rtext)
 {
     p = transform_point(p);
-    auto norm = glm::quat_cast(m_transform) * norm_in;
+    auto norm = glm::quat_cast(m_state.transform) * norm_in;
     std::vector<ICanvas::VertexRef> vrefs;
     Glib::ustring text(rtext);
 
@@ -1364,7 +1364,7 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(glm::vec3 p, const g
 ICanvas::VertexRef Canvas::draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift, glm::vec3 v)
 {
     origin = transform_point(origin);
-    auto &icons = m_selection_invisible ? m_icons_selection_invisible : m_icons;
+    auto &icons = m_state.selection_invisible ? m_icons_selection_invisible : m_icons;
     auto icon_pos = IconTexture::icon_texture_map.at(id);
     auto &icon =
             icons.emplace_back(origin.x, origin.y, origin.z, shift.x, shift.y, v.x, v.y, v.z, icon_pos.x, icon_pos.y);
@@ -1653,18 +1653,33 @@ void Canvas::unset_override_selectable()
 
 glm::vec3 Canvas::transform_point(glm::vec3 p) const
 {
-    auto r = m_transform * glm::vec4(p, 1);
+    auto r = m_state.transform * glm::vec4(p, 1);
     return r;
 }
 
 glm::vec3 Canvas::transform_point_rel(glm::vec3 p) const
 {
-    auto r = m_transform * glm::vec4(p, 0);
+    auto r = m_state.transform * glm::vec4(p, 0);
     return r;
 }
 
 void Canvas::set_transform(const glm::mat4 &transform)
 {
-    m_transform = transform;
+    m_state.transform = transform;
 }
+
+void Canvas::save()
+{
+    m_states.push_back(m_state);
+}
+
+void Canvas::restore()
+{
+    if (m_states.size() == 0)
+        throw std::runtime_error("restore from empty states");
+
+    m_state = m_states.back();
+    m_states.pop_back();
+}
+
 } // namespace dune3d
