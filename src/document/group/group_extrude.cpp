@@ -10,6 +10,8 @@
 #include "document/entity/entity_arc2d.hpp"
 #include "document/entity/entity_circle2d.hpp"
 #include "document/entity/entity_circle3d.hpp"
+#include "document/entity/entity_bezier2d.hpp"
+#include "document/entity/entity_bezier3d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/solid_model.hpp"
 
@@ -160,6 +162,41 @@ void GroupExtrude::generate(Document &doc, Side side) const
                 new_line.m_move_instead.clear();
                 new_line.m_move_instead.emplace(std::piecewise_construct, std::forward_as_tuple(1),
                                                 std::forward_as_tuple(li.m_uuid, pt));
+                //  new_line.m_wrkpl = new_wrkpl_uu;
+
+                new_line.m_kind = ItemKind::GENRERATED;
+            }
+        }
+        if (it->get_type() == Entity::Type::BEZIER_2D) {
+            const auto &bez = dynamic_cast<const EntityBezier2D &>(*it);
+            if (bez.m_wrkpl != m_wrkpl)
+                continue;
+
+            {
+                auto new_bez_uu = get_entity_uuid(side, uu);
+
+                auto &new_bez = doc.get_or_add_entity<EntityBezier3D>(new_bez_uu);
+                new_bez.m_p1 = wrkpl.transform(bez.m_p1) + dvec;
+                new_bez.m_p2 = wrkpl.transform(bez.m_p2) + dvec;
+                new_bez.m_c1 = wrkpl.transform(bez.m_c1) + dvec;
+                new_bez.m_c2 = wrkpl.transform(bez.m_c2) + dvec;
+                new_bez.m_group = m_uuid;
+                new_bez.m_name = "copied";
+                new_bez.m_generated_from = uu;
+                new_bez.m_kind = ItemKind::GENRERATED;
+            }
+            for (unsigned int pt = 1; pt <= 2; pt++) {
+                auto new_line_uu = get_extrusion_line_uuid(side, uu, pt);
+
+                auto &new_line = doc.get_or_add_entity<EntityLine3D>(new_line_uu);
+                new_line.m_p1 = wrkpl.transform(bez.get_point_in_workplane(pt));
+                new_line.m_p2 = wrkpl.transform(bez.get_point_in_workplane(pt)) + dvec;
+                new_line.m_group = m_uuid;
+                new_line.m_name = "Extrusion" + std::to_string(pt);
+                new_line.m_generated_from = uu;
+                new_line.m_move_instead.clear();
+                new_line.m_move_instead.emplace(std::piecewise_construct, std::forward_as_tuple(1),
+                                                std::forward_as_tuple(bez.m_uuid, pt));
                 //  new_line.m_wrkpl = new_wrkpl_uu;
 
                 new_line.m_kind = ItemKind::GENRERATED;

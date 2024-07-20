@@ -24,6 +24,7 @@ public:
                 I::TOGGLE_HV_CONSTRAINT,
                 I::TOGGLE_TANGENT_CONSTRAINT,
                 I::TOGGLE_ARC,
+                I::TOGGLE_BEZIER,
                 I::FLIP_ARC};
     }
 
@@ -35,6 +36,7 @@ private:
 
     class EntityLine2D *m_temp_line = nullptr;
     class EntityArc2D *m_temp_arc = nullptr;
+    class EntityBezier2D *m_temp_bezier = nullptr;
 
     class Entity *get_temp_entity();
 
@@ -55,6 +57,8 @@ private:
     std::optional<ConstraintType> get_head_constraint(const Entity &en_head, const Entity &en_target);
     Constraint *constrain_point_and_add_head_tangent_constraint(const UUID &wrkpl,
                                                                 const EntityAndPoint &enp_to_constrain);
+    bool check_close_path();
+    bool m_close_path = false;
 
     ToolResponse end_tool();
 
@@ -67,11 +71,19 @@ private:
 
     unsigned int get_last_point() const;
     glm::dvec2 get_last_tangent();
+    glm::dvec2 get_tangent_for_point(const EntityAndPoint &enp);
     std::optional<EntityAndPoint> m_last_tangent_point;
+    std::optional<EntityAndPoint> m_bezier_head_tangent_point;
 
-    bool m_placing_center = false;
+    enum class State { NORMAL, CENTER, BEZIER_C1, BEZIER_C2 };
+    State m_state = State::NORMAL;
+    bool is_placing_center() const
+    {
+        return m_state == State::CENTER;
+    }
 
     void update_arc_center();
+    void update_bezier_controls();
     void update_constrain_tangent();
     bool is_valid_tangent_point(const EntityAndPoint &enp);
 

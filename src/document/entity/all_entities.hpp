@@ -10,3 +10,5 @@
 #include "entity_step.hpp"
 #include "entity_point2d.hpp"
 #include "entity_document.hpp"
+#include "entity_bezier2d.hpp"
+#include "entity_bezier3d.hpp"

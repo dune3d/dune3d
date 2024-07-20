@@ -28,6 +28,8 @@ enum class EntityType {
     STEP,
     POINT_2D,
     DOCUMENT,
+    BEZIER_2D,
+    BEZIER_3D,
 };
 
 class Entity {

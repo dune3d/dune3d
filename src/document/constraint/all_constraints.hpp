@@ -25,3 +25,5 @@
 #include "constraint_symmetric_hv.hpp"
 #include "constraint_symmetric_line.hpp"
 #include "constraint_point_distance_aligned.hpp"
+#include "constraint_bezier_line_tangent.hpp"
+#include "constraint_bezier_bezier_tangent_symmetric.hpp"

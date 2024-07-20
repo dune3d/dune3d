@@ -12,4 +12,6 @@ class EntityWorkplane;
 class EntitySTEP;
 class EntityPoint2D;
 class EntityDocument;
+class EntityBezier2D;
+class EntityBezier3D;
 } // namespace dune3d

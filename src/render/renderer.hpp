@@ -44,6 +44,8 @@ private:
     void visit(const EntitySTEP &en) override;
     void visit(const EntityPoint2D &en) override;
     void visit(const EntityDocument &en) override;
+    void visit(const EntityBezier2D &en) override;
+    void visit(const EntityBezier3D &en) override;
     void visit(const ConstraintPointDistance &constr) override;
     void visit(const ConstraintPointDistanceHV &constr) override;
     void visit(const ConstraintPointsCoincident &constr) override;
@@ -58,6 +60,7 @@ private:
     void visit(const ConstraintEqualRadius &constr) override;
     void visit(const ConstraintDiameterRadius &constr) override;
     void visit(const ConstraintArcArcTangent &constr) override;
+    void visit(const ConstraintArcArcTangent &constr, IconTexture::IconTextureID icon);
     void visit(const ConstraintArcLineTangent &constr) override;
     void visit(const ConstraintLinePointsPerpendicular &constr) override;
     void visit(const ConstraintLinesPerpendicular &constr) override;
@@ -70,6 +73,9 @@ private:
     void visit(const ConstraintSymmetricHV &constr) override;
     void visit(const ConstraintSymmetricLine &constr) override;
     void visit(const ConstraintPointDistanceAligned &constr) override;
+    void visit(const ConstraintBezierLineTangent &constr) override;
+    void visit(const ConstraintBezierBezierTangentSymmetric &constr) override;
+
     ICanvas &m_ca;
     IDocumentProvider &m_doc_prv;
     const Document *m_doc = nullptr;

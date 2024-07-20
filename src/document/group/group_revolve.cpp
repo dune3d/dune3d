@@ -11,6 +11,8 @@
 #include "document/entity/entity_arc2d.hpp"
 #include "document/entity/entity_circle2d.hpp"
 #include "document/entity/entity_circle3d.hpp"
+#include "document/entity/entity_bezier2d.hpp"
+#include "document/entity/entity_bezier3d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/solid_model.hpp"
 
@@ -120,6 +122,25 @@ void GroupRevolve::generate(Document &doc, Side side) const
                 new_line.m_name = "copied";
                 new_line.m_generated_from = uu;
                 new_line.m_kind = ItemKind::GENRERATED;
+            }
+        }
+        else if (it->get_type() == Entity::Type::BEZIER_2D) {
+            const auto &bez = dynamic_cast<const EntityBezier2D &>(*it);
+            if (bez.m_wrkpl != m_wrkpl)
+                continue;
+
+            {
+                auto new_bez_uu = get_entity_uuid(side, uu);
+
+                auto &new_bez = doc.get_or_add_entity<EntityBezier3D>(new_bez_uu);
+                new_bez.m_p1 = transform(doc, bez.m_p1, wrkpl, side);
+                new_bez.m_p2 = transform(doc, bez.m_p2, wrkpl, side);
+                new_bez.m_c1 = transform(doc, bez.m_c1, wrkpl, side);
+                new_bez.m_c2 = transform(doc, bez.m_c2, wrkpl, side);
+                new_bez.m_group = m_uuid;
+                new_bez.m_name = "copied";
+                new_bez.m_generated_from = uu;
+                new_bez.m_kind = ItemKind::GENRERATED;
             }
         }
         else if (it->get_type() == Entity::Type::CIRCLE_2D) {

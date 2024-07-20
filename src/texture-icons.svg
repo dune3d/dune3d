@@ -25,9 +25,9 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="15.158523"
-     inkscape:cx="343.43716"
-     inkscape:cy="12.995989"
-     inkscape:window-width="1414"
+     inkscape:cx="385.52569"
+     inkscape:cy="27.839124"
+     inkscape:window-width="1400"
      inkscape:window-height="1150"
      inkscape:window-x="0"
      inkscape:window-y="0"
@@ -676,6 +676,85 @@
          x="-5.2916703"
          y="91.54583"
          transform="rotate(-90)" />
+    </g>
+    <g
+       id="CONSTRAINT_BEZIER_BEZIER_TANGENT_SYMMETRIC">
+      <rect
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect41"
+         width="4.2333331"
+         height="4.2333331"
+         x="98.425003"
+         y="2.1166673" />
+      <path
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="path46"
+         sodipodi:type="arc"
+         sodipodi:cx="100.54166"
+         sodipodi:cy="2.3812571"
+         sodipodi:rx="1.8520758"
+         sodipodi:ry="1.8520758"
+         sodipodi:start="1.5707963"
+         sodipodi:end="3.1415927"
+         sodipodi:arc-type="arc"
+         d="M 100.54166,4.2333329 A 1.8520758,1.8520758 0 0 1 99.232041,3.6908724 1.8520758,1.8520758 0 0 1 98.689581,2.3812571"
+         sodipodi:open="true" />
+      <path
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 101.33541,2.3812478 100.54166,3.1749948 99.747909,2.3812478"
+         id="path50-2"
+         sodipodi:nodetypes="ccc" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect51-9"
+         width="0.26458332"
+         height="0.26458332"
+         x="-99.747917"
+         y="-2.381249"
+         transform="scale(-1)" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect52-1"
+         width="0.26458332"
+         height="0.26458332"
+         x="-101.6"
+         y="-2.381249"
+         transform="scale(-1)" />
+      <path
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 101.33541,6.085417 100.54166,5.29167 99.74791,6.085417"
+         id="path47"
+         sodipodi:nodetypes="ccc" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect53"
+         width="0.26458332"
+         height="0.26458332"
+         x="-99.747917"
+         y="6.0854163"
+         transform="scale(-1,1)" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect54"
+         width="0.26458332"
+         height="0.26458332"
+         x="-101.6"
+         y="6.0854163"
+         transform="scale(-1,1)" />
+      <path
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="path54"
+         sodipodi:type="arc"
+         sodipodi:cx="-100.54166"
+         sodipodi:cy="-6.0854087"
+         sodipodi:rx="1.8520758"
+         sodipodi:ry="1.8520758"
+         sodipodi:start="1.5707963"
+         sodipodi:end="3.1415927"
+         sodipodi:arc-type="arc"
+         d="M -100.54166,-4.2333329 A 1.8520758,1.8520758 0 0 1 -101.85127,-4.7757933 1.8520758,1.8520758 0 0 1 -102.39373,-6.0854087"
+         sodipodi:open="true"
+         transform="scale(-1)" />
     </g>
   </g>
 </svg>

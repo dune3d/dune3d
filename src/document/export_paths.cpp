@@ -4,6 +4,7 @@
 #include "entity/entity_circle2d.hpp"
 #include "entity/entity_line2d.hpp"
 #include "entity/entity_arc2d.hpp"
+#include "entity/entity_bezier2d.hpp"
 #include "entity/entity_workplane.hpp"
 #include "solid_model_util.hpp"
 #include "util/fs_util.hpp"
@@ -59,34 +60,44 @@ void export_paths(const std::filesystem::path &filename, const Document &doc, co
             bool first = true;
             ctx->save();
             ctx->set_matrix(cmat);
-            if (path.size() == 1) {
-                auto &circle = dynamic_cast<const IEntityRadius &>(path.front().second.entity);
-                const auto center = circle.get_center();
-                ctx->arc(center.x, center.y, circle.get_radius(), 0, 2 * M_PI);
+            if (auto rad = dynamic_cast<const IEntityRadius *>(&path.front().second.entity); rad && path.size() == 1) {
+                const auto center = rad->get_center();
+                ctx->arc(center.x, center.y, rad->get_radius(), 0, 2 * M_PI);
             }
             else {
                 for (auto &[node, edge] : path) {
+                    const auto p_cur = node.get_pt_for_edge(edge);
+                    const auto p_next = p_cur == 1 ? 2 : 1;
                     if (auto line = dynamic_cast<const EntityLine2D *>(&edge.entity)) {
-                        auto p1 = node.get_pt_for_edge(edge);
-                        auto pt = line->get_point_in_workplane(p1);
                         if (first) {
-                            ctx->move_to(pt.x, pt.y);
+                            const auto p = line->get_point_in_workplane(p_cur);
+                            ctx->move_to(p.x, p.y);
                         }
-                        else {
-                            ctx->line_to(pt.x, pt.y);
-                        }
+
+                        const auto p = line->get_point_in_workplane(p_next);
+                        ctx->line_to(p.x, p.y);
                     }
                     else if (auto arc = dynamic_cast<const EntityArc2D *>(&edge.entity)) {
-                        auto p1 = node.get_pt_for_edge(edge);
-                        const auto p2 = p1 == 1 ? 2 : 1;
-                        auto v1 = arc->get_point_in_workplane(p1) - arc->m_center;
-                        auto v2 = arc->get_point_in_workplane(p2) - arc->m_center;
-                        if (p1 == 1)
+                        auto v1 = arc->get_point_in_workplane(p_cur) - arc->m_center;
+                        auto v2 = arc->get_point_in_workplane(p_next) - arc->m_center;
+                        if (p_cur == 1)
                             ctx->arc(arc->m_center.x, arc->m_center.y, arc->get_radius(), atan2(v1.y, v1.x),
                                      atan2(v2.y, v2.x));
                         else
                             ctx->arc_negative(arc->m_center.x, arc->m_center.y, arc->get_radius(), atan2(v1.y, v1.x),
                                               atan2(v2.y, v2.x));
+                    }
+                    else if (auto bez = dynamic_cast<const EntityBezier2D *>(&edge.entity)) {
+                        if (first) {
+                            const auto p = bez->get_point_in_workplane(p_cur);
+                            ctx->move_to(p.x, p.y);
+                        }
+
+                        const auto c1 = bez->get_point_in_workplane(p_next == 1 ? 4 : 3);
+                        const auto c2 = bez->get_point_in_workplane(p_next == 1 ? 3 : 4);
+                        const auto p = bez->get_point_in_workplane(p_next);
+
+                        ctx->curve_to(c1.x, c1.y, c2.x, c2.y, p.x, p.y);
                     }
                     first = false;
                 }

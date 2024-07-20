@@ -44,6 +44,8 @@ enum class ConstraintType {
     SYMMETRIC_HORIZONTAL,
     SYMMETRIC_VERTICAL,
     SYMMETRIC_LINE,
+    BEZIER_LINE_TANGENT,
+    BEZIER_BEZIER_TANGENT_SYMMETRIC
 };
 
 class Constraint {

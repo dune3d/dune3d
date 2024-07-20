@@ -18,6 +18,7 @@ enum class InToolActionID {
     ARC_MODE,
 
     TOGGLE_ARC,
+    TOGGLE_BEZIER,
 
     CLEAR_EDGES,
 

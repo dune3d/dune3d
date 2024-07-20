@@ -448,6 +448,51 @@ void Renderer::visit(const EntityDocument &en)
     }
 }
 
+void Renderer::visit(const EntityBezier2D &bezier)
+{
+    auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(bezier.m_wrkpl));
+    const auto p1 = wrkpl.transform(bezier.m_p1);
+    const auto p2 = wrkpl.transform(bezier.m_p2);
+    const auto c1 = wrkpl.transform(bezier.m_c1);
+    const auto c2 = wrkpl.transform(bezier.m_c2);
+    const auto sr = SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 0};
+    unsigned int steps = 64;
+    glm::vec2 last = bezier.m_p1;
+    for (unsigned int i = 1; i <= steps; i++) {
+        const auto t = (double)i / steps;
+        const auto p = bezier.get_interpolated(t);
+        m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(last), wrkpl.transform(p)), sr);
+        last = p;
+    }
+    {
+        AutoSaveRestore asr{m_ca};
+        m_ca.set_selection_invisible(true);
+        m_ca.draw_line(p1, c1);
+        m_ca.draw_line(p2, c2);
+    }
+
+    m_ca.add_selectable(m_ca.draw_point(p1), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(p2), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 2});
+    m_ca.add_selectable(m_ca.draw_point(c1), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 3});
+    m_ca.add_selectable(m_ca.draw_point(c2), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 4});
+}
+
+void Renderer::visit(const EntityBezier3D &bezier)
+{
+    const auto sr = SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 0};
+    unsigned int steps = 64;
+    glm::vec3 last = bezier.m_p1;
+    for (unsigned int i = 1; i <= steps; i++) {
+        const auto t = (double)i / steps;
+        const auto p = bezier.get_interpolated(t);
+        m_ca.add_selectable(m_ca.draw_line(last, p), sr);
+        last = p;
+    }
+
+    m_ca.add_selectable(m_ca.draw_point(bezier.m_p1), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(bezier.m_p2), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 2});
+}
+
 static glm::vec3 project_point_onto_plane(const glm::vec3 &plane_origin, const glm::vec3 &plane_normal,
                                           const glm::vec3 &point)
 {
@@ -845,13 +890,25 @@ void Renderer::visit(const ConstraintLockRotation &constraint)
     add_constraint(pt, IconID::CONSTRAINT_LOCK_ROTATION, constraint.m_uuid);
 }
 
-void Renderer::visit(const ConstraintArcArcTangent &constraint)
+void Renderer::visit(const ConstraintArcArcTangent &constraint, IconID icon)
 {
     auto p1 = m_doc->get_point(constraint.m_arc1);
-    const auto &arc = m_doc->get_entity<EntityArc2D>(constraint.m_arc1.entity);
-    const auto &wrkpl = m_doc->get_entity<EntityWorkplane>(arc.m_wrkpl);
-    const auto v = wrkpl.transform_relative(arc.get_tangent_at_point(constraint.m_arc1.point));
-    add_constraint(p1, IconID::CONSTRAINT_ARC_ARC_TANGENT, constraint.m_uuid, v);
+    const auto &arc = m_doc->get_entity(constraint.m_arc1.entity);
+    const auto &wrkpl =
+            m_doc->get_entity<EntityWorkplane>(dynamic_cast<const IEntityInWorkplane &>(arc).get_workplane());
+    const auto v = wrkpl.transform_relative(
+            dynamic_cast<const IEntityTangent &>(arc).get_tangent_at_point(constraint.m_arc1.point));
+    add_constraint(p1, icon, constraint.m_uuid, v);
+}
+
+void Renderer::visit(const ConstraintArcArcTangent &constraint)
+{
+    visit(constraint, IconID::CONSTRAINT_ARC_ARC_TANGENT);
+}
+
+void Renderer::visit(const ConstraintBezierBezierTangentSymmetric &constraint)
+{
+    visit(constraint, IconID::CONSTRAINT_BEZIER_BEZIER_TANGENT_SYMMETRIC);
 }
 
 void Renderer::visit(const ConstraintLinePointsPerpendicular &constraint)
@@ -945,6 +1002,15 @@ void Renderer::visit(const ConstraintPointInWorkplane &constraint)
 {
     auto pt = m_doc->get_point(constraint.m_point);
     add_constraint(pt, IconID::CONSTRAINT_POINT_IN_PLANE, constraint.m_uuid);
+}
+
+void Renderer::visit(const ConstraintBezierLineTangent &constraint)
+{
+    const auto p1 = m_doc->get_point(constraint.m_bezier);
+    const auto &bez = m_doc->get_entity<EntityBezier2D>(constraint.m_bezier.entity);
+    const auto &wrkpl = m_doc->get_entity<EntityWorkplane>(bez.m_wrkpl);
+    const auto v = wrkpl.transform_relative(bez.get_tangent_at_point(constraint.m_bezier.point));
+    add_constraint(p1, IconID::CONSTRAINT_ARC_LINE_TANGENT, constraint.m_uuid, v);
 }
 
 void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)

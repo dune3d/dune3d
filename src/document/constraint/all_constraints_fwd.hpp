@@ -30,4 +30,6 @@ class ConstraintSymmetricVertical;
 class ConstraintSymmetricHorizontal;
 class ConstraintSymmetricLine;
 class ConstraintPointDistanceAligned;
+class ConstraintBezierLineTangent;
+class ConstraintBezierBezierTangentSymmetric;
 } // namespace dune3d

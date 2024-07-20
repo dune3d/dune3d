@@ -61,6 +61,14 @@
             }
         ]
     ],
+    "TOGGLE_BEZIER": [
+        [
+            {
+                "key": "b",
+                "mod": 0
+            }
+        ]
+    ],
     "TOGGLE_COINCIDENT_CONSTRAINT": [
         [
             {

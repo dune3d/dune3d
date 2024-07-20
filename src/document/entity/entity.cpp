@@ -36,6 +36,10 @@ std::string Entity::get_type_name(Type type)
         return "Point in workplane";
     case Type::DOCUMENT:
         return "Document";
+    case Type::BEZIER_2D:
+        return "Bezier curve in workplane";
+    case Type::BEZIER_3D:
+        return "Bezier curve in 3D";
     default:
         return "Entity";
     }
@@ -69,6 +73,10 @@ std::string Entity::get_type_name_plural(Type type)
         return "Points in workplane";
     case Type::DOCUMENT:
         return "Documents";
+    case Type::BEZIER_2D:
+        return "Bezier curves in workplane";
+    case Type::BEZIER_3D:
+        return "Bezier curves in 3D";
     default:
         return "Entities";
     }
@@ -107,6 +115,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Entity::Type, {
                                                    {Entity::Type::STEP, "step"},
                                                    {Entity::Type::POINT_2D, "point_2d"},
                                                    {Entity::Type::DOCUMENT, "document"},
+                                                   {Entity::Type::BEZIER_2D, "bezier_2d"},
+                                                   {Entity::Type::BEZIER_3D, "bezier_3d"},
                                            })
 
 json Entity::serialize_type(Type type)
@@ -134,6 +144,7 @@ std::unique_ptr<Entity> Entity::new_from_json(const UUID &uu, const json &j,
         return std::make_unique<EntityCircle2D>(uu, j);
     case Type::ARC_3D:
     case Type::CIRCLE_3D:
+    case Type::BEZIER_3D:
         throw std::runtime_error("not supported");
     case Type::WORKPLANE:
         return std::make_unique<EntityWorkplane>(uu, j);
@@ -143,6 +154,8 @@ std::unique_ptr<Entity> Entity::new_from_json(const UUID &uu, const json &j,
         return std::make_unique<EntityPoint2D>(uu, j);
     case Type::DOCUMENT:
         return std::make_unique<EntityDocument>(uu, j);
+    case Type::BEZIER_2D:
+        return std::make_unique<EntityBezier2D>(uu, j);
     }
     throw std::runtime_error("unknown entity type");
 }

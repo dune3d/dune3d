@@ -343,6 +343,21 @@
                     "mod": 0
                 },
                 {
+                    "key": "b",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "DRAW_BEZIER_2D"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
                     "key": "c",
                     "mod": 0
                 }

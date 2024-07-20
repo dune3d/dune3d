@@ -17,6 +17,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::DRAW_LINE_3D, {"Draw line in 3D", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_LINE_2D, {"Draw line in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_ARC_2D, {"Draw arc in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::DRAW_BEZIER_2D,
+         {"Draw bezier curve in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_POINT_2D, {"Draw point in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_CIRCLE_2D, {"Draw circle in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_WORKPLANE, {"Draw workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
@@ -152,6 +154,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Constrain symmetric about line", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::SET_CURRENT_DOCUMENT, {"Make active", ActionGroup::DOCUMENT, ActionCatalogItem::FLAGS_SPECIFIC}},
         {ToolID::LINK_DOCUMENT, {"Link document", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC,
+         {"Constrain tangent to be symmetric", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -221,6 +225,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(MOVE),
         TOOL_LUT_ITEM(DELETE),
         TOOL_LUT_ITEM(DRAW_ARC_2D),
+        TOOL_LUT_ITEM(DRAW_BEZIER_2D),
         TOOL_LUT_ITEM(DRAW_LINE_2D),
         TOOL_LUT_ITEM(DRAW_POINT_2D),
         TOOL_LUT_ITEM(DRAW_CIRCLE_2D),
@@ -275,6 +280,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_VERTICAL),
         TOOL_LUT_ITEM(CONSTRAIN_SYMMETRIC_LINE),
         TOOL_LUT_ITEM(LINK_DOCUMENT),
+        TOOL_LUT_ITEM(CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC),
 };
 
 

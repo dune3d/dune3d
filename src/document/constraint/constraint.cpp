@@ -77,6 +77,10 @@ std::string Constraint::get_type_name(Type type)
         return "Symmetric vertically";
     case Type::SYMMETRIC_LINE:
         return "Symmetric about line";
+    case Type::BEZIER_LINE_TANGENT:
+        return "Bezier/Line tangent";
+    case Type::BEZIER_BEZIER_TANGENT_SYMMETRIC:
+        return "Bezier/Bezier tangent symmetric";
     }
     return "Constraint";
 }
@@ -124,6 +128,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                      {Constraint::Type::SYMMETRIC_HORIZONTAL, "symmetric_horizontal"},
                                      {Constraint::Type::SYMMETRIC_VERTICAL, "symmetric_vertical"},
                                      {Constraint::Type::SYMMETRIC_LINE, "symmetric_line"},
+                                     {Constraint::Type::BEZIER_LINE_TANGENT, "bezier_line_tangent"},
+                                     {Constraint::Type::BEZIER_BEZIER_TANGENT_SYMMETRIC,
+                                      "bezier_bezier_tangent_symmetric"},
                              })
 
 json Constraint::serialize() const
@@ -195,6 +202,10 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintSymmetricLine>(uu, j);
     case Type::POINT_DISTANCE_ALIGNED:
         return std::make_unique<ConstraintPointDistanceAligned>(uu, j);
+    case Type::BEZIER_LINE_TANGENT:
+        return std::make_unique<ConstraintBezierLineTangent>(uu, j);
+    case Type::BEZIER_BEZIER_TANGENT_SYMMETRIC:
+        return std::make_unique<ConstraintBezierBezierTangentSymmetric>(uu, j);
     }
     throw std::runtime_error("unknown constraint type");
 }

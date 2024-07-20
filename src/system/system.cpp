@@ -13,6 +13,8 @@
 #include "document/entity/entity_step.hpp"
 #include "document/entity/entity_point2d.hpp"
 #include "document/entity/entity_document.hpp"
+#include "document/entity/entity_bezier2d.hpp"
+#include "document/entity/entity_bezier3d.hpp"
 #include "document/constraint/all_constraints.hpp"
 #include "document/group/group.hpp"
 #include "document/group/group_extrude.hpp"
@@ -462,6 +464,67 @@ void System::visit(const EntityDocument &en_doc)
     }
 }
 
+void System::visit(const EntityBezier2D &bezier)
+{
+    const auto group = get_group_index(bezier);
+
+    std::array<unsigned int, 4> points;
+    for (unsigned int point = 1; point <= 4; point++) {
+        auto e = get_entity_ref(EntityRef{bezier.m_uuid, point});
+        EntityBase eb = {};
+        eb.type = EntityBase::Type::POINT_IN_2D;
+        eb.h.v = e;
+        eb.group.v = group;
+        eb.workplane.v = get_entity_ref(EntityRef{bezier.m_wrkpl, 0});
+        for (unsigned int axis = 0; axis < 2; axis++) {
+            eb.param[axis].v = add_param(bezier.m_group, bezier.m_uuid, point, axis);
+        }
+        SK.entity.Add(&eb);
+        points.at(point - 1) = e;
+    }
+    auto e = get_entity_ref(EntityRef{bezier.m_uuid, 0});
+    EntityBase eb = {};
+    eb.type = EntityBase::Type::CUBIC;
+    eb.h.v = e;
+    eb.group.v = group;
+    eb.point[0].v = points.at(0);
+    eb.point[1].v = points.at(2);
+    eb.point[2].v = points.at(3);
+    eb.point[3].v = points.at(1);
+    SK.entity.Add(&eb);
+    // m_sys->entity.push_back(Slvs_MakeLineSegment(e, group, SLVS_FREE_IN_3D, points.at(0), points.at(1)));
+}
+
+void System::visit(const EntityBezier3D &bezier)
+{
+    const auto group = get_group_index(bezier);
+
+    std::array<unsigned int, 4> points;
+    for (unsigned int point = 1; point <= 4; point++) {
+        auto e = get_entity_ref(EntityRef{bezier.m_uuid, point});
+        EntityBase eb = {};
+        eb.type = EntityBase::Type::POINT_IN_3D;
+        eb.h.v = e;
+        eb.group.v = group;
+        for (unsigned int axis = 0; axis < 3; axis++) {
+            eb.param[axis].v = add_param(bezier.m_group, bezier.m_uuid, point, axis);
+        }
+        SK.entity.Add(&eb);
+        points.at(point - 1) = e;
+    }
+    auto e = get_entity_ref(EntityRef{bezier.m_uuid, 0});
+    EntityBase eb = {};
+    eb.type = EntityBase::Type::CUBIC;
+    eb.h.v = e;
+    eb.group.v = group;
+    eb.point[0].v = points.at(0);
+    eb.point[1].v = points.at(2);
+    eb.point[2].v = points.at(3);
+    eb.point[3].v = points.at(1);
+    SK.entity.Add(&eb);
+    // m_sys->entity.push_back(Slvs_MakeLineSegment(e, group, SLVS_FREE_IN_3D, points.at(0), points.at(1)));
+}
+
 static void AddEq(hGroup h, IdList<Equation, hEquation> *l, Expr *expr, int index)
 {
     Equation eq;
@@ -565,6 +628,45 @@ void System::add(const GroupExtrude &group)
                     auto ex_line_uu = group.get_extrusion_line_uuid(side, uu, pt);
                     auto ev_orig_p = SK.GetEntity({get_entity_ref(EntityRef{uu, pt})})->PointGetExprs();
                     auto ev_new_p = SK.GetEntity({get_entity_ref(EntityRef{new_line_uu, pt})})->PointGetExprs();
+
+                    auto ev_ex_1 = SK.GetEntity({get_entity_ref(EntityRef{ex_line_uu, 1})})->PointGetExprs();
+                    auto ev_ex_2 = SK.GetEntity({get_entity_ref(EntityRef{ex_line_uu, 2})})->PointGetExprs();
+
+
+                    AddEq(hg, &m_sys->eq, ev_orig_p.x->Minus(ev_ex_1.x), eqi++);
+                    AddEq(hg, &m_sys->eq, ev_orig_p.y->Minus(ev_ex_1.y), eqi++);
+                    AddEq(hg, &m_sys->eq, ev_orig_p.z->Minus(ev_ex_1.z), eqi++);
+
+                    AddEq(hg, &m_sys->eq, ev_new_p.x->Minus(ev_ex_2.x), eqi++);
+                    AddEq(hg, &m_sys->eq, ev_new_p.y->Minus(ev_ex_2.y), eqi++);
+                    AddEq(hg, &m_sys->eq, ev_new_p.z->Minus(ev_ex_2.z), eqi++);
+                }
+            }
+            else if (it->get_type() == Entity::Type::BEZIER_2D) {
+                const auto &bez = dynamic_cast<const EntityBezier2D &>(*it);
+                if (bez.m_wrkpl != group.m_wrkpl)
+                    continue;
+                auto new_bez_uu = group.get_entity_uuid(side, uu);
+
+                {
+                    for (unsigned int pt = 1; pt <= 4; pt++) {
+                        auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                        auto en_new_p = get_entity_ref(EntityRef{new_bez_uu, pt});
+                        EntityBase *eorig = SK.GetEntity({en_orig_p});
+                        EntityBase *enew = SK.GetEntity({en_new_p});
+                        ExprVector exorig = eorig->PointGetExprs();
+                        ExprVector exnew = enew->PointGetExprs();
+                        AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x->Plus(direction.x)), eqi++);
+                        AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y->Plus(direction.y)), eqi++);
+                        AddEq(hg, &m_sys->eq, exnew.z->Minus(exorig.z->Plus(direction.z)), eqi++);
+                    }
+                }
+
+                for (unsigned int pt = 1; pt <= 2; pt++) {
+
+                    auto ex_line_uu = group.get_extrusion_line_uuid(side, uu, pt);
+                    auto ev_orig_p = SK.GetEntity({get_entity_ref(EntityRef{uu, pt})})->PointGetExprs();
+                    auto ev_new_p = SK.GetEntity({get_entity_ref(EntityRef{new_bez_uu, pt})})->PointGetExprs();
 
                     auto ev_ex_1 = SK.GetEntity({get_entity_ref(EntityRef{ex_line_uu, 1})})->PointGetExprs();
                     auto ev_ex_2 = SK.GetEntity({get_entity_ref(EntityRef{ex_line_uu, 2})})->PointGetExprs();
@@ -785,6 +887,27 @@ void System::add(const GroupRevolve &group)
                     AddEq(hg, &m_sys->eq, d.z, eqi++);
                 }
             }
+            else if (it->get_type() == Entity::Type::BEZIER_2D) {
+                const auto &bez = dynamic_cast<const EntityBezier2D &>(*it);
+                if (bez.m_wrkpl != group.m_wrkpl)
+                    continue;
+                auto new_bez_uu = group.get_entity_uuid(side, uu);
+
+                for (unsigned int pt = 1; pt <= 4; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_bez_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprs();
+                    ExprVector exnew = enew->PointGetExprs();
+                    auto rot = quat.Rotate(exorig.Minus(origin)).Plus(origin);
+                    auto d = rot.Minus(exnew);
+
+                    AddEq(hg, &m_sys->eq, d.x, eqi++);
+                    AddEq(hg, &m_sys->eq, d.y, eqi++);
+                    AddEq(hg, &m_sys->eq, d.z, eqi++);
+                }
+            }
             else if (it->get_type() == Entity::Type::CIRCLE_2D) {
                 const auto &circle = dynamic_cast<const EntityCircle2D &>(*it);
                 if (circle.m_wrkpl != group.m_wrkpl)
@@ -899,6 +1022,23 @@ void System::add_array(const GroupArray &group, CreateEq create_eq2, CreateEq cr
                     create_eq2(exorig, exnew, instance);
                 }
             }
+            else if (it->get_type() == Entity::Type::BEZIER_2D) {
+                const auto &li = dynamic_cast<const EntityBezier2D &>(*it);
+                if (li.m_wrkpl != group.m_active_wrkpl)
+                    continue;
+                auto new_bez_uu = group.get_entity_uuid(uu, instance);
+                auto en_wrkpl = hEntity{get_entity_ref(EntityRef{li.m_wrkpl, 0})};
+
+                for (unsigned int pt = 1; pt <= 4; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_bez_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprsInWorkplane(en_wrkpl);
+                    ExprVector exnew = enew->PointGetExprsInWorkplane(en_wrkpl);
+                    create_eq2(exorig, exnew, instance);
+                }
+            }
             else if (it->get_type() == Entity::Type::CIRCLE_2D) {
                 const auto &circle = dynamic_cast<const EntityCircle2D &>(*it);
                 if (circle.m_wrkpl != group.m_active_wrkpl)
@@ -947,6 +1087,19 @@ void System::add_array(const GroupArray &group, CreateEq create_eq2, CreateEq cr
                 for (unsigned int pt = 1; pt <= 2; pt++) {
                     auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
                     auto en_new_p = get_entity_ref(EntityRef{new_line_uu, pt});
+                    EntityBase *eorig = SK.GetEntity({en_orig_p});
+                    EntityBase *enew = SK.GetEntity({en_new_p});
+                    ExprVector exorig = eorig->PointGetExprs();
+                    ExprVector exnew = enew->PointGetExprs();
+                    create_eq3(exorig, exnew, instance);
+                }
+            }
+            else if (it->get_type() == Entity::Type::BEZIER_3D) {
+                auto new_bez_uu = group.get_entity_uuid(uu, instance);
+
+                for (unsigned int pt = 1; pt <= 4; pt++) {
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    auto en_new_p = get_entity_ref(EntityRef{new_bez_uu, pt});
                     EntityBase *eorig = SK.GetEntity({en_orig_p});
                     EntityBase *enew = SK.GetEntity({en_new_p});
                     ExprVector exorig = eorig->PointGetExprs();
@@ -1267,7 +1420,9 @@ void System::add_dragged(const UUID &entity, unsigned int point)
     case Entity::Type::LINE_2D:
     case Entity::Type::POINT_2D:
     case Entity::Type::ARC_2D:
-    case Entity::Type::ARC_3D: {
+    case Entity::Type::ARC_3D:
+    case Entity::Type::BEZIER_2D:
+    case Entity::Type::BEZIER_3D: {
         for (const auto &[idx, param_ref] : m_param_refs) {
             if (param_ref.type == ParamRef::Type::ENTITY && param_ref.item == entity
                 && (param_ref.point == point || point == 0))
@@ -1815,7 +1970,7 @@ void System::visit(const ConstraintArcArcTangent &constraint)
 
     const auto c = n_constraint++;
 
-    auto &arc1 = m_doc.get_entity<EntityArc2D>(constraint.m_arc1.entity);
+    auto &arc1 = m_doc.get_entity<IEntityInWorkplane>(constraint.m_arc1.entity);
 
     ConstraintBase cb = {};
     cb.type = ConstraintBase::Type::CURVE_CURVE_TANGENT;
@@ -1823,7 +1978,7 @@ void System::visit(const ConstraintArcArcTangent &constraint)
     cb.group.v = group;
     cb.entityA.v = m_entity_refs_r.at(EntityRef{constraint.m_arc1.entity, 0});
     cb.entityB.v = m_entity_refs_r.at(EntityRef{constraint.m_arc2.entity, 0});
-    cb.workplane.v = m_entity_refs_r.at(EntityRef{arc1.m_wrkpl, 0});
+    cb.workplane.v = m_entity_refs_r.at(EntityRef{arc1.get_workplane(), 0});
 
     cb.other = constraint.m_arc1.point == 2;
     cb.other2 = constraint.m_arc2.point == 2;
@@ -1954,6 +2109,49 @@ void System::visit(const ConstraintPointPlaneDistance &constraint)
     auto v = en_p->PointGetExprs().Minus(en_p_ref->PointGetExprs());
 
     AddEq(hConstraint{c}, &m_sys->eq, norm.Dot(v)->Minus(Expr::From(constraint.m_distance)), 0);
+}
+
+void System::visit(const ConstraintBezierLineTangent &constraint)
+{
+    const auto group = get_group_index(constraint);
+
+    const auto c = n_constraint++;
+
+    auto &bez = m_doc.get_entity<EntityBezier2D>(constraint.m_bezier.entity);
+
+    ConstraintBase cb = {};
+    cb.type = ConstraintBase::Type::CUBIC_LINE_TANGENT;
+    cb.h.v = c;
+    cb.group.v = group;
+    cb.entityA.v = m_entity_refs_r.at(EntityRef{constraint.m_bezier.entity, 0});
+    cb.entityB.v = m_entity_refs_r.at(EntityRef{constraint.m_line, 0});
+    cb.workplane.v = get_entity_ref(EntityRef{bez.m_wrkpl, 0});
+    cb.other = constraint.m_bezier.point == 2;
+
+    SK.constraint.Add(&cb);
+}
+
+void System::visit(const ConstraintBezierBezierTangentSymmetric &constraint)
+{
+    const auto c = n_constraint++;
+
+    auto en_bez1 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, 0})});
+    auto en_bez2 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, 0})});
+
+    ExprVector t1;
+    if (constraint.m_arc1.point == 1)
+        t1 = en_bez1->CubicGetStartTangentExprs();
+    else
+        t1 = en_bez1->CubicGetFinishTangentExprs();
+
+    ExprVector t2;
+    if (constraint.m_arc2.point == 1)
+        t2 = en_bez2->CubicGetStartTangentExprs();
+    else
+        t2 = en_bez2->CubicGetFinishTangentExprs();
+
+    AddEq(hConstraint{c}, &m_sys->eq, t1.x->Plus(t2.x), 0);
+    AddEq(hConstraint{c}, &m_sys->eq, t1.y->Plus(t2.y), 1);
 }
 
 int System::get_group_index(const UUID &uu) const

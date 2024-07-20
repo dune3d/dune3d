@@ -368,7 +368,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
             bool can_select_path = false;
             if (enp) {
                 auto &en = m_core.get_current_document().get_entity(enp->entity);
-                can_select_path = en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D);
+                can_select_path = en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::BEZIER_2D);
             }
             m_action_sensitivity[ActionID::SELECT_PATH] = can_select_path;
         }

@@ -3,6 +3,7 @@
 #include "entity/entity_line2d.hpp"
 #include "entity/entity_arc2d.hpp"
 #include "entity/entity_circle2d.hpp"
+#include "entity/entity_bezier2d.hpp"
 #include "entity/entity_workplane.hpp"
 #include "document.hpp"
 #include <BRepBuilderAPI_MakeFace.hxx>
@@ -10,7 +11,9 @@
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Face.hxx>
-
+#include <gp_Pnt.hxx>
+#include <NCollection_Array1.hxx>
+#include <Geom_BezierCurve.hxx>
 #include <gp_Circ.hxx>
 
 
@@ -44,21 +47,8 @@ static Node &get_or_create_node(std::list<Node> &nodes, const glm::dvec2 &p)
 
 static glm::dvec2 get_pt(const Entity &e, unsigned int pt)
 {
-    if (e.get_type() == Entity::Type::LINE_2D) {
-        auto &line = dynamic_cast<const EntityLine2D &>(e);
-        if (pt == 1)
-            return line.m_p1;
-        else
-            return line.m_p2;
-    }
-    else if (e.get_type() == Entity::Type::ARC_2D) {
-        auto &line = dynamic_cast<const EntityArc2D &>(e);
-        if (pt == 1)
-            return line.m_from;
-        else
-            return line.m_to;
-    }
-    throw std::runtime_error("unexpected entity");
+    auto &en_wrkpl = dynamic_cast<const IEntityInWorkplane &>(e);
+    return en_wrkpl.get_point_in_workplane(pt);
 }
 
 Edge::Edge(std::list<Node> &nodes, const Entity &e)
@@ -213,6 +203,18 @@ static Clipper2Lib::PathD path_to_clipper(const Path &path, unsigned int path_in
                 a += dphi;
             }
         }
+        else if (auto bezier = dynamic_cast<const EntityBezier2D *>(&edge.entity)) {
+            const bool forward = pt == 1;
+            const unsigned int segments = 64;
+
+            for (unsigned int i = 0; i < segments; i++) {
+                auto t = (double)i / segments;
+                if (!forward)
+                    t = 1 - t;
+                const auto p0 = bezier->get_interpolated(t);
+                cpath.emplace_back(p0.x, p0.y, VertexInfo::make_z(path_index, iv, i, segments));
+            }
+        }
         else {
             cpath.emplace_back(
                     pc.x, pc.y,
@@ -232,7 +234,7 @@ static bool path_is_valid(const Path &path)
     if (path.size() == 1 && path.front().second.entity.get_type() == Entity::Type::CIRCLE_2D)
         return true;
     for (auto &p : path) {
-        if (p.second.entity.get_type() == Entity::Type::ARC_2D)
+        if (p.second.entity.of_type(Entity::Type::ARC_2D, Entity::Type::BEZIER_2D))
             return true;
     }
 
@@ -310,22 +312,24 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
 
     Path orig_path = m_paths.paths.at(VertexInfo::unpack(path.front().z).path_index);
     if (orig_path.size() == 1) {
-        BRepBuilderAPI_MakeWire wire;
-        auto &rad = dynamic_cast<const IEntityRadius &>(orig_path.front().second.entity);
-        const auto center = m_transform(m_wrkpl.transform(rad.get_center()));
+        if (auto rad = dynamic_cast<const IEntityRadius *>(&orig_path.front().second.entity)) {
+            BRepBuilderAPI_MakeWire wire;
 
-        auto normal = m_transform_normal(m_wrkpl.get_normal_vector());
-        if (hole)
-            normal *= -1;
+            const auto center = m_transform(m_wrkpl.transform(rad->get_center()));
 
-        gp_Circ garc(gp_Ax2(gp_Pnt(center.x, center.y, center.z), gp_Dir(normal.x, normal.y, normal.z)),
-                     rad.get_radius());
+            auto normal = m_transform_normal(m_wrkpl.get_normal_vector());
+            if (hole)
+                normal *= -1;
+
+            gp_Circ garc(gp_Ax2(gp_Pnt(center.x, center.y, center.z), gp_Dir(normal.x, normal.y, normal.z)),
+                         rad->get_radius());
 
 
-        auto edge = BRepBuilderAPI_MakeEdge(garc);
-        wire.Add(edge);
+            auto edge = BRepBuilderAPI_MakeEdge(garc);
+            wire.Add(edge);
 
-        return wire;
+            return wire;
+        }
     }
 
 
@@ -377,6 +381,24 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
             gp_Circ garc(gp_Ax2(gp_Pnt(center.x, center.y, center.z), gp_Dir(normal.x, normal.y, normal.z)), radius);
 
             auto edge = BRepBuilderAPI_MakeEdge(garc, sa, ea);
+            wire.Add(edge);
+        }
+        else if (auto bezier = dynamic_cast<const EntityBezier2D *>(&edge.entity)) {
+            TColgp_Array1OfPnt poles(1, 4);
+            const auto control_pta = pt == 1 ? 3 : 4;
+            const auto control_ptb = pt == 1 ? 4 : 3;
+
+            const auto cat = m_transform(m_wrkpl.transform(bezier->get_point_in_workplane(control_pta)));
+            const auto cbt = m_transform(m_wrkpl.transform(bezier->get_point_in_workplane(control_ptb)));
+
+            poles(1) = gp_Pnt(pat.x, pat.y, pat.z);
+            poles(2) = gp_Pnt(cat.x, cat.y, cat.z);
+            poles(3) = gp_Pnt(cbt.x, cbt.y, cbt.z);
+            poles(4) = gp_Pnt(pbt.x, pbt.y, pbt.z);
+
+            Handle(Geom_BezierCurve) curve = new Geom_BezierCurve(poles);
+            auto edge = BRepBuilderAPI_MakeEdge(curve);
+
             wire.Add(edge);
         }
         else {

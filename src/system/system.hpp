@@ -71,6 +71,8 @@ private:
     void visit(const EntitySTEP &step) override;
     void visit(const EntityPoint2D &point) override;
     void visit(const EntityDocument &point) override;
+    void visit(const EntityBezier2D &point) override;
+    void visit(const EntityBezier3D &point) override;
     void visit(const ConstraintPointsCoincident &constraint) override;
     void visit(const ConstraintParallel &constraint) override;
     void visit(const ConstraintPointOnLine &constraint) override;
@@ -97,6 +99,8 @@ private:
     void visit(const ConstraintSymmetricHV &constr) override;
     void visit(const ConstraintSymmetricLine &constr) override;
     void visit(const ConstraintPointDistanceAligned &constr) override;
+    void visit(const ConstraintBezierLineTangent &constr) override;
+    void visit(const ConstraintBezierBezierTangentSymmetric &constr) override;
     void add(const GroupExtrude &group);
     void add(const GroupLinearArray &group);
     void add(const GroupPolarArray &group);

@@ -11,6 +11,8 @@
 #include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_circle3d.hpp"
 #include "document/entity/entity_arc3d.hpp"
+#include "document/entity/entity_bezier2d.hpp"
+#include "document/entity/entity_bezier3d.hpp"
 #include "document/solid_model.hpp"
 
 namespace dune3d {
@@ -73,6 +75,23 @@ void GroupArray::generate(Document &doc) const
                     new_line.m_wrkpl = li.m_wrkpl;
                 }
             }
+            else if (it->get_type() == Entity::Type::BEZIER_2D) {
+                const auto &bez = dynamic_cast<const EntityBezier2D &>(*it);
+                if (bez.m_wrkpl != m_active_wrkpl)
+                    continue;
+                {
+                    auto new_bez_uu = get_entity_uuid(uu, instance);
+                    auto &new_line = doc.get_or_add_entity<EntityBezier2D>(new_bez_uu);
+                    new_line.m_p1 = transform(bez.m_p1, instance);
+                    new_line.m_p2 = transform(bez.m_p2, instance);
+                    new_line.m_c1 = transform(bez.m_c1, instance);
+                    new_line.m_c2 = transform(bez.m_c2, instance);
+                    new_line.m_kind = ItemKind::GENRERATED;
+                    new_line.m_generated_from = uu;
+                    new_line.m_group = m_uuid;
+                    new_line.m_wrkpl = bez.m_wrkpl;
+                }
+            }
             else if (it->get_type() == Entity::Type::CIRCLE_2D) {
                 const auto &circle = dynamic_cast<const EntityCircle2D &>(*it);
                 if (circle.m_wrkpl != m_active_wrkpl)
@@ -115,6 +134,20 @@ void GroupArray::generate(Document &doc) const
                     new_line.m_kind = ItemKind::GENRERATED;
                     new_line.m_generated_from = uu;
                     new_line.m_group = m_uuid;
+                }
+            }
+            else if (it->get_type() == Entity::Type::BEZIER_3D) {
+                const auto &bez = dynamic_cast<const EntityBezier3D &>(*it);
+                {
+                    auto new_bez_uu = get_entity_uuid(uu, instance);
+                    auto &new_bez = doc.get_or_add_entity<EntityBezier3D>(new_bez_uu);
+                    new_bez.m_p1 = transform(doc, bez.m_p1, instance);
+                    new_bez.m_p2 = transform(doc, bez.m_p2, instance);
+                    new_bez.m_c1 = transform(doc, bez.m_c1, instance);
+                    new_bez.m_c2 = transform(doc, bez.m_c2, instance);
+                    new_bez.m_kind = ItemKind::GENRERATED;
+                    new_bez.m_generated_from = uu;
+                    new_bez.m_group = m_uuid;
                 }
             }
             else if (it->get_type() == Entity::Type::CIRCLE_3D) {

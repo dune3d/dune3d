@@ -2,12 +2,14 @@
 #include "document/document.hpp"
 #include "document/entity/entity_line2d.hpp"
 #include "document/entity/entity_arc2d.hpp"
+#include "document/entity/entity_bezier2d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "document/constraint/constraint_hv.hpp"
 #include "document/constraint/constraint_arc_arc_tangent.hpp"
 #include "document/constraint/constraint_arc_line_tangent.hpp"
 #include "document/constraint/constraint_parallel.hpp"
+#include "document/constraint/constraint_bezier_line_tangent.hpp"
 #include "editor/editor_interface.hpp"
 #include "util/selection_util.hpp"
 #include "util/action_label.hpp"
@@ -73,16 +75,23 @@ glm::dvec2 ToolDrawContour::get_cursor_pos_in_plane() const
     return m_wrkpl->project(get_cursor_pos_for_workplane(*m_wrkpl));
 }
 
-glm::dvec2 ToolDrawContour::get_last_tangent()
+glm::dvec2 ToolDrawContour::get_tangent_for_point(const EntityAndPoint &enp)
 {
-    auto &enp = m_last_tangent_point.value();
     auto &en = get_entity(enp.entity);
     if (auto en_tangent = dynamic_cast<const IEntityTangent *>(&en)) {
-        return en_tangent->get_tangent_at_point(enp.point);
+        if (en_tangent->is_valid_tangent_point(enp.point))
+            return en_tangent->get_tangent_at_point(enp.point);
+        else
+            throw std::runtime_error("not a valid tangent point");
     }
     else {
         throw std::runtime_error("entity has no tangent");
     }
+}
+glm::dvec2 ToolDrawContour::get_last_tangent()
+{
+    auto &enp = m_last_tangent_point.value();
+    return get_tangent_for_point(enp);
 }
 
 unsigned int ToolDrawContour::get_arc_tail_point() const
@@ -127,6 +136,18 @@ void ToolDrawContour::update_arc_center()
     }
     else {
         m_temp_arc->m_center = (m_temp_arc->m_from + m_temp_arc->m_to) / 2.;
+    }
+}
+
+void ToolDrawContour::update_bezier_controls()
+{
+    if (m_last_tangent_point && m_constrain_tangent) {
+        auto last_tangent = glm::normalize(get_last_tangent());
+        m_temp_bezier->m_c1 =
+                m_temp_bezier->m_p1 + 0.5 * last_tangent * glm::length(m_temp_bezier->m_p1 - m_temp_bezier->m_p2);
+    }
+    else {
+        m_temp_bezier->m_c1 = m_temp_bezier->m_p1;
     }
 }
 
@@ -216,21 +237,40 @@ Constraint *ToolDrawContour::constrain_point_and_add_head_tangent_constraint(con
     return coincident_constraint;
 }
 
-class AutoReset {
+bool ToolDrawContour::check_close_path()
+{
+    if (auto hsel = m_intf.get_hover_selection()) {
+        const auto paths =
+                solid_model_util::Paths::from_document(get_doc(), m_wrkpl->m_uuid, m_core.get_current_group());
+        for (const auto &path : paths.paths) {
+            if (std::ranges::find_if(
+                        path, [this](const auto &x) { return x.second.entity.m_uuid == m_entities.back()->m_uuid; })
+                        != path.end()
+                && std::ranges::find_if(path, [&hsel](const auto &x) { return x.second.entity.m_uuid == hsel->item; })
+                           != path.end()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template <typename T> class AutoReset {
 public:
     [[nodiscard]]
-    AutoReset(bool &v)
-        : m_v(v)
+    AutoReset(T &v, T v_set)
+        : m_v(v), m_v_set(v_set)
     {
     }
 
     ~AutoReset()
     {
-        m_v = false;
+        m_v = m_v_set;
     }
 
 private:
-    bool &m_v;
+    T &m_v;
+    const T m_v_set;
 };
 
 ToolResponse ToolDrawContour::update(const ToolArgs &args)
@@ -269,6 +309,15 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                         m_tangent_valid = false;
                     }
                 }
+                else if (m_entities.size() > 1
+                         && m_last_tangent_point->entity == m_entities.at(m_entities.size() - 2)->m_uuid
+                         && m_entities.at(m_entities.size() - 2)->of_type(Entity::Type::BEZIER_2D)) {
+                    m_temp_line->m_p2 = get_cursor_pos_in_plane();
+                    auto &bez = dynamic_cast<EntityBezier2D &>(*m_entities.at(m_entities.size() - 2));
+                    const auto c_len = glm::length(bez.m_c2 - bez.m_p2);
+                    const auto v = m_temp_line->m_p2 - m_temp_line->m_p1;
+                    bez.m_c2 = bez.m_p2 - glm::normalize(v) * c_len;
+                }
                 else {
                     const auto last_tangent = glm::normalize(get_last_tangent());
                     auto v = get_cursor_pos_in_plane() - m_temp_line->m_p1;
@@ -281,7 +330,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             }
         }
         else if (m_temp_arc) {
-            if (m_placing_center) {
+            if (is_placing_center()) {
                 m_temp_arc->m_center =
                         project_onto_perp_bisector(m_temp_arc->m_from, m_temp_arc->m_to, get_cursor_pos_in_plane());
             }
@@ -293,6 +342,35 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                 update_arc_center();
             }
         }
+        else if (m_temp_bezier) {
+            if (m_state == State::NORMAL) {
+                m_temp_bezier->m_p2 = get_cursor_pos_in_plane();
+                m_temp_bezier->m_c2 = m_temp_bezier->m_p2;
+                update_bezier_controls();
+            }
+            else if (m_state == State::BEZIER_C1) {
+                if (m_last_tangent_point && m_constrain_tangent) {
+                    // project onto tangent
+                    auto t = glm::normalize(get_last_tangent());
+                    auto v = get_cursor_pos_in_plane() - m_temp_bezier->m_p1;
+                    m_temp_bezier->m_c1 = m_temp_bezier->m_p1 + t * glm::dot(t, v);
+                }
+                else {
+                    m_temp_bezier->m_c1 = get_cursor_pos_in_plane();
+                }
+            }
+            else if (m_state == State::BEZIER_C2) {
+                if (m_bezier_head_tangent_point && m_constrain_tangent) {
+                    // project onto tangent
+                    auto t = glm::normalize(get_tangent_for_point(m_bezier_head_tangent_point.value()));
+                    auto v = get_cursor_pos_in_plane() - m_temp_bezier->m_p2;
+                    m_temp_bezier->m_c2 = m_temp_bezier->m_p2 + t * glm::dot(t, v);
+                }
+                else {
+                    m_temp_bezier->m_c2 = get_cursor_pos_in_plane();
+                }
+            }
+        }
         update_tip();
         return ToolResponse();
     }
@@ -300,14 +378,62 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
         switch (args.action) {
         case InToolActionID::LMB: {
         case InToolActionID::LMB_DOUBLE:
-            if (m_temp_arc && !m_placing_center && !(m_constrain_tangent && m_last_tangent_point)) {
-                constrain_point_and_add_head_tangent_constraint(m_wrkpl->m_uuid,
-                                                                {m_temp_arc->m_uuid, get_last_point()});
-                m_placing_center = true;
+            if (m_temp_arc && !is_placing_center() && !(m_constrain_tangent && m_last_tangent_point)) {
+                if (m_constrain) {
+                    if (constrain_point_and_add_head_tangent_constraint(m_wrkpl->m_uuid,
+                                                                        {m_temp_arc->m_uuid, get_last_point()}))
+                        m_close_path = check_close_path();
+                }
+                m_state = State::CENTER;
                 update_tip();
                 return ToolResponse();
             }
-            AutoReset autoreset{m_placing_center};
+            if (m_temp_bezier) {
+                if (m_state == State::NORMAL) {
+                    if (m_constrain) {
+                        if (constrain_point_and_add_head_tangent_constraint(m_wrkpl->m_uuid,
+                                                                            {m_temp_bezier->m_uuid, get_last_point()}))
+                            m_close_path = check_close_path();
+                    }
+                    m_bezier_head_tangent_point.reset();
+                    if (auto hsel = m_intf.get_hover_selection()) {
+                        auto enp = hsel->get_entity_and_point();
+                        auto &en = get_entity(enp.entity);
+                        if (auto en_tangent = dynamic_cast<const IEntityTangent *>(&en)) {
+                            if (en_tangent->is_valid_tangent_point(enp.point)) {
+                                m_bezier_head_tangent_point = enp;
+                            }
+                        }
+                    }
+                    m_state = State::BEZIER_C1;
+                    update_tip();
+                    return ToolResponse();
+                }
+                else if (m_state == State::BEZIER_C1) {
+                    if (m_constrain) {
+                        constrain_point_and_add_head_tangent_constraint(m_wrkpl->m_uuid, {m_temp_bezier->m_uuid, 3});
+                    }
+                    if (m_last_tangent_point && m_constrain_tangent) {
+                        auto &last_tangent_entity = get_entity(m_last_tangent_point->entity);
+                        if (last_tangent_entity.get_type() == Entity::Type::LINE_2D) {
+                            auto &constraint = add_constraint<ConstraintBezierLineTangent>();
+                            constraint.m_line = last_tangent_entity.m_uuid;
+                            constraint.m_bezier = {m_temp_bezier->m_uuid, 1};
+                            m_constraints.insert(&constraint);
+                        }
+                        else if (last_tangent_entity.of_type(Entity::Type::ARC_2D, Entity::Type::BEZIER_2D)) {
+                            auto &constraint = add_constraint<ConstraintArcArcTangent>();
+                            constraint.m_arc1 = m_last_tangent_point.value();
+                            constraint.m_arc2 = {m_temp_bezier->m_uuid, 1};
+                            m_constraints.insert(&constraint);
+                        }
+                    }
+                    m_state = State::BEZIER_C2;
+                    update_tip();
+                    return ToolResponse();
+                }
+            }
+            AutoReset autoreset{m_state, State::NORMAL};
 
             if (get_temp_entity()) {
                 if (m_last == get_cursor_pos_in_plane())
@@ -336,6 +462,12 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                         constraint.m_line = m_temp_line->m_uuid;
                         m_constraints.insert(&constraint);
                     }
+                    else if (last_tangent_entity.get_type() == Entity::Type::BEZIER_2D) {
+                        auto &constraint = add_constraint<ConstraintBezierLineTangent>();
+                        constraint.m_bezier = m_last_tangent_point.value();
+                        constraint.m_line = m_temp_line->m_uuid;
+                        m_constraints.insert(&constraint);
+                    }
                 }
                 m_last_tangent_point = {m_temp_line->m_uuid, 2};
             }
@@ -350,7 +482,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                         constraint.m_arc.point = get_arc_tail_point();
                         m_constraints.insert(&constraint);
                     }
-                    else if (last_tangent_entity.get_type() == Entity::Type::ARC_2D) {
+                    else if (last_tangent_entity.of_type(Entity::Type::ARC_2D, Entity::Type::BEZIER_2D)) {
                         auto &constraint = add_constraint<ConstraintArcArcTangent>();
                         constraint.m_arc1 = m_last_tangent_point.value();
                         constraint.m_arc2.entity = m_temp_arc->m_uuid;
@@ -361,27 +493,45 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
 
                 m_last_tangent_point = {m_temp_arc->m_uuid, get_arc_head_point()};
             }
+            else if (m_temp_bezier) {
+                if (m_bezier_head_tangent_point && m_constrain_tangent) {
+                    auto &tangent_entity = get_entity(m_bezier_head_tangent_point->entity);
+                    if (tangent_entity.of_type(Entity::Type::LINE_2D)) {
+                        auto &constraint = add_constraint<ConstraintBezierLineTangent>();
+                        constraint.m_line = tangent_entity.m_uuid;
+                        constraint.m_bezier = {m_temp_bezier->m_uuid, 2};
+                        m_constraints.insert(&constraint);
+                    }
+                    else if (tangent_entity.of_type(Entity::Type::ARC_2D, Entity::Type::BEZIER_2D)) {
+                        auto &constraint = add_constraint<ConstraintArcArcTangent>();
+                        constraint.m_arc1 = m_bezier_head_tangent_point.value();
+                        constraint.m_arc2 = {m_temp_bezier->m_uuid, 2};
+                        m_constraints.insert(&constraint);
+                    }
+                }
 
-            bool commit = false;
+                m_last_tangent_point = {m_temp_bezier->m_uuid, 2};
+            }
+
 
             if (m_constrain && m_entities.size()) {
-                if (constrain_point_and_add_head_tangent_constraint(
-                            m_wrkpl->m_uuid, {m_entities.back()->m_uuid, m_placing_center ? 3 : last_point})) {
-                    if (auto hsel = m_intf.get_hover_selection()) {
-                        const auto paths = solid_model_util::Paths::from_document(get_doc(), m_wrkpl->m_uuid,
-                                                                                  m_core.get_current_group());
-                        for (const auto &path : paths.paths) {
-                            if (std::ranges::find_if(path,
-                                                     [this](const auto &x) {
-                                                         return x.second.entity.m_uuid == m_entities.back()->m_uuid;
-                                                     })
-                                        != path.end()
-                                && std::ranges::find_if(path, [&hsel](const auto &x) {
-                                       return x.second.entity.m_uuid == hsel->item;
-                                   }) != path.end())
-                                commit = true;
-                        }
-                    }
+                auto point = last_point;
+                switch (m_state) {
+                case State::CENTER:
+                    point = 3;
+                    break;
+                case State::BEZIER_C1:
+                    point = 3;
+                    break;
+                case State::BEZIER_C2:
+                    point = 4;
+                    break;
+                default:;
+                }
+                if (constrain_point_and_add_head_tangent_constraint(m_wrkpl->m_uuid,
+                                                                    {m_entities.back()->m_uuid, point})) {
+                    if (m_state == State::NORMAL)
+                        m_close_path = check_close_path();
                 }
             }
 
@@ -412,7 +562,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             }
 
 
-            if (commit)
+            if (m_close_path)
                 return ToolResponse::commit();
 
             if (m_entities.size() && !is_draw_contour())
@@ -429,6 +579,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
 
             if (m_tool_id == ToolID::DRAW_ARC_2D) {
                 m_temp_line = nullptr;
+                m_temp_bezier = nullptr;
                 m_temp_arc = &add_entity<EntityArc2D>();
                 m_temp_arc->m_selection_invisible = true;
                 m_temp_arc->m_from = get_cursor_pos_in_plane();
@@ -440,14 +591,29 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                     else if (auto last_arc = dynamic_cast<const EntityArc2D *>(m_entities.back())) {
                         m_temp_arc->m_from = last_arc->get_point_in_workplane(last_point);
                     }
+                    else if (auto last_bez = dynamic_cast<const EntityBezier2D *>(m_entities.back())) {
+                        m_temp_arc->m_from = last_bez->m_p2;
+                    }
                 }
                 m_temp_arc->m_center = m_temp_arc->m_from + glm::dvec2(1, 0);
                 m_temp_arc->m_to = m_temp_arc->m_from + glm::dvec2(2, 0);
                 m_temp_arc->m_wrkpl = m_wrkpl->m_uuid;
             }
+            else if (m_tool_id == ToolID::DRAW_BEZIER_2D) {
+                m_temp_line = nullptr;
+                m_temp_arc = nullptr;
+                m_temp_bezier = &add_entity<EntityBezier2D>();
+                m_temp_bezier->m_selection_invisible = true;
+                m_temp_bezier->m_p1 = get_cursor_pos_in_plane();
+                m_temp_bezier->m_p2 = m_temp_bezier->m_p1 + glm::dvec2(3, 0);
+                m_temp_bezier->m_c1 = m_temp_bezier->m_p1 + glm::dvec2(1, 0);
+                m_temp_bezier->m_c2 = m_temp_bezier->m_p1 + glm::dvec2(2, 0);
+                m_temp_bezier->m_wrkpl = m_wrkpl->m_uuid;
+            }
             else {
                 m_temp_line = &add_entity<EntityLine2D>();
                 m_temp_arc = nullptr;
+                m_temp_bezier = nullptr;
                 m_temp_line->m_selection_invisible = true;
                 m_temp_line->m_p1 = get_cursor_pos_in_plane();
                 if (m_entities.size()) {
@@ -457,11 +623,15 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                     else if (auto last_arc = dynamic_cast<const EntityArc2D *>(m_entities.back())) {
                         m_temp_line->m_p1 = last_arc->get_point_in_workplane(last_point);
                     }
+                    else if (auto last_bez = dynamic_cast<const EntityBezier2D *>(m_entities.back())) {
+                        m_temp_line->m_p1 = last_bez->m_p2;
+                    }
                     m_temp_line->m_construction = m_entities.back()->m_construction;
                 }
                 m_temp_line->m_p2 = get_cursor_pos_in_plane();
                 m_temp_line->m_wrkpl = m_wrkpl->m_uuid;
             }
+            m_close_path = false;
 
 
             if (m_constrain) {
@@ -524,7 +694,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
         } break;
 
         case InToolActionID::TOGGLE_ARC: {
-            if (get_temp_entity() && is_draw_contour()) {
+            if (get_temp_entity() && is_draw_contour() && m_state == State::NORMAL) {
                 if (m_temp_line) {
                     m_constrain_tangent = true;
                     m_temp_arc = &add_entity<EntityArc2D>();
@@ -568,6 +738,45 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                     }
                     get_doc().m_entities.erase(m_temp_arc->m_uuid);
                     m_temp_arc = nullptr;
+                    m_entities.back() = m_temp_line;
+                }
+            }
+        } break;
+
+        case InToolActionID::TOGGLE_BEZIER: {
+            if (get_temp_entity() && is_draw_contour() && m_state == State::NORMAL) {
+                if (m_temp_line) {
+                    m_constrain_tangent = true;
+                    m_temp_bezier = &add_entity<EntityBezier2D>();
+                    m_temp_bezier->m_p1 = m_temp_line->m_p1;
+                    m_temp_bezier->m_p2 = m_temp_line->m_p2;
+                    m_temp_bezier->m_c1 = m_temp_bezier->m_p1;
+                    m_temp_bezier->m_c2 = m_temp_bezier->m_p2;
+                    m_temp_bezier->m_wrkpl = m_wrkpl->m_uuid;
+                    m_temp_bezier->m_selection_invisible = true;
+                    for (auto constraint : m_constraints) {
+                        for (unsigned int pt = 1; pt <= 2; pt++) {
+                            constraint->replace_point({m_temp_line->m_uuid, pt}, {m_temp_bezier->m_uuid, pt});
+                        }
+                    }
+                    get_doc().m_entities.erase(m_temp_line->m_uuid);
+                    m_temp_line = nullptr;
+                    m_entities.back() = m_temp_bezier;
+                }
+                else if (m_temp_bezier) {
+                    m_constrain_tangent = false;
+                    m_temp_line = &add_entity<EntityLine2D>();
+                    m_temp_line->m_p1 = m_temp_bezier->m_p1;
+                    m_temp_line->m_p2 = m_temp_bezier->m_p2;
+                    m_temp_line->m_wrkpl = m_wrkpl->m_uuid;
+                    m_temp_line->m_selection_invisible = true;
+                    for (auto constraint : m_constraints) {
+                        for (unsigned int pt = 1; pt <= 2; pt++) {
+                            constraint->replace_point({m_temp_bezier->m_uuid, pt}, {m_temp_line->m_uuid, pt});
+                        }
+                    }
+                    get_doc().m_entities.erase(m_temp_bezier->m_uuid);
+                    m_temp_bezier = nullptr;
                     m_entities.back() = m_temp_line;
                 }
             }
@@ -641,7 +850,7 @@ ToolResponse ToolDrawContour::end_tool()
 
 std::optional<ConstraintType> ToolDrawContour::get_head_constraint(const Entity &en_head, const Entity &en_target)
 {
-    if (m_placing_center)
+    if (is_placing_center())
         return {};
     auto t_head = en_head.get_type();
     auto t_target = en_target.get_type();
@@ -662,7 +871,7 @@ void ToolDrawContour::update_tip()
 {
     std::vector<ActionLabelInfo> actions;
 
-    if (m_placing_center)
+    if (is_placing_center())
         actions.emplace_back(InToolActionID::LMB, "place center");
     else
         actions.emplace_back(InToolActionID::LMB, "place");
@@ -695,8 +904,19 @@ void ToolDrawContour::update_tip()
     std::string constraint_tip;
     if (m_constrain) {
         std::string what = "to";
-        if (m_placing_center)
+        switch (m_state) {
+        case State::CENTER:
             what = "center";
+            break;
+        case State::BEZIER_C1:
+            what = "from control";
+            break;
+        case State::BEZIER_C2:
+            what = "to control";
+            break;
+        default:;
+        }
+
         constraint_tip = get_constrain_tip(what);
         if (auto ct = get_constraint_type()) {
             constraint_icons.push_back(*ct);
@@ -740,11 +960,18 @@ void ToolDrawContour::update_tip()
             actions.emplace_back(InToolActionID::TOGGLE_TANGENT_CONSTRAINT, "tangent constraint on");
     }
 
-    if (get_temp_entity() && is_draw_contour()) {
-        if (get_temp_entity()->of_type(Entity::Type::ARC_2D))
+    if (get_temp_entity() && is_draw_contour() && m_state == State::NORMAL) {
+        auto et = get_temp_entity()->get_type();
+        if (et == Entity::Type::ARC_2D) {
             actions.emplace_back(InToolActionID::TOGGLE_ARC, "arc off");
-        else
+        }
+        else if (et == Entity::Type::BEZIER_2D) {
+            actions.emplace_back(InToolActionID::TOGGLE_BEZIER, "bezier off");
+        }
+        else {
             actions.emplace_back(InToolActionID::TOGGLE_ARC, "arc on");
+            actions.emplace_back(InToolActionID::TOGGLE_BEZIER, "bezier on");
+        }
     }
 
     if (m_temp_arc && !(m_constrain_tangent && m_last_tangent_point))
@@ -770,7 +997,7 @@ void ToolDrawContour::update_tip()
     m_intf.tool_bar_set_tool_tip(tip);
 
     glm::vec3 v = {NAN, NAN, NAN};
-    if (!m_placing_center) {
+    if (!is_placing_center()) {
         if (auto en_t = dynamic_cast<IEntityTangent *>(get_temp_entity())) {
             unsigned int tangent_point = 2;
             if (m_temp_line) {
@@ -811,6 +1038,8 @@ Entity *ToolDrawContour::get_temp_entity()
         return m_temp_line;
     if (m_temp_arc)
         return m_temp_arc;
+    if (m_temp_bezier)
+        return m_temp_bezier;
     return nullptr;
 }
 
