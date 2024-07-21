@@ -1,13 +1,13 @@
 #pragma once
 #include "entityt.hpp"
-#include "ientity_in_workplane.hpp"
+#include "ientity_in_workplane_set.hpp"
 #include "ientity_radius.hpp"
 #include "ientity_movable2d_initial_pos.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
 class EntityCircle2D : public EntityT<EntityCircle2D>,
-                       public IEntityInWorkplane,
+                       public IEntityInWorkplaneSet,
                        public IEntityRadius,
                        public IEntityMovable2DIntialPos {
 public:
@@ -30,6 +30,10 @@ public:
     const UUID &get_workplane() const override
     {
         return m_wrkpl;
+    }
+    void set_workplane(const UUID &uu) override
+    {
+        m_wrkpl = uu;
     }
 
     double get_radius() const override

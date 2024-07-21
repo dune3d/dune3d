@@ -1,6 +1,6 @@
 #pragma once
 #include "entityt.hpp"
-#include "ientity_in_workplane.hpp"
+#include "ientity_in_workplane_set.hpp"
 #include "ientity_radius.hpp"
 #include "ientity_tangent.hpp"
 #include "ientity_movable2d.hpp"
@@ -8,7 +8,7 @@
 
 namespace dune3d {
 class EntityArc2D : public EntityT<EntityArc2D>,
-                    public IEntityInWorkplane,
+                    public IEntityInWorkplaneSet,
                     public IEntityRadius,
                     public IEntityTangent,
                     public IEntityMovable2D {
@@ -38,6 +38,10 @@ public:
     const UUID &get_workplane() const override
     {
         return m_wrkpl;
+    }
+    void set_workplane(const UUID &uu) override
+    {
+        m_wrkpl = uu;
     }
 
     void move(const Entity &last, const glm::dvec2 &delta, unsigned int point) override;
