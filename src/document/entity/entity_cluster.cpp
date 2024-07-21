@@ -19,7 +19,7 @@ EntityCluster::EntityCluster(const UUID &uu, const json &j)
       m_scale_y(j.at("scale_y").get<double>()), m_angle(j.at("angle").get<double>()),
       m_lock_scale_x(j.value("lock_scale_x", false)), m_lock_scale_y(j.value("lock_scale_y", false)),
       m_lock_aspect_ratio(j.value("lock_aspect_ratio", false)), m_lock_angle(j.value("lock_angle", false)),
-      m_wrkpl(j.at("wrkpl").get<UUID>())
+      m_wrkpl(j.at("wrkpl").get<UUID>()), m_exploded_group(j.at("exploded_group").get<UUID>())
 {
     for (const auto &[uu, it] : j.at("entities").items()) {
         m_entities.emplace(std::piecewise_construct, std::forward_as_tuple(uu),
@@ -49,6 +49,7 @@ json EntityCluster::serialize() const
     j["lock_angle"] = m_lock_angle;
     j["angle"] = m_angle;
     j["wrkpl"] = m_wrkpl;
+    j["exploded_group"] = m_exploded_group;
     {
         auto o = json::object();
         for (const auto &[uu, it] : m_entities) {
@@ -162,6 +163,7 @@ std::unique_ptr<Entity> EntityCluster::clone() const
     n->m_lock_scale_y = m_lock_scale_y;
     n->m_lock_aspect_ratio = m_lock_aspect_ratio;
     n->m_lock_angle = m_lock_angle;
+    n->m_exploded_group = m_exploded_group;
     // don't copy m_anchors_available, never needed
     for (const auto &[uu, it] : m_constraints) {
         n->m_constraints.emplace(uu, it->clone());
@@ -228,6 +230,11 @@ void EntityCluster::add_available_anchors()
             m_anchors_available.emplace(aid++, enp);
         }
     }
+}
+
+bool EntityCluster::is_supported_entity(const Entity &en)
+{
+    return en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D, Entity::Type::BEZIER_2D);
 }
 
 EntityCluster::~EntityCluster() = default;

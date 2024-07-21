@@ -6,7 +6,7 @@ class GroupExplodedCluster : public Group {
 public:
     explicit GroupExplodedCluster(const UUID &uu);
     explicit GroupExplodedCluster(const UUID &uu, const json &j);
-    static constexpr Type s_type = Type::SKETCH;
+    static constexpr Type s_type = Type::EXPLODED_CLUSTER;
     Type get_type() const override
     {
         return s_type;

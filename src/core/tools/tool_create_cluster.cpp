@@ -49,9 +49,7 @@ ToolResponse ToolCreateCluster::begin(const ToolArgs &args)
     for (auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {
             auto &en = doc.get_entity(sr.item);
-            if (!en.can_delete(doc)
-                || !en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D,
-                               Entity::Type::BEZIER_2D))
+            if (!en.can_delete(doc) || !EntityCluster::is_supported_entity(en))
                 continue;
 
             items_to_delete.entities.insert(sr.item);

@@ -7,11 +7,12 @@
 #include "preferences/preferences_window.hpp"
 #include "canvas/canvas.hpp"
 #include "document/entity/entity_workplane.hpp"
-#include "document/entity/ientity_in_workplane.hpp"
+#include "document/entity/ientity_in_workplane_set.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
 #include "document/constraint/constraint.hpp"
 #include "document/group/igroup_solid_model.hpp"
 #include "document/group/group_exploded_cluster.hpp"
+#include "document/group/group_reference.hpp"
 #include "document/entity/entity_cluster.hpp"
 #include "util/selection_util.hpp"
 #include "util/key_util.hpp"
@@ -709,11 +710,69 @@ void Editor::on_explode_cluster(const ActionConnection &conn)
     if (!enp)
         return;
     auto &cluster = doc.get_entity<EntityCluster>(enp->entity);
-    auto &group = doc.insert_group<GroupExplodedCluster>(UUID::random(), current_group.m_uuid);
+    auto &group = doc.insert_group<GroupExplodedCluster>(UUID::random(), m_core.get_current_group());
+    group.m_active_wrkpl = cluster.m_wrkpl;
+    cluster.m_exploded_group = group.m_uuid;
+    group.m_cluster = cluster.m_uuid;
+    for (const auto &[uu, en] : cluster.m_entities) {
+        auto en_cloned = en->clone();
+        en_cloned->m_group = group.m_uuid;
+        dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(cluster.m_wrkpl);
+        doc.m_entities.emplace(uu, std::move(en_cloned));
+    }
+    for (const auto &[uu, co] : cluster.m_constraints) {
+        auto co_cloned = co->clone();
+        co_cloned->m_group = group.m_uuid;
+        doc.m_constraints.emplace(uu, std::move(co_cloned));
+    }
+    finish_add_group(&group);
 }
 
 void Editor::on_unexplode_cluster(const ActionConnection &conn)
 {
+    auto &doc = m_core.get_current_document();
+    auto &group_base = doc.get_group(m_core.get_current_group());
+    if (group_base.get_type() != Group::Type::EXPLODED_CLUSTER)
+        return;
+    auto &group = dynamic_cast<GroupExplodedCluster &>(group_base);
+    auto &cluster = doc.get_entity<EntityCluster &>(group.m_cluster);
+    cluster.m_entities.clear();
+    cluster.m_constraints.clear();
+
+    auto cloned_wrkpl_uu = doc.get_reference_group().get_workplane_xy_uuid();
+
+
+    for (auto &[uu, en] : doc.m_entities) {
+        if (en->m_group != group.m_uuid)
+            continue;
+        auto en_cloned = en->clone();
+        en_cloned->m_group = cluster.m_group;
+        dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(cloned_wrkpl_uu);
+        cluster.m_entities.emplace(uu, std::move(en_cloned));
+    }
+    for (auto &[uu, co] : doc.m_constraints) {
+        if (co->m_group != group.m_uuid)
+            continue;
+        auto co_cloned = co->clone();
+        co_cloned->m_group = cluster.m_group;
+        cluster.m_constraints.emplace(uu, std::move(co_cloned));
+    }
+
+    ItemsToDelete items_to_delete;
+    items_to_delete.groups.insert(group.m_uuid);
+    auto extra_items = doc.get_additional_items_to_delete(items_to_delete);
+    items_to_delete.append(extra_items);
+    cluster.m_exploded_group = UUID{};
+
+    doc.set_group_generate_pending(cluster.m_group);
+
+    doc.delete_items(items_to_delete);
+
+    m_core.set_needs_save();
+    m_core.rebuild("unexplode cluster");
+    m_workspace_browser->update_documents(get_current_document_views());
+    canvas_update_keep_selection();
+    m_workspace_browser->select_group(cluster.m_group);
 }
 
 

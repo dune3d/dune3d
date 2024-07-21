@@ -55,6 +55,8 @@ public:
     UUID m_wrkpl;
     UUID m_exploded_group;
 
+    static bool is_supported_entity(const Entity &en);
+
     std::string get_point_name(unsigned int point) const override;
 
     const UUID &get_workplane() const override
