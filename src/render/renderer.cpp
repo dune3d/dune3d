@@ -496,6 +496,8 @@ void Renderer::visit(const EntityBezier3D &bezier)
 
 void Renderer::visit(const EntityCluster &cluster)
 {
+    if (cluster.m_exploded_group)
+        return;
     auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(cluster.m_wrkpl));
     const auto p = wrkpl.transform(cluster.m_origin);
     m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, 1});

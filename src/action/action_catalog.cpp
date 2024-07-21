@@ -159,6 +159,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Constrain tangent to be symmetric", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::IMPORT_DXF, {"Import DXF", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CREATE_CLUSTER, {"Create cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::EXPLODE_CLUSTER, {"Explode cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_SPECIFIC}},
+        {ActionID::UNEXPLODE_CLUSTER, {"Unexplode cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -219,6 +221,8 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(SELECT_ALL_ENTITIES_IN_CURRENT_GROUP),
         ACTION_LUT_ITEM(SELECTION_FILTER),
         ACTION_LUT_ITEM(SET_CURRENT_DOCUMENT),
+        ACTION_LUT_ITEM(EXPLODE_CLUSTER),
+        ACTION_LUT_ITEM(UNEXPLODE_CLUSTER),
 };
 
 #define TOOL_LUT_ITEM(x) {#x, ToolID::x}

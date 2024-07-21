@@ -53,6 +53,7 @@ public:
     std::map<UUID, std::unique_ptr<Constraint>> m_constraints;
 
     UUID m_wrkpl;
+    UUID m_exploded_group;
 
     std::string get_point_name(unsigned int point) const override;
 

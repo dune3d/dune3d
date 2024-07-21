@@ -11,6 +11,8 @@
 #include "document/constraint/iconstraint_datum.hpp"
 #include "document/constraint/constraint.hpp"
 #include "document/group/igroup_solid_model.hpp"
+#include "document/group/group_exploded_cluster.hpp"
+#include "document/entity/entity_cluster.hpp"
 #include "util/selection_util.hpp"
 #include "util/key_util.hpp"
 #include "document/solid_model_util.hpp"
@@ -219,6 +221,9 @@ void Editor::init_actions()
         }
     });
 
+    connect_action(ActionID::EXPLODE_CLUSTER, sigc::mem_fun(*this, &Editor::on_explode_cluster));
+    connect_action(ActionID::UNEXPLODE_CLUSTER, sigc::mem_fun(*this, &Editor::on_unexplode_cluster));
+
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
     m_core.signal_rebuilt().connect([this] {
         if (!m_current_workspace_view)
@@ -376,6 +381,17 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = has_current_wrkpl;
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = document_from_selection(sel).has_value();
+        {
+            auto enp = entity_and_point_from_selection(m_core.get_current_document(), sel, EntityType::CLUSTER);
+            bool can_explode_cluster = false;
+            if (enp) {
+                auto &en = m_core.get_current_document().get_entity<EntityCluster>(enp->entity);
+                can_explode_cluster = !en.m_exploded_group;
+            }
+            m_action_sensitivity[ActionID::EXPLODE_CLUSTER] = can_explode_cluster;
+        }
+
+        m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = current_group.get_type() == Group::Type::EXPLODED_CLUSTER;
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
@@ -389,6 +405,8 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = false;
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = false;
+        m_action_sensitivity[ActionID::EXPLODE_CLUSTER] = false;
+        m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = false;
     }
 
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = has_solid_model;
@@ -682,5 +700,21 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
     }
     return false;
 }
+
+void Editor::on_explode_cluster(const ActionConnection &conn)
+{
+    auto sel = get_canvas().get_selection();
+    auto &doc = m_core.get_current_document();
+    auto enp = entity_and_point_from_selection(doc, sel, EntityType::CLUSTER);
+    if (!enp)
+        return;
+    auto &cluster = doc.get_entity<EntityCluster>(enp->entity);
+    auto &group = doc.insert_group<GroupExplodedCluster>(UUID::random(), current_group.m_uuid);
+}
+
+void Editor::on_unexplode_cluster(const ActionConnection &conn)
+{
+}
+
 
 } // namespace dune3d

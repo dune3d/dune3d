@@ -42,6 +42,7 @@ enum class GroupType {
     CHAMFER,
     LINEAR_ARRAY,
     POLAR_ARRAY,
+    EXPLODED_CLUSTER,
 };
 
 class Group {
