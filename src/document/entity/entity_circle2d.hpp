@@ -1,11 +1,11 @@
 #pragma once
 #include "entity.hpp"
-#include "ientity_in_workplane.hpp"
+#include "ientity_in_workplane_set.hpp"
 #include "ientity_radius.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityCircle2D : public Entity, public IEntityInWorkplane, public IEntityRadius {
+class EntityCircle2D : public Entity, public IEntityInWorkplaneSet, public IEntityRadius {
 public:
     explicit EntityCircle2D(const UUID &uu);
     explicit EntityCircle2D(const UUID &uu, const json &j);
@@ -33,6 +33,10 @@ public:
     const UUID &get_workplane() const override
     {
         return m_wrkpl;
+    }
+    void set_workplane(const UUID &uu) override
+    {
+        m_wrkpl = uu;
     }
 
     double get_radius() const override

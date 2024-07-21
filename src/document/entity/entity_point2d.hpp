@@ -1,10 +1,10 @@
 #pragma once
 #include "entity.hpp"
-#include "ientity_in_workplane.hpp"
+#include "ientity_in_workplane_set.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityPoint2D : public Entity, public IEntityInWorkplane {
+class EntityPoint2D : public Entity, public IEntityInWorkplaneSet {
 public:
     explicit EntityPoint2D(const UUID &uu);
     explicit EntityPoint2D(const UUID &uu, const json &j);
@@ -31,6 +31,10 @@ public:
     const UUID &get_workplane() const override
     {
         return m_wrkpl;
+    }
+    void set_workplane(const UUID &uu) override
+    {
+        m_wrkpl = uu;
     }
 
     std::set<UUID> get_referenced_entities() const override;
