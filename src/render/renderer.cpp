@@ -496,11 +496,18 @@ void Renderer::visit(const EntityBezier3D &bezier)
 
 void Renderer::visit(const EntityCluster &cluster)
 {
-    if (cluster.m_exploded_group)
-        return;
     auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(cluster.m_wrkpl));
     const auto p = wrkpl.transform(cluster.m_origin);
     m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, 1});
+    const SelectableRef sr{SelectableRef::Type::ENTITY, cluster.m_uuid, 0};
+
+    if (cluster.m_exploded_group) {
+        add_selectables(sr, m_ca.draw_bitmap_text(p, 1,
+                                                  "exploded cluster in group "
+                                                          + m_doc->get_group(cluster.m_exploded_group).m_name));
+        return;
+    }
+
 
     auto wrkpl_mat = glm::translate(glm::mat4(1), glm::vec3(wrkpl.m_origin)) * glm::toMat4(glm::quat(wrkpl.m_normal));
 
@@ -508,19 +515,22 @@ void Renderer::visit(const EntityCluster &cluster)
     auto m = glm::scale(glm::rotate(glm::translate(glm::mat4(1), glm::vec3(cluster.m_origin, 0.)),
                                     (float)glm::radians(cluster.m_angle), glm::vec3(0., 0., 1.)),
                         glm::vec3(cluster.m_scale_x, cluster.m_scale_y, 0.f));
-    m_ca.set_transform(wrkpl_mat * m);
-
-    m_ca.set_override_selectable(SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, 0});
     {
         AutoSaveRestore asr{m_ca};
+
+        m_ca.set_transform(wrkpl_mat * m);
+
+        m_ca.set_override_selectable(sr);
+
         m_ca.set_no_points(true);
         for (const auto &[uu, en] : cluster.m_entities) {
+            if (en->m_construction)
+                continue;
             en->accept(*this);
         }
-    }
-    m_ca.unset_override_selectable();
 
-    m_ca.set_transform(glm::mat4(1));
+        m_ca.unset_override_selectable();
+    }
 
     if (cluster.m_anchors_available.size()) {
         for (const auto &[i, enp] : cluster.m_anchors_available) {

@@ -710,7 +710,7 @@ void Editor::on_explode_cluster(const ActionConnection &conn)
     if (!enp)
         return;
     auto &cluster = doc.get_entity<EntityCluster>(enp->entity);
-    auto &group = doc.insert_group<GroupExplodedCluster>(UUID::random(), m_core.get_current_group());
+    auto &group = doc.insert_group<GroupExplodedCluster>(UUID::random(), cluster.m_group);
     group.m_active_wrkpl = cluster.m_wrkpl;
     cluster.m_exploded_group = group.m_uuid;
     group.m_cluster = cluster.m_uuid;

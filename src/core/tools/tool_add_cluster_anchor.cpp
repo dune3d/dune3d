@@ -13,7 +13,11 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolAddClusterAnchor::can_begin()
 {
-    return entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::CLUSTER).has_value();
+    auto enp = entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::CLUSTER);
+    if (!enp.has_value())
+        return false;
+
+    return m_core.get_current_document().get_entity<EntityCluster>(enp->entity).m_exploded_group == UUID{};
 }
 
 ToolResponse ToolAddClusterAnchor::begin(const ToolArgs &args)
