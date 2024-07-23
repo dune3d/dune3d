@@ -1,10 +1,7 @@
 #include "tool_create_cluster.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity_cluster.hpp"
-#include "document/entity/entity_line2d.hpp"
-#include "document/entity/entity_arc2d.hpp"
-#include "document/entity/entity_circle2d.hpp"
-#include "document/entity/entity_bezier2d.hpp"
+#include "document/entity/ientity_in_workplane_set.hpp"
 #include "document/constraint/constraint.hpp"
 #include "document/group/group.hpp"
 #include "document/group/group_reference.hpp"
@@ -45,6 +42,8 @@ ToolResponse ToolCreateCluster::begin(const ToolArgs &args)
 
     std::set<const Constraint *> constraints;
     auto cloned_wrkpl_uu = get_doc().get_reference_group().get_workplane_xy_uuid();
+    
+    auto content = ClusterContent::create();
 
     for (auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {
@@ -60,13 +59,14 @@ ToolResponse ToolCreateCluster::begin(const ToolArgs &args)
             {
                 auto en_cloned = en.clone();
                 dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(cloned_wrkpl_uu);
-                en_cluster.m_entities.emplace(en.m_uuid, std::move(en_cloned));
+                content->m_entities.emplace(en.m_uuid, std::move(en_cloned));
             }
         }
     }
     for (auto constraint : constraints) {
-        en_cluster.m_constraints.emplace(constraint->m_uuid, constraint->clone());
+        content->m_constraints.emplace(constraint->m_uuid, constraint->clone());
     }
+    en_cluster.m_content = content;
     ItemsToDelete selected_items = items_to_delete;
 
     auto extra_items = doc.get_additional_items_to_delete(items_to_delete);

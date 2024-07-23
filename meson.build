@@ -243,6 +243,7 @@ src = files(
   'src/workspace/workspace_view.cpp',
   'src/widgets/select_groups_dialog.cpp',
   'src/import_dxf/dxf_importer.cpp',
+  'src/util/cluster_content.cpp',
 )
 
 prog_python = find_program('python3')

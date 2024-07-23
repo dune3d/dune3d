@@ -90,7 +90,7 @@ public:
 
     bool m_visible = true;
 
-    bool can_delete(const Document &doc) const;
+    virtual bool can_delete(const Document &doc) const;
     bool can_move(const Document &doc) const;
 
     std::map<unsigned int, EntityAndPoint> m_move_instead;

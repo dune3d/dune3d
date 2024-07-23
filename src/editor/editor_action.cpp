@@ -714,13 +714,13 @@ void Editor::on_explode_cluster(const ActionConnection &conn)
     group.m_active_wrkpl = cluster.m_wrkpl;
     cluster.m_exploded_group = group.m_uuid;
     group.m_cluster = cluster.m_uuid;
-    for (const auto &[uu, en] : cluster.m_entities) {
+    for (const auto &[uu, en] : cluster.m_content->m_entities) {
         auto en_cloned = en->clone();
         en_cloned->m_group = group.m_uuid;
         dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(cluster.m_wrkpl);
         doc.m_entities.emplace(uu, std::move(en_cloned));
     }
-    for (const auto &[uu, co] : cluster.m_constraints) {
+    for (const auto &[uu, co] : cluster.m_content->m_constraints) {
         auto co_cloned = co->clone();
         co_cloned->m_group = group.m_uuid;
         doc.m_constraints.emplace(uu, std::move(co_cloned));
@@ -736,11 +736,10 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
         return;
     auto &group = dynamic_cast<GroupExplodedCluster &>(group_base);
     auto &cluster = doc.get_entity<EntityCluster &>(group.m_cluster);
-    cluster.m_entities.clear();
-    cluster.m_constraints.clear();
-
+    
+    auto content = ClusterContent::create();
+    
     auto cloned_wrkpl_uu = doc.get_reference_group().get_workplane_xy_uuid();
-
 
     for (auto &[uu, en] : doc.m_entities) {
         if (en->m_group != group.m_uuid)
@@ -748,15 +747,17 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
         auto en_cloned = en->clone();
         en_cloned->m_group = cluster.m_group;
         dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(cloned_wrkpl_uu);
-        cluster.m_entities.emplace(uu, std::move(en_cloned));
+        content->m_entities.emplace(uu, std::move(en_cloned));
     }
     for (auto &[uu, co] : doc.m_constraints) {
         if (co->m_group != group.m_uuid)
             continue;
         auto co_cloned = co->clone();
         co_cloned->m_group = cluster.m_group;
-        cluster.m_constraints.emplace(uu, std::move(co_cloned));
+        content->m_constraints.emplace(uu, std::move(co_cloned));
     }
+    
+    cluster.m_content = content;
 
     ItemsToDelete items_to_delete;
     items_to_delete.groups.insert(group.m_uuid);

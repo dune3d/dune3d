@@ -1,6 +1,7 @@
 #pragma once
 #include "entity.hpp"
 #include "ientity_in_workplane.hpp"
+#include "util/cluster_content.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -16,6 +17,8 @@ public:
     }
     json serialize() const override;
     std::unique_ptr<Entity> clone() const override;
+
+    bool can_delete(const Document &doc) const override;
 
     double get_param(unsigned int point, unsigned int axis) const override;
     void set_param(unsigned int point, unsigned int axis, double value) override;
@@ -49,8 +52,7 @@ public:
 
     glm::dvec2 transform(const glm::dvec2 &p) const;
 
-    std::map<UUID, std::unique_ptr<Entity>> m_entities;
-    std::map<UUID, std::unique_ptr<Constraint>> m_constraints;
+    std::shared_ptr<const ClusterContent> m_content;
 
     UUID m_wrkpl;
     UUID m_exploded_group;
@@ -65,8 +67,6 @@ public:
     }
 
     std::set<UUID> get_referenced_entities() const override;
-
-    virtual ~EntityCluster();
 };
 
 } // namespace dune3d

@@ -508,7 +508,7 @@ Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID
                 continue;
             if (auto en_cluster = dynamic_cast<const EntityCluster *>(en.get())) {
                 auto tr = [en_cluster](const glm::dvec2 &v) { return en_cluster->transform(v); };
-                for (const auto &[uu2, en2] : en_cluster->m_entities) {
+                for (const auto &[uu2, en2] : en_cluster->m_content->m_entities) {
                     if (en2->m_construction)
                         continue;
                     if (!entity_is_valid(*en2, tr))
@@ -595,7 +595,7 @@ Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID
         }
         else if (auto en_cluster = dynamic_cast<const EntityCluster *>(en.get())) {
             auto tr = [en_cluster](const glm::dvec2 &v) { return en_cluster->transform(v); };
-            for (const auto &[uu2, en2] : en_cluster->m_entities) {
+            for (const auto &[uu2, en2] : en_cluster->m_content->m_entities) {
                 if (en2->m_construction)
                     continue;
                 if (en2->of_type(Entity::Type::CIRCLE_2D)) {

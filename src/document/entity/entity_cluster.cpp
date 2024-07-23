@@ -10,7 +10,7 @@
 #include <format>
 
 namespace dune3d {
-EntityCluster::EntityCluster(const UUID &uu) : Entity(uu)
+EntityCluster::EntityCluster(const UUID &uu) : Entity(uu), m_content(ClusterContent::create())
 {
 }
 
@@ -21,14 +21,7 @@ EntityCluster::EntityCluster(const UUID &uu, const json &j)
       m_lock_aspect_ratio(j.value("lock_aspect_ratio", false)), m_lock_angle(j.value("lock_angle", false)),
       m_wrkpl(j.at("wrkpl").get<UUID>()), m_exploded_group(j.at("exploded_group").get<UUID>())
 {
-    for (const auto &[uu, it] : j.at("entities").items()) {
-        m_entities.emplace(std::piecewise_construct, std::forward_as_tuple(uu),
-                           std::forward_as_tuple(Entity::new_from_json(uu, it, {})));
-    }
-    for (const auto &[uu, it] : j.at("constraints").items()) {
-        m_constraints.emplace(std::piecewise_construct, std::forward_as_tuple(uu),
-                              std::forward_as_tuple(Constraint::new_from_json(uu, it)));
-    }
+    m_content = ClusterContent::from_json(j);
     for (const auto &[k, v] : j.at("anchors").items()) {
         EntityAndPoint enp = v;
         m_anchors.emplace(std::stoi(k), enp);
@@ -50,21 +43,7 @@ json EntityCluster::serialize() const
     j["angle"] = m_angle;
     j["wrkpl"] = m_wrkpl;
     j["exploded_group"] = m_exploded_group;
-    {
-        auto o = json::object();
-        for (const auto &[uu, it] : m_entities) {
-            if (it->m_kind == ItemKind::USER)
-                o[uu] = it->serialize();
-        }
-        j["entities"] = o;
-    }
-    {
-        auto o = json::object();
-        for (const auto &[uu, it] : m_constraints) {
-            o[uu] = it->serialize();
-        }
-        j["constraints"] = o;
-    }
+    m_content->serialize(j);
     {
         json o = json::object();
         for (const auto &[k, v] : m_anchors) {
@@ -150,28 +129,7 @@ bool EntityCluster::is_valid_point(unsigned int point) const
 
 std::unique_ptr<Entity> EntityCluster::clone() const
 {
-    auto n = std::make_unique<EntityCluster>(m_uuid);
-    n->m_origin = m_origin;
-    n->m_scale_x = m_scale_x;
-    n->m_scale_y = m_scale_y;
-    n->m_angle = m_angle;
-    n->m_group = m_group;
-    n->m_wrkpl = m_wrkpl;
-    n->m_anchors = m_anchors;
-    n->m_anchors_transformed = m_anchors_transformed;
-    n->m_lock_scale_x = m_lock_scale_x;
-    n->m_lock_scale_y = m_lock_scale_y;
-    n->m_lock_aspect_ratio = m_lock_aspect_ratio;
-    n->m_lock_angle = m_lock_angle;
-    n->m_exploded_group = m_exploded_group;
-    // don't copy m_anchors_available, never needed
-    for (const auto &[uu, it] : m_constraints) {
-        n->m_constraints.emplace(uu, it->clone());
-    }
-    for (const auto &[uu, it] : m_entities) {
-        n->m_entities.emplace(uu, it->clone());
-    }
-    return n;
+    return std::make_unique<EntityCluster>(*this);
 }
 
 std::set<UUID> EntityCluster::get_referenced_entities() const
@@ -205,14 +163,15 @@ void EntityCluster::remove_anchor(unsigned int i)
 
 glm::dvec2 EntityCluster::get_anchor_point(const EntityAndPoint &enp) const
 {
-    return dynamic_cast<const IEntityInWorkplane &>(*m_entities.at(enp.entity)).get_point_in_workplane(enp.point);
+    return dynamic_cast<const IEntityInWorkplane &>(*m_content->m_entities.at(enp.entity))
+            .get_point_in_workplane(enp.point);
 }
 
 void EntityCluster::add_available_anchors()
 {
     m_anchors_available.clear();
     unsigned int aid = s_available_anchor_offset;
-    for (const auto &[uu, en] : m_entities) {
+    for (const auto &[uu, en] : m_content->m_entities) {
         for (unsigned int point = 1; point <= 4; point++) {
             if (!en->is_valid_point(point))
                 break;
@@ -237,6 +196,11 @@ bool EntityCluster::is_supported_entity(const Entity &en)
     return en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D, Entity::Type::BEZIER_2D);
 }
 
-EntityCluster::~EntityCluster() = default;
+bool EntityCluster::can_delete(const Document &doc) const
+{
+    if (!Entity::can_delete(doc))
+        return false;
+    return m_exploded_group == UUID{};
+}
 
 } // namespace dune3d

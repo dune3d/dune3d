@@ -33,6 +33,11 @@ public:
     UUID get_workplane_yz_uuid() const;
     UUID get_workplane_zx_uuid() const;
 
+    bool can_delete() const override
+    {
+        return false;
+    }
+
 private:
     EntityWorkplane &add_workplane(Document &doc, const UUID &uu, const glm::dquat &normal,
                                    const glm::dvec2 &size) const;

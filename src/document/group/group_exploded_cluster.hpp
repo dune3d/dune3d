@@ -16,6 +16,11 @@ public:
 
     json serialize() const override;
     std::unique_ptr<Group> clone() const override;
+
+    bool can_delete() const override
+    {
+        return false;
+    }
 };
 
 } // namespace dune3d
