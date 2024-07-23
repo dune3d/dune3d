@@ -524,9 +524,14 @@ void Renderer::visit(const EntityCluster &cluster)
 
         m_ca.set_no_points(true);
         for (const auto &[uu, en] : cluster.m_content->m_entities) {
-            if (en->m_construction)
+            if (en->m_construction && !cluster.m_anchors_available.size())
                 continue;
-            en->accept(*this);
+            {
+                AutoSaveRestore asr2{*this};
+                if (cluster.m_anchors_available.size() && en->m_construction)
+                    m_ca.set_vertex_construction(true);
+                en->accept(*this);
+            }
         }
 
         m_ca.unset_override_selectable();
