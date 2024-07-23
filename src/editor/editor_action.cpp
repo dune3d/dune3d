@@ -736,9 +736,9 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
         return;
     auto &group = dynamic_cast<GroupExplodedCluster &>(group_base);
     auto &cluster = doc.get_entity<EntityCluster &>(group.m_cluster);
-    
+
     auto content = ClusterContent::create();
-    
+
     auto cloned_wrkpl_uu = doc.get_reference_group().get_workplane_xy_uuid();
 
     for (auto &[uu, en] : doc.m_entities) {
@@ -756,7 +756,7 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
         co_cloned->m_group = cluster.m_group;
         content->m_constraints.emplace(uu, std::move(co_cloned));
     }
-    
+
     cluster.m_content = content;
 
     ItemsToDelete items_to_delete;

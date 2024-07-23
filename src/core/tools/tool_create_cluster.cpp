@@ -42,7 +42,7 @@ ToolResponse ToolCreateCluster::begin(const ToolArgs &args)
 
     std::set<const Constraint *> constraints;
     auto cloned_wrkpl_uu = get_doc().get_reference_group().get_workplane_xy_uuid();
-    
+
     auto content = ClusterContent::create();
 
     for (auto &sr : m_selection) {

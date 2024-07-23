@@ -117,7 +117,7 @@ private:
     std::vector<State> m_states;
 
     class AutoSaveRestore;
-    
+
     void save(Badge<AutoSaveRestore>);
     void restore(Badge<AutoSaveRestore>);
 };
