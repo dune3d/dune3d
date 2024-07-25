@@ -18,6 +18,7 @@ public:
                            const glm::dquat &normal) const override;
 
     void update_acc(IGroupSolidModel::Operation op, const TopoDS_Shape &last);
+    void update_acc(IGroupSolidModel::Operation op, const SolidModelOcc *last);
 };
 
 } // namespace dune3d

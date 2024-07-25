@@ -609,4 +609,12 @@ void SolidModelOcc::update_acc(IGroupSolidModel::Operation op, const TopoDS_Shap
     }
 }
 
+void SolidModelOcc::update_acc(IGroupSolidModel::Operation op, const SolidModelOcc *last)
+{
+    if (last)
+        update_acc(op, last->m_shape_acc);
+    else
+        m_shape_acc = m_shape;
+}
+
 } // namespace dune3d
