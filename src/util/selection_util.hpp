@@ -38,9 +38,9 @@ line_and_point_from_selection(const Document &doc, const std::set<SelectableRef>
 std::optional<LineAndPoint>
 circle_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                 LineAndPoint::AllowSameEntity allow_same_entity = LineAndPoint::AllowSameEntity::NO);
-std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
-std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
-                                                              EntityType type);
+std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
+std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                                   EntityType type);
 
 
 struct LinesAndPoint {

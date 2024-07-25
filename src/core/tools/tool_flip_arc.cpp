@@ -9,7 +9,7 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolFlipArc::can_begin()
 {
-    auto enp = entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::ARC_2D);
+    auto enp = point_from_selection(get_doc(), m_selection, Entity::Type::ARC_2D);
     if (!enp)
         return false;
     return enp->point == 0;
@@ -17,7 +17,7 @@ ToolBase::CanBegin ToolFlipArc::can_begin()
 
 ToolResponse ToolFlipArc::begin(const ToolArgs &args)
 {
-    auto enp = entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::ARC_2D);
+    auto enp = point_from_selection(get_doc(), m_selection, Entity::Type::ARC_2D);
     if (!enp.has_value())
         return ToolResponse::end();
 

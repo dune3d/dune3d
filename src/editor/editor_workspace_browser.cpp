@@ -97,7 +97,7 @@ void Editor::on_add_group(Group::Type group_type)
         if (!current_group.m_active_wrkpl)
             return;
         auto sel = get_canvas().get_selection();
-        auto axis_enp = entity_and_point_from_selection(doc, sel);
+        auto axis_enp = point_from_selection(doc, sel);
         if (!axis_enp)
             return;
         if (axis_enp->point != 0)
@@ -118,7 +118,7 @@ void Editor::on_add_group(Group::Type group_type)
         if (!current_group.m_active_wrkpl)
             return;
         auto sel = get_canvas().get_selection();
-        auto axis_enp = entity_and_point_from_selection(doc, sel);
+        auto axis_enp = point_from_selection(doc, sel);
         if (!axis_enp)
             return;
         if (axis_enp->point != 0)
@@ -158,7 +158,7 @@ void Editor::on_add_group(Group::Type group_type)
         }
         else {
             auto sel = get_canvas().get_selection();
-            auto owrkpl = entity_and_point_from_selection(doc, sel, Entity::Type::WORKPLANE);
+            auto owrkpl = point_from_selection(doc, sel, Entity::Type::WORKPLANE);
             if (owrkpl)
                 wrkpl = owrkpl->entity;
         }

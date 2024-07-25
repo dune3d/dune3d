@@ -16,7 +16,7 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolRotate::can_begin()
 {
-    auto enp = entity_and_point_from_selection(get_doc(), m_selection);
+    auto enp = point_from_selection(get_doc(), m_selection);
     if (!enp)
         return false;
     auto &en = get_entity(enp->entity);
@@ -27,7 +27,7 @@ ToolBase::CanBegin ToolRotate::can_begin()
 
 ToolResponse ToolRotate::begin(const ToolArgs &args)
 {
-    auto enp = entity_and_point_from_selection(get_doc(), m_selection);
+    auto enp = point_from_selection(get_doc(), m_selection);
 
     {
         auto &en = get_entity(enp.value().entity);

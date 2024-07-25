@@ -314,14 +314,14 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
         m_view_editor = nullptr;
     }
     if (m_core.has_documents()) {
-        if (auto wrkpl = entity_and_point_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE)) {
+        if (auto wrkpl = point_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE)) {
             m_title->set_label("Workplane");
             m_title->set_tooltip_text((std::string)wrkpl->entity);
             auto ed = Gtk::make_managed<WorkplaneEditor>(m_core.get_current_document(), wrkpl->entity);
             m_editor = ed;
             ed->signal_changed().connect([this] { m_signal_changed.emit(); });
         }
-        else if (auto step = entity_and_point_from_selection(m_core.get_current_document(), sel, Entity::Type::STEP)) {
+        else if (auto step = point_from_selection(m_core.get_current_document(), sel, Entity::Type::STEP)) {
             m_title->set_label("STEP");
             m_title->set_tooltip_text((std::string)step->entity);
             auto ed = Gtk::make_managed<STEPEditor>(m_core.get_current_document_directory(),
@@ -334,8 +334,7 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
             m_view_editor = ved;
             ved->signal_changed().connect([this] { m_signal_view_changed.emit(); });
         }
-        else if (auto doc =
-                         entity_and_point_from_selection(m_core.get_current_document(), sel, Entity::Type::DOCUMENT)) {
+        else if (auto doc = point_from_selection(m_core.get_current_document(), sel, Entity::Type::DOCUMENT)) {
             m_title->set_label("Document");
             m_title->set_tooltip_text((std::string)doc->entity);
             auto ed = Gtk::make_managed<DocumentEditor>(

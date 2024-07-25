@@ -164,7 +164,7 @@ void Editor::init_actions()
     connect_action(ActionID::SELECT_PATH, [this](auto &a) {
         auto &doc = m_core.get_current_document();
 
-        auto enp = entity_and_point_from_selection(doc, get_canvas().get_selection());
+        auto enp = point_from_selection(doc, get_canvas().get_selection());
         if (!enp)
             return;
         if (enp->point != 0)
@@ -275,8 +275,8 @@ void Editor::on_align_to_workplane(const ActionConnection &conn)
         wrkpl_uu = m_core.get_current_workplane();
     }
     else {
-        if (auto wrkpl_opt = entity_and_point_from_selection(m_core.get_current_document(),
-                                                             get_canvas().get_selection(), Entity::Type::WORKPLANE))
+        if (auto wrkpl_opt = point_from_selection(m_core.get_current_document(), get_canvas().get_selection(),
+                                                  Entity::Type::WORKPLANE))
             wrkpl_uu = wrkpl_opt->entity;
     }
     if (!wrkpl_uu)
@@ -297,8 +297,8 @@ void Editor::on_center_to_workplane(const ActionConnection &conn)
         wrkpl_uu = m_core.get_current_workplane();
     }
     else {
-        if (auto wrkpl_opt = entity_and_point_from_selection(m_core.get_current_document(),
-                                                             get_canvas().get_selection(), Entity::Type::WORKPLANE))
+        if (auto wrkpl_opt = point_from_selection(m_core.get_current_document(), get_canvas().get_selection(),
+                                                  Entity::Type::WORKPLANE))
             wrkpl_uu = wrkpl_opt->entity;
     }
     if (!wrkpl_uu)
@@ -358,13 +358,12 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE] = has_current_wrkpl;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE] = has_current_wrkpl;
         const auto sel_is_workplane =
-                entity_and_point_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE)
-                        .has_value();
+                point_from_selection(m_core.get_current_document(), sel, Entity::Type::WORKPLANE).has_value();
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_WORKPLANE] = sel_is_workplane;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
         m_action_sensitivity[ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE] = sel_is_workplane;
         {
-            auto enp = entity_and_point_from_selection(m_core.get_current_document(), sel);
+            auto enp = point_from_selection(m_core.get_current_document(), sel);
             bool can_select_path = false;
             if (enp) {
                 auto &en = m_core.get_current_document().get_entity(enp->entity);

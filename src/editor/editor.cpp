@@ -486,7 +486,7 @@ void Editor::open_context_menu()
 
     if (m_core.has_documents()) {
         auto &doc = m_core.get_current_document();
-        if (auto enp = entity_and_point_from_selection(doc, m_context_menu_selection)) {
+        if (auto enp = point_from_selection(doc, m_context_menu_selection)) {
             auto &en = doc.get_entity(enp->entity);
             std::vector<const Constraint *> constraints;
             for (auto constraint : en.get_constraints(doc)) {

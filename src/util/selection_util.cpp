@@ -154,7 +154,7 @@ std::optional<LineAndPoint> circle_and_point_from_selection(const Document &doc,
     return {{sr_arc.item, sr_point.get_entity_and_point()}};
 }
 
-std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
 {
     if (sel.size() != 1)
         return {};
@@ -170,10 +170,10 @@ std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &do
     return sr1.get_entity_and_point();
 }
 
-std::optional<EntityAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
-                                                              Entity::Type type)
+std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                                   Entity::Type type)
 {
-    auto enp = entity_and_point_from_selection(doc, sel);
+    auto enp = point_from_selection(doc, sel);
     if (!enp)
         return {};
 

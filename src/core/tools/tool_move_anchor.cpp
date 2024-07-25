@@ -14,7 +14,7 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolMoveAnchor::can_begin()
 {
-    auto enp = entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::STEP);
+    auto enp = point_from_selection(get_doc(), m_selection, Entity::Type::STEP);
     if (!enp)
         return false;
     auto &en = get_entity<EntitySTEP>(enp->entity);
@@ -24,7 +24,7 @@ ToolBase::CanBegin ToolMoveAnchor::can_begin()
 
 ToolResponse ToolMoveAnchor::begin(const ToolArgs &args)
 {
-    auto enp = entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::STEP);
+    auto enp = point_from_selection(get_doc(), m_selection, Entity::Type::STEP);
     if (!enp)
         return ToolResponse::end();
 

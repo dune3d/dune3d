@@ -13,7 +13,7 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolConstrainDiameterRadius::can_begin()
 {
-    auto enp = entity_and_point_from_selection(get_doc(), m_selection);
+    auto enp = point_from_selection(get_doc(), m_selection);
     if (!enp)
         return false;
     if (enp->point != 0)
@@ -36,7 +36,7 @@ ToolBase::CanBegin ToolConstrainDiameterRadius::can_begin()
 
 ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
 {
-    auto enp = entity_and_point_from_selection(m_core.get_current_document(), m_selection);
+    auto enp = point_from_selection(m_core.get_current_document(), m_selection);
     if (!enp.has_value())
         return ToolResponse::end();
 

@@ -13,7 +13,7 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolAddAnchor::can_begin()
 {
-    return entity_and_point_from_selection(get_doc(), m_selection, Entity::Type::STEP).has_value();
+    return point_from_selection(get_doc(), m_selection, Entity::Type::STEP).has_value();
 }
 
 ToolResponse ToolAddAnchor::begin(const ToolArgs &args)
