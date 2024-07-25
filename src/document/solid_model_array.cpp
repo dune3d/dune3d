@@ -25,14 +25,7 @@ static std::shared_ptr<const SolidModel> create_array(const Document &doc, Group
     if (!source_group)
         return nullptr;
 
-    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(SolidModel::get_last_solid_model(doc, group));
-    if (!last_solid_model) {
-        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
-        return nullptr;
-    }
-
     group.m_operation = source_group->get_operation();
-
 
     const auto source_solid_model = dynamic_cast<const SolidModelOcc *>(source_group->get_solid_model());
     if (!source_solid_model) {
@@ -52,7 +45,8 @@ static std::shared_ptr<const SolidModel> create_array(const Document &doc, Group
             mod->m_shape = BRepAlgoAPI_Fuse(mod->m_shape, sh);
     }
 
-    mod->update_acc(group.m_operation, last_solid_model->m_shape_acc);
+    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(SolidModel::get_last_solid_model(doc, group));
+    mod->update_acc(group.m_operation, last_solid_model);
 
     if (mod->m_shape_acc.IsNull()) {
         group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "didn't generate a shape");
