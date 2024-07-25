@@ -32,6 +32,10 @@ struct LineAndPoint {
     std::set<EntityAndPoint> get_enps() const;
 };
 
+
+std::optional<LineAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                                            const std::set<EntityType> &types,
+                                                            LineAndPoint::AllowSameEntity allow_same_entity);
 std::optional<LineAndPoint>
 line_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                               LineAndPoint::AllowSameEntity allow_same_entity = LineAndPoint::AllowSameEntity::NO);

@@ -81,9 +81,9 @@ std::optional<EntityAndPoint> entity_and_point_from_hover_selection(const Docume
     return {};
 }
 
-
-std::optional<LineAndPoint> line_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
-                                                          LineAndPoint::AllowSameEntity allow_same_entity)
+std::optional<LineAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                                            const std::set<Entity::Type> &types,
+                                                            LineAndPoint::AllowSameEntity allow_same_entity)
 {
     if (sel.size() != 2)
         return {};
@@ -113,45 +113,24 @@ std::optional<LineAndPoint> line_and_point_from_selection(const Document &doc, c
         return {};
 
     auto &en_line = doc.get_entity(sr_line.item);
-    if (!en_line.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D))
+    if (!types.contains(en_line.get_type()))
         return {};
 
     return {{sr_line.item, sr_point.get_entity_and_point()}};
 }
 
+std::optional<LineAndPoint> line_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                                          LineAndPoint::AllowSameEntity allow_same_entity)
+{
+    return entity_and_point_from_selection(doc, sel, {Entity::Type::LINE_2D, Entity::Type::LINE_3D}, allow_same_entity);
+}
+
 std::optional<LineAndPoint> circle_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                                             LineAndPoint::AllowSameEntity allow_same_entity)
 {
-    if (sel.size() != 2)
-        return {};
-    auto it = sel.begin();
-    auto &sr1 = *it++;
-    auto &sr2 = *it;
-
-    if (sr1.type != SelectableRef::Type::ENTITY)
-        return {};
-    if (sr2.type != SelectableRef::Type::ENTITY)
-        return {};
-
-    if ((allow_same_entity == LineAndPoint::AllowSameEntity::NO) && (sr1.item == sr2.item))
-        return {};
-
-    auto &en1 = doc.get_entity(sr1.item);
-    auto &en2 = doc.get_entity(sr2.item);
-
-    // we're looking for just one point
-    if (en1.is_valid_point(sr1.point) == en2.is_valid_point(sr2.point))
-        return {};
-
-    auto &sr_arc = en1.is_valid_point(sr1.point) ? sr2 : sr1;
-    auto &sr_point = en1.is_valid_point(sr1.point) ? sr1 : sr2;
-
-    auto &en_arc = doc.get_entity(sr_arc.item);
     using ET = Entity::Type;
-    if (!en_arc.of_type(ET::ARC_2D, ET::CIRCLE_2D, ET::ARC_3D, ET::CIRCLE_3D))
-        return {};
-
-    return {{sr_arc.item, sr_point.get_entity_and_point()}};
+    return entity_and_point_from_selection(doc, sel, {ET::ARC_2D, ET::CIRCLE_2D, ET::ARC_3D, ET::CIRCLE_3D},
+                                           allow_same_entity);
 }
 
 std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
