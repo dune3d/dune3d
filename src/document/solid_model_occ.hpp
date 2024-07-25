@@ -17,8 +17,10 @@ public:
     void export_projection(const std::filesystem::path &path, const glm::dvec3 &origin,
                            const glm::dquat &normal) const override;
 
-    void update_acc(IGroupSolidModel::Operation op, const TopoDS_Shape &last);
     void update_acc(IGroupSolidModel::Operation op, const SolidModelOcc *last);
+
+private:
+    void update_acc(IGroupSolidModel::Operation op, const TopoDS_Shape &last);
 };
 
 } // namespace dune3d
