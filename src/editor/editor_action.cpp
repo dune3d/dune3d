@@ -765,6 +765,31 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
     items_to_delete.append(extra_items);
     cluster.m_exploded_group = UUID{};
 
+    std::set<EntityAndPoint> deleted_anchors_enps;
+    for (const auto &[a, enp] : cluster.m_anchors) {
+        bool present = false;
+        if (content->m_entities.count(enp.entity)) {
+            auto &en = content->m_entities.at(enp.entity);
+            present = en->is_valid_point(enp.point);
+        }
+
+        if (!present)
+            deleted_anchors_enps.emplace(cluster.m_uuid, a);
+    }
+
+    for (auto a : deleted_anchors_enps) {
+        cluster.remove_anchor(a.point);
+    }
+
+    for (const auto &[uu, constr] : doc.m_constraints) {
+        std::set<EntityAndPoint> isect;
+        std::ranges::set_intersection(constr->get_referenced_entities_and_points(), deleted_anchors_enps,
+                                      std::inserter(isect, isect.begin()));
+        if (isect.size())
+            items_to_delete.constraints.insert(uu);
+    }
+
+
     doc.set_group_generate_pending(cluster.m_group);
 
     doc.delete_items(items_to_delete);

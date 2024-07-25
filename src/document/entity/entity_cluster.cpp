@@ -152,7 +152,7 @@ glm::dvec2 EntityCluster::transform(const glm::dvec2 &p) const
 void EntityCluster::add_anchor(unsigned int i, const EntityAndPoint &enp)
 {
     m_anchors.emplace(i, enp);
-    m_anchors_transformed.emplace(i, get_anchor_point(enp));
+    m_anchors_transformed.emplace(i, transform(get_anchor_point(enp)));
 }
 
 void EntityCluster::remove_anchor(unsigned int i)
