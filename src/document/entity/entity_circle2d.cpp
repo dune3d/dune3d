@@ -80,4 +80,18 @@ std::set<UUID> EntityCircle2D::get_referenced_entities() const
     return ents;
 }
 
+void EntityCircle2D::move(const Entity &last, const glm::dvec2 &initial, const glm::dvec2 &pos, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityCircle2D &>(last);
+    if (point == 1) {
+        m_center = en_last.m_center + (pos - initial);
+    }
+    else if (point == 0) {
+        const auto initial_radius = glm::length(en_last.m_center - initial);
+        const auto current_radius = glm::length(m_center - pos);
+
+        m_radius = en_last.m_radius + (current_radius - initial_radius);
+    }
+}
+
 } // namespace dune3d

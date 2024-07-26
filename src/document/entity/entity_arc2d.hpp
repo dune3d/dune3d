@@ -3,13 +3,15 @@
 #include "ientity_in_workplane.hpp"
 #include "ientity_radius.hpp"
 #include "ientity_tangent.hpp"
+#include "ientity_movable2d.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
 class EntityArc2D : public EntityT<EntityArc2D>,
                     public IEntityInWorkplane,
                     public IEntityRadius,
-                    public IEntityTangent {
+                    public IEntityTangent,
+                    public IEntityMovable2D {
 public:
     explicit EntityArc2D(const UUID &uu);
     explicit EntityArc2D(const UUID &uu, const json &j);
@@ -37,6 +39,8 @@ public:
     {
         return m_wrkpl;
     }
+
+    void move(const Entity &last, const glm::dvec2 &delta, unsigned int point) override;
 
     std::string get_point_name(unsigned int point) const override;
 

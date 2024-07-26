@@ -2,11 +2,12 @@
 #include "entityt.hpp"
 #include <glm/glm.hpp>
 #include "ientity_normal.hpp"
+#include "ientity_movable3d.hpp"
 #include <filesystem>
 #include "import_step/imported_step.hpp"
 
 namespace dune3d {
-class EntitySTEP : public EntityT<EntitySTEP>, public IEntityNormal {
+class EntitySTEP : public EntityT<EntitySTEP>, public IEntityNormal, public IEntityMovable3D {
 public:
     explicit EntitySTEP(const UUID &uu);
     explicit EntitySTEP(const UUID &uu, const json &j, const std::filesystem::path &containing_dir);
@@ -41,6 +42,8 @@ public:
     std::shared_ptr<const ImportedSTEP> m_imported;
 
     void update_imported(const std::filesystem::path &containing_dir);
+
+    void move(const Entity &last, const glm::dvec3 &delta, unsigned int point) override;
 
     std::string get_point_name(unsigned int point) const override;
 

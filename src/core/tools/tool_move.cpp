@@ -1,22 +1,14 @@
 #include "tool_move.hpp"
 #include "document/document.hpp"
 #include "document/group/group.hpp"
-#include "document/entity/entity_line3d.hpp"
-#include "document/entity/entity_line2d.hpp"
-#include "document/entity/entity_arc2d.hpp"
-#include "document/entity/entity_arc3d.hpp"
-#include "document/entity/entity_circle2d.hpp"
-#include "document/entity/entity_circle3d.hpp"
+#include "document/entity/ientity_movable2d.hpp"
+#include "document/entity/ientity_movable3d.hpp"
+#include "document/entity/ientity_movable2d_initial_pos.hpp"
+#include "document/entity/ientity_in_workplane.hpp"
 #include "document/entity/entity_workplane.hpp"
-#include "document/entity/entity_step.hpp"
-#include "document/entity/entity_point2d.hpp"
-#include "document/entity/entity_document.hpp"
-#include "document/entity/entity_bezier2d.hpp"
-#include "document/entity/entity_bezier3d.hpp"
-#include "document/constraint/constraint_point_distance.hpp"
-#include "document/constraint/constraint_diameter_radius.hpp"
+#include "document/constraint/iconstraint_workplane.hpp"
+#include "document/constraint/iconstraint_movable.hpp"
 #include "document/constraint/constraint_angle.hpp"
-#include "document/constraint/constraint_point_line_distance.hpp"
 #include "editor/editor_interface.hpp"
 #include "tool_common_impl.hpp"
 
@@ -96,135 +88,24 @@ ToolResponse ToolMove::update(const ToolArgs &args)
         for (auto [entity, point] : m_entities) {
             if (!entity->can_move(doc))
                 continue;
-            if (auto en = dynamic_cast<EntityLine3D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityLine3D &>(*last_doc.m_entities.at(entity->m_uuid));
-                if (point == 0 || point == 1) {
-                    en->m_p1 = en_last.m_p1 + delta;
-                }
-                if (point == 0 || point == 2) {
-                    en->m_p2 = en_last.m_p2 + delta;
-                }
-            }
-            if (auto en = dynamic_cast<EntityWorkplane *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityWorkplane &>(*last_doc.m_entities.at(entity->m_uuid));
-                en->m_origin = en_last.m_origin + delta;
-            }
-            if (auto en = dynamic_cast<EntitySTEP *>(entity)) {
-                auto &en_last = dynamic_cast<const EntitySTEP &>(*last_doc.m_entities.at(entity->m_uuid));
-                if (point == 0 || point == 1)
-                    en->m_origin = en_last.m_origin + delta;
-                else if (en->m_anchors_transformed.contains(point) && en_last.m_anchors_transformed.contains(point))
-                    en->m_anchors_transformed.at(point) = en_last.m_anchors_transformed.at(point) + delta;
-            }
-            if (auto en = dynamic_cast<EntityDocument *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityDocument &>(*last_doc.m_entities.at(entity->m_uuid));
-                if (point == 0 || point == 1)
-                    en->m_origin = en_last.m_origin + delta;
-            }
-            if (auto en = dynamic_cast<EntityLine2D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityLine2D &>(*last_doc.m_entities.at(entity->m_uuid));
-                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
+            if (auto en_movable = dynamic_cast<IEntityMovable2D *>(entity)) {
+                const auto &wrkpl =
+                        get_entity<EntityWorkplane>(dynamic_cast<const IEntityInWorkplane &>(*entity).get_workplane());
                 const auto delta2d =
                         wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                if (point == 0 || point == 1) {
-                    en->m_p1 = en_last.m_p1 + delta2d;
-                }
-                if (point == 0 || point == 2) {
-                    en->m_p2 = en_last.m_p2 + delta2d;
-                }
+                auto &en_last = *last_doc.m_entities.at(entity->m_uuid);
+                en_movable->move(en_last, delta2d, point);
             }
-            if (auto en = dynamic_cast<EntityArc2D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityArc2D &>(*last_doc.m_entities.at(entity->m_uuid));
-                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
-                const auto delta2d =
-                        wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                if (point == 0 || point == 1) {
-                    en->m_from = en_last.m_from + delta2d;
-                }
-                if (point == 0 || point == 2) {
-                    en->m_to = en_last.m_to + delta2d;
-                }
-                if (point == 0 || point == 3) {
-                    en->m_center = en_last.m_center + delta2d;
-                }
+            else if (auto en_movable3d = dynamic_cast<IEntityMovable3D *>(entity)) {
+                auto &en_last = *last_doc.m_entities.at(entity->m_uuid);
+                en_movable3d->move(en_last, delta, point);
             }
-            if (auto en = dynamic_cast<EntityArc3D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityArc3D &>(*last_doc.m_entities.at(entity->m_uuid));
-                if (point == 0 || point == 1) {
-                    en->m_from = en_last.m_from + delta;
-                }
-                if (point == 0 || point == 2) {
-                    en->m_to = en_last.m_to + delta;
-                }
-                if (point == 0 || point == 3) {
-                    en->m_center = en_last.m_center + delta;
-                }
-            }
-            if (auto en = dynamic_cast<EntityCircle2D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityCircle2D &>(*last_doc.m_entities.at(entity->m_uuid));
-                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
-
-                if (point == 1) {
-                    const auto delta2d =
-                            wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                    en->m_center = en_last.m_center + delta2d;
-                }
-                else if (point == 0) {
-                    const auto initial_radius = glm::length(en_last.m_center - m_inital_pos_wrkpl.at(wrkpl.m_uuid));
-                    const auto current_radius = glm::length(en->m_center
-                                                            - wrkpl.project(m_intf.get_cursor_pos_for_plane(
-                                                                    wrkpl.m_origin, wrkpl.get_normal_vector())));
-
-
-                    en->m_radius = en_last.m_radius + (current_radius - initial_radius);
-                }
-            }
-            if (auto en = dynamic_cast<EntityCircle3D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityCircle3D &>(*last_doc.m_entities.at(entity->m_uuid));
-                en->m_center = en_last.m_center + delta;
-            }
-            if (auto en = dynamic_cast<EntityPoint2D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityPoint2D &>(*last_doc.m_entities.at(entity->m_uuid));
-                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
-
-                if (point == 0) {
-                    const auto delta2d =
-                            wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                    en->m_p = en_last.m_p + delta2d;
-                }
-            }
-            if (auto en = dynamic_cast<EntityBezier2D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityBezier2D &>(*last_doc.m_entities.at(entity->m_uuid));
-                auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*doc.m_entities.at(en->m_wrkpl));
-                const auto delta2d =
-                        wrkpl.project(get_cursor_pos_for_workplane(wrkpl)) - m_inital_pos_wrkpl.at(wrkpl.m_uuid);
-                if (point == 0 || point == 1) {
-                    en->m_p1 = en_last.m_p1 + delta2d;
-                }
-                if (point == 0 || point == 2) {
-                    en->m_p2 = en_last.m_p2 + delta2d;
-                }
-                if (point == 0 || point == 3 || point == 1) {
-                    en->m_c1 = en_last.m_c1 + delta2d;
-                }
-                if (point == 0 || point == 4 || point == 2) {
-                    en->m_c2 = en_last.m_c2 + delta2d;
-                }
-            }
-            if (auto en = dynamic_cast<EntityBezier3D *>(entity)) {
-                auto &en_last = dynamic_cast<const EntityBezier3D &>(*last_doc.m_entities.at(entity->m_uuid));
-                if (point == 0 || point == 1) {
-                    en->m_p1 = en_last.m_p1 + delta;
-                }
-                if (point == 0 || point == 2) {
-                    en->m_p2 = en_last.m_p2 + delta;
-                }
-                if (point == 0 || point == 3 || point == 1) {
-                    en->m_c1 = en_last.m_c1 + delta;
-                }
-                if (point == 0 || point == 4 || point == 2) {
-                    en->m_c2 = en_last.m_c2 + delta;
-                }
+            else if (auto en_movable_initial_pos = dynamic_cast<IEntityMovable2DIntialPos *>(entity)) {
+                const auto &wrkpl =
+                        get_entity<EntityWorkplane>(dynamic_cast<const IEntityInWorkplane &>(*entity).get_workplane());
+                auto &en_last = *last_doc.m_entities.at(entity->m_uuid);
+                en_movable_initial_pos->move(en_last, m_inital_pos_wrkpl.at(wrkpl.m_uuid),
+                                             wrkpl.project(get_cursor_pos_for_workplane(wrkpl)), point);
             }
         }
 

@@ -2,10 +2,14 @@
 #include "entityt.hpp"
 #include "ientity_in_workplane.hpp"
 #include "ientity_tangent.hpp"
+#include "ientity_movable2d.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityLine2D : public EntityT<EntityLine2D>, public IEntityInWorkplane, public IEntityTangent {
+class EntityLine2D : public EntityT<EntityLine2D>,
+                     public IEntityInWorkplane,
+                     public IEntityTangent,
+                     public IEntityMovable2D {
 public:
     explicit EntityLine2D(const UUID &uu);
     explicit EntityLine2D(const UUID &uu, const json &j);
@@ -22,6 +26,7 @@ public:
     glm::dvec2 get_tangent_at_point(unsigned int point) const override;
     bool is_valid_tangent_point(unsigned int point) const override;
 
+    void move(const Entity &last, const glm::dvec2 &delta, unsigned int point) override;
 
     glm::dvec2 m_p1;
     glm::dvec2 m_p2;

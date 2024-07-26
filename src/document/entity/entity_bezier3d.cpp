@@ -99,4 +99,21 @@ bool EntityBezier3D::is_valid_point(unsigned int point) const
     return point == 1 || point == 2 || point == 3 || point == 4;
 }
 
+void EntityBezier3D::move(const Entity &last, const glm::dvec3 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityBezier3D &>(last);
+    if (point == 0 || point == 1) {
+        m_p1 = en_last.m_p1 + delta;
+    }
+    if (point == 0 || point == 2) {
+        m_p2 = en_last.m_p2 + delta;
+    }
+    if (point == 0 || point == 3 || point == 1) {
+        m_c1 = en_last.m_c1 + delta;
+    }
+    if (point == 0 || point == 4 || point == 2) {
+        m_c2 = en_last.m_c2 + delta;
+    }
+}
+
 } // namespace dune3d

@@ -112,4 +112,11 @@ void EntityDocument::remove_anchor(unsigned int i)
     m_anchors_transformed.erase(i);
 }
 
+void EntityDocument::move(const Entity &last, const glm::dvec3 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityDocument &>(last);
+    if (point == 0 || point == 1)
+        m_origin = en_last.m_origin + delta;
+}
+
 } // namespace dune3d

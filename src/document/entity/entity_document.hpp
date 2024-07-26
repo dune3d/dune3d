@@ -2,10 +2,11 @@
 #include "entityt.hpp"
 #include <glm/glm.hpp>
 #include "ientity_normal.hpp"
+#include "ientity_movable3d.hpp"
 #include <filesystem>
 
 namespace dune3d {
-class EntityDocument : public EntityT<EntityDocument>, public IEntityNormal {
+class EntityDocument : public EntityT<EntityDocument>, public IEntityNormal, public IEntityMovable3D {
 public:
     explicit EntityDocument(const UUID &uu);
     explicit EntityDocument(const UUID &uu, const json &j);
@@ -33,6 +34,8 @@ public:
     void add_anchor(unsigned int i, const glm::dvec3 &pt);
     void update_anchor(unsigned int i, const glm::dvec3 &pt);
     void remove_anchor(unsigned int i);
+
+    void move(const Entity &last, const glm::dvec3 &delta, unsigned int point) override;
 
     std::string get_point_name(unsigned int point) const override;
 

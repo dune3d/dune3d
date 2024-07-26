@@ -118,4 +118,18 @@ std::set<UUID> EntityArc2D::get_referenced_entities() const
     return ents;
 }
 
+void EntityArc2D::move(const Entity &last, const glm::dvec2 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityArc2D &>(last);
+    if (point == 0 || point == 1) {
+        m_from = en_last.m_from + delta;
+    }
+    if (point == 0 || point == 2) {
+        m_to = en_last.m_to + delta;
+    }
+    if (point == 0 || point == 3) {
+        m_center = en_last.m_center + delta;
+    }
+}
+
 } // namespace dune3d

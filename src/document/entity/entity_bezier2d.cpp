@@ -129,4 +129,21 @@ std::set<UUID> EntityBezier2D::get_referenced_entities() const
     return ents;
 }
 
+void EntityBezier2D::move(const Entity &last, const glm::dvec2 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityBezier2D &>(last);
+    if (point == 0 || point == 1) {
+        m_p1 = en_last.m_p1 + delta;
+    }
+    if (point == 0 || point == 2) {
+        m_p2 = en_last.m_p2 + delta;
+    }
+    if (point == 0 || point == 3 || point == 1) {
+        m_c1 = en_last.m_c1 + delta;
+    }
+    if (point == 0 || point == 4 || point == 2) {
+        m_c2 = en_last.m_c2 + delta;
+    }
+}
+
 } // namespace dune3d

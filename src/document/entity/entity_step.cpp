@@ -131,4 +131,13 @@ void EntitySTEP::remove_anchor(unsigned int i)
     m_anchors_transformed.erase(i);
 }
 
+void EntitySTEP::move(const Entity &last, const glm::dvec3 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntitySTEP &>(last);
+    if (point == 0 || point == 1)
+        m_origin = en_last.m_origin + delta;
+    else if (m_anchors_transformed.contains(point) && en_last.m_anchors_transformed.contains(point))
+        m_anchors_transformed.at(point) = en_last.m_anchors_transformed.at(point) + delta;
+}
+
 } // namespace dune3d

@@ -1,11 +1,12 @@
 #pragma once
 #include "entityt.hpp"
+#include "ientity_movable3d.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 
 namespace dune3d {
-class EntityArc3D : public EntityT<EntityArc3D> {
+class EntityArc3D : public EntityT<EntityArc3D>, public IEntityMovable3D {
 public:
     explicit EntityArc3D(const UUID &uu);
     static constexpr Type s_type = Type::ARC_3D;
@@ -16,6 +17,8 @@ public:
 
     glm::dvec3 get_point(unsigned int point, const Document &doc) const override;
     bool is_valid_point(unsigned int point) const override;
+
+    void move(const Entity &last, const glm::dvec3 &delta, unsigned int point) override;
 
     std::string get_point_name(unsigned int point) const override;
 

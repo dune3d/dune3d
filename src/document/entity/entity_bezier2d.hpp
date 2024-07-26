@@ -2,10 +2,14 @@
 #include "entityt.hpp"
 #include "ientity_in_workplane.hpp"
 #include "ientity_tangent.hpp"
+#include "ientity_movable2d.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityBezier2D : public EntityT<EntityBezier2D>, public IEntityInWorkplane, public IEntityTangent {
+class EntityBezier2D : public EntityT<EntityBezier2D>,
+                       public IEntityInWorkplane,
+                       public IEntityTangent,
+                       public IEntityMovable2D {
 public:
     explicit EntityBezier2D(const UUID &uu);
     explicit EntityBezier2D(const UUID &uu, const json &j);
@@ -29,6 +33,8 @@ public:
     UUID m_wrkpl;
 
     glm::dvec2 get_interpolated(double t) const;
+
+    void move(const Entity &last, const glm::dvec2 &delta, unsigned int point) override;
 
     std::string get_point_name(unsigned int point) const override;
 

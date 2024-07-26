@@ -1,10 +1,11 @@
 #pragma once
 #include "entityt.hpp"
 #include "ientity_in_workplane.hpp"
+#include "ientity_movable2d.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityPoint2D : public EntityT<EntityPoint2D>, public IEntityInWorkplane {
+class EntityPoint2D : public EntityT<EntityPoint2D>, public IEntityInWorkplane, public IEntityMovable2D {
 public:
     explicit EntityPoint2D(const UUID &uu);
     explicit EntityPoint2D(const UUID &uu, const json &j);
@@ -21,6 +22,8 @@ public:
 
     glm::dvec2 m_p;
     UUID m_wrkpl;
+
+    void move(const Entity &last, const glm::dvec2 &delta, unsigned int point) override;
 
     const UUID &get_workplane() const override
     {

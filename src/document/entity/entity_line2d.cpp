@@ -102,4 +102,15 @@ std::set<UUID> EntityLine2D::get_referenced_entities() const
     return ents;
 }
 
+void EntityLine2D::move(const Entity &last, const glm::dvec2 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityLine2D &>(last);
+    if (point == 0 || point == 1) {
+        m_p1 = en_last.m_p1 + delta;
+    }
+    if (point == 0 || point == 2) {
+        m_p2 = en_last.m_p2 + delta;
+    }
+}
+
 } // namespace dune3d

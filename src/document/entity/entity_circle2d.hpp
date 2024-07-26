@@ -2,10 +2,14 @@
 #include "entityt.hpp"
 #include "ientity_in_workplane.hpp"
 #include "ientity_radius.hpp"
+#include "ientity_movable2d_initial_pos.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityCircle2D : public EntityT<EntityCircle2D>, public IEntityInWorkplane, public IEntityRadius {
+class EntityCircle2D : public EntityT<EntityCircle2D>,
+                       public IEntityInWorkplane,
+                       public IEntityRadius,
+                       public IEntityMovable2DIntialPos {
 public:
     explicit EntityCircle2D(const UUID &uu);
     explicit EntityCircle2D(const UUID &uu, const json &j);
@@ -37,6 +41,8 @@ public:
     {
         return m_center;
     }
+
+    void move(const Entity &last, const glm::dvec2 &intial, const glm::dvec2 &pos, unsigned int point) override;
 
     std::string get_point_name(unsigned int point) const override;
 

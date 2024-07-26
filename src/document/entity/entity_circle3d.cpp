@@ -70,4 +70,10 @@ bool EntityCircle3D::is_valid_point(unsigned int point) const
     return point == 1;
 }
 
+void EntityCircle3D::move(const Entity &last, const glm::dvec3 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityCircle3D &>(last);
+    m_center = en_last.m_center + delta;
+}
+
 } // namespace dune3d

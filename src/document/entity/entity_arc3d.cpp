@@ -79,4 +79,18 @@ bool EntityArc3D::is_valid_point(unsigned int point) const
     return point == 1 || point == 2 || point == 3;
 }
 
+void EntityArc3D::move(const Entity &last, const glm::dvec3 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityArc3D &>(last);
+    if (point == 0 || point == 1) {
+        m_from = en_last.m_from + delta;
+    }
+    if (point == 0 || point == 2) {
+        m_to = en_last.m_to + delta;
+    }
+    if (point == 0 || point == 3) {
+        m_center = en_last.m_center + delta;
+    }
+}
+
 } // namespace dune3d

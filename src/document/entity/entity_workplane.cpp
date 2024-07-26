@@ -96,4 +96,10 @@ bool EntityWorkplane::is_valid_point(unsigned int point) const
     return point == 1;
 }
 
+void EntityWorkplane::move(const Entity &last, const glm::dvec3 &delta, unsigned int point)
+{
+    auto &en_last = dynamic_cast<const EntityWorkplane &>(last);
+    m_origin = en_last.m_origin + delta;
+}
+
 } // namespace dune3d

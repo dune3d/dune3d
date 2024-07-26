@@ -2,9 +2,10 @@
 #include "entityt.hpp"
 #include <glm/glm.hpp>
 #include "ientity_normal.hpp"
+#include "ientity_movable3d.hpp"
 
 namespace dune3d {
-class EntityWorkplane : public EntityT<EntityWorkplane>, public IEntityNormal {
+class EntityWorkplane : public EntityT<EntityWorkplane>, public IEntityNormal, public IEntityMovable3D {
 public:
     explicit EntityWorkplane(const UUID &uu);
     explicit EntityWorkplane(const UUID &uu, const json &j);
@@ -33,6 +34,8 @@ public:
     glm::dvec2 m_size;
 
     std::string get_point_name(unsigned int point) const override;
+
+    void move(const Entity &last, const glm::dvec3 &delta, unsigned int point) override;
 
     void set_normal(const glm::dquat &q) override
     {
