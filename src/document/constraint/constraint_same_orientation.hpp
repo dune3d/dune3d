@@ -1,21 +1,16 @@
 #pragma once
-#include "constraint.hpp"
+#include "constraintt.hpp"
 
 namespace dune3d {
 
 class Entity;
 
-class ConstraintSameOrientation : public Constraint {
+class ConstraintSameOrientation : public ConstraintT<ConstraintSameOrientation> {
 public:
     explicit ConstraintSameOrientation(const UUID &uu);
     explicit ConstraintSameOrientation(const UUID &uu, const json &j);
     static constexpr Type s_type = Type::SAME_ORIENTATION;
-    Type get_type() const override
-    {
-        return s_type;
-    }
     json serialize() const override;
-    std::unique_ptr<Constraint> clone() const override;
 
     UUID m_entity1;
     UUID m_entity2;
@@ -23,8 +18,6 @@ public:
     double m_val = 1;
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
-    void accept(ConstraintVisitor &visitor) const override;
 };
 
 } // namespace dune3d

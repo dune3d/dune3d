@@ -5,15 +5,15 @@
 #include "document/entity/entity_workplane.hpp"
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
-#include "constraint_visitor.hpp"
+#include "constraintt_impl.hpp"
 
 namespace dune3d {
-ConstraintPointLineDistance::ConstraintPointLineDistance(const UUID &uu) : Constraint(uu)
+ConstraintPointLineDistance::ConstraintPointLineDistance(const UUID &uu) : Base(uu)
 {
 }
 
 ConstraintPointLineDistance::ConstraintPointLineDistance(const UUID &uu, const json &j)
-    : Constraint(uu, j), m_point(j.at("point").get<EntityAndPoint>()), m_line(j.at("line").get<UUID>()),
+    : Base(uu, j), m_point(j.at("point").get<EntityAndPoint>()), m_line(j.at("line").get<UUID>()),
       m_wrkpl(j.at("wrkpl").get<UUID>()), m_distance(j.at("distance").get<double>()),
       m_offset(j.at("offset").get<glm::dvec3>()), m_measurement(j.value("measurement", false))
 {
@@ -51,11 +51,6 @@ glm::dvec3 ConstraintPointLineDistance::get_origin(const Document &doc) const
 }
 
 
-std::unique_ptr<Constraint> ConstraintPointLineDistance::clone() const
-{
-    return std::make_unique<ConstraintPointLineDistance>(*this);
-}
-
 std::set<EntityAndPoint> ConstraintPointLineDistance::get_referenced_entities_and_points() const
 {
     std::set<EntityAndPoint> r = {m_point, {m_line, 0}};
@@ -87,11 +82,5 @@ double ConstraintPointLineDistance::get_display_distance(const Document &doc) co
     else
         return m_distance;
 }
-
-void ConstraintPointLineDistance::accept(ConstraintVisitor &visitor) const
-{
-    visitor.visit(*this);
-}
-
 
 } // namespace dune3d

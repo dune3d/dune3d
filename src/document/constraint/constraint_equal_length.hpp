@@ -1,22 +1,17 @@
 #pragma once
-#include "constraint.hpp"
+#include "constraintt.hpp"
 #include "iconstraint_workplane.hpp"
 
 namespace dune3d {
 
 class Entity;
 
-class ConstraintEqualLength : public Constraint, public IConstraintWorkplane {
+class ConstraintEqualLength : public ConstraintT<ConstraintEqualLength>, public IConstraintWorkplane {
 public:
     explicit ConstraintEqualLength(const UUID &uu);
     explicit ConstraintEqualLength(const UUID &uu, const json &j);
     static constexpr Type s_type = Type::EQUAL_LENGTH;
-    Type get_type() const override
-    {
-        return s_type;
-    }
     json serialize() const override;
-    std::unique_ptr<Constraint> clone() const override;
 
     UUID m_entity1;
     UUID m_entity2;
@@ -28,8 +23,6 @@ public:
     }
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
-    void accept(ConstraintVisitor &visitor) const override;
 };
 
 } // namespace dune3d

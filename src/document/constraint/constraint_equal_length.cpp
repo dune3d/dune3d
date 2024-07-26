@@ -1,19 +1,18 @@
 #include "constraint_equal_length.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
-#include "constraint_visitor.hpp"
+#include "constraintt_impl.hpp"
 
 namespace dune3d {
-ConstraintEqualLength::ConstraintEqualLength(const UUID &uu) : Constraint(uu)
+ConstraintEqualLength::ConstraintEqualLength(const UUID &uu) : Base(uu)
 {
 }
 
 ConstraintEqualLength::ConstraintEqualLength(const UUID &uu, const json &j)
-    : Constraint(uu, j), m_entity1(j.at("entity1").get<UUID>()), m_entity2(j.at("entity2").get<UUID>()),
+    : Base(uu, j), m_entity1(j.at("entity1").get<UUID>()), m_entity2(j.at("entity2").get<UUID>()),
       m_wrkpl(j.at("wrkpl").get<UUID>())
 {
 }
-
 
 json ConstraintEqualLength::serialize() const
 {
@@ -24,10 +23,6 @@ json ConstraintEqualLength::serialize() const
     return j;
 }
 
-std::unique_ptr<Constraint> ConstraintEqualLength::clone() const
-{
-    return std::make_unique<ConstraintEqualLength>(*this);
-}
 
 std::set<EntityAndPoint> ConstraintEqualLength::get_referenced_entities_and_points() const
 {
@@ -35,11 +30,6 @@ std::set<EntityAndPoint> ConstraintEqualLength::get_referenced_entities_and_poin
     if (m_wrkpl)
         r.emplace(m_wrkpl, 0);
     return r;
-}
-
-void ConstraintEqualLength::accept(ConstraintVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d

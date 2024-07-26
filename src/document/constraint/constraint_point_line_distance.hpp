@@ -1,5 +1,5 @@
 #pragma once
-#include "constraint.hpp"
+#include "constraintt.hpp"
 #include "document/entity/entity_and_point.hpp"
 #include "iconstraint_datum.hpp"
 #include "iconstraint_workplane.hpp"
@@ -8,7 +8,7 @@
 
 namespace dune3d {
 
-class ConstraintPointLineDistance : public Constraint,
+class ConstraintPointLineDistance : public ConstraintT<ConstraintPointLineDistance>,
                                     public IConstraintDatum,
                                     public IConstraintWorkplane,
                                     public IConstraintMovable {
@@ -18,10 +18,6 @@ public:
     json serialize() const override;
 
     static constexpr Type s_type = Type::POINT_LINE_DISTANCE;
-    Type get_type() const override
-    {
-        return s_type;
-    }
 
     EntityAndPoint m_point;
     UUID m_line;
@@ -61,7 +57,6 @@ public:
         return false;
     }
 
-    std::unique_ptr<Constraint> clone() const override;
 
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
 
@@ -95,8 +90,6 @@ public:
 
     double measure_distance(const Document &doc) const;
     double get_display_distance(const Document &doc) const;
-
-    void accept(ConstraintVisitor &visitor) const override;
 };
 
 

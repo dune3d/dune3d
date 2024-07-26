@@ -5,15 +5,15 @@
 #include "document/entity/entity_workplane.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
-#include "constraint_visitor.hpp"
+#include "constraintt_impl.hpp"
 
 namespace dune3d {
-ConstraintWorkplaneNormal::ConstraintWorkplaneNormal(const UUID &uu) : Constraint(uu)
+ConstraintWorkplaneNormal::ConstraintWorkplaneNormal(const UUID &uu) : Base(uu)
 {
 }
 
 ConstraintWorkplaneNormal::ConstraintWorkplaneNormal(const UUID &uu, const json &j)
-    : Constraint(uu, j), m_line1(j.at("line1").get<UUID>()), m_line2(j.at("line2").get<UUID>()),
+    : Base(uu, j), m_line1(j.at("line1").get<UUID>()), m_line2(j.at("line2").get<UUID>()),
       m_wrkpl(j.at("wrkpl").get<UUID>()), m_flip_normal(j.at("flip_normal").get<bool>())
 {
 }
@@ -26,11 +26,6 @@ json ConstraintWorkplaneNormal::serialize() const
     j["wrkpl"] = m_wrkpl;
     j["flip_normal"] = m_flip_normal;
     return j;
-}
-
-std::unique_ptr<Constraint> ConstraintWorkplaneNormal::clone() const
-{
-    return std::make_unique<ConstraintWorkplaneNormal>(*this);
 }
 
 std::set<EntityAndPoint> ConstraintWorkplaneNormal::get_referenced_entities_and_points() const
@@ -88,11 +83,5 @@ void ConstraintWorkplaneNormal::pre_solve(Document &doc) const
 
     wrkpl.m_normal = quat_from_uv(uvn->u, uvn->v);
 }
-
-void ConstraintWorkplaneNormal::accept(ConstraintVisitor &visitor) const
-{
-    visitor.visit(*this);
-}
-
 
 } // namespace dune3d

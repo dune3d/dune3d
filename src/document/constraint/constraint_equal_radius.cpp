@@ -1,15 +1,15 @@
 #include "constraint_equal_radius.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
-#include "constraint_visitor.hpp"
+#include "constraintt_impl.hpp"
 
 namespace dune3d {
-ConstraintEqualRadius::ConstraintEqualRadius(const UUID &uu) : Constraint(uu)
+ConstraintEqualRadius::ConstraintEqualRadius(const UUID &uu) : Base(uu)
 {
 }
 
 ConstraintEqualRadius::ConstraintEqualRadius(const UUID &uu, const json &j)
-    : Constraint(uu, j), m_entity1(j.at("entity1").get<UUID>()), m_entity2(j.at("entity2").get<UUID>())
+    : Base(uu, j), m_entity1(j.at("entity1").get<UUID>()), m_entity2(j.at("entity2").get<UUID>())
 {
 }
 
@@ -21,20 +21,9 @@ json ConstraintEqualRadius::serialize() const
     return j;
 }
 
-std::unique_ptr<Constraint> ConstraintEqualRadius::clone() const
-{
-    return std::make_unique<ConstraintEqualRadius>(*this);
-}
-
 std::set<EntityAndPoint> ConstraintEqualRadius::get_referenced_entities_and_points() const
 {
     return {{m_entity1, 0}, {m_entity2, 0}};
 }
-
-void ConstraintEqualRadius::accept(ConstraintVisitor &visitor) const
-{
-    visitor.visit(*this);
-}
-
 
 } // namespace dune3d
