@@ -1,29 +1,22 @@
 #pragma once
-#include "entity.hpp"
+#include "entityt.hpp"
 #include <glm/glm.hpp>
 #include "ientity_normal.hpp"
 #include <filesystem>
 
 namespace dune3d {
-class EntityDocument : public Entity, public IEntityNormal {
+class EntityDocument : public EntityT<EntityDocument>, public IEntityNormal {
 public:
     explicit EntityDocument(const UUID &uu);
     explicit EntityDocument(const UUID &uu, const json &j);
     static constexpr Type s_type = Type::DOCUMENT;
-    Type get_type() const override
-    {
-        return s_type;
-    }
     json serialize() const override;
-    std::unique_ptr<Entity> clone() const override;
 
     double get_param(unsigned int point, unsigned int axis) const override;
     void set_param(unsigned int point, unsigned int axis, double value) override;
 
     glm::dvec3 get_point(unsigned int point, const Document &doc) const override;
     bool is_valid_point(unsigned int point) const override;
-
-    void accept(EntityVisitor &visitor) const override;
 
     glm::dvec3 m_origin = {0, 0, 0};
     glm::dquat m_normal;

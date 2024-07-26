@@ -3,19 +3,18 @@
 #include "util/glm_util.hpp"
 #include "util/json_util.hpp"
 #include "document/document.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityBezier3D::EntityBezier3D(const UUID &uu) : Entity(uu)
+EntityBezier3D::EntityBezier3D(const UUID &uu) : Base(uu)
 {
 }
 
 EntityBezier3D::EntityBezier3D(const UUID &uu, const json &j)
-    : Entity(uu, j), m_p1(j.at("p1").get<glm::dvec3>()), m_p2(j.at("p2").get<glm::dvec3>()),
+    : Base(uu, j), m_p1(j.at("p1").get<glm::dvec3>()), m_p2(j.at("p2").get<glm::dvec3>()),
       m_c1(j.at("c1").get<glm::dvec3>()), m_c2(j.at("c2").get<glm::dvec3>())
 {
 }
-
 
 json EntityBezier3D::serialize() const
 {
@@ -98,17 +97,6 @@ glm::dvec3 EntityBezier3D::get_interpolated(double t) const
 bool EntityBezier3D::is_valid_point(unsigned int point) const
 {
     return point == 1 || point == 2 || point == 3 || point == 4;
-}
-
-std::unique_ptr<Entity> EntityBezier3D::clone() const
-{
-    return std::make_unique<EntityBezier3D>(*this);
-}
-
-
-void EntityBezier3D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d

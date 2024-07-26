@@ -5,17 +5,17 @@
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
 #include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityPoint2D::EntityPoint2D(const UUID &uu) : Entity(uu)
+EntityPoint2D::EntityPoint2D(const UUID &uu) : Base(uu)
 {
 }
 
 EntityPoint2D::EntityPoint2D(const UUID &uu, const json &j)
-    : Entity(uu, j), m_p(j.at("p").get<glm::dvec2>()), m_wrkpl(j.at("wrkpl").get<UUID>())
+    : Base(uu, j), m_p(j.at("p").get<glm::dvec2>()), m_wrkpl(j.at("wrkpl").get<UUID>())
 {
 }
-
 
 json EntityPoint2D::serialize() const
 {
@@ -59,21 +59,11 @@ bool EntityPoint2D::is_valid_point(unsigned int point) const
     return point == 0;
 }
 
-std::unique_ptr<Entity> EntityPoint2D::clone() const
-{
-    return std::make_unique<EntityPoint2D>(*this);
-}
-
 std::set<UUID> EntityPoint2D::get_referenced_entities() const
 {
     auto ents = Entity::get_referenced_entities();
     ents.insert(m_wrkpl);
     return ents;
-}
-
-void EntityPoint2D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d

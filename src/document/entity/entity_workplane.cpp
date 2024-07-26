@@ -1,16 +1,16 @@
 #include "entity_workplane.hpp"
 #include "nlohmann/json.hpp"
 #include "util/glm_util.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
 EntityWorkplane::EntityWorkplane(const UUID &uu)
-    : Entity(uu), m_normal(glm::quat_identity<double, glm::defaultp>()), m_size(10, 10)
+    : Base(uu), m_normal(glm::quat_identity<double, glm::defaultp>()), m_size(10, 10)
 {
 }
 
 EntityWorkplane::EntityWorkplane(const UUID &uu, const json &j)
-    : Entity(uu, j), m_origin(j.at("origin").get<glm::dvec3>()), m_normal(j.at("normal").get<glm::dquat>()),
+    : Base(uu, j), m_origin(j.at("origin").get<glm::dvec3>()), m_normal(j.at("normal").get<glm::dquat>()),
       m_size(j.at("size").get<glm::dvec2>())
 {
 }
@@ -44,11 +44,6 @@ void EntityWorkplane::set_param(unsigned int point, unsigned int axis, double va
     else if (point == 2) {
         m_normal[axis] = value;
     }
-}
-
-std::unique_ptr<Entity> EntityWorkplane::clone() const
-{
-    return std::make_unique<EntityWorkplane>(*this);
 }
 
 glm::dvec3 EntityWorkplane::get_normal_vector() const
@@ -100,11 +95,5 @@ bool EntityWorkplane::is_valid_point(unsigned int point) const
 {
     return point == 1;
 }
-
-void EntityWorkplane::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
-}
-
 
 } // namespace dune3d

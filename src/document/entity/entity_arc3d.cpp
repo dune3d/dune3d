@@ -3,10 +3,10 @@
 #include "util/glm_util.hpp"
 #include "util/json_util.hpp"
 #include "document/document.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityArc3D::EntityArc3D(const UUID &uu) : Entity(uu)
+EntityArc3D::EntityArc3D(const UUID &uu) : Base(uu)
 {
 }
 
@@ -77,16 +77,6 @@ glm::dvec3 EntityArc3D::get_point(unsigned int point, const Document &doc) const
 bool EntityArc3D::is_valid_point(unsigned int point) const
 {
     return point == 1 || point == 2 || point == 3;
-}
-
-std::unique_ptr<Entity> EntityArc3D::clone() const
-{
-    return std::make_unique<EntityArc3D>(*this);
-}
-
-void EntityArc3D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d

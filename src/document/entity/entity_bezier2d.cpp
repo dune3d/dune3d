@@ -5,15 +5,15 @@
 #include "util/template_util.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityBezier2D::EntityBezier2D(const UUID &uu) : Entity(uu)
+EntityBezier2D::EntityBezier2D(const UUID &uu) : Base(uu)
 {
 }
 
 EntityBezier2D::EntityBezier2D(const UUID &uu, const json &j)
-    : Entity(uu, j), m_p1(j.at("p1").get<glm::dvec2>()), m_p2(j.at("p2").get<glm::dvec2>()),
+    : Base(uu, j), m_p1(j.at("p1").get<glm::dvec2>()), m_p2(j.at("p2").get<glm::dvec2>()),
       m_c1(j.at("c1").get<glm::dvec2>()), m_c2(j.at("c2").get<glm::dvec2>()), m_wrkpl(j.at("wrkpl").get<UUID>())
 {
 }
@@ -122,21 +122,11 @@ bool EntityBezier2D::is_valid_tangent_point(unsigned int point) const
     return any_of(point, 1, 2);
 }
 
-std::unique_ptr<Entity> EntityBezier2D::clone() const
-{
-    return std::make_unique<EntityBezier2D>(*this);
-}
-
 std::set<UUID> EntityBezier2D::get_referenced_entities() const
 {
     auto ents = Entity::get_referenced_entities();
     ents.insert(m_wrkpl);
     return ents;
-}
-
-void EntityBezier2D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d

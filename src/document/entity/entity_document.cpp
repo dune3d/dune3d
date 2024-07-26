@@ -1,16 +1,16 @@
 #include "entity_document.hpp"
 #include "nlohmann/json.hpp"
 #include "util/glm_util.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 #include <format>
 
 namespace dune3d {
-EntityDocument::EntityDocument(const UUID &uu) : Entity(uu), m_normal(glm::quat_identity<double, glm::defaultp>())
+EntityDocument::EntityDocument(const UUID &uu) : Base(uu), m_normal(glm::quat_identity<double, glm::defaultp>())
 {
 }
 
 EntityDocument::EntityDocument(const UUID &uu, const json &j)
-    : Entity(uu, j), m_origin(j.at("origin").get<glm::dvec3>()), m_normal(j.at("normal").get<glm::dquat>()),
+    : Base(uu, j), m_origin(j.at("origin").get<glm::dvec3>()), m_normal(j.at("normal").get<glm::dquat>()),
       m_path(j.at("path").get<std::filesystem::path>())
 {
 }
@@ -65,11 +65,6 @@ void EntityDocument::set_param(unsigned int point, unsigned int axis, double val
     }
 }
 
-std::unique_ptr<Entity> EntityDocument::clone() const
-{
-    return std::make_unique<EntityDocument>(*this);
-}
-
 glm::dvec3 EntityDocument::get_point(unsigned int point, const Document &doc) const
 {
     if (point == 1)
@@ -116,11 +111,5 @@ void EntityDocument::remove_anchor(unsigned int i)
     m_anchors.erase(i);
     m_anchors_transformed.erase(i);
 }
-
-void EntityDocument::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
-}
-
 
 } // namespace dune3d

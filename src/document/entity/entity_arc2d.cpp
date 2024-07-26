@@ -5,15 +5,15 @@
 #include "util/template_util.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityArc2D::EntityArc2D(const UUID &uu) : Entity(uu)
+EntityArc2D::EntityArc2D(const UUID &uu) : Base(uu)
 {
 }
 
 EntityArc2D::EntityArc2D(const UUID &uu, const json &j)
-    : Entity(uu, j), m_from(j.at("from").get<glm::dvec2>()), m_to(j.at("to").get<glm::dvec2>()),
+    : Base(uu, j), m_from(j.at("from").get<glm::dvec2>()), m_to(j.at("to").get<glm::dvec2>()),
       m_center(j.at("center").get<glm::dvec2>()), m_wrkpl(j.at("wrkpl").get<UUID>())
 {
 }
@@ -111,21 +111,11 @@ bool EntityArc2D::is_valid_point(unsigned int point) const
     return point == 1 || point == 2 || point == 3;
 }
 
-std::unique_ptr<Entity> EntityArc2D::clone() const
-{
-    return std::make_unique<EntityArc2D>(*this);
-}
-
 std::set<UUID> EntityArc2D::get_referenced_entities() const
 {
     auto ents = Entity::get_referenced_entities();
     ents.insert(m_wrkpl);
     return ents;
-}
-
-void EntityArc2D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d

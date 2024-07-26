@@ -5,15 +5,15 @@
 #include "util/template_util.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityLine2D::EntityLine2D(const UUID &uu) : Entity(uu)
+EntityLine2D::EntityLine2D(const UUID &uu) : Base(uu)
 {
 }
 
 EntityLine2D::EntityLine2D(const UUID &uu, const json &j)
-    : Entity(uu, j), m_p1(j.at("p1").get<glm::dvec2>()), m_p2(j.at("p2").get<glm::dvec2>()),
+    : Base(uu, j), m_p1(j.at("p1").get<glm::dvec2>()), m_p2(j.at("p2").get<glm::dvec2>()),
       m_wrkpl(j.at("wrkpl").get<UUID>())
 {
 }
@@ -95,21 +95,11 @@ bool EntityLine2D::is_valid_tangent_point(unsigned int point) const
     return any_of(point, 1, 2);
 }
 
-std::unique_ptr<Entity> EntityLine2D::clone() const
-{
-    return std::make_unique<EntityLine2D>(*this);
-}
-
 std::set<UUID> EntityLine2D::get_referenced_entities() const
 {
     auto ents = Entity::get_referenced_entities();
     ents.insert(m_wrkpl);
     return ents;
-}
-
-void EntityLine2D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d

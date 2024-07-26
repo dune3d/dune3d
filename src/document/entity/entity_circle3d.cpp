@@ -4,15 +4,15 @@
 #include "util/json_util.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityCircle3D::EntityCircle3D(const UUID &uu) : Entity(uu)
+EntityCircle3D::EntityCircle3D(const UUID &uu) : Base(uu)
 {
 }
 
 EntityCircle3D::EntityCircle3D(const UUID &uu, const json &j)
-    : Entity(uu, j), m_center(j.at("center").get<glm::dvec3>()), m_radius(j.at("radius").get<double>()),
+    : Base(uu, j), m_center(j.at("center").get<glm::dvec3>()), m_radius(j.at("radius").get<double>()),
       m_normal(j.at("normal").get<glm::dquat>())
 {
 }
@@ -68,16 +68,6 @@ glm::dvec3 EntityCircle3D::get_point(unsigned int point, const Document &doc) co
 bool EntityCircle3D::is_valid_point(unsigned int point) const
 {
     return point == 1;
-}
-
-std::unique_ptr<Entity> EntityCircle3D::clone() const
-{
-    return std::make_unique<EntityCircle3D>(*this);
-}
-
-void EntityCircle3D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d

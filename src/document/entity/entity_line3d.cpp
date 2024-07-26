@@ -1,39 +1,15 @@
 #include "entity_line3d.hpp"
 #include "nlohmann/json.hpp"
 #include "util/glm_util.hpp"
-#include "entity_visitor.hpp"
-
-/*
-NLOHMANN_JSON_NAMESPACE_BEGIN
-template <> struct adl_serializer<glm::vec3> {
-    static void to_json(json &j, const glm::vec3 &v)
-    {
-        j = json::array({v.x, v.y, v.z});
-    }
-
-    static void from_json(const json &j, glm::vec3 &v)
-    {
-    }
-};
-NLOHMANN_JSON_NAMESPACE_END
-*/
-/*
-
-namespace nlohmann {
-
-} // namespace nlohmann
-*/
-
-
-// namespace glm
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityLine3D::EntityLine3D(const UUID &uu) : Entity(uu)
+EntityLine3D::EntityLine3D(const UUID &uu) : Base(uu)
 {
 }
 
 EntityLine3D::EntityLine3D(const UUID &uu, const json &j)
-    : Entity(uu, j), m_p1(j.at("p1").get<glm::dvec3>()), m_p2(j.at("p2").get<glm::dvec3>())
+    : Base(uu, j), m_p1(j.at("p1").get<glm::dvec3>()), m_p2(j.at("p2").get<glm::dvec3>())
 {
 }
 
@@ -93,15 +69,5 @@ bool EntityLine3D::is_valid_point(unsigned int point) const
     return point == 1 || point == 2;
 }
 
-
-std::unique_ptr<Entity> EntityLine3D::clone() const
-{
-    return std::make_unique<EntityLine3D>(*this);
-}
-
-void EntityLine3D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
-}
 
 } // namespace dune3d

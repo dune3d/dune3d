@@ -1,20 +1,15 @@
 #pragma once
-#include "entity.hpp"
+#include "entityt.hpp"
 #include <glm/glm.hpp>
 #include "ientity_normal.hpp"
 
 namespace dune3d {
-class EntityWorkplane : public Entity, public IEntityNormal {
+class EntityWorkplane : public EntityT<EntityWorkplane>, public IEntityNormal {
 public:
     explicit EntityWorkplane(const UUID &uu);
     explicit EntityWorkplane(const UUID &uu, const json &j);
     static constexpr Type s_type = Type::WORKPLANE;
-    Type get_type() const override
-    {
-        return s_type;
-    }
     json serialize() const override;
-    std::unique_ptr<Entity> clone() const override;
 
     virtual bool has_name() const override
     {
@@ -26,8 +21,6 @@ public:
 
     glm::dvec3 get_point(unsigned int point, const Document &doc) const override;
     bool is_valid_point(unsigned int point) const override;
-
-    void accept(EntityVisitor &visitor) const override;
 
     glm::dvec3 transform(glm::dvec2 p) const;
     glm::dvec3 transform_relative(glm::dvec2 p) const;

@@ -2,16 +2,16 @@
 #include "nlohmann/json.hpp"
 #include "util/glm_util.hpp"
 #include "import_step/step_import_manager.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 #include <format>
 
 namespace dune3d {
-EntitySTEP::EntitySTEP(const UUID &uu) : Entity(uu), m_normal(glm::quat_identity<double, glm::defaultp>())
+EntitySTEP::EntitySTEP(const UUID &uu) : Base(uu), m_normal(glm::quat_identity<double, glm::defaultp>())
 {
 }
 
 EntitySTEP::EntitySTEP(const UUID &uu, const json &j, const std::filesystem::path &containing_dir)
-    : Entity(uu, j), m_origin(j.at("origin").get<glm::dvec3>()), m_normal(j.at("normal").get<glm::dquat>()),
+    : Base(uu, j), m_origin(j.at("origin").get<glm::dvec3>()), m_normal(j.at("normal").get<glm::dquat>()),
       m_path(j.at("path").get<std::filesystem::path>())
 {
     update_imported(containing_dir);
@@ -84,11 +84,6 @@ void EntitySTEP::set_param(unsigned int point, unsigned int axis, double value)
     }
 }
 
-std::unique_ptr<Entity> EntitySTEP::clone() const
-{
-    return std::make_unique<EntitySTEP>(*this);
-}
-
 std::string EntitySTEP::get_point_name(unsigned int point) const
 {
     switch (point) {
@@ -135,11 +130,5 @@ void EntitySTEP::remove_anchor(unsigned int i)
     m_anchors.erase(i);
     m_anchors_transformed.erase(i);
 }
-
-void EntitySTEP::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
-}
-
 
 } // namespace dune3d

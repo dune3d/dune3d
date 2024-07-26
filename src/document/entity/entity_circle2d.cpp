@@ -4,15 +4,15 @@
 #include "util/json_util.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 
 namespace dune3d {
-EntityCircle2D::EntityCircle2D(const UUID &uu) : Entity(uu)
+EntityCircle2D::EntityCircle2D(const UUID &uu) : Base(uu)
 {
 }
 
 EntityCircle2D::EntityCircle2D(const UUID &uu, const json &j)
-    : Entity(uu, j), m_center(j.at("center").get<glm::dvec2>()), m_radius(j.at("radius").get<double>()),
+    : Base(uu, j), m_center(j.at("center").get<glm::dvec2>()), m_radius(j.at("radius").get<double>()),
       m_wrkpl(j.at("wrkpl").get<UUID>())
 {
 }
@@ -73,21 +73,11 @@ bool EntityCircle2D::is_valid_point(unsigned int point) const
     return point == 1;
 }
 
-std::unique_ptr<Entity> EntityCircle2D::clone() const
-{
-    return std::make_unique<EntityCircle2D>(*this);
-}
-
 std::set<UUID> EntityCircle2D::get_referenced_entities() const
 {
     auto ents = Entity::get_referenced_entities();
     ents.insert(m_wrkpl);
     return ents;
-}
-
-void EntityCircle2D::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 } // namespace dune3d
