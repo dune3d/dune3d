@@ -1046,6 +1046,18 @@ void Canvas::peel_selection()
         need_menu = false;
         the_selectable = srv_list.front().selectable;
     }
+    else if (srv_list.size() == 2) {
+        const auto &a = srv_list.front().selectable;
+        const auto &b = srv_list.back().selectable;
+        if (a.has_value() && b.has_value() && a->is_entity() && b->is_entity() && a->item == b->item && a->point != 0
+            && b->point == 0) {
+            the_selectable = *a;
+            need_menu = false;
+        }
+        else {
+            need_menu = true;
+        }
+    }
     else {
         need_menu = true;
     }
