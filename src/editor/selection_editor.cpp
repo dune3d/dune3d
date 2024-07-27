@@ -142,6 +142,7 @@ public:
         m_path_entry->signal_activate().connect([this] { update_step(); });
         m_path_button->signal_clicked().connect([this] {
             auto dialog = Gtk::FileDialog::create();
+            dialog->set_initial_file(Gio::File::create_for_path(path_to_string(m_step.get_path(m_doc_dir))));
 
             // Add filters, so that only certain file types can be selected:
             auto filters = Gio::ListStore<Gtk::FileFilter>::create();
@@ -216,6 +217,7 @@ public:
         m_path_entry->signal_activate().connect([this] { update_doc(); });
         m_path_button->signal_clicked().connect([this] {
             auto dialog = Gtk::FileDialog::create();
+            dialog->set_initial_file(Gio::File::create_for_path(path_to_string(m_doc.get_path(m_doc_dir))));
 
             // Add filters, so that only certain file types can be selected:
             auto filters = Gio::ListStore<Gtk::FileFilter>::create();

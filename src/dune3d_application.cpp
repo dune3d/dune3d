@@ -172,6 +172,19 @@ void Dune3DApplication::UserConfig::load(const std::filesystem::path &filename)
                 recent_items.emplace(path, Glib::DateTime::create_now_local(v.get<int64_t>()));
         }
     }
+    if (j.count("export_paths")) {
+        const json &o = j.at("export_paths");
+        for (const auto &[fn, v] : o.items()) {
+            for (const auto &[group, jpaths] : v.items()) {
+                const auto k = std::make_pair(path_from_string(fn), UUID{group});
+                auto &it = export_paths[k];
+                jpaths.at("stl").get_to(it.stl);
+                jpaths.at("step").get_to(it.step);
+                jpaths.at("paths").get_to(it.paths);
+                jpaths.at("projection").get_to(it.projection);
+            }
+        }
+    }
 }
 
 void Dune3DApplication::UserConfig::save(const std::filesystem::path &filename)
@@ -179,6 +192,14 @@ void Dune3DApplication::UserConfig::save(const std::filesystem::path &filename)
     json j;
     for (const auto &[path, mod] : recent_items) {
         j["recent"][path_to_string(path)] = mod.to_unix();
+    }
+    for (const auto &[k, it] : export_paths) {
+        j["export_paths"][path_to_string(k.first)][k.second] = {
+                {"stl", it.stl},
+                {"step", it.step},
+                {"paths", it.paths},
+                {"projection", it.projection},
+        };
     }
     save_json_to_file(filename, j);
 }

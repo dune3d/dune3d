@@ -8,14 +8,51 @@
 #include "document/export_paths.hpp"
 #include "canvas/canvas.hpp"
 #include "dune3d_appwindow.hpp"
+#include "dune3d_application.hpp"
 #include <iostream>
 
 namespace dune3d {
 
+static Glib::RefPtr<Gio::File>
+get_export_initial_filename(const Dune3DApplication::UserConfig &cfg, const IDocumentInfo &doc_info,
+                            std::string Dune3DApplication::UserConfig::ExportPaths::*export_type)
+{
+    if (!doc_info.has_path())
+        return nullptr;
+    auto current_group = doc_info.get_current_group();
+    auto groups_sorted = doc_info.get_document().get_groups_sorted();
+    std::string filename;
+    for (auto it : groups_sorted) {
+        const auto k = std::make_pair(doc_info.get_path(), it->m_uuid);
+        if (cfg.export_paths.contains(k))
+            filename = cfg.export_paths.at(k).*export_type;
+
+        if (it->m_uuid == current_group && filename.size())
+            break;
+    }
+    if (filename.size())
+        return Gio::File::create_for_path(filename);
+    else
+        return nullptr;
+}
+
+
+static void set_export_initial_filename(Dune3DApplication::UserConfig &cfg, const IDocumentInfo &doc_info,
+                                        std::string Dune3DApplication::UserConfig::ExportPaths::*export_type,
+                                        const std::string &filename)
+{
+    if (!doc_info.has_path())
+        return;
+    cfg.export_paths[std::make_pair(doc_info.get_path(), doc_info.get_current_group())].*export_type = filename;
+}
 void Editor::on_export_solid_model(const ActionConnection &conn)
 {
     const auto action = std::get<ActionID>(conn.id);
     auto dialog = Gtk::FileDialog::create();
+
+    using ExPaths = Dune3DApplication::UserConfig::ExportPaths;
+
+    decltype(&ExPaths::step) export_type = nullptr;
 
     // Add filters, so that only certain file types can be selected:
     auto filters = Gio::ListStore<Gtk::FileFilter>::create();
@@ -27,18 +64,25 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
         filter_any->add_pattern("*.step");
         filter_any->add_pattern("*.stp");
         suffix = ".step";
+        export_type = &ExPaths::step;
     }
     else {
         filter_any->set_name("STL");
         filter_any->add_pattern("*.stl");
         suffix = ".stl";
+        export_type = &ExPaths::stl;
     }
     filters->append(filter_any);
+
+    if (auto initial_file = get_export_initial_filename(m_win.get_app().m_user_config,
+                                                        m_core.get_current_idocument_info(), export_type)) {
+        dialog->set_initial_file(initial_file);
+    }
 
     dialog->set_filters(filters);
 
     // Show the dialog and wait for a user response:
-    dialog->save(m_win, [this, dialog, action, suffix](const Glib::RefPtr<Gio::AsyncResult> &result) {
+    dialog->save(m_win, [this, dialog, action, suffix, export_type](const Glib::RefPtr<Gio::AsyncResult> &result) {
         try {
             auto file = dialog->save_finish(result);
             // open_file_view(file);
@@ -50,6 +94,8 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
                     gr->get_solid_model()->export_step(path);
                 else
                     gr->get_solid_model()->export_stl(path);
+                set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
+                                            export_type, path_to_string(path));
             }
         }
         catch (const Gtk::DialogError &err) {
@@ -67,6 +113,12 @@ void Editor::on_export_paths(const ActionConnection &conn)
     const auto action = std::get<ActionID>(conn.id);
 
     auto dialog = Gtk::FileDialog::create();
+
+    if (auto initial_file =
+                get_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
+                                            &Dune3DApplication::UserConfig::ExportPaths::paths)) {
+        dialog->set_initial_file(initial_file);
+    }
 
     // Add filters, so that only certain file types can be selected:
     auto filters = Gio::ListStore<Gtk::FileFilter>::create();
@@ -99,6 +151,8 @@ void Editor::on_export_paths(const ActionConnection &conn)
                 return body_visible && group_visible;
             };
             export_paths(path, m_core.get_current_document(), m_core.get_current_group(), group_filter);
+            set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
+                                        &Dune3DApplication::UserConfig::ExportPaths::paths, path_to_string(path));
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
@@ -113,6 +167,12 @@ void Editor::on_export_paths(const ActionConnection &conn)
 void Editor::on_export_projection(const ActionConnection &conn)
 {
     auto dialog = Gtk::FileDialog::create();
+
+    if (auto initial_file =
+                get_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
+                                            &Dune3DApplication::UserConfig::ExportPaths::projection)) {
+        dialog->set_initial_file(initial_file);
+    }
 
     // Add filters, so that only certain file types can be selected:
     auto filters = Gio::ListStore<Gtk::FileFilter>::create();
@@ -148,8 +208,12 @@ void Editor::on_export_projection(const ActionConnection &conn)
                 }
             }
             auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
-            if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group))
+            if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
                 gr->get_solid_model()->export_projection(path, origin, normal);
+                set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
+                                            &Dune3DApplication::UserConfig::ExportPaths::projection,
+                                            path_to_string(path));
+            }
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).

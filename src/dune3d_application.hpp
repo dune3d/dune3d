@@ -2,6 +2,7 @@
 #include <gtkmm.h>
 #include "preferences/preferences.hpp"
 #include "logger/log_dispatcher.hpp"
+#include "util/uuid.hpp"
 #include <filesystem>
 
 namespace dune3d {
@@ -30,6 +31,13 @@ public:
 
     public:
         std::map<std::filesystem::path, Glib::DateTime> recent_items;
+        struct ExportPaths {
+            std::string step;
+            std::string stl;
+            std::string paths;
+            std::string projection;
+        };
+        std::map<std::pair<std::filesystem::path, UUID>, ExportPaths> export_paths;
     };
 
     UserConfig m_user_config;

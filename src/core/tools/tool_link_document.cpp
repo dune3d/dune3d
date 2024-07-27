@@ -14,6 +14,11 @@ namespace dune3d {
 ToolResponse ToolLinkDocument::begin(const ToolArgs &args)
 {
     auto dialog = Gtk::FileDialog::create();
+    {
+        auto dir = m_core.get_current_document_directory();
+        if (!dir.empty())
+            dialog->set_initial_folder(Gio::File::create_for_path(path_to_string(dir)));
+    }
 
     // Add filters, so that only certain file types can be selected:
     auto filters = Gio::ListStore<Gtk::FileFilter>::create();
