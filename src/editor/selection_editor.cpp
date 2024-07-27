@@ -133,14 +133,14 @@ public:
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 0);
         m_path_entry = Gtk::make_managed<Gtk::Entry>();
         m_path_entry->set_hexpand(true);
-        m_path_button = Gtk::make_managed<Gtk::Button>();
-        m_path_button->set_image_from_icon_name("document-open-symbolic");
+        auto path_button = Gtk::make_managed<Gtk::Button>();
+        path_button->set_image_from_icon_name("document-open-symbolic");
         box->append(*m_path_entry);
-        box->append(*m_path_button);
+        box->append(*path_button);
         box->add_css_class("linked");
         m_path_entry->set_text(path_to_string(step.m_path));
         m_path_entry->signal_activate().connect([this] { update_step(); });
-        m_path_button->signal_clicked().connect([this] {
+        path_button->signal_clicked().connect([this] {
             auto dialog = Gtk::FileDialog::create();
             dialog->set_initial_file(Gio::File::create_for_path(path_to_string(m_step.get_path(m_doc_dir))));
 
@@ -179,6 +179,14 @@ public:
                          });
         });
 
+        auto reload_button = Gtk::make_managed<Gtk::Button>();
+        reload_button->set_image_from_icon_name("view-refresh-symbolic");
+        box->append(*reload_button);
+        reload_button->signal_clicked().connect([this] {
+            m_step.update_imported(m_doc_dir);
+            m_signal_changed.emit();
+        });
+
         int top = 0;
         grid_attach_label_and_widget(*this, "Path", *box, top);
     }
@@ -195,7 +203,6 @@ private:
 
 
     Gtk::Entry *m_path_entry = nullptr;
-    Gtk::Button *m_path_button = nullptr;
 };
 
 class DocumentEditor : public Gtk::Grid, public Changeable {
