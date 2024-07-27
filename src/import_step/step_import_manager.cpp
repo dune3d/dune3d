@@ -120,13 +120,17 @@ static void from_json(const json &j, Result &r)
 
 std::shared_ptr<ImportedSTEP> STEPImportManager::import_step(const std::filesystem::path &path)
 {
-    if (m_imported.contains(path))
-        return m_imported.at(path);
+    auto hash = hash_file(path);
 
-    auto imported = std::make_shared<ImportedSTEP>(path);
+    if (m_imported.contains(path)) {
+        auto &imported = m_imported.at(path);
+        if (imported->hash == hash)
+            return m_imported.at(path);
+    }
+
+    auto imported = std::make_shared<ImportedSTEP>(path, hash);
     imported->ready = true;
 
-    auto hash = hash_file(path);
     auto cache_path = get_cache_dir() / (hash + ".ubjson");
 
     if (fs::exists(cache_path)) {
@@ -143,6 +147,7 @@ std::shared_ptr<ImportedSTEP> STEPImportManager::import_step(const std::filesyst
         Glib::file_set_contents(cache_path.string(), reinterpret_cast<const gchar *>(bs.data()), bs.size());
         // save_json_to_file(cache_path, j);
     }
+    m_imported.erase(path);
     m_imported.emplace(path, imported);
     return imported;
 }
