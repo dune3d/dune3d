@@ -307,20 +307,39 @@ void Canvas::handle_click_release()
     }
     else if (m_selection_mode == SelectionMode::NORMAL) {
         if (m_hover_selection.has_value()) {
-            if (m_selection_menu_creator) {
-                m_selection_peeling = true;
-                queue_draw();
+            auto sel = get_selection();
+            if (sel.contains(m_hover_selection.value())) {
+                if (m_selection_peeling_candidate == m_hover_selection) {
+                    m_selection_peeling_candidate_counter++;
+                }
+                else {
+                    m_selection_peeling_candidate = m_hover_selection;
+                    m_selection_peeling_candidate_counter = 0;
+                }
+                sel.erase(m_hover_selection.value());
             }
             else {
-                auto sel = get_selection();
-                if (sel.contains(m_hover_selection.value()))
-                    sel.erase(m_hover_selection.value());
-                else
-                    sel.insert(m_hover_selection.value());
-                set_selection(sel, true);
+                if (m_selection_peeling_candidate == m_hover_selection) {
+                    m_selection_peeling_candidate_counter++;
+                    if (m_selection_peeling_candidate_counter >= 2) {
+                        m_selection_peeling = true;
+                        m_selection_peeling_candidate_counter = 0;
+                        m_selection_peeling_candidate.reset();
+                        queue_draw();
+                        return;
+                    }
+                }
+                else {
+                    m_selection_peeling_candidate = m_hover_selection;
+                    m_selection_peeling_candidate_counter = 0;
+                }
+                sel.insert(m_hover_selection.value());
             }
+            set_selection(sel, true);
         }
         else {
+            m_selection_peeling_candidate.reset();
+            m_selection_peeling_candidate_counter = 0;
             set_selection({}, true);
         }
     }
@@ -1033,7 +1052,6 @@ void Canvas::peel_selection()
                 break;
         }
     }
-
     bool need_menu = false;
     std::optional<SelectableRef> the_selectable;
     if (srv_list.size() == 0) {
@@ -1520,6 +1538,8 @@ void Canvas::set_selection_mode(SelectionMode mode)
             set_selection({m_hover_selection.value()}, true);
         else
             set_selection({}, true);
+        m_selection_peeling_candidate.reset();
+        m_selection_peeling_candidate_counter = 0;
     }
     else if (m_selection_mode == SelectionMode::NONE) {
         clear_flags(VertexFlags::SELECTED | VertexFlags::HOVER);

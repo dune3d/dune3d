@@ -580,6 +580,9 @@ private:
 
     Gtk::Popover *m_selection_menu = nullptr;
     ISelectionMenuCreator *m_selection_menu_creator = nullptr;
+
+    std::optional<SelectableRef> m_selection_peeling_candidate;
+    unsigned int m_selection_peeling_candidate_counter = 0;
 };
 
 } // namespace dune3d
