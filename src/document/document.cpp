@@ -628,6 +628,11 @@ std::string Document::find_next_group_name(GroupType type) const
     return Group::get_type_name(type);
 }
 
+const GroupReference &Document::get_reference_group() const
+{
+    return dynamic_cast<const GroupReference &>(*get_groups_sorted().front());
+}
+
 Document::~Document() = default;
 
 } // namespace dune3d
