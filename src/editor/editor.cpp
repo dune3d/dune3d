@@ -1251,6 +1251,7 @@ void Editor::open_file(const std::filesystem::path &path)
         }
         else {
             wsv = create_workspace_view();
+            m_workspace_views.at(wsv).m_current_document = doc_uu;
             set_current_workspace_view(wsv);
             auto &dv = m_workspace_views.at(wsv).m_documents[doc_uu];
             dv.m_document_is_visible = true;
@@ -1258,6 +1259,12 @@ void Editor::open_file(const std::filesystem::path &path)
         }
 
         m_core.add_document(path, doc_uu);
+
+        {
+            auto &wv = m_workspace_views.at(m_current_workspace_view);
+            m_core.set_current_document(wv.m_current_document);
+            m_core.set_current_group(get_current_document_view().m_current_group);
+        }
 
         if (new_dv) {
             new_dv->m_current_group = m_core.get_idocument_info(doc_uu).get_current_group();
