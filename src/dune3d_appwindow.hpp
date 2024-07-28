@@ -182,6 +182,8 @@ public:
     WorkspaceTabLabel &append_workspace_view_page(const std::string &name, const UUID &uu);
     void remove_workspace_view_page(const UUID &uu);
 
+    void set_window_title_from_path(const std::filesystem::path &path);
+    void set_window_title(const std::string &extra);
 
 private:
     Dune3DApplication &m_app;

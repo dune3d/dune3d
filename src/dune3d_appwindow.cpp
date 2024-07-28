@@ -500,5 +500,26 @@ void Dune3DAppWindow::update_can_close_workspace_pages()
     }
 }
 
+void Dune3DAppWindow::set_window_title_from_path(const std::filesystem::path &path)
+{
+    if (path.empty()) {
+        set_window_title(std::string{});
+    }
+    else {
+        auto filename = path_to_string(path.filename());
+        set_window_title(filename);
+    }
+}
+
+void Dune3DAppWindow::set_window_title(const std::string &extra)
+{
+    if (extra.empty()) {
+        set_title("Dune 3D");
+    }
+    else {
+        set_title(extra + " - Dune 3D");
+    }
+}
+
 
 } // namespace dune3d

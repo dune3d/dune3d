@@ -255,5 +255,7 @@ private:
     SelectionMenuCreator m_selection_menu_creator;
 
     void update_error_overlay();
+
+    void update_title();
 };
 } // namespace dune3d

@@ -96,6 +96,7 @@ void Editor::init()
         update_action_bar_buttons_sensitivity();
         update_action_bar_visibility();
         update_selection_editor();
+        update_title();
     });
 
     attach_action_button(m_win.get_welcome_open_button(), ActionID::OPEN_DOCUMENT);
@@ -703,6 +704,7 @@ void Editor::on_save_as(const ActionConnection &conn)
             save_workspace_view(m_core.get_current_idocument_info().get_uuid());
             m_workspace_browser->update_documents(get_current_document_views());
             update_version_info();
+            update_title();
             if (m_after_save_cb)
                 m_after_save_cb();
         }
@@ -1281,6 +1283,7 @@ void Editor::open_file(const std::filesystem::path &path)
 
         update_workspace_view_names();
         m_win.get_app().add_recent_item(path);
+        update_title();
 
         load_linked_documents(doc_uu);
     }
@@ -1342,6 +1345,20 @@ DocumentView &Editor::get_current_document_view()
 std::map<UUID, DocumentView> &Editor::get_current_document_views()
 {
     return m_workspace_views.at(m_current_workspace_view).m_documents;
+}
+
+void Editor::update_title()
+{
+    if (m_core.has_documents()) {
+        auto &doc = m_core.get_current_idocument_info();
+        if (doc.has_path())
+            m_win.set_window_title_from_path(doc.get_path());
+        else
+            m_win.set_window_title("New Document");
+    }
+    else {
+        m_win.set_window_title("");
+    }
 }
 
 } // namespace dune3d

@@ -73,6 +73,7 @@ void Editor::init_actions()
         dv.m_current_group = m_core.get_idocument_info(uu).get_current_group();
         m_workspace_views.at(wsv).m_current_document = uu;
         set_current_workspace_view(wsv);
+        update_title();
     });
     connect_action(ActionID::OPEN_DOCUMENT, sigc::mem_fun(*this, &Editor::on_open_document));
 
