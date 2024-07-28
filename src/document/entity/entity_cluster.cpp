@@ -4,18 +4,18 @@
 #include "util/json_util.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
-#include "entity_visitor.hpp"
+#include "entityt_impl.hpp"
 #include "document/constraint/constraint.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 #include <format>
 
 namespace dune3d {
-EntityCluster::EntityCluster(const UUID &uu) : Entity(uu), m_content(ClusterContent::create())
+EntityCluster::EntityCluster(const UUID &uu) : Base(uu), m_content(ClusterContent::create())
 {
 }
 
 EntityCluster::EntityCluster(const UUID &uu, const json &j)
-    : Entity(uu, j), m_origin(j.at("origin").get<glm::dvec2>()), m_scale_x(j.at("scale_x").get<double>()),
+    : Base(uu, j), m_origin(j.at("origin").get<glm::dvec2>()), m_scale_x(j.at("scale_x").get<double>()),
       m_scale_y(j.at("scale_y").get<double>()), m_angle(j.at("angle").get<double>()),
       m_lock_scale_x(j.value("lock_scale_x", false)), m_lock_scale_y(j.value("lock_scale_y", false)),
       m_lock_aspect_ratio(j.value("lock_aspect_ratio", false)), m_lock_angle(j.value("lock_angle", false)),
@@ -127,21 +127,11 @@ bool EntityCluster::is_valid_point(unsigned int point) const
     return point == 1 || m_anchors_transformed.contains(point);
 }
 
-std::unique_ptr<Entity> EntityCluster::clone() const
-{
-    return std::make_unique<EntityCluster>(*this);
-}
-
 std::set<UUID> EntityCluster::get_referenced_entities() const
 {
     auto ents = Entity::get_referenced_entities();
     ents.insert(m_wrkpl);
     return ents;
-}
-
-void EntityCluster::accept(EntityVisitor &visitor) const
-{
-    visitor.visit(*this);
 }
 
 glm::dvec2 EntityCluster::transform(const glm::dvec2 &p) const

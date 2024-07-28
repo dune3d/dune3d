@@ -1,23 +1,18 @@
 #pragma once
-#include "entity.hpp"
+#include "entityt.hpp"
 #include "ientity_in_workplane.hpp"
 #include "ientity_movable2d.hpp"
 #include "util/cluster_content.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityCluster : public Entity, public IEntityInWorkplane, public IEntityMovable2D {
+class EntityCluster : public EntityT<EntityCluster>, public IEntityInWorkplane, public IEntityMovable2D {
 public:
     explicit EntityCluster(const UUID &uu);
     explicit EntityCluster(const UUID &uu, const json &j);
 
     static constexpr Type s_type = Type::CLUSTER;
-    Type get_type() const override
-    {
-        return s_type;
-    }
     json serialize() const override;
-    std::unique_ptr<Entity> clone() const override;
 
     bool can_delete(const Document &doc) const override;
 
@@ -27,8 +22,6 @@ public:
     glm::dvec3 get_point(unsigned int point, const Document &doc) const override;
     bool is_valid_point(unsigned int point) const override;
     glm::dvec2 get_point_in_workplane(unsigned int point) const override;
-
-    void accept(EntityVisitor &visitor) const override;
 
     glm::dvec2 m_origin = {0, 0};
     double m_scale_x = 1;
