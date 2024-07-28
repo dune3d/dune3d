@@ -307,6 +307,14 @@ void Canvas::handle_click_release()
     }
     else if (m_selection_mode == SelectionMode::NORMAL) {
         if (m_hover_selection.has_value()) {
+            const auto state = get_display()->get_default_seat()->get_keyboard()->get_modifier_state();
+            if ((state & Gdk::ModifierType::SHIFT_MASK) == Gdk::ModifierType::SHIFT_MASK) {
+                m_selection_peeling = true;
+                m_selection_peeling_candidate_counter = 0;
+                m_selection_peeling_candidate.reset();
+                queue_draw();
+                return;
+            }
             auto sel = get_selection();
             if (sel.contains(m_hover_selection.value())) {
                 if (m_selection_peeling_candidate == m_hover_selection) {
