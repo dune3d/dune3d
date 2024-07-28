@@ -86,6 +86,7 @@ src = files(
   'src/document/entity/entity_document.cpp',
   'src/document/entity/entity_bezier2d.cpp',
   'src/document/entity/entity_bezier3d.cpp',
+  'src/document/entity/entity_cluster.cpp',
   'src/document/constraint/constraint.cpp',
   'src/document/constraint/constraint_points_coincident.cpp',
   'src/document/constraint/constraint_parallel.cpp',
@@ -138,6 +139,7 @@ src = files(
   'src/document/group/group_polar_array.cpp',
   'src/document/group/group_array.cpp',
   'src/document/group/group_loft.cpp',
+  'src/document/group/group_exploded_cluster.cpp',
   'src/document/export_paths.cpp',
   'src/system/system.cpp',
   'src/logger/logger.cpp',
@@ -180,6 +182,7 @@ src = files(
   'src/core/tools/tool_enter_datum.cpp',
   'src/core/tools/tool_draw_workplane.cpp',
   'src/core/tools/tool_add_anchor.cpp',
+  'src/core/tools/tool_add_cluster_anchor.cpp',
   'src/core/tools/tool_move_anchor.cpp',
   'src/core/tools/tool_toggle_construction.cpp',
   'src/core/tools/tool_import_step.cpp',
@@ -192,6 +195,7 @@ src = files(
   'src/core/tools/tool_draw_rectangle.cpp',
   'src/core/tools/tool_flip_arc.cpp',
   'src/core/tools/tool_link_document.cpp',
+  'src/core/tools/tool_create_cluster.cpp',
   'src/util/history_manager.cpp',
   'src/action/action.cpp',
   'src/action/action_catalog.cpp',
@@ -239,6 +243,7 @@ src = files(
   'src/workspace/workspace_view.cpp',
   'src/widgets/select_groups_dialog.cpp',
   'src/import_dxf/dxf_importer.cpp',
+  'src/util/cluster_content.cpp',
 )
 
 prog_python = find_program('python3')

@@ -12,4 +12,5 @@ class GroupLinearArray;
 class GroupPolarArray;
 class GroupArray;
 class GroupLoft;
+class GroupExplodedCluster;
 } // namespace dune3d

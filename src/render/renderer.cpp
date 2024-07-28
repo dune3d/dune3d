@@ -493,6 +493,64 @@ void Renderer::visit(const EntityBezier3D &bezier)
     m_ca.add_selectable(m_ca.draw_point(bezier.m_p2), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 2});
 }
 
+
+void Renderer::visit(const EntityCluster &cluster)
+{
+    auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(cluster.m_wrkpl));
+    const auto p = wrkpl.transform(cluster.m_origin);
+    m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, 1});
+    const SelectableRef sr{SelectableRef::Type::ENTITY, cluster.m_uuid, 0};
+
+    if (cluster.m_exploded_group) {
+        add_selectables(sr, m_ca.draw_bitmap_text(p, 1,
+                                                  "exploded cluster in group "
+                                                          + m_doc->get_group(cluster.m_exploded_group).m_name));
+        return;
+    }
+
+
+    auto wrkpl_mat = glm::translate(glm::mat4(1), glm::vec3(wrkpl.m_origin)) * glm::toMat4(glm::quat(wrkpl.m_normal));
+
+
+    auto m = glm::scale(glm::rotate(glm::translate(glm::mat4(1), glm::vec3(cluster.m_origin, 0.)),
+                                    (float)glm::radians(cluster.m_angle), glm::vec3(0., 0., 1.)),
+                        glm::vec3(cluster.m_scale_x, cluster.m_scale_y, 0.f));
+    {
+        AutoSaveRestore asr{*this};
+        m_state.no_bezier_control_lines = !cluster.m_anchors_available.size();
+        m_ca.set_transform(wrkpl_mat * m);
+
+        m_ca.set_override_selectable(sr);
+
+        m_ca.set_no_points(true);
+        for (const auto &[uu, en] : cluster.m_content->m_entities) {
+            if (en->m_construction && !cluster.m_anchors_available.size())
+                continue;
+            {
+                AutoSaveRestore asr2{*this};
+                if (cluster.m_anchors_available.size() && en->m_construction)
+                    m_ca.set_vertex_construction(true);
+                en->accept(*this);
+            }
+        }
+
+        m_ca.unset_override_selectable();
+    }
+
+    if (cluster.m_anchors_available.size()) {
+        for (const auto &[i, enp] : cluster.m_anchors_available) {
+            m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(cluster.transform(cluster.get_anchor_point(enp)))),
+                                SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, i});
+        }
+    }
+    else {
+        for (const auto &[i, enp] : cluster.m_anchors) {
+            m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(cluster.transform(cluster.get_anchor_point(enp)))),
+                                SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, i});
+        }
+    }
+}
+
 static glm::vec3 project_point_onto_plane(const glm::vec3 &plane_origin, const glm::vec3 &plane_normal,
                                           const glm::vec3 &point)
 {

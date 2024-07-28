@@ -37,6 +37,8 @@
 #include "tools/tool_link_document.hpp"
 #include "tools/tool_constrain_distance_aligned.hpp"
 #include "tools/tool_import_dxf.hpp"
+#include "tools/tool_create_cluster.hpp"
+#include "tools/tool_add_cluster_anchor.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -179,6 +181,12 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::IMPORT_DXF:
         return std::make_unique<ToolImportDXF>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CREATE_CLUSTER:
+        return std::make_unique<ToolCreateCluster>(tool_id, *this, m_intf, flags);
+
+    case ToolID::ADD_CLUSTER_ANCHOR:
+        return std::make_unique<ToolAddClusterAnchor>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

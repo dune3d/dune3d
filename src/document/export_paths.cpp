@@ -70,32 +70,32 @@ void export_paths(const std::filesystem::path &filename, const Document &doc, co
                     const auto p_next = p_cur == 1 ? 2 : 1;
                     if (auto line = dynamic_cast<const EntityLine2D *>(&edge.entity)) {
                         if (first) {
-                            const auto p = line->get_point_in_workplane(p_cur);
+                            const auto p = edge.transform(line->get_point_in_workplane(p_cur));
                             ctx->move_to(p.x, p.y);
                         }
 
-                        const auto p = line->get_point_in_workplane(p_next);
+                        const auto p = edge.transform(line->get_point_in_workplane(p_next));
                         ctx->line_to(p.x, p.y);
                     }
                     else if (auto arc = dynamic_cast<const EntityArc2D *>(&edge.entity)) {
-                        auto v1 = arc->get_point_in_workplane(p_cur) - arc->m_center;
-                        auto v2 = arc->get_point_in_workplane(p_next) - arc->m_center;
+                        const auto center = edge.transform(arc->m_center);
+                        const auto v1 = edge.transform(arc->get_point_in_workplane(p_cur)) - center;
+                        const auto v2 = edge.transform(arc->get_point_in_workplane(p_next)) - center;
                         if (p_cur == 1)
-                            ctx->arc(arc->m_center.x, arc->m_center.y, arc->get_radius(), atan2(v1.y, v1.x),
-                                     atan2(v2.y, v2.x));
+                            ctx->arc(center.x, center.y, arc->get_radius(), atan2(v1.y, v1.x), atan2(v2.y, v2.x));
                         else
-                            ctx->arc_negative(arc->m_center.x, arc->m_center.y, arc->get_radius(), atan2(v1.y, v1.x),
+                            ctx->arc_negative(center.x, center.y, arc->get_radius(), atan2(v1.y, v1.x),
                                               atan2(v2.y, v2.x));
                     }
                     else if (auto bez = dynamic_cast<const EntityBezier2D *>(&edge.entity)) {
                         if (first) {
-                            const auto p = bez->get_point_in_workplane(p_cur);
+                            const auto p = edge.transform(bez->get_point_in_workplane(p_cur));
                             ctx->move_to(p.x, p.y);
                         }
 
-                        const auto c1 = bez->get_point_in_workplane(p_next == 1 ? 4 : 3);
-                        const auto c2 = bez->get_point_in_workplane(p_next == 1 ? 3 : 4);
-                        const auto p = bez->get_point_in_workplane(p_next);
+                        const auto c1 = edge.transform(bez->get_point_in_workplane(p_next == 1 ? 4 : 3));
+                        const auto c2 = edge.transform(bez->get_point_in_workplane(p_next == 1 ? 3 : 4));
+                        const auto p = edge.transform(bez->get_point_in_workplane(p_next));
 
                         ctx->curve_to(c1.x, c1.y, c2.x, c2.y, p.x, p.y);
                     }

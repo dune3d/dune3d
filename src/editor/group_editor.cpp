@@ -13,6 +13,7 @@
 #include "core/core.hpp"
 #include "core/tool_id.hpp"
 #include "util/gtk_util.hpp"
+#include "action/action_id.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -461,6 +462,19 @@ private:
     Gtk::DropDown *m_offset_combo = nullptr;
 };
 
+class GroupEditorExplodedCluster : public GroupEditor {
+public:
+    GroupEditorExplodedCluster(Core &core, const UUID &group_uu) : GroupEditor(core, group_uu)
+    {
+        {
+            auto button = Gtk::make_managed<Gtk::Button>("Unexplode cluster");
+            button->signal_clicked().connect([this] { m_signal_trigger_action.emit(ActionID::UNEXPLODE_CLUSTER); });
+            attach(*button, 0, m_top++, 2, 1);
+        }
+    }
+};
+
+
 void GroupEditor::update_name()
 {
     auto &group = m_core.get_current_document().get_group(m_group_uu);
@@ -562,6 +576,8 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
         return Gtk::make_managed<GroupEditorArray>(core, group_uu);
     case Group::Type::LOFT:
         return Gtk::make_managed<GroupEditorLoft>(core, group_uu);
+    case Group::Type::EXPLODED_CLUSTER:
+        return Gtk::make_managed<GroupEditorExplodedCluster>(core, group_uu);
     default:
         return Gtk::make_managed<GroupEditor>(core, group_uu);
     }

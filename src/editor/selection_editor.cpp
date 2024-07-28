@@ -5,11 +5,13 @@
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
 #include "document/entity/entity_document.hpp"
+#include "document/entity/entity_cluster.hpp"
 #include "document/constraint/constraint.hpp"
 #include "util/selection_util.hpp"
 #include "util/gtk_util.hpp"
 #include "util/fs_util.hpp"
 #include "widgets/spin_button_dim.hpp"
+#include "widgets/spin_button_angle.hpp"
 #include "workspace/document_view.hpp"
 #include "workspace/entity_view.hpp"
 #include "idocument_view_provider.hpp"
@@ -312,6 +314,97 @@ private:
     Gtk::DropDown *m_display_combo = nullptr;
 };
 
+
+class ClusterEditor : public Gtk::Grid, public Changeable {
+public:
+    ClusterEditor(Document &doc, const UUID &cluster) : m_cluster(doc.get_entity<EntityCluster>(cluster))
+    {
+        set_row_spacing(5);
+        set_column_spacing(5);
+        int top = 0;
+
+
+        m_angle_sp = Gtk::make_managed<SpinButtonAngle>();
+        m_angle_sp->set_hexpand(true);
+        m_angle_sp->set_value(m_cluster.m_angle);
+        spinbutton_connect_activate_immediate(*m_angle_sp, [this] {
+            m_cluster.m_angle = m_angle_sp->get_value();
+            m_signal_changed.emit();
+        });
+        grid_attach_label_and_widget(*this, "Angle", *m_angle_sp, top);
+
+        m_lock_angle_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_angle_button->set_icon_name("system-lock-screen-symbolic");
+        m_lock_angle_button->set_active(m_cluster.m_lock_angle);
+        m_lock_angle_button->signal_toggled().connect([this] {
+            m_cluster.m_lock_angle = m_lock_angle_button->get_active();
+            m_signal_changed.emit();
+        });
+        attach(*m_lock_angle_button, 2, top - 1);
+
+        m_scale_x_sp = Gtk::make_managed<Gtk::SpinButton>();
+        m_scale_x_sp->set_hexpand(true);
+        m_scale_x_sp->set_range(1e-3, 1e3);
+        m_scale_x_sp->set_digits(4);
+        m_scale_x_sp->set_value(m_cluster.m_scale_x);
+        spinbutton_connect_activate_immediate(*m_scale_x_sp, [this] {
+            m_cluster.m_scale_x = m_scale_x_sp->get_value();
+            m_signal_changed.emit();
+        });
+        grid_attach_label_and_widget(*this, "X scale", *m_scale_x_sp, top);
+
+        m_lock_scale_x_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_scale_x_button->set_icon_name("system-lock-screen-symbolic");
+        m_lock_scale_x_button->set_active(m_cluster.m_lock_scale_x);
+        m_lock_scale_x_button->signal_toggled().connect([this] {
+            m_cluster.m_lock_scale_x = m_lock_scale_x_button->get_active();
+            m_signal_changed.emit();
+        });
+        attach(*m_lock_scale_x_button, 2, top - 1);
+
+        m_scale_y_sp = Gtk::make_managed<Gtk::SpinButton>();
+        m_scale_y_sp->set_hexpand(true);
+        m_scale_y_sp->set_range(1e-3, 1e3);
+        m_scale_y_sp->set_digits(4);
+        m_scale_y_sp->set_value(m_cluster.m_scale_y);
+        spinbutton_connect_activate_immediate(*m_scale_y_sp, [this] {
+            m_cluster.m_scale_y = m_scale_y_sp->get_value();
+            m_signal_changed.emit();
+        });
+        grid_attach_label_and_widget(*this, "Y scale", *m_scale_y_sp, top);
+
+        m_lock_scale_y_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_scale_y_button->set_icon_name("system-lock-screen-symbolic");
+        m_lock_scale_y_button->set_active(m_cluster.m_lock_scale_y);
+        m_lock_scale_y_button->signal_toggled().connect([this] {
+            m_cluster.m_lock_scale_y = m_lock_scale_y_button->get_active();
+            m_signal_changed.emit();
+        });
+        attach(*m_lock_scale_y_button, 2, top - 1);
+
+        m_lock_aspect_ratio_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_aspect_ratio_button->set_icon_name("system-lock-screen-symbolic");
+        attach(*m_lock_aspect_ratio_button, 3, top - 2, 1, 2);
+        m_lock_aspect_ratio_button->set_active(m_cluster.m_lock_aspect_ratio);
+        m_lock_aspect_ratio_button->signal_toggled().connect([this] {
+            m_cluster.m_lock_aspect_ratio = m_lock_aspect_ratio_button->get_active();
+            m_signal_changed.emit();
+        });
+    }
+
+private:
+    EntityCluster &m_cluster;
+
+    SpinButtonAngle *m_angle_sp = nullptr;
+    Gtk::SpinButton *m_scale_x_sp = nullptr;
+    Gtk::SpinButton *m_scale_y_sp = nullptr;
+
+    Gtk::ToggleButton *m_lock_angle_button = nullptr;
+    Gtk::ToggleButton *m_lock_scale_x_button = nullptr;
+    Gtk::ToggleButton *m_lock_scale_y_button = nullptr;
+    Gtk::ToggleButton *m_lock_aspect_ratio_button = nullptr;
+};
+
 void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
 {
     if (m_editor) {
@@ -351,6 +444,17 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
                     m_core.get_current_document().get_entity<EntityDocument>(doc->entity));
             m_editor = ed;
             ed->signal_changed().connect([this] { m_signal_changed.emit(); });
+        }
+        else if (auto cluster = point_from_selection(m_core.get_current_document(), sel, Entity::Type::CLUSTER)) {
+            m_title->set_label("Cluster");
+            m_title->set_tooltip_text((std::string)cluster->entity);
+            auto ed = Gtk::make_managed<ClusterEditor>(m_core.get_current_document(), cluster->entity);
+            m_editor = ed;
+            auto group = m_core.get_current_document().get_entity(cluster->entity).m_group;
+            ed->signal_changed().connect([this, group] {
+                m_core.get_current_document().set_group_solve_pending(group);
+                m_signal_changed.emit();
+            });
         }
         else if (sel.size()) {
             m_title->set_label("");

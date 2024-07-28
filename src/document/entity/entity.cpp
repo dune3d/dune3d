@@ -40,6 +40,8 @@ std::string Entity::get_type_name(Type type)
         return "Bezier curve in workplane";
     case Type::BEZIER_3D:
         return "Bezier curve in 3D";
+    case Type::CLUSTER:
+        return "Cluster";
     default:
         return "Entity";
     }
@@ -77,6 +79,8 @@ std::string Entity::get_type_name_plural(Type type)
         return "Bezier curves in workplane";
     case Type::BEZIER_3D:
         return "Bezier curves in 3D";
+    case Type::CLUSTER:
+        return "Clusters";
     default:
         return "Entities";
     }
@@ -117,6 +121,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Entity::Type, {
                                                    {Entity::Type::DOCUMENT, "document"},
                                                    {Entity::Type::BEZIER_2D, "bezier_2d"},
                                                    {Entity::Type::BEZIER_3D, "bezier_3d"},
+                                                   {Entity::Type::CLUSTER, "cluster"},
                                            })
 
 json Entity::serialize_type(Type type)
@@ -156,6 +161,8 @@ std::unique_ptr<Entity> Entity::new_from_json(const UUID &uu, const json &j,
         return std::make_unique<EntityDocument>(uu, j);
     case Type::BEZIER_2D:
         return std::make_unique<EntityBezier2D>(uu, j);
+    case Type::CLUSTER:
+        return std::make_unique<EntityCluster>(uu, j);
     }
     throw std::runtime_error("unknown entity type");
 }

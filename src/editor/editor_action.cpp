@@ -7,10 +7,13 @@
 #include "preferences/preferences_window.hpp"
 #include "canvas/canvas.hpp"
 #include "document/entity/entity_workplane.hpp"
-#include "document/entity/ientity_in_workplane.hpp"
+#include "document/entity/ientity_in_workplane_set.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
 #include "document/constraint/constraint.hpp"
 #include "document/group/igroup_solid_model.hpp"
+#include "document/group/group_exploded_cluster.hpp"
+#include "document/group/group_reference.hpp"
+#include "document/entity/entity_cluster.hpp"
 #include "util/selection_util.hpp"
 #include "util/key_util.hpp"
 #include "document/solid_model_util.hpp"
@@ -219,6 +222,9 @@ void Editor::init_actions()
         }
     });
 
+    connect_action(ActionID::EXPLODE_CLUSTER, sigc::mem_fun(*this, &Editor::on_explode_cluster));
+    connect_action(ActionID::UNEXPLODE_CLUSTER, sigc::mem_fun(*this, &Editor::on_unexplode_cluster));
+
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
     m_core.signal_rebuilt().connect([this] {
         if (!m_current_workspace_view)
@@ -375,6 +381,17 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = has_current_wrkpl;
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = document_from_selection(sel).has_value();
+        {
+            auto enp = point_from_selection(m_core.get_current_document(), sel, EntityType::CLUSTER);
+            bool can_explode_cluster = false;
+            if (enp) {
+                auto &en = m_core.get_current_document().get_entity<EntityCluster>(enp->entity);
+                can_explode_cluster = !en.m_exploded_group;
+            }
+            m_action_sensitivity[ActionID::EXPLODE_CLUSTER] = can_explode_cluster;
+        }
+
+        m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = current_group.get_type() == Group::Type::EXPLODED_CLUSTER;
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
@@ -388,6 +405,8 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = false;
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = false;
+        m_action_sensitivity[ActionID::EXPLODE_CLUSTER] = false;
+        m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = false;
     }
 
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = has_solid_model;
@@ -681,5 +700,105 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
     }
     return false;
 }
+
+void Editor::on_explode_cluster(const ActionConnection &conn)
+{
+    auto sel = get_canvas().get_selection();
+    auto &doc = m_core.get_current_document();
+    auto enp = point_from_selection(doc, sel, EntityType::CLUSTER);
+    if (!enp)
+        return;
+    auto &cluster = doc.get_entity<EntityCluster>(enp->entity);
+    auto &group = doc.insert_group<GroupExplodedCluster>(UUID::random(), cluster.m_group);
+    group.m_active_wrkpl = cluster.m_wrkpl;
+    cluster.m_exploded_group = group.m_uuid;
+    group.m_cluster = cluster.m_uuid;
+    for (const auto &[uu, en] : cluster.m_content->m_entities) {
+        auto en_cloned = en->clone();
+        en_cloned->m_group = group.m_uuid;
+        dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(cluster.m_wrkpl);
+        doc.m_entities.emplace(uu, std::move(en_cloned));
+    }
+    for (const auto &[uu, co] : cluster.m_content->m_constraints) {
+        auto co_cloned = co->clone();
+        co_cloned->m_group = group.m_uuid;
+        doc.m_constraints.emplace(uu, std::move(co_cloned));
+    }
+    finish_add_group(&group);
+}
+
+void Editor::on_unexplode_cluster(const ActionConnection &conn)
+{
+    auto &doc = m_core.get_current_document();
+    auto &group_base = doc.get_group(m_core.get_current_group());
+    if (group_base.get_type() != Group::Type::EXPLODED_CLUSTER)
+        return;
+    auto &group = dynamic_cast<GroupExplodedCluster &>(group_base);
+    auto &cluster = doc.get_entity<EntityCluster &>(group.m_cluster);
+
+    auto content = ClusterContent::create();
+
+    auto cloned_wrkpl_uu = doc.get_reference_group().get_workplane_xy_uuid();
+
+    for (auto &[uu, en] : doc.m_entities) {
+        if (en->m_group != group.m_uuid)
+            continue;
+        auto en_cloned = en->clone();
+        en_cloned->m_group = cluster.m_group;
+        dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(cloned_wrkpl_uu);
+        content->m_entities.emplace(uu, std::move(en_cloned));
+    }
+    for (auto &[uu, co] : doc.m_constraints) {
+        if (co->m_group != group.m_uuid)
+            continue;
+        auto co_cloned = co->clone();
+        co_cloned->m_group = cluster.m_group;
+        content->m_constraints.emplace(uu, std::move(co_cloned));
+    }
+
+    cluster.m_content = content;
+
+    ItemsToDelete items_to_delete;
+    items_to_delete.groups.insert(group.m_uuid);
+    auto extra_items = doc.get_additional_items_to_delete(items_to_delete);
+    items_to_delete.append(extra_items);
+    cluster.m_exploded_group = UUID{};
+
+    std::set<EntityAndPoint> deleted_anchors_enps;
+    for (const auto &[a, enp] : cluster.m_anchors) {
+        bool present = false;
+        if (content->m_entities.count(enp.entity)) {
+            auto &en = content->m_entities.at(enp.entity);
+            present = en->is_valid_point(enp.point);
+        }
+
+        if (!present)
+            deleted_anchors_enps.emplace(cluster.m_uuid, a);
+    }
+
+    for (auto a : deleted_anchors_enps) {
+        cluster.remove_anchor(a.point);
+    }
+
+    for (const auto &[uu, constr] : doc.m_constraints) {
+        std::set<EntityAndPoint> isect;
+        std::ranges::set_intersection(constr->get_referenced_entities_and_points(), deleted_anchors_enps,
+                                      std::inserter(isect, isect.begin()));
+        if (isect.size())
+            items_to_delete.constraints.insert(uu);
+    }
+
+
+    doc.set_group_generate_pending(cluster.m_group);
+
+    doc.delete_items(items_to_delete);
+
+    m_core.set_needs_save();
+    m_core.rebuild("unexplode cluster");
+    m_workspace_browser->update_documents(get_current_document_views());
+    canvas_update_keep_selection();
+    m_workspace_browser->select_group(cluster.m_group);
+}
+
 
 } // namespace dune3d
