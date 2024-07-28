@@ -22,22 +22,22 @@
 
 namespace dune3d {
 
-class AutoSaveRestore {
+class Renderer::AutoSaveRestore {
 public:
     [[nodiscard]]
-    AutoSaveRestore(ICanvas &ca)
-        : m_ca(ca)
+    AutoSaveRestore(Renderer &r)
+        : m_r(r)
     {
-        m_ca.save();
+        m_r.save({});
     }
 
     ~AutoSaveRestore()
     {
-        m_ca.restore();
+        m_r.restore({});
     }
 
 private:
-    ICanvas &m_ca;
+    Renderer &m_r;
 };
 
 Renderer::Renderer(ICanvas &ca, IDocumentProvider &docprv) : m_ca(ca), m_doc_prv(docprv)
@@ -157,7 +157,7 @@ void Renderer::render(const Entity &entity)
     if (entity.m_construction && (entity.m_group != m_current_group->m_uuid || !m_is_current_document))
         return;
 
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
 
     m_ca.set_vertex_inactive(entity.m_group != m_current_group->m_uuid);
     m_ca.set_selection_invisible(entity.m_selection_invisible);
@@ -433,7 +433,7 @@ void Renderer::visit(const EntityDocument &en)
     SelectableRef sr_origin{SelectableRef::Type::ENTITY, en.m_uuid, 1};
     m_ca.add_selectable(m_ca.draw_point(en.m_origin), sr_origin);
     auto m = glm::translate(glm::mat4(1), glm::vec3(en.m_origin)) * glm::toMat4(glm::quat(en.m_normal));
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
     m_ca.set_transform(m);
 
     auto doc = m_doc_prv.get_idocument_info_by_path(path);
@@ -464,8 +464,8 @@ void Renderer::visit(const EntityBezier2D &bezier)
         m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(last), wrkpl.transform(p)), sr);
         last = p;
     }
-    {
-        AutoSaveRestore asr{m_ca};
+    if (m_state.no_bezier_control_lines == false) {
+        AutoSaveRestore asr{*this};
         m_ca.set_selection_invisible(true);
         m_ca.draw_line(p1, c1);
         m_ca.draw_line(p2, c2);
@@ -516,7 +516,7 @@ static std::string format_measurement(bool is_meas, double v)
 
 void Renderer::visit(const ConstraintPointDistance &constr)
 {
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
     m_ca.set_vertex_constraint(true);
     glm::vec3 from = m_doc->get_point(constr.m_entity1);
     glm::vec3 to = m_doc->get_point(constr.m_entity2);
@@ -537,7 +537,7 @@ void Renderer::visit(const ConstraintPointDistance &constr)
 
 void Renderer::visit(const ConstraintPointDistanceAligned &constr)
 {
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
     m_ca.set_vertex_constraint(true);
     glm::vec3 from = m_doc->get_point(constr.m_entity1);
     glm::vec3 to = m_doc->get_point(constr.m_entity2);
@@ -625,7 +625,7 @@ void Renderer::add_selectables(const SelectableRef &sr, const std::vector<ICanva
 
 void Renderer::visit(const ConstraintPointLineDistance &constr)
 {
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
     m_ca.set_vertex_constraint(true);
 
     auto pp = m_doc->get_point(constr.m_point);
@@ -647,7 +647,7 @@ void Renderer::visit(const ConstraintPointLineDistance &constr)
 
 void Renderer::visit(const ConstraintPointPlaneDistance &constr)
 {
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
 
     m_ca.set_vertex_constraint(true);
 
@@ -665,7 +665,7 @@ void Renderer::visit(const ConstraintPointPlaneDistance &constr)
 
 void Renderer::visit(const ConstraintDiameterRadius &constr)
 {
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
 
     m_ca.set_vertex_constraint(true);
     auto &en = m_doc->get_entity(constr.m_entity);
@@ -704,7 +704,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
 
 void Renderer::visit(const ConstraintPointDistanceHV &constr)
 {
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
 
     m_ca.set_vertex_constraint(true);
     auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constr.m_wrkpl);
@@ -930,7 +930,7 @@ void Renderer::visit(const ConstraintLinesPerpendicular &constraint)
 
 void Renderer::visit(const ConstraintLinesAngle &constr)
 {
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
 
     m_ca.set_vertex_constraint(true);
 
@@ -1054,7 +1054,7 @@ void Renderer::add_constraint(const glm::vec3 &pos, IconTexture::IconTextureID i
 
 void Renderer::draw_constraints()
 {
-    AutoSaveRestore asr{m_ca};
+    AutoSaveRestore asr{*this};
 
     m_ca.set_vertex_constraint(true);
     for (const auto &[pos, constraints] : m_constraints) {
@@ -1069,7 +1069,7 @@ void Renderer::draw_constraints()
             }
         }
         for (const auto &constraint : constraints) {
-            AutoSaveRestore asr2{m_ca};
+            AutoSaveRestore asr2{*this};
 
             m_ca.set_selection_invisible(!constraint.constraint);
             const auto vr = m_ca.draw_icon(constraint.icon, pos, glm::vec2(offset, -.9), v);
@@ -1079,6 +1079,22 @@ void Renderer::draw_constraints()
             offset += spacing;
         }
     }
+}
+
+void Renderer::save(Badge<AutoSaveRestore>)
+{
+    m_states.push_back(m_state);
+    m_ca.save();
+}
+
+void Renderer::restore(Badge<AutoSaveRestore>)
+{
+    if (m_states.size() == 0)
+        throw std::runtime_error("restore from empty states");
+
+    m_state = m_states.back();
+    m_states.pop_back();
+    m_ca.restore();
 }
 
 } // namespace dune3d

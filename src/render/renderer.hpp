@@ -6,6 +6,7 @@
 #include "document/entity/entity_visitor.hpp"
 #include "document/constraint/constraint_visitor.hpp"
 #include "canvas/icanvas.hpp"
+#include "util/badge.hpp"
 #include <optional>
 #include <filesystem>
 
@@ -106,6 +107,18 @@ private:
                                            const glm::vec3 &text_p, const std::string &label, const UUID &uu,
                                            const glm::vec3 &fallback_normal = {NAN, NAN, NAN});
     void add_selectables(const SelectableRef &sr, const std::vector<ICanvas::VertexRef> &vrs);
+
+    struct State {
+        bool no_bezier_control_lines = false;
+    };
+
+    State m_state;
+    std::vector<State> m_states;
+
+    class AutoSaveRestore;
+
+    void save(Badge<AutoSaveRestore>);
+    void restore(Badge<AutoSaveRestore>);
 };
 
 } // namespace dune3d
