@@ -84,6 +84,12 @@ glm::dvec2 EntityBezier2D::get_interpolated(double t) const
     return m_p1 * pow(1 - t, 3) + 3. * m_c1 * pow(1 - t, 2) * t + 3. * m_c2 * (1 - t) * pow(t, 2) + m_p2 * pow(t, 3);
 }
 
+glm::dvec2 EntityBezier2D::get_tangent(double t) const
+{
+    return m_p1 * (-3 * pow(1 - t, 2)) + m_c1 * (3 * pow(1 - t, 2) - 6 * t * (1 - t))
+           + m_c2 * (-3 * pow(t, 2) + 6 * t * (1 - t)) + m_p2 * 3. * pow(t, 2);
+}
+
 glm::dvec2 EntityBezier2D::get_point_in_workplane(unsigned int point) const
 {
     if (point == 1)

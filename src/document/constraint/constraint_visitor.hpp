@@ -32,5 +32,6 @@ public:
     virtual void visit(const ConstraintPointDistanceAligned &constraint) = 0;
     virtual void visit(const ConstraintBezierLineTangent &constraint) = 0;
     virtual void visit(const ConstraintBezierBezierTangentSymmetric &constraint) = 0;
+    virtual void visit(const ConstraintPointOnBezier &constraint) = 0;
 };
 } // namespace dune3d

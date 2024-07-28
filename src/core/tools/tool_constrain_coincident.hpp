@@ -21,5 +21,6 @@ private:
     bool is_point_on_point();
     bool is_point_on_line();
     bool is_point_on_circle();
+    bool is_point_on_bezier();
 };
 } // namespace dune3d

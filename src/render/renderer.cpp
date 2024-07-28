@@ -1071,6 +1071,14 @@ void Renderer::visit(const ConstraintBezierLineTangent &constraint)
     add_constraint(p1, IconID::CONSTRAINT_ARC_LINE_TANGENT, constraint.m_uuid, v);
 }
 
+void Renderer::visit(const ConstraintPointOnBezier &constraint)
+{
+    const auto pt = m_doc->get_point(constraint.m_point);
+    const auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constraint.m_wrkpl);
+    const auto v = m_doc->get_entity<EntityBezier2D>(constraint.m_line).get_tangent(constraint.m_val);
+    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_BEZIER, constraint.m_uuid, wrkpl.transform_relative(v));
+}
+
 void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)
 {
     using CT = Constraint::Type;
@@ -1084,6 +1092,7 @@ void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<
             {CT::ARC_LINE_TANGENT, IconID::CONSTRAINT_ARC_LINE_TANGENT},
             {CT::ARC_ARC_TANGENT, IconID::CONSTRAINT_ARC_ARC_TANGENT},
             {CT::PARALLEL, IconID::CONSTRAINT_PARALLEL},
+            {CT::POINT_ON_BEZIER, IconID::CONSTRAINT_POINT_ON_BEZIER},
     };
     for (const auto constraint : constraints) {
         if (!constraint_icon_map.contains(constraint))

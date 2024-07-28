@@ -33,6 +33,7 @@ public:
     UUID m_wrkpl;
 
     glm::dvec2 get_interpolated(double t) const;
+    glm::dvec2 get_tangent(double t) const;
 
     void move(const Entity &last, const glm::dvec2 &delta, unsigned int point) override;
 

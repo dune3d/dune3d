@@ -2,10 +2,13 @@
 #include "document/document.hpp"
 #include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_line2d.hpp"
+#include "document/entity/entity_bezier2d.hpp"
+#include "document/entity/entity_workplane.hpp"
 #include "document/entity/ientity_in_workplane.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "document/constraint/constraint_point_on_line.hpp"
 #include "document/constraint/constraint_point_on_circle.hpp"
+#include "document/constraint/constraint_point_on_bezier.hpp"
 #include "util/selection_util.hpp"
 #include "editor/editor_interface.hpp"
 #include "tool_common_impl.hpp"
@@ -44,6 +47,21 @@ bool ToolConstrainCoincident::is_point_on_line()
     return true;
 }
 
+bool ToolConstrainCoincident::is_point_on_bezier()
+{
+    if (!get_workplane_uuid())
+        return false;
+    auto tp = bezier_and_point_from_selection(get_doc(), m_selection);
+    if (!tp.has_value())
+        return false;
+    auto constraints = get_doc().find_constraints(tp->get_enps());
+    for (auto constraint : constraints) {
+        if (constraint->of_type(Constraint::Type::POINT_ON_BEZIER))
+            return false;
+    }
+    return true;
+}
+
 bool ToolConstrainCoincident::is_point_on_circle()
 {
     auto tp = circle_and_point_from_selection(get_doc(), m_selection);
@@ -59,7 +77,7 @@ bool ToolConstrainCoincident::is_point_on_circle()
 
 ToolBase::CanBegin ToolConstrainCoincident::can_begin()
 {
-    return is_point_on_line() || is_point_on_point() || is_point_on_circle();
+    return is_point_on_line() || is_point_on_point() || is_point_on_circle() || is_point_on_bezier();
 }
 
 ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
@@ -96,6 +114,18 @@ ToolResponse ToolConstrainCoincident::begin(const ToolArgs &args)
         auto &constraint = add_constraint<ConstraintPointOnCircle>();
         constraint.m_circle = tp->line;
         constraint.m_point = tp->point;
+    }
+    else if (is_point_on_bezier()) {
+        auto tp = bezier_and_point_from_selection(get_doc(), m_selection);
+
+        if (!tp.has_value())
+            return ToolResponse::end();
+
+        auto &constraint = add_constraint<ConstraintPointOnBezier>();
+        constraint.m_line = tp->line;
+        constraint.m_point = tp->point;
+        constraint.m_wrkpl = get_workplane_uuid();
+        constraint.modify_to_satisfy(get_doc());
     }
     else {
         return ToolResponse::end();

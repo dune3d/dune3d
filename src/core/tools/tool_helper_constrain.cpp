@@ -6,6 +6,7 @@
 #include "document/constraint/constraint_point_on_line.hpp"
 #include "document/constraint/constraint_midpoint.hpp"
 #include "document/constraint/constraint_point_on_circle.hpp"
+#include "document/constraint/constraint_point_on_bezier.hpp"
 #include "tool_common_impl.hpp"
 #include <iostream>
 
@@ -46,6 +47,15 @@ Constraint *ToolHelperConstrain::constrain_point(Constraint::Type type, const UU
         constraint.m_circle = enp.entity;
         constraint.m_point = enp_to_constrain;
         constraint.m_modify_to_satisfy = true;
+        m_core.solve_current();
+        return &constraint;
+    }
+    case Constraint::Type::POINT_ON_BEZIER: {
+        auto &constraint = add_constraint<ConstraintPointOnBezier>();
+        constraint.m_line = enp.entity;
+        constraint.m_point = enp_to_constrain;
+        constraint.m_wrkpl = get_workplane_uuid();
+        constraint.modify_to_satisfy(get_doc());
         m_core.solve_current();
         return &constraint;
     }
@@ -91,6 +101,10 @@ std::optional<Constraint::Type> ToolHelperConstrain::get_constraint_type()
                 else if (entity.of_type(ET::ARC_2D, ET::CIRCLE_2D, ET::ARC_3D, ET::CIRCLE_3D)) {
                     return Constraint::Type::POINT_ON_CIRCLE;
                 }
+                else if (entity.of_type(ET::BEZIER_2D)) {
+                    if (get_workplane_uuid())
+                        return Constraint::Type::POINT_ON_BEZIER;
+                }
             }
         }
     }
@@ -107,6 +121,8 @@ std::string ToolHelperConstrain::get_constrain_tip(const std::string &what)
         return "constrain " + what + " on point";
     case Constraint::Type::POINT_ON_LINE:
         return "constrain " + what + " on line";
+    case Constraint::Type::POINT_ON_BEZIER:
+        return "constrain " + what + " on bezier";
     case Constraint::Type::MIDPOINT:
         return "constrain " + what + " on midpoint";
     case Constraint::Type::POINT_ON_CIRCLE:

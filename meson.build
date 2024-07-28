@@ -116,6 +116,7 @@ src = files(
   'src/document/constraint/constraint_symmetric_line.cpp',
   'src/document/constraint/constraint_bezier_line_tangent.cpp',
   'src/document/constraint/constraint_bezier_bezier_tangent_symmetric.cpp',
+  'src/document/constraint/constraint_point_on_bezier.cpp',
   'src/document/solid_model.cpp',
   'src/document/solid_model_occ.cpp',
   'src/document/solid_model_array.cpp',

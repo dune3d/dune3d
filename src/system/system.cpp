@@ -1471,6 +1471,10 @@ void System::update_document()
                 c->m_modify_to_satisfy = false;
             }
         }
+        else if (auto c = m_doc.get_constraint_ptr<ConstraintPointOnBezier>(uu)) {
+            const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
+            c->m_val = val;
+        }
     }
     for (auto &[uu, group] : m_doc.get_groups()) {
         if (auto gp = dynamic_cast<GroupPolarArray *>(group.get()); gp && gp->m_active_wrkpl) {
@@ -2222,6 +2226,49 @@ void System::visit(const ConstraintBezierBezierTangentSymmetric &constraint)
 
     AddEq(hConstraint{c}, &m_sys->eq, t1.x->Plus(t2.x), 0);
     AddEq(hConstraint{c}, &m_sys->eq, t1.y->Plus(t2.y), 1);
+}
+
+void System::visit(const ConstraintPointOnBezier &constraint)
+{
+    const auto c = n_constraint++;
+
+    m_constraint_refs.emplace(c, constraint.m_uuid);
+
+    auto en_wrkpl = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
+    auto en_bez_p1 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_line, 1})});
+    auto en_bez_p2 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_line, 2})});
+    auto en_bez_c1 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_line, 3})});
+    auto en_bez_c2 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_line, 4})});
+    auto en_point = SK.GetEntity({get_entity_ref(constraint.m_point)});
+
+    auto point = en_point->PointGetExprsInWorkplane({en_wrkpl});
+
+    Param p = {};
+    p.h = hConstraint{c}.param(0);
+    p.val = constraint.m_val;
+    SK.param.Add(&p);
+
+    m_sys->param.Add(SK.GetParam(p.h));
+
+    auto t = Expr::From(p.h);
+    auto p1 = en_bez_p1->PointGetExprsInWorkplane({en_wrkpl});
+    auto p2 = en_bez_p2->PointGetExprsInWorkplane({en_wrkpl});
+    auto c1 = en_bez_c1->PointGetExprsInWorkplane({en_wrkpl});
+    auto c2 = en_bez_c2->PointGetExprsInWorkplane({en_wrkpl});
+
+    auto one_minus_t = Expr::From(1)->Minus(t);
+    auto one_minus_t_square = one_minus_t->Square();
+    auto one_minus_t_cube = one_minus_t_square->Times(one_minus_t);
+    auto t_square = t->Square();
+    auto t_cube = t_square->Times(t);
+
+    auto p_t = p1.ScaledBy(one_minus_t_cube)
+                       .Plus(c1.ScaledBy(Expr::From(3)).ScaledBy(one_minus_t_square).ScaledBy(t))
+                       .Plus(c2.ScaledBy(Expr::From(3)).ScaledBy(one_minus_t).ScaledBy(t_square))
+                       .Plus(p2.ScaledBy(t_cube));
+
+    AddEq(hConstraint{c}, &m_sys->eq, point.x->Minus(p_t.x), 0);
+    AddEq(hConstraint{c}, &m_sys->eq, point.y->Minus(p_t.y), 1);
 }
 
 int System::get_group_index(const UUID &uu) const

@@ -77,6 +77,7 @@ private:
     void visit(const ConstraintPointDistanceAligned &constr) override;
     void visit(const ConstraintBezierLineTangent &constr) override;
     void visit(const ConstraintBezierBezierTangentSymmetric &constr) override;
+    void visit(const ConstraintPointOnBezier &constr) override;
 
     ICanvas &m_ca;
     IDocumentProvider &m_doc_prv;

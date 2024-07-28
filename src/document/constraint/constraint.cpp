@@ -81,6 +81,8 @@ std::string Constraint::get_type_name(Type type)
         return "Bezier/Line tangent";
     case Type::BEZIER_BEZIER_TANGENT_SYMMETRIC:
         return "Bezier/Bezier tangent symmetric";
+    case Type::POINT_ON_BEZIER:
+        return "Point on bezier";
     }
     return "Constraint";
 }
@@ -131,6 +133,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                      {Constraint::Type::BEZIER_LINE_TANGENT, "bezier_line_tangent"},
                                      {Constraint::Type::BEZIER_BEZIER_TANGENT_SYMMETRIC,
                                       "bezier_bezier_tangent_symmetric"},
+                                     {Constraint::Type::POINT_ON_BEZIER, "point_on_bezier"},
                              })
 
 json Constraint::serialize() const
@@ -206,6 +209,8 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintBezierLineTangent>(uu, j);
     case Type::BEZIER_BEZIER_TANGENT_SYMMETRIC:
         return std::make_unique<ConstraintBezierBezierTangentSymmetric>(uu, j);
+    case Type::POINT_ON_BEZIER:
+        return std::make_unique<ConstraintPointOnBezier>(uu, j);
     }
     throw std::runtime_error("unknown constraint type");
 }

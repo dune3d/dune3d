@@ -40,6 +40,9 @@ std::optional<LineAndPoint>
 line_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                               LineAndPoint::AllowSameEntity allow_same_entity = LineAndPoint::AllowSameEntity::NO);
 std::optional<LineAndPoint>
+bezier_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                LineAndPoint::AllowSameEntity allow_same_entity = LineAndPoint::AllowSameEntity::NO);
+std::optional<LineAndPoint>
 circle_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                 LineAndPoint::AllowSameEntity allow_same_entity = LineAndPoint::AllowSameEntity::NO);
 std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
