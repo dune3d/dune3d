@@ -100,6 +100,11 @@ public:
     virtual std::set<UUID> get_required_entities(const Document &doc) const;
     virtual std::set<UUID> get_required_groups(const Document &doc) const;
 
+    virtual bool can_delete() const
+    {
+        return true;
+    }
+
 protected:
     explicit Group(const UUID &uu, const json &j);
     explicit Group(const UUID &uu);

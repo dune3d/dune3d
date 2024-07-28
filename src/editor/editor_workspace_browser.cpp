@@ -215,7 +215,7 @@ void Editor::on_delete_current_group()
     auto &doc = m_core.get_current_document();
 
     auto &group = doc.get_group(m_core.get_current_group());
-    if (group.get_type() == Group::Type::REFERENCE)
+    if (!group.can_delete())
         return;
 
     UUID previous_group;
