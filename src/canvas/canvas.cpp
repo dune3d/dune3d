@@ -1147,7 +1147,7 @@ bool Canvas::on_render(const Glib::RefPtr<Gdk::GLContext> &context)
 #endif
 
 
-    if (m_selection_peeling) {
+    if (m_selection_peeling && !first_render) {
         peel_selection();
     }
     else {
