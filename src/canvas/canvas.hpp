@@ -66,6 +66,10 @@ public:
     {
         m_state.vertex_construction = c;
     }
+    void set_no_points(bool c) override
+    {
+        m_state.no_points = c;
+    }
     void save() override;
     void restore() override;
 
@@ -567,6 +571,7 @@ private:
         bool vertex_inactive = false;
         bool vertex_constraint = false;
         bool vertex_construction = false;
+        bool no_points = false;
     };
 
     State m_state;

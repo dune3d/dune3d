@@ -48,6 +48,7 @@ public:
     virtual void set_vertex_inactive(bool inactive) = 0;
     virtual void set_vertex_constraint(bool c) = 0;
     virtual void set_vertex_construction(bool c) = 0;
+    virtual void set_no_points(bool c) = 0;
     virtual void set_transform(const glm::mat4 &transform) = 0;
 
     virtual void set_override_selectable(const SelectableRef &sr) = 0;

@@ -1256,6 +1256,9 @@ void Canvas::clear()
 
 ICanvas::VertexRef Canvas::draw_point(glm::vec3 p)
 {
+    if (m_state.no_points)
+        return {VertexType::SELECTION_INVISIBLE, 0};
+
     auto &pts = m_state.selection_invisible ? m_points_selection_invisible : m_points;
     auto &pt = pts.emplace_back(transform_point(p));
     apply_flags(pt.flags);
