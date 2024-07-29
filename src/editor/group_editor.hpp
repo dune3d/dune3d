@@ -2,12 +2,13 @@
 #include <gtkmm.h>
 #include "util/uuid.hpp"
 #include "action/action.hpp"
+#include "changeable_commit_mode.hpp"
 
 namespace dune3d {
 
 class Core;
 
-class GroupEditor : public Gtk::Grid {
+class GroupEditor : public Gtk::Grid, public ChangeableCommitMode {
 public:
     GroupEditor(Core &core, const UUID &group);
     static GroupEditor *create(Core &core, const UUID &group);
@@ -24,14 +25,6 @@ public:
     type_signal_trigger_action signal_trigger_action()
     {
         return m_signal_trigger_action;
-    }
-
-    enum class CommitMode { IMMEDIATE, DELAYED, EXECUTE_DELAYED };
-
-    typedef sigc::signal<void(CommitMode)> type_signal_changed;
-    type_signal_changed signal_changed()
-    {
-        return m_signal_changed;
     }
 
 private:
@@ -60,7 +53,5 @@ protected:
     }
 
     void connect_spinbutton(Gtk::SpinButton &sp, std::function<bool()> fn);
-
-    type_signal_changed m_signal_changed;
 };
 } // namespace dune3d
