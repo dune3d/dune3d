@@ -528,10 +528,10 @@ void Editor::init_properties_notebook()
         box->append(*m_group_editor_box);
         auto label = Gtk::make_managed<Gtk::Label>("Commit pending");
         label->set_margin(3);
-        m_commit_pending_revealer = Gtk::make_managed<Gtk::Revealer>();
-        m_commit_pending_revealer->set_transition_type(Gtk::RevealerTransitionType::CROSSFADE);
-        m_commit_pending_revealer->set_child(*label);
-        box->append(*m_commit_pending_revealer);
+        m_group_commit_pending_revealer = Gtk::make_managed<Gtk::Revealer>();
+        m_group_commit_pending_revealer->set_transition_type(Gtk::RevealerTransitionType::CROSSFADE);
+        m_group_commit_pending_revealer->set_child(*label);
+        box->append(*m_group_commit_pending_revealer);
         m_properties_notebook->append_page(*box, "Group");
     }
     m_core.signal_rebuilt().connect([this] {
@@ -834,7 +834,7 @@ void Editor::update_group_editor()
                         return false;
                     },
                     1000);
-            m_commit_pending_revealer->set_reveal_child(true);
+            m_group_commit_pending_revealer->set_reveal_child(true);
         }
         else if (mode == GroupEditor::CommitMode::IMMEDIATE
                  || (mode == GroupEditor::CommitMode::EXECUTE_DELAYED && m_delayed_commit_connection.connected())) {
@@ -850,7 +850,7 @@ void Editor::update_group_editor()
 void Editor::commit_from_group_editor()
 {
     m_delayed_commit_connection.disconnect();
-    m_commit_pending_revealer->set_reveal_child(false);
+    m_group_commit_pending_revealer->set_reveal_child(false);
     m_core.rebuild("group edited");
 }
 

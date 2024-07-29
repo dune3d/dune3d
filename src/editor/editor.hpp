@@ -185,7 +185,7 @@ private:
     Gtk::Notebook *m_properties_notebook = nullptr;
     ConstraintsBox *m_constraints_box = nullptr;
     Gtk::Box *m_group_editor_box = nullptr;
-    Gtk::Revealer *m_commit_pending_revealer = nullptr;
+    Gtk::Revealer *m_group_commit_pending_revealer = nullptr;
     GroupEditor *m_group_editor = nullptr;
     void update_group_editor();
     sigc::connection m_delayed_commit_connection;
