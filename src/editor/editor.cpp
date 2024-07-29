@@ -284,7 +284,7 @@ void Editor::init_canvas()
                 },
                 true);
 
-        m_win.add_controller(controller);
+        get_canvas().add_controller(controller);
     }
     {
         auto controller = Gtk::GestureClick::create();
