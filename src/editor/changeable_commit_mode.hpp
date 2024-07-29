@@ -1,5 +1,5 @@
 #pragma once
-#include <sigc++/sigc++.h>
+#include <gtkmm.h>
 
 namespace dune3d {
 
@@ -12,6 +12,9 @@ public:
     {
         return m_signal_changed;
     }
+
+protected:
+    void connect_spinbutton(Gtk::SpinButton &sp, std::function<bool()> fn);
 
     type_signal_changed m_signal_changed;
 };

@@ -599,29 +599,6 @@ void GroupEditor::reload()
     m_reloading = false;
 }
 
-void GroupEditor::connect_spinbutton(Gtk::SpinButton &sp, std::function<bool()> fn)
-{
-
-    sp.signal_value_changed().connect([this, fn] {
-        if (fn())
-            m_signal_changed.emit(CommitMode::DELAYED);
-    });
-
-    spinbutton_connect_activate_immediate(sp, [this, fn] {
-        if (fn())
-            m_signal_changed.emit(CommitMode::IMMEDIATE);
-    });
-    {
-        auto psp = &sp;
-        auto controller = Gtk::EventControllerFocus::create();
-        controller->signal_leave().connect([this, psp] {
-            psp->update();
-            m_signal_changed.emit(GroupEditor::CommitMode::EXECUTE_DELAYED);
-        });
-        sp.add_controller(controller);
-    }
-}
-
 GroupEditor::~GroupEditor()
 {
 }

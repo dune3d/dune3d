@@ -51,7 +51,5 @@ protected:
     {
         return m_reloading;
     }
-
-    void connect_spinbutton(Gtk::SpinButton &sp, std::function<bool()> fn);
 };
 } // namespace dune3d

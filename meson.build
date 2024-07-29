@@ -245,6 +245,7 @@ src = files(
   'src/widgets/select_groups_dialog.cpp',
   'src/import_dxf/dxf_importer.cpp',
   'src/util/cluster_content.cpp',
+  'src/editor/changeable_commit_mode.cpp',
 )
 
 prog_python = find_program('python3')
