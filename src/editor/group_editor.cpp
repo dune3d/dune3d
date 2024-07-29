@@ -514,12 +514,7 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
     m_name_entry = Gtk::make_managed<Gtk::Entry>();
     m_name_entry->set_text(group.m_name);
     grid_attach_label_and_widget(*this, "Name", *m_name_entry, m_top);
-    m_name_entry->signal_activate().connect(sigc::mem_fun(*this, &GroupEditor::update_name));
-    {
-        auto controller = Gtk::EventControllerFocus::create();
-        controller->signal_leave().connect(sigc::mem_fun(*this, &GroupEditor::update_name));
-        m_name_entry->add_controller(controller);
-    }
+    connect_entry(*m_name_entry, sigc::mem_fun(*this, &GroupEditor::update_name));
 
     m_body_entry = Gtk::make_managed<Gtk::Entry>();
     if (group.m_body.has_value())
@@ -535,12 +530,8 @@ GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_gro
         box->append(*m_body_entry);
         grid_attach_label_and_widget(*this, "Body", *box, m_top);
     }
-    m_body_entry->signal_activate().connect(sigc::mem_fun(*this, &GroupEditor::update_body_name));
-    {
-        auto controller = Gtk::EventControllerFocus::create();
-        controller->signal_leave().connect(sigc::mem_fun(*this, &GroupEditor::update_body_name));
-        m_body_entry->add_controller(controller);
-    }
+
+    connect_entry(*m_body_entry, sigc::mem_fun(*this, &GroupEditor::update_body_name));
 
     m_body_cb->signal_toggled().connect([this] {
         if (is_reloading())

@@ -24,4 +24,15 @@ void ChangeableCommitMode::connect_spinbutton(Gtk::SpinButton &sp, std::function
     }
 }
 
+void ChangeableCommitMode::connect_entry(Gtk::Entry &en, std::function<void()> fn)
+{
+    en.signal_activate().connect(fn);
+    {
+        auto controller = Gtk::EventControllerFocus::create();
+        controller->signal_leave().connect(fn);
+        en.add_controller(controller);
+    }
+}
+
+
 } // namespace dune3d

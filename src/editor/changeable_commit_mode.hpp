@@ -15,6 +15,7 @@ public:
 
 protected:
     void connect_spinbutton(Gtk::SpinButton &sp, std::function<bool()> fn);
+    void connect_entry(Gtk::Entry &en, std::function<void()> fn);
 
     type_signal_changed m_signal_changed;
 };
