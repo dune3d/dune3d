@@ -816,7 +816,7 @@ void Editor::update_group_editor()
 {
     if (m_group_editor) {
         if (m_delayed_commit_connection.connected()) {
-            commit_from_group_editor();
+            commit_from_editor();
         }
         m_group_editor_box->remove(*m_group_editor);
         m_group_editor = nullptr;
@@ -836,7 +836,7 @@ void Editor::handle_commit_from_editor(CommitMode mode)
         m_delayed_commit_connection.disconnect(); // stop old timer
         m_delayed_commit_connection = Glib::signal_timeout().connect(
                 [this] {
-                    commit_from_group_editor();
+                    commit_from_editor();
                     return false;
                 },
                 1000);
@@ -844,13 +844,13 @@ void Editor::handle_commit_from_editor(CommitMode mode)
     }
     else if (mode == CommitMode::IMMEDIATE
              || (mode == CommitMode::EXECUTE_DELAYED && m_delayed_commit_connection.connected())) {
-        commit_from_group_editor();
+        commit_from_editor();
     }
     m_core.set_needs_save();
     canvas_update_keep_selection();
 }
 
-void Editor::commit_from_group_editor()
+void Editor::commit_from_editor()
 {
     m_delayed_commit_connection.disconnect();
     m_group_commit_pending_revealer->set_reveal_child(false);

@@ -190,7 +190,7 @@ private:
     GroupEditor *m_group_editor = nullptr;
     void update_group_editor();
     sigc::connection m_delayed_commit_connection;
-    void commit_from_group_editor();
+    void commit_from_editor();
     void handle_commit_from_editor(CommitMode mode);
 
 
