@@ -824,27 +824,30 @@ void Editor::update_group_editor()
     if (!m_core.has_documents())
         return;
     m_group_editor = GroupEditor::create(m_core, m_core.get_current_group());
-    m_group_editor->signal_changed().connect([this](GroupEditor::CommitMode mode) {
-        if (mode == GroupEditor::CommitMode::DELAYED) {
-            m_core.get_current_document().update_pending(m_core.get_current_group());
-            m_delayed_commit_connection.disconnect(); // stop old timer
-            m_delayed_commit_connection = Glib::signal_timeout().connect(
-                    [this] {
-                        commit_from_group_editor();
-                        return false;
-                    },
-                    1000);
-            m_group_commit_pending_revealer->set_reveal_child(true);
-        }
-        else if (mode == GroupEditor::CommitMode::IMMEDIATE
-                 || (mode == GroupEditor::CommitMode::EXECUTE_DELAYED && m_delayed_commit_connection.connected())) {
-            commit_from_group_editor();
-        }
-        m_core.set_needs_save();
-        canvas_update_keep_selection();
-    });
+    m_group_editor->signal_changed().connect(sigc::mem_fun(*this, &Editor::handle_commit_from_editor));
     m_group_editor->signal_trigger_action().connect([this](auto act) { trigger_action(act); });
     m_group_editor_box->append(*m_group_editor);
+}
+
+void Editor::handle_commit_from_editor(CommitMode mode)
+{
+    if (mode == CommitMode::DELAYED) {
+        m_core.get_current_document().update_pending(m_core.get_current_group());
+        m_delayed_commit_connection.disconnect(); // stop old timer
+        m_delayed_commit_connection = Glib::signal_timeout().connect(
+                [this] {
+                    commit_from_group_editor();
+                    return false;
+                },
+                1000);
+        m_group_commit_pending_revealer->set_reveal_child(true);
+    }
+    else if (mode == CommitMode::IMMEDIATE
+             || (mode == CommitMode::EXECUTE_DELAYED && m_delayed_commit_connection.connected())) {
+        commit_from_group_editor();
+    }
+    m_core.set_needs_save();
+    canvas_update_keep_selection();
 }
 
 void Editor::commit_from_group_editor()

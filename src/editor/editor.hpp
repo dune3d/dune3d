@@ -27,6 +27,7 @@ class Canvas;
 class ClippingPlaneWindow;
 class SelectionFilterWindow;
 enum class SelectionMode;
+enum class CommitMode;
 
 class Editor : private EditorInterface, private IDocumentViewProvider {
 public:
@@ -190,6 +191,7 @@ private:
     void update_group_editor();
     sigc::connection m_delayed_commit_connection;
     void commit_from_group_editor();
+    void handle_commit_from_editor(CommitMode mode);
 
 
     SelectionEditor *m_selection_editor = nullptr;

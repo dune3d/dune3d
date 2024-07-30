@@ -3,10 +3,10 @@
 
 namespace dune3d {
 
+enum class CommitMode { IMMEDIATE, DELAYED, EXECUTE_DELAYED };
+
 class ChangeableCommitMode {
 public:
-    enum class CommitMode { IMMEDIATE, DELAYED, EXECUTE_DELAYED };
-
     typedef sigc::signal<void(CommitMode)> type_signal_changed;
     type_signal_changed signal_changed()
     {
