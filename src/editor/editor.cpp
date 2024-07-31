@@ -555,14 +555,22 @@ void Editor::init_properties_notebook()
     });
     m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
 
-    m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core, static_cast<IDocumentViewProvider &>(*this));
-    m_selection_editor->signal_changed().connect([this] {
-        m_core.set_needs_save();
-        m_core.rebuild("selection edited");
-        canvas_update_keep_selection();
-    });
-    m_selection_editor->signal_view_changed().connect([this] { canvas_update_keep_selection(); });
-    m_properties_notebook->append_page(*m_selection_editor, "Selection");
+    {
+        auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
+
+        m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core, static_cast<IDocumentViewProvider &>(*this));
+        m_selection_editor->signal_changed().connect(sigc::mem_fun(*this, &Editor::handle_commit_from_editor));
+        m_selection_editor->signal_view_changed().connect([this] { canvas_update_keep_selection(); });
+        m_selection_editor->set_vexpand(true);
+        box->append(*m_selection_editor);
+        auto label = Gtk::make_managed<Gtk::Label>("Commit pending");
+        label->set_margin(3);
+        m_selection_commit_pending_revealer = Gtk::make_managed<Gtk::Revealer>();
+        m_selection_commit_pending_revealer->set_transition_type(Gtk::RevealerTransitionType::CROSSFADE);
+        m_selection_commit_pending_revealer->set_child(*label);
+        box->append(*m_selection_commit_pending_revealer);
+        m_properties_notebook->append_page(*box, "Selection");
+    }
     get_canvas().signal_selection_changed().connect(sigc::mem_fun(*this, &Editor::update_selection_editor));
 }
 
@@ -841,6 +849,7 @@ void Editor::handle_commit_from_editor(CommitMode mode)
                 },
                 1000);
         m_group_commit_pending_revealer->set_reveal_child(true);
+        m_selection_commit_pending_revealer->set_reveal_child(true);
     }
     else if (mode == CommitMode::IMMEDIATE
              || (mode == CommitMode::EXECUTE_DELAYED && m_delayed_commit_connection.connected())) {
@@ -854,7 +863,8 @@ void Editor::commit_from_editor()
 {
     m_delayed_commit_connection.disconnect();
     m_group_commit_pending_revealer->set_reveal_child(false);
-    m_core.rebuild("group edited");
+    m_selection_commit_pending_revealer->set_reveal_child(false);
+    m_core.rebuild("group/selection edited");
 }
 
 void Editor::update_workplane_label()

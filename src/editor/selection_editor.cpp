@@ -18,6 +18,15 @@
 #include <variant>
 
 namespace dune3d {
+
+static bool update_if_changed(double &target, double src)
+{
+    if (target == src)
+        return false;
+    target = src;
+    return true;
+}
+
 SelectionEditor::SelectionEditor(Core &core, IDocumentViewProvider &prv)
     : Gtk::Box(Gtk::Orientation::VERTICAL), m_core(core), m_doc_view_prv(prv)
 {
@@ -74,7 +83,7 @@ public:
     }
 };
 
-class WorkplaneEditor : public Gtk::Grid, public Changeable {
+class WorkplaneEditor : public Gtk::Grid, public ChangeableCommitMode {
 public:
     WorkplaneEditor(Document &doc, const UUID &wrkpl) : m_wrkpl(doc.get_entity<EntityWorkplane>(wrkpl))
     {
@@ -89,9 +98,9 @@ public:
             m_name_entry->set_sensitive(false);
         }
         else {
-            m_name_entry->signal_activate().connect([this] {
+            connect_entry(*m_name_entry, [this] {
                 m_wrkpl.m_name = m_name_entry->get_text();
-                m_signal_changed.emit();
+                m_signal_changed.emit(CommitMode::IMMEDIATE);
             });
         }
         grid_attach_label_and_widget(*this, "Name", *m_name_entry, top);
@@ -101,19 +110,15 @@ public:
         m_width_sp->set_hexpand(true);
         m_width_sp->set_range(1, 1000);
         m_width_sp->set_value(m_wrkpl.m_size.x);
-        spinbutton_connect_activate_immediate(*m_width_sp, [this] {
-            m_wrkpl.m_size.x = m_width_sp->get_value();
-            m_signal_changed.emit();
-        });
+        connect_spinbutton(*m_width_sp,
+                           [this] { return update_if_changed(m_wrkpl.m_size.x, m_width_sp->get_value()); });
         grid_attach_label_and_widget(*this, "Width", *m_width_sp, top);
 
         m_height_sp = Gtk::make_managed<SpinButtonDim>();
         m_height_sp->set_range(1, 1000);
         m_height_sp->set_value(m_wrkpl.m_size.y);
-        spinbutton_connect_activate_immediate(*m_height_sp, [this] {
-            m_wrkpl.m_size.y = m_height_sp->get_value();
-            m_signal_changed.emit();
-        });
+        connect_spinbutton(*m_height_sp,
+                           [this] { return update_if_changed(m_wrkpl.m_size.y, m_height_sp->get_value()); });
         grid_attach_label_and_widget(*this, "Height", *m_height_sp, top);
     }
 
@@ -125,7 +130,7 @@ private:
     SpinButtonDim *m_height_sp = nullptr;
 };
 
-class STEPEditor : public Gtk::Grid, public Changeable {
+class STEPEditor : public Gtk::Grid, public ChangeableCommitMode {
 public:
     STEPEditor(const std::filesystem::path &document_dir, EntitySTEP &step) : m_doc_dir(document_dir), m_step(step)
     {
@@ -141,7 +146,7 @@ public:
         box->append(*path_button);
         box->add_css_class("linked");
         m_path_entry->set_text(path_to_string(step.m_path));
-        m_path_entry->signal_activate().connect([this] { update_step(); });
+        connect_entry(*m_path_entry, sigc::mem_fun(*this, &STEPEditor::update_step));
         path_button->signal_clicked().connect([this] {
             auto dialog = Gtk::FileDialog::create();
             dialog->set_initial_file(Gio::File::create_for_path(path_to_string(m_step.get_path(m_doc_dir))));
@@ -186,7 +191,7 @@ public:
         box->append(*reload_button);
         reload_button->signal_clicked().connect([this] {
             m_step.update_imported(m_doc_dir);
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
 
         int top = 0;
@@ -198,16 +203,19 @@ private:
     EntitySTEP &m_step;
     void update_step()
     {
-        m_step.m_path = path_from_string(m_path_entry->get_text());
+        const auto path = path_from_string(m_path_entry->get_text());
+        if (m_step.m_path == path)
+            return;
+        m_step.m_path = path;
         m_step.update_imported(m_doc_dir);
-        m_signal_changed.emit();
+        m_signal_changed.emit(CommitMode::IMMEDIATE);
     }
 
 
     Gtk::Entry *m_path_entry = nullptr;
 };
 
-class DocumentEditor : public Gtk::Grid, public Changeable {
+class DocumentEditor : public Gtk::Grid, public ChangeableCommitMode {
 public:
     DocumentEditor(const std::filesystem::path &document_dir, EntityDocument &doc) : m_doc_dir(document_dir), m_doc(doc)
     {
@@ -223,7 +231,7 @@ public:
         box->append(*m_path_button);
         box->add_css_class("linked");
         m_path_entry->set_text(path_to_string(doc.m_path));
-        m_path_entry->signal_activate().connect([this] { update_doc(); });
+        connect_entry(*m_path_entry, sigc::mem_fun(*this, &DocumentEditor::update_doc));
         m_path_button->signal_clicked().connect([this] {
             auto dialog = Gtk::FileDialog::create();
             dialog->set_initial_file(Gio::File::create_for_path(path_to_string(m_doc.get_path(m_doc_dir))));
@@ -269,8 +277,11 @@ private:
     EntityDocument &m_doc;
     void update_doc()
     {
-        m_doc.m_path = path_from_string(m_path_entry->get_text());
-        m_signal_changed.emit();
+        const auto path = path_from_string(m_path_entry->get_text());
+        if (m_doc.m_path == path)
+            return;
+        m_doc.m_path = path;
+        m_signal_changed.emit(CommitMode::IMMEDIATE);
     }
 
 
@@ -315,7 +326,7 @@ private:
 };
 
 
-class ClusterEditor : public Gtk::Grid, public Changeable {
+class ClusterEditor : public Gtk::Grid, public ChangeableCommitMode {
 public:
     ClusterEditor(Document &doc, const UUID &cluster) : m_cluster(doc.get_entity<EntityCluster>(cluster))
     {
@@ -327,10 +338,8 @@ public:
         m_angle_sp = Gtk::make_managed<SpinButtonAngle>();
         m_angle_sp->set_hexpand(true);
         m_angle_sp->set_value(m_cluster.m_angle);
-        spinbutton_connect_activate_immediate(*m_angle_sp, [this] {
-            m_cluster.m_angle = m_angle_sp->get_value();
-            m_signal_changed.emit();
-        });
+        connect_spinbutton(*m_angle_sp,
+                           [this] { return update_if_changed(m_cluster.m_angle, m_angle_sp->get_value()); });
         grid_attach_label_and_widget(*this, "Angle", *m_angle_sp, top);
 
         m_lock_angle_button = Gtk::make_managed<Gtk::ToggleButton>();
@@ -338,19 +347,18 @@ public:
         m_lock_angle_button->set_active(m_cluster.m_lock_angle);
         m_lock_angle_button->signal_toggled().connect([this] {
             m_cluster.m_lock_angle = m_lock_angle_button->get_active();
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
         attach(*m_lock_angle_button, 2, top - 1);
 
         m_scale_x_sp = Gtk::make_managed<Gtk::SpinButton>();
         m_scale_x_sp->set_hexpand(true);
-        m_scale_x_sp->set_range(1e-3, 1e3);
+        m_scale_x_sp->set_range(-1e3, 1e3);
         m_scale_x_sp->set_digits(4);
+        m_scale_x_sp->set_increments(.1, .1);
         m_scale_x_sp->set_value(m_cluster.m_scale_x);
-        spinbutton_connect_activate_immediate(*m_scale_x_sp, [this] {
-            m_cluster.m_scale_x = m_scale_x_sp->get_value();
-            m_signal_changed.emit();
-        });
+        connect_spinbutton(*m_scale_x_sp,
+                           [this] { return update_if_changed(m_cluster.m_scale_x, m_scale_x_sp->get_value()); });
         grid_attach_label_and_widget(*this, "X scale", *m_scale_x_sp, top);
 
         m_lock_scale_x_button = Gtk::make_managed<Gtk::ToggleButton>();
@@ -358,19 +366,18 @@ public:
         m_lock_scale_x_button->set_active(m_cluster.m_lock_scale_x);
         m_lock_scale_x_button->signal_toggled().connect([this] {
             m_cluster.m_lock_scale_x = m_lock_scale_x_button->get_active();
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
         attach(*m_lock_scale_x_button, 2, top - 1);
 
         m_scale_y_sp = Gtk::make_managed<Gtk::SpinButton>();
         m_scale_y_sp->set_hexpand(true);
-        m_scale_y_sp->set_range(1e-3, 1e3);
+        m_scale_y_sp->set_range(-1e3, 1e3);
         m_scale_y_sp->set_digits(4);
+        m_scale_y_sp->set_increments(.1, .1);
         m_scale_y_sp->set_value(m_cluster.m_scale_y);
-        spinbutton_connect_activate_immediate(*m_scale_y_sp, [this] {
-            m_cluster.m_scale_y = m_scale_y_sp->get_value();
-            m_signal_changed.emit();
-        });
+        connect_spinbutton(*m_scale_y_sp,
+                           [this] { return update_if_changed(m_cluster.m_scale_y, m_scale_y_sp->get_value()); });
         grid_attach_label_and_widget(*this, "Y scale", *m_scale_y_sp, top);
 
         m_lock_scale_y_button = Gtk::make_managed<Gtk::ToggleButton>();
@@ -378,7 +385,7 @@ public:
         m_lock_scale_y_button->set_active(m_cluster.m_lock_scale_y);
         m_lock_scale_y_button->signal_toggled().connect([this] {
             m_cluster.m_lock_scale_y = m_lock_scale_y_button->get_active();
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
         attach(*m_lock_scale_y_button, 2, top - 1);
 
@@ -388,7 +395,7 @@ public:
         m_lock_aspect_ratio_button->set_active(m_cluster.m_lock_aspect_ratio);
         m_lock_aspect_ratio_button->signal_toggled().connect([this] {
             m_cluster.m_lock_aspect_ratio = m_lock_aspect_ratio_button->get_active();
-            m_signal_changed.emit();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
         });
     }
 
@@ -421,7 +428,7 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
             m_title->set_tooltip_text((std::string)wrkpl->entity);
             auto ed = Gtk::make_managed<WorkplaneEditor>(m_core.get_current_document(), wrkpl->entity);
             m_editor = ed;
-            ed->signal_changed().connect([this] { m_signal_changed.emit(); });
+            ed->signal_changed().connect([this](auto mode) { m_signal_changed.emit(mode); });
         }
         else if (auto step = point_from_selection(m_core.get_current_document(), sel, Entity::Type::STEP)) {
             m_title->set_label("STEP");
@@ -429,7 +436,7 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
             auto ed = Gtk::make_managed<STEPEditor>(m_core.get_current_document_directory(),
                                                     m_core.get_current_document().get_entity<EntitySTEP>(step->entity));
             m_editor = ed;
-            ed->signal_changed().connect([this] { m_signal_changed.emit(); });
+            ed->signal_changed().connect([this](auto mode) { m_signal_changed.emit(mode); });
 
             auto ved =
                     Gtk::make_managed<EntityViewEditorSTEP>(m_doc_view_prv.get_current_document_view(), step->entity);
@@ -443,7 +450,7 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
                     m_core.get_current_document_directory(),
                     m_core.get_current_document().get_entity<EntityDocument>(doc->entity));
             m_editor = ed;
-            ed->signal_changed().connect([this] { m_signal_changed.emit(); });
+            ed->signal_changed().connect([this](auto mode) { m_signal_changed.emit(mode); });
         }
         else if (auto cluster = point_from_selection(m_core.get_current_document(), sel, Entity::Type::CLUSTER)) {
             m_title->set_label("Cluster");
@@ -451,9 +458,9 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
             auto ed = Gtk::make_managed<ClusterEditor>(m_core.get_current_document(), cluster->entity);
             m_editor = ed;
             auto group = m_core.get_current_document().get_entity(cluster->entity).m_group;
-            ed->signal_changed().connect([this, group] {
+            ed->signal_changed().connect([this, group](auto mode) {
                 m_core.get_current_document().set_group_solve_pending(group);
-                m_signal_changed.emit();
+                m_signal_changed.emit(mode);
             });
         }
         else if (sel.size()) {

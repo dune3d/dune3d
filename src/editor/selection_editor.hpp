@@ -1,6 +1,6 @@
 #pragma once
 #include <gtkmm.h>
-#include "util/changeable.hpp"
+#include "changeable_commit_mode.hpp"
 #include "util/uuid.hpp"
 #include "canvas/selectable_ref.hpp"
 
@@ -9,12 +9,13 @@ namespace dune3d {
 class Core;
 class IDocumentViewProvider;
 
-class SelectionEditor : public Gtk::Box, public Changeable {
+class SelectionEditor : public Gtk::Box, public ChangeableCommitMode {
 public:
     SelectionEditor(Core &doc, IDocumentViewProvider &prv);
     void set_selection(const std::set<SelectableRef> &sel);
 
-    type_signal_changed signal_view_changed()
+    typedef sigc::signal<void()> type_signal_view_changed;
+    type_signal_view_changed signal_view_changed()
     {
         return m_signal_view_changed;
     }
@@ -26,6 +27,6 @@ private:
     Gtk::Widget *m_view_editor = nullptr;
     Gtk::Label *m_title = nullptr;
 
-    type_signal_changed m_signal_view_changed;
+    type_signal_view_changed m_signal_view_changed;
 };
 } // namespace dune3d

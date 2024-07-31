@@ -196,6 +196,9 @@ private:
 
     SelectionEditor *m_selection_editor = nullptr;
     void update_selection_editor();
+    Gtk::Revealer *m_selection_commit_pending_revealer = nullptr;
+    sigc::connection m_delayed_selection_commit_connection;
+    void commit_from_selection_editor();
 
     Dialogs m_dialogs;
     Dialogs &get_dialogs() override
