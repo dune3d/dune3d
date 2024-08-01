@@ -438,6 +438,7 @@ public:
         GroupEditor::do_reload();
         auto &group = get_group();
         m_sp_count->set_value(group.m_count);
+        m_offset_combo->set_selected(static_cast<guint>(group.m_offset));
     }
 
 private:
