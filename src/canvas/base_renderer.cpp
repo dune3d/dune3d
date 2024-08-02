@@ -48,6 +48,7 @@ struct UBOBuffer {
             set_color(F::DEFAULT, appearance, ColorP::ENTITY);
             set_color(F::INACTIVE, appearance, ColorP::INACTIVE_ENTITY);
             set_color(F::CONSTRUCTION, appearance, ColorP::CONSTRUCTION_ENTITY);
+            set_color(F::CONSTRUCTION | F::INACTIVE, appearance, ColorP::CONSTRUCTION_ENTITY);
             set_color(F::CONSTRAINT, appearance, ColorP::CONSTRAINT);
             break;
 
@@ -55,6 +56,7 @@ struct UBOBuffer {
             set_color(F::DEFAULT, appearance, ColorP::POINT);
             set_color(F::INACTIVE, appearance, ColorP::INACTIVE_POINT);
             set_color(F::CONSTRUCTION, appearance, ColorP::CONSTRUCTION_POINT);
+            set_color(F::CONSTRUCTION | F::INACTIVE, appearance, ColorP::CONSTRUCTION_POINT);
             set_color(F::CONSTRAINT, appearance, ColorP::CONSTRAINT);
             break;
 
@@ -62,7 +64,7 @@ struct UBOBuffer {
         case T::FACE_GROUP:;
         }
 
-        for (const auto f : {F::CONSTRAINT, F::CONSTRUCTION, F::INACTIVE, F::DEFAULT}) {
+        for (const auto f : {F::CONSTRAINT, F::CONSTRUCTION, F::INACTIVE, F::DEFAULT, F::CONSTRUCTION | F::INACTIVE}) {
             if (selection_mode == SelectionMode::HOVER) {
                 set_color(f | F::SELECTED, appearance, ColorP::SELECTED);
                 set_color(f | F::HOVER, appearance, ColorP::SELECTED);

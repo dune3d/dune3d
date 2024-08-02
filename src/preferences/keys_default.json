@@ -138,6 +138,17 @@
         ]
     },
     {
+        "action": "TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES",
+        "keys": [
+            [
+                {
+                    "key": "g",
+                    "mod": 8
+                }
+            ]
+        ]
+    },
+    {
         "action": "VIEW_ALL",
         "keys": [
             [

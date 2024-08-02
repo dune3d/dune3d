@@ -139,6 +139,8 @@ private:
     Glib::RefPtr<Gio::Menu> m_view_options_menu;
     Glib::RefPtr<Gio::SimpleAction> m_perspective_action;
     void set_perspective_projection(bool persp);
+    Glib::RefPtr<Gio::SimpleAction> m_previous_construction_entities_action;
+    void set_show_previous_construction_entities(bool show);
     void add_tool_action(ActionToolID id, const std::string &action);
 
     void update_view_hints();

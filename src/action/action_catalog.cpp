@@ -161,6 +161,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::CREATE_CLUSTER, {"Create cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::EXPLODE_CLUSTER, {"Explode cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_SPECIFIC}},
         {ActionID::UNEXPLODE_CLUSTER, {"Unexplode cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES,
+         {"Toggle previous construction entities", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_IN_TOOL}},
 };
 
 
@@ -223,6 +225,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(SET_CURRENT_DOCUMENT),
         ACTION_LUT_ITEM(EXPLODE_CLUSTER),
         ACTION_LUT_ITEM(UNEXPLODE_CLUSTER),
+        ACTION_LUT_ITEM(TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES),
 };
 
 #define TOOL_LUT_ITEM(x) {#x, ToolID::x}

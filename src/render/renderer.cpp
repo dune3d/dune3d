@@ -154,7 +154,10 @@ void Renderer::render(const Entity &entity)
 {
     if (!entity.m_visible)
         return;
-    if (entity.m_construction && (entity.m_group != m_current_group->m_uuid || !m_is_current_document))
+    if (entity.m_construction
+        && ((entity.m_group != m_current_group->m_uuid
+             && !m_doc_view->construction_entities_from_previous_groups_are_visible())
+            || !m_is_current_document))
         return;
 
     AutoSaveRestore asr{*this};
@@ -423,6 +426,10 @@ public:
     const EntityView *get_entity_view(const UUID &uu) const override
     {
         return nullptr;
+    }
+    bool construction_entities_from_previous_groups_are_visible() const override
+    {
+        return false;
     }
 };
 

@@ -193,12 +193,18 @@ void Editor::init_view_options()
         auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
         set_perspective_projection(b);
     });
+    m_previous_construction_entities_action = m_win.add_action_bool("previous_construction", false);
+    m_previous_construction_entities_action->signal_change_state().connect([this](const Glib::VariantBase &v) {
+        auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
+        set_show_previous_construction_entities(b);
+    });
 
     add_tool_action(ActionID::CLIPPING_PLANE_WINDOW, "clipping_planes");
     add_tool_action(ActionID::SELECTION_FILTER, "selection_filter");
 
     m_view_options_menu->append("Selection filter", "win.selection_filter");
     m_view_options_menu->append("Clipping planes", "win.clipping_planes");
+    m_view_options_menu->append("Previous construction entities", "win.previous_construction");
     m_view_options_menu->append("Perspective projection", "win.perspective");
 
     view_options_popover->set_menu_model(m_view_options_menu);
@@ -638,6 +644,10 @@ void Editor::update_view_hints()
     }
     if (m_selection_filter_window->is_active())
         hints.push_back("selection filtered");
+    if (m_core.has_documents()) {
+        if (get_current_document_view().construction_entities_from_previous_groups_are_visible())
+            hints.push_back("prev. construction entities");
+    }
     m_win.set_view_hints_label(hints);
 }
 
@@ -1288,6 +1298,7 @@ void Editor::open_file(const std::filesystem::path &path)
         if (current_wsv && m_core.get_current_idocument_info().get_uuid() == doc_uu) {
             auto &dv = m_workspace_views.at(current_wsv).m_documents[doc_uu];
             m_core.set_current_group(dv.m_current_group);
+            set_show_previous_construction_entities(dv.m_show_construction_entities_from_previous_groups);
             canvas_update_keep_selection();
             m_workspace_browser->update_current_group(get_current_document_views());
             update_group_editor();

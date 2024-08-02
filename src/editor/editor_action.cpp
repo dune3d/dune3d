@@ -225,6 +225,12 @@ void Editor::init_actions()
 
     connect_action(ActionID::EXPLODE_CLUSTER, sigc::mem_fun(*this, &Editor::on_explode_cluster));
     connect_action(ActionID::UNEXPLODE_CLUSTER, sigc::mem_fun(*this, &Editor::on_unexplode_cluster));
+    connect_action(ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES, [this](const auto &conn) {
+        if (!m_core.has_documents())
+            return;
+        set_show_previous_construction_entities(
+                !get_current_document_view().m_show_construction_entities_from_previous_groups);
+    });
 
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
     m_core.signal_rebuilt().connect([this] {
@@ -243,6 +249,16 @@ void Editor::set_perspective_projection(bool persp)
     get_canvas().set_projection(persp ? P::PERSP : P::ORTHO);
     m_perspective_action->set_state(Glib::Variant<bool>::create(persp));
     update_view_hints();
+}
+
+void Editor::set_show_previous_construction_entities(bool show)
+{
+    if (!m_core.has_documents())
+        return;
+    get_current_document_view().m_show_construction_entities_from_previous_groups = show;
+    m_previous_construction_entities_action->set_state(Glib::Variant<bool>::create(show));
+    update_view_hints();
+    canvas_update_keep_selection();
 }
 
 void Editor::on_create_group_action(const ActionConnection &conn)
@@ -336,6 +352,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::TOGGLE_WORKPLANE] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_UNDERCONSTRAINED] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP] = m_core.has_documents();
+    m_action_sensitivity[ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES] = m_core.has_documents();
     bool has_solid_model = false;
 
     for (const auto act : create_group_actions) {

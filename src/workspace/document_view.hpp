@@ -48,6 +48,12 @@ public:
         return m_document_is_visible;
     }
 
+    bool m_show_construction_entities_from_previous_groups = false;
+    bool construction_entities_from_previous_groups_are_visible() const override
+    {
+        return m_show_construction_entities_from_previous_groups;
+    }
+
     json serialize() const;
 
     const EntityView *get_entity_view(const UUID &uu) const override;
