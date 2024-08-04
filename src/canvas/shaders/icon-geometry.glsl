@@ -50,7 +50,7 @@ void main() {
 	vec2 sh = shift_to_geom[0];
 	vec2 shr = rot(v, sh);
    
-    vec4 shift = vec4(screen * vec3((shr)*icon_size*icon_scale, 0), 0);
+    vec4 shift = vec4(screen * vec3((shr)*icon_size*icon_scale + vec2(-.5,-.5), 0), 0);
     
     vec2 icon_pos = icon_to_geom[0] * (icon_size + 2*icon_border) + vec2(1.5,1.5);
     

@@ -11,8 +11,12 @@ uniform sampler2D tex;
 smooth in vec2 texcoord_to_fragment;
 uniform float texture_size;
 
+##ubo
+
 void main() {
-  
+    if(test_peel(pick_to_frag))
+		discard;
+
   vec3 color = color_to_frag;
   
   float sample = texture(tex, texcoord_to_fragment).r;
@@ -20,13 +24,8 @@ void main() {
   gl_FragDepth =  gl_FragCoord.z *(1-0.001 + depth_shift_to_frag);
   if(colora.a < 0.1)
       discard;
-  
-  float sample_shadow = texture(tex, texcoord_to_fragment+(vec2(1,1)/texture_size)).r;
-  vec4 shadowa = vec4(0,0,0, /*1-sample_shadow*/0);
-  
-  float a0 = colora.a + shadowa.a*(1-colora.a);
-  
-  outputColor = vec4((colora.rgb*colora.a + shadowa.rgb * shadowa.a*(1-colora.a))/a0,  a0);
+
+  outputColor = vec4(colora.rgb, colora.a);
   select = outputColor*select_alpha_to_frag;
   pick = pick_to_frag;
 }
