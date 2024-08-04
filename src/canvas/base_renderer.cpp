@@ -41,8 +41,15 @@ struct UBOBuffer {
         using T = Canvas::VertexType;
 
         switch (type) {
-        case T::LINE:
         case T::ICON:
+            set_color(F::DEFAULT, appearance, ColorP::POINT);
+            set_color(F::INACTIVE, appearance, ColorP::INACTIVE_POINT);
+            set_color(F::CONSTRUCTION, appearance, ColorP::CONSTRUCTION_POINT);
+            set_color(F::CONSTRUCTION | F::INACTIVE, appearance, ColorP::CONSTRUCTION_POINT);
+            set_color(F::CONSTRAINT, appearance, ColorP::CONSTRAINT);
+
+            break;
+        case T::LINE:
         case T::GLYPH:
         case T::GLYPH_3D:
             set_color(F::DEFAULT, appearance, ColorP::ENTITY);

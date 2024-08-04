@@ -16,6 +16,7 @@
 #include <fstream>
 #include "iselection_menu_creator.hpp"
 #include "selectable_checkbutton.hpp"
+#include "icon_texture_id.hpp"
 
 #ifdef HAVE_SPNAV
 #include <spnav.h>
@@ -979,13 +980,15 @@ void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
     m_face_renderer.render();
     GL_CHECK_ERROR
     // glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    m_point_renderer.render();
-    m_line_renderer.render();
     glEnablei(GL_BLEND, 0);
     glEnablei(GL_BLEND, 2);
+    m_point_renderer.render();
+    m_icon_renderer.render();
+    m_line_renderer.render();
+    
     m_glyph_renderer.render();
     m_glyph_3d_renderer.render();
-    m_icon_renderer.render();
+    
     glDisable(GL_DEPTH_TEST);
     m_box_selection.render();
     if (m_show_error_overlay)
@@ -1264,15 +1267,7 @@ void Canvas::clear()
 
 ICanvas::VertexRef Canvas::draw_point(glm::vec3 p)
 {
-    if (m_state.no_points)
-        return {VertexType::SELECTION_INVISIBLE, 0};
-
-    auto &pts = m_state.selection_invisible ? m_points_selection_invisible : m_points;
-    auto &pt = pts.emplace_back(transform_point(p));
-    apply_flags(pt.flags);
-    if (m_state.selection_invisible)
-        return {VertexType::SELECTION_INVISIBLE, 0};
-    return {VertexType::POINT, m_points.size() - 1};
+    return draw_point(p, IconTexture::IconTextureID::POINT_BOX);
 }
 
 ICanvas::VertexRef Canvas::draw_line(glm::vec3 a, glm::vec3 b)
@@ -1410,7 +1405,18 @@ ICanvas::VertexRef Canvas::draw_icon(IconTexture::IconTextureID id, glm::vec3 or
     auto &icon =
             icons.emplace_back(origin.x, origin.y, origin.z, shift.x, shift.y, v.x, v.y, v.z, icon_pos.x, icon_pos.y);
     apply_flags(icon.flags);
+    if (m_state.selection_invisible)
+        return {VertexType::SELECTION_INVISIBLE, 0};
     return {VertexType::ICON, m_icons.size() - 1};
+}
+
+
+ICanvas::VertexRef Canvas::draw_point(glm::vec3 p, IconTexture::IconTextureID id)
+{
+    if (m_state.no_points)
+        return {VertexType::SELECTION_INVISIBLE, 0};
+
+    return draw_icon(id, p, {0, 0}, {NAN, NAN, NAN});
 }
 
 

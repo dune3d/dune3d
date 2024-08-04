@@ -77,6 +77,7 @@ public:
                              FaceColor face_color) override;
 
     VertexRef draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift, glm::vec3 v) override;
+    VertexRef draw_point(glm::vec3 point, IconTexture::IconTextureID id) override;
 
     glm::dvec3 get_cursor_pos() const;
     glm::dvec3 get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const;

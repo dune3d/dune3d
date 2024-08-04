@@ -24,10 +24,10 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="15.158523"
-     inkscape:cx="408.8459"
-     inkscape:cy="34.238164"
-     inkscape:window-width="1405"
+     inkscape:zoom="22.627417"
+     inkscape:cx="97.028308"
+     inkscape:cy="43.487067"
+     inkscape:window-width="1424"
      inkscape:window-height="1150"
      inkscape:window-x="0"
      inkscape:window-y="0"
@@ -48,7 +48,25 @@
        dotted="false"
        gridanglex="30"
        gridanglez="30"
-       visible="true" />
+       visible="true"
+       enabled="true" />
+    <inkscape:grid
+       visible="true"
+       enabled="false"
+       id="grid64"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="0.13229167"
+       spacingy="0.13229167"
+       empcolor="#0000ff"
+       empopacity="0.25098039"
+       color="#0000ff"
+       opacity="0.1254902"
+       empspacing="8"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30" />
   </sodipodi:namedview>
   <defs
      id="defs1" />
@@ -798,6 +816,128 @@
          cx="105.83333"
          cy="4.2333331"
          r="1.0583333" />
+    </g>
+    <g
+       id="POINT_BOX">
+      <rect
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect43"
+         width="4.2333331"
+         height="4.2333331"
+         x="3.175"
+         y="7.4083328" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         id="rect55"
+         width="2.6458335"
+         height="2.6458333"
+         x="3.9687498"
+         y="8.2020826" />
+    </g>
+    <g
+       id="POINT_CIRCLE">
+      <rect
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect56"
+         width="4.2333331"
+         height="4.2333331"
+         x="8.4666672"
+         y="7.4083328" />
+      <circle
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         id="path57"
+         cx="10.583334"
+         cy="9.5249987"
+         r="1.4552083" />
+    </g>
+    <g
+       id="POINT_DIAMOND">
+      <rect
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect58"
+         width="4.2333331"
+         height="4.2333331"
+         x="13.758333"
+         y="7.4083328" />
+      <path
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         d="M 14.022917,9.5249991 15.875,7.6729161 17.727084,9.5249991 15.875,11.377082 Z"
+         id="path59" />
+    </g>
+    <g
+       id="POINT_CROSS">
+      <rect
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect59"
+         width="4.2333331"
+         height="4.2333331"
+         x="19.049999"
+         y="7.4083328" />
+      <path
+         style="color:#000000;overflow:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         d="M 20.240627,8.5989586 22.09271,10.451042"
+         id="path60"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="color:#000000;overflow:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         d="M 22.09271,8.598958 20.240627,10.451042"
+         id="path61"
+         sodipodi:nodetypes="cc" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         id="rect61"
+         width="0.52916676"
+         height="0.52916658"
+         x="19.71146"
+         y="8.0697918" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         id="rect62"
+         width="0.52916676"
+         height="0.52916658"
+         x="19.71146"
+         y="10.451042" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         id="rect63"
+         width="0.52916676"
+         height="0.52916658"
+         x="22.09271"
+         y="10.451042" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         id="rect64"
+         width="0.52916676"
+         height="0.52916658"
+         x="22.09271"
+         y="8.0697918" />
+    </g>
+    <g
+       id="POINT_TRIANGLE_DOWN">
+      <rect
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect65"
+         width="4.2333331"
+         height="4.2333331"
+         x="24.341665"
+         y="7.4083328" />
+      <path
+         sodipodi:type="star"
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         id="path65"
+         inkscape:flatsided="true"
+         sodipodi:sides="3"
+         sodipodi:cx="26.458332"
+         sodipodi:cy="9.5249987"
+         sodipodi:r1="1.9173694"
+         sodipodi:r2="0.52916658"
+         sodipodi:arg1="1.5707959"
+         sodipodi:arg2="2.6179935"
+         inkscape:rounded="0.00115528"
+         inkscape:randomized="0"
+         d="M 26.458333,11.442368 C 26.454496,11.442368 24.795923,8.5696373 24.797841,8.5663147 24.799759,8.562992 28.116904,8.5629906 28.118822,8.5663133 28.120741,8.5696359 26.46217,11.442368 26.458333,11.442368 Z"
+         inkscape:transform-center-y="0.26389541"
+         transform="translate(1.2685343e-7,-0.47809563)" />
     </g>
   </g>
 </svg>

@@ -22,6 +22,8 @@
 
 namespace dune3d {
 
+using IconID = IconTexture::IconTextureID;
+
 class Renderer::AutoSaveRestore {
 public:
     [[nodiscard]]
@@ -244,7 +246,7 @@ void Renderer::visit(const EntityArc2D &arc)
                         SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 1});
     m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(arc.m_to)),
                         SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 2});
-    m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(arc.m_center)),
+    m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(arc.m_center), IconID::POINT_CROSS),
                         SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 3});
 }
 
@@ -267,7 +269,7 @@ void Renderer::visit(const EntityCircle2D &circle)
         }
     }
 
-    m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(circle.m_center)),
+    m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(circle.m_center), IconID::POINT_CROSS),
                         SelectableRef{SelectableRef::Type::ENTITY, circle.m_uuid, 1});
 }
 void Renderer::visit(const EntityCircle3D &circle)
@@ -287,7 +289,8 @@ void Renderer::visit(const EntityCircle3D &circle)
         }
     }
 
-    m_ca.add_selectable(m_ca.draw_point(circle.m_center), SelectableRef{SelectableRef::Type::ENTITY, circle.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(circle.m_center, IconID::POINT_CROSS),
+                        SelectableRef{SelectableRef::Type::ENTITY, circle.m_uuid, 1});
 }
 
 void Renderer::visit(const EntityArc3D &arc)
@@ -327,7 +330,8 @@ void Renderer::visit(const EntityArc3D &arc)
 
     m_ca.add_selectable(m_ca.draw_point(arc.m_from), SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 1});
     m_ca.add_selectable(m_ca.draw_point(arc.m_to), SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 2});
-    m_ca.add_selectable(m_ca.draw_point(arc.m_center), SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 3});
+    m_ca.add_selectable(m_ca.draw_point(arc.m_center, IconID::POINT_CROSS),
+                        SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 3});
 }
 
 void Renderer::visit(const EntityWorkplane &wrkpl)
@@ -335,7 +339,8 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
     if (!m_is_current_document)
         return;
 
-    m_ca.add_selectable(m_ca.draw_point(wrkpl.m_origin), SelectableRef{SelectableRef::Type::ENTITY, wrkpl.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(wrkpl.m_origin, IconID::POINT_DIAMOND),
+                        SelectableRef{SelectableRef::Type::ENTITY, wrkpl.m_uuid, 1});
     glm::vec2 sz = wrkpl.m_size / 2.;
     std::array<glm::vec2, 4> pts = {
             glm::vec2(-sz),
@@ -376,11 +381,12 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
 
 void Renderer::visit(const EntitySTEP &en)
 {
-    m_ca.add_selectable(m_ca.draw_point(en.m_origin), SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(en.m_origin, IconID::POINT_DIAMOND),
+                        SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, 1});
 
     if (!en.m_show_points) {
         for (const auto &[idx, p] : en.m_anchors) {
-            m_ca.add_selectable(m_ca.draw_point(en.transform(p)),
+            m_ca.add_selectable(m_ca.draw_point(en.transform(p), IconID::POINT_TRIANGLE_DOWN),
                                 SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, idx});
         }
     }
@@ -398,7 +404,7 @@ void Renderer::visit(const EntitySTEP &en)
         if (en.m_show_points) {
             unsigned int idx = EntitySTEP::s_imported_point_offset;
             for (auto &pt : en.m_imported->result.points) {
-                m_ca.add_selectable(m_ca.draw_point(en.transform({pt.x, pt.y, pt.z})),
+                m_ca.add_selectable(m_ca.draw_point(en.transform({pt.x, pt.y, pt.z}), IconID::POINT_TRIANGLE_DOWN),
                                     SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, idx++});
             }
         }
@@ -438,7 +444,7 @@ void Renderer::visit(const EntityDocument &en)
 {
     auto path = en.get_path(m_containing_dir);
     SelectableRef sr_origin{SelectableRef::Type::ENTITY, en.m_uuid, 1};
-    m_ca.add_selectable(m_ca.draw_point(en.m_origin), sr_origin);
+    m_ca.add_selectable(m_ca.draw_point(en.m_origin, IconID::POINT_DIAMOND), sr_origin);
     auto m = glm::translate(glm::mat4(1), glm::vec3(en.m_origin)) * glm::toMat4(glm::quat(en.m_normal));
     AutoSaveRestore asr{*this};
     m_ca.set_transform(m);
@@ -480,8 +486,10 @@ void Renderer::visit(const EntityBezier2D &bezier)
 
     m_ca.add_selectable(m_ca.draw_point(p1), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 1});
     m_ca.add_selectable(m_ca.draw_point(p2), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 2});
-    m_ca.add_selectable(m_ca.draw_point(c1), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 3});
-    m_ca.add_selectable(m_ca.draw_point(c2), SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 4});
+    m_ca.add_selectable(m_ca.draw_point(c1, IconID::POINT_CIRCLE),
+                        SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 3});
+    m_ca.add_selectable(m_ca.draw_point(c2, IconID::POINT_CIRCLE),
+                        SelectableRef{SelectableRef::Type::ENTITY, bezier.m_uuid, 4});
 }
 
 void Renderer::visit(const EntityBezier3D &bezier)
@@ -505,7 +513,8 @@ void Renderer::visit(const EntityCluster &cluster)
 {
     auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(cluster.m_wrkpl));
     const auto p = wrkpl.transform(cluster.m_origin);
-    m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(p, IconID::POINT_DIAMOND),
+                        SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, 1});
     const SelectableRef sr{SelectableRef::Type::ENTITY, cluster.m_uuid, 0};
 
     if (cluster.m_exploded_group) {
@@ -546,13 +555,15 @@ void Renderer::visit(const EntityCluster &cluster)
 
     if (cluster.m_anchors_available.size()) {
         for (const auto &[i, enp] : cluster.m_anchors_available) {
-            m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(cluster.transform(cluster.get_anchor_point(enp)))),
+            m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(cluster.transform(cluster.get_anchor_point(enp))),
+                                                IconID::POINT_TRIANGLE_DOWN),
                                 SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, i});
         }
     }
     else {
         for (const auto &[i, enp] : cluster.m_anchors) {
-            m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(cluster.transform(cluster.get_anchor_point(enp)))),
+            m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(cluster.transform(cluster.get_anchor_point(enp))),
+                                                IconID::POINT_TRIANGLE_DOWN),
                                 SelectableRef{SelectableRef::Type::ENTITY, cluster.m_uuid, i});
         }
     }
@@ -562,7 +573,8 @@ void Renderer::visit(const EntityText &text)
 {
     auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(text.m_wrkpl));
     const auto p = wrkpl.transform(text.m_origin);
-    m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, text.m_uuid, 1});
+    m_ca.add_selectable(m_ca.draw_point(p, IconID::POINT_DIAMOND),
+                        SelectableRef{SelectableRef::Type::ENTITY, text.m_uuid, 1});
     const SelectableRef sr{SelectableRef::Type::ENTITY, text.m_uuid, 0};
 
     auto wrkpl_mat = glm::translate(glm::mat4(1), glm::vec3(wrkpl.m_origin)) * glm::toMat4(glm::quat(wrkpl.m_normal));
@@ -586,7 +598,7 @@ void Renderer::visit(const EntityText &text)
         m_ca.unset_override_selectable();
     }
     for (const auto &[i, p] : text.m_anchors) {
-        m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(text.transform(p))),
+        m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(text.transform(p)), IconID::POINT_TRIANGLE_DOWN),
                             SelectableRef{SelectableRef::Type::ENTITY, text.m_uuid, i});
     }
 }
@@ -848,8 +860,6 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
         label = "(" + label + ")";
     add_selectables(sr, m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label));
 }
-
-using IconID = IconTexture::IconTextureID;
 
 void Renderer::visit(const ConstraintPointsCoincident &constraint)
 {

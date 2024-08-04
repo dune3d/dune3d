@@ -37,6 +37,7 @@ public:
                                      FaceColor face_color) = 0;
     virtual VertexRef draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift,
                                 glm::vec3 v = {NAN, NAN, NAN}) = 0;
+    virtual VertexRef draw_point(glm::vec3 origin, IconTexture::IconTextureID id) = 0;
 
     virtual void add_selectable(const VertexRef &vref, const SelectableRef &sref) = 0;
     virtual void set_selection_invisible(bool selection_invisible) = 0;
