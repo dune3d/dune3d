@@ -73,19 +73,31 @@ Document::Document() : m_version(app_version)
     update_pending();
 }
 
+template <typename T, typename... Args> void load_and_log(std::map<UUID, T> &map, const std::string &type, Args... args)
+{
+    UUID uu = std::get<0>(std::tuple<Args...>(args...));
+    const auto dom = Logger::Domain::DOCUMENT;
+    try {
+        map.emplace(uu, T::element_type::new_from_json(args...));
+    }
+    catch (const std::exception &e) {
+        Logger::log_warning("couldn't load " + type + " " + (std::string)uu, dom, e.what());
+    }
+    catch (...) {
+        Logger::log_warning("couldn't load " + type + " " + (std::string)uu, dom);
+    }
+}
+
 Document::Document(const json &j, const std::filesystem::path &containing_dir) : m_version(app_version, j)
 {
     for (const auto &[uu, it] : j.at("entities").items()) {
-        m_entities.emplace(std::piecewise_construct, std::forward_as_tuple(uu),
-                           std::forward_as_tuple(Entity::new_from_json(uu, it, containing_dir)));
+        load_and_log(m_entities, "Entity", uu, it, containing_dir);
     }
     for (const auto &[uu, it] : j.at("constraints").items()) {
-        m_constraints.emplace(std::piecewise_construct, std::forward_as_tuple(uu),
-                              std::forward_as_tuple(Constraint::new_from_json(uu, it)));
+        load_and_log(m_constraints, "Constraint", uu, it);
     }
     for (const auto &[uu, it] : j.at("groups").items()) {
-        m_groups.emplace(std::piecewise_construct, std::forward_as_tuple(uu),
-                         std::forward_as_tuple(Group::new_from_json(uu, it)));
+        load_and_log(m_groups, "Group", uu, it);
     }
 
     if (m_groups.size())
