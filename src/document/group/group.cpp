@@ -52,6 +52,7 @@ Group::Group(const UUID &uu, const json &j)
 }
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Group::Type, {
+                                                  {Group::Type::INVALID, "invalid"},
                                                   {Group::Type::REFERENCE, "reference"},
                                                   {Group::Type::SKETCH, "sketch"},
                                                   {Group::Type::EXTRUDE, "extrude"},
@@ -101,8 +102,9 @@ std::string Group::get_type_name(Type type)
         return "Loft";
     case Type::EXPLODED_CLUSTER:
         return "Exploded cluster";
+    default:
+        return "Group";
     }
-    return "Group";
 }
 
 std::string Group::get_type_name() const
@@ -136,8 +138,10 @@ std::unique_ptr<Group> Group::new_from_json(const UUID &uu, const json &j)
         return std::make_unique<GroupLoft>(uu, j);
     case Type::EXPLODED_CLUSTER:
         return std::make_unique<GroupExplodedCluster>(uu, j);
+    case Type::INVALID:
+        throw std::runtime_error("unknown group type " + j.at("type").get<std::string>());
     }
-    throw std::runtime_error("unknown entity type");
+    throw std::runtime_error("unknown group type");
 }
 
 Group::BodyAndGroup Group::find_body(const Document &doc) const

@@ -18,6 +18,7 @@ enum class ConstraintType;
 using json = nlohmann::json;
 
 enum class EntityType {
+    INVALID,
     LINE_3D,
     WORKPLANE,
     LINE_2D,

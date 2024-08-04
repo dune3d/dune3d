@@ -32,6 +32,7 @@ struct GroupStatusMessage {
 };
 
 enum class GroupType {
+    INVALID,
     REFERENCE,
     SKETCH,
     EXTRUDE,

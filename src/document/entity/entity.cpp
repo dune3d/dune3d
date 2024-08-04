@@ -113,6 +113,7 @@ Entity::Entity(const UUID &uu, const json &j)
 }
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Entity::Type, {
+                                                   {Entity::Type::INVALID, "invalid"},
                                                    {Entity::Type::LINE_3D, "line_3d"},
                                                    {Entity::Type::LINE_2D, "line_2d"},
                                                    {Entity::Type::ARC_2D, "arc_2d"},
@@ -170,6 +171,8 @@ std::unique_ptr<Entity> Entity::new_from_json(const UUID &uu, const json &j,
         return std::make_unique<EntityCluster>(uu, j);
     case Type::TEXT:
         return std::make_unique<EntityText>(uu, j);
+    case Type::INVALID:
+        throw std::runtime_error("unknown entity type " + j.at("type").get<std::string>());
     }
     throw std::runtime_error("unknown entity type");
 }

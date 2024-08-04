@@ -14,6 +14,7 @@ class Document;
 class EntityAndPoint;
 
 enum class ConstraintType {
+    INVALID,
     POINTS_COINCIDENT,
     PARALLEL,
     POINT_ON_LINE,
