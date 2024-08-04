@@ -59,14 +59,6 @@ struct UBOBuffer {
             set_color(F::CONSTRAINT, appearance, ColorP::CONSTRAINT);
             break;
 
-        case T::POINT:
-            set_color(F::DEFAULT, appearance, ColorP::POINT);
-            set_color(F::INACTIVE, appearance, ColorP::INACTIVE_POINT);
-            set_color(F::CONSTRUCTION, appearance, ColorP::CONSTRUCTION_POINT);
-            set_color(F::CONSTRUCTION | F::INACTIVE, appearance, ColorP::CONSTRUCTION_POINT);
-            set_color(F::CONSTRAINT, appearance, ColorP::CONSTRAINT);
-            break;
-
         case T::SELECTION_INVISIBLE:
         case T::FACE_GROUP:;
         }

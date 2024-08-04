@@ -7,8 +7,6 @@
     <file>canvas/shaders/background-vertex.glsl</file>
     <file>canvas/shaders/face-vertex.glsl</file>
     <file>canvas/shaders/face-fragment.glsl</file>
-    <file>canvas/shaders/point-vertex.glsl</file>
-    <file>canvas/shaders/point-fragment.glsl</file>
     <file>canvas/shaders/line-vertex.glsl</file>
     <file>canvas/shaders/line-fragment.glsl</file>
     <file>canvas/shaders/line-geometry.glsl</file>

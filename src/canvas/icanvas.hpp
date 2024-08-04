@@ -14,7 +14,7 @@ enum class IconTextureID;
 
 class ICanvas {
 public:
-    enum class VertexType { POINT, LINE, GLYPH, GLYPH_3D, ICON, FACE_GROUP, SELECTION_INVISIBLE };
+    enum class VertexType { LINE, GLYPH, GLYPH_3D, ICON, FACE_GROUP, SELECTION_INVISIBLE };
     struct VertexRef {
         VertexType type;
         size_t index;

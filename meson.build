@@ -57,7 +57,6 @@ src = files(
   'src/canvas/base_renderer.cpp',
   'src/canvas/background_renderer.cpp',
   'src/canvas/face_renderer.cpp',
-  'src/canvas/point_renderer.cpp',
   'src/canvas/line_renderer.cpp',
   'src/canvas/glyph_renderer.cpp',
   'src/canvas/glyph_3d_renderer.cpp',

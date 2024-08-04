@@ -2,7 +2,6 @@
 #include <gtkmm.h>
 #include "background_renderer.hpp"
 #include "face_renderer.hpp"
-#include "point_renderer.hpp"
 #include "line_renderer.hpp"
 #include "glyph_renderer.hpp"
 #include "glyph_3d_renderer.hpp"
@@ -32,7 +31,6 @@ class Canvas : public Gtk::GLArea, public ICanvas {
 public:
     friend BackgroundRenderer;
     friend FaceRenderer;
-    friend PointRenderer;
     friend LineRenderer;
     friend GlyphRenderer;
     friend Glyph3DRenderer;
@@ -220,7 +218,6 @@ public:
 private:
     BackgroundRenderer m_background_renderer;
     FaceRenderer m_face_renderer;
-    PointRenderer m_point_renderer;
     LineRenderer m_line_renderer;
     GlyphRenderer m_glyph_renderer;
     Glyph3DRenderer m_glyph_3d_renderer;
@@ -298,7 +295,6 @@ private:
     enum PushFlags {
         PF_NONE = 0,
         PF_FACES = (1 << 0),
-        PF_POINTS = (1 << 1),
         PF_LINES = (1 << 2),
         PF_GLYPHS = (1 << 3),
         PF_GLYPHS_3D = (1 << 4),
@@ -383,27 +379,6 @@ private:
         SCREEN = (1 << 6),
         COLOR_MASK = SELECTED | HOVER | INACTIVE | CONSTRAINT | CONSTRUCTION | HIGHLIGHT,
     };
-
-    class PointVertex {
-    public:
-        PointVertex(double ax, double ay, double az) : x(ax), y(ay), z(az)
-        {
-        }
-        PointVertex(glm::vec3 a) : x(a.x), y(a.y), z(a.z)
-        {
-        }
-        float x;
-        float y;
-        float z;
-
-
-        VertexFlags flags = VertexFlags::DEFAULT;
-    };
-
-    std::vector<PointVertex> m_points;
-    std::vector<PointVertex> m_points_selection_invisible;
-    size_t m_n_points = 0;
-    size_t m_n_points_selection_invisible = 0;
 
     class LineVertex {
     public:
