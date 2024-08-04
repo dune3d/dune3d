@@ -102,6 +102,10 @@ void Dune3DApplication::on_startup()
     m_log_window->set_hide_on_close(true);
     m_log_dispatcher.set_handler([this](const auto &it) { m_log_window->get_view().push_log(it); });
     Logger::get().set_log_handler([this](const Logger::Item &it) { m_log_dispatcher.log(it); });
+    property_active_window().signal_changed().connect([this] {
+        if (auto win = get_active_window())
+            m_log_window->set_transient_for(*win);
+    });
 
     auto cssp = Gtk::CssProvider::create();
     cssp->load_from_resource("/org/dune3d/dune3d/dune3d.css");
