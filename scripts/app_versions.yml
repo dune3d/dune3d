@@ -20,3 +20,4 @@ versions:
     18: add bezier curves
     19: add cluster entities
     20: add point on bezier constraint
+    21: add text entities

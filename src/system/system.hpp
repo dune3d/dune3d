@@ -74,6 +74,7 @@ private:
     void visit(const EntityBezier2D &point) override;
     void visit(const EntityBezier3D &point) override;
     void visit(const EntityCluster &point) override;
+    void visit(const EntityText &point) override;
     void visit(const ConstraintPointsCoincident &constraint) override;
     void visit(const ConstraintParallel &constraint) override;
     void visit(const ConstraintPointOnLine &constraint) override;

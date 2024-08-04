@@ -13,3 +13,4 @@
 #include "entity_bezier2d.hpp"
 #include "entity_bezier3d.hpp"
 #include "entity_cluster.hpp"
+#include "entity_text.hpp"

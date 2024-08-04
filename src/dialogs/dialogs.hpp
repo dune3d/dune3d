@@ -16,6 +16,7 @@ namespace dune3d {
 class ToolWindow;
 class EnterDatumWindow;
 class RotateWindow;
+class EnterTextWindow;
 class EditorInterface;
 
 class Dialogs {
@@ -25,6 +26,7 @@ public:
     // std::optional<double> ask_datum(const std::string &label, double def = 0);
 
     EnterDatumWindow *show_enter_datum_window(const std::string &label, DatumUnit unit, double def = 0);
+    EnterTextWindow *show_enter_text_window(const std::string &label, const std::string &def);
     RotateWindow *show_rotate_window(const std::string &label, const glm::dquat &def);
 
     void close_nonmodal();

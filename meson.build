@@ -14,7 +14,8 @@ gtkmm = dependency('gtkmm-4.0', version: '>=4.10')
 epoxy = dependency('epoxy')
 eigen = dependency('eigen3')
 glm = dependency('glm')
-
+harfbuzz = dependency('harfbuzz')
+freetype = dependency('freetype2')
 
 opencascade = dependency('OpenCASCADE', method : 'cmake')
 if target_machine.system() == 'darwin'
@@ -87,6 +88,7 @@ src = files(
   'src/document/entity/entity_bezier2d.cpp',
   'src/document/entity/entity_bezier3d.cpp',
   'src/document/entity/entity_cluster.cpp',
+  'src/document/entity/entity_text.cpp',
   'src/document/constraint/constraint.cpp',
   'src/document/constraint/constraint_points_coincident.cpp',
   'src/document/constraint/constraint_parallel.cpp',
@@ -197,6 +199,8 @@ src = files(
   'src/core/tools/tool_flip_arc.cpp',
   'src/core/tools/tool_link_document.cpp',
   'src/core/tools/tool_create_cluster.cpp',
+  'src/core/tools/tool_enter_text.cpp',
+  'src/core/tools/tool_draw_text.cpp',
   'src/util/history_manager.cpp',
   'src/action/action.cpp',
   'src/action/action_catalog.cpp',
@@ -216,6 +220,7 @@ src = files(
   'src/dialogs/enter_datum_window.cpp',
   'src/dialogs/rotate_window.cpp',
   'src/dialogs/tool_window.cpp',
+  'src/dialogs/enter_text_window.cpp',
   'src/widgets/spin_button_dim.cpp',
   'src/widgets/spin_button_angle.cpp',
   'src/util/gtk_util.cpp',
@@ -246,6 +251,7 @@ src = files(
   'src/import_dxf/dxf_importer.cpp',
   'src/util/cluster_content.cpp',
   'src/editor/changeable_commit_mode.cpp',
+  'src/util/text_render.cpp',
 )
 
 prog_python = find_program('python3')
@@ -312,7 +318,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs', required:false)
 endif
 
-build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
@@ -368,7 +374,7 @@ dune3d = executable('dune3d',
     link_with: [solvespace, clipper, dxflib],
     cpp_args: cpp_args,
     include_directories: include_directories,
-    gui_app: true, 
+    gui_app: true,
     install: true
 )
 

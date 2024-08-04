@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <optional>
+#include <pangomm.h>
 #include "canvas/selectable_ref.hpp"
 #include "core/tool_data.hpp"
 
@@ -41,5 +42,7 @@ public:
     virtual void show_delete_items_popup(const ItemsToDelete &items_selected, const ItemsToDelete &items_all) = 0;
 
     virtual Dialogs &get_dialogs() = 0;
+
+    virtual Glib::RefPtr<Pango::Context> get_pango_context() = 0;
 };
 } // namespace dune3d

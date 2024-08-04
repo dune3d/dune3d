@@ -163,6 +163,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::UNEXPLODE_CLUSTER, {"Unexplode cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES,
          {"Toggle previous construction entities", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_IN_TOOL}},
+        {ToolID::DRAW_TEXT, {"Draw text", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::ENTER_TEXT, {"Enter Text", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -294,6 +296,8 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC),
         TOOL_LUT_ITEM(IMPORT_DXF),
         TOOL_LUT_ITEM(CREATE_CLUSTER),
+        TOOL_LUT_ITEM(DRAW_TEXT),
+        TOOL_LUT_ITEM(ENTER_TEXT),
 };
 
 

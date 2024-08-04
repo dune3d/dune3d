@@ -6,6 +6,7 @@
 #include "entity/entity_bezier2d.hpp"
 #include "entity/entity_workplane.hpp"
 #include "entity/entity_cluster.hpp"
+#include "entity/entity_text.hpp"
 #include "document.hpp"
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
@@ -511,6 +512,17 @@ Paths Paths::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID
                 for (const auto &[uu2, en2] : en_cluster->m_content->m_entities) {
                     if (en2->m_construction)
                         continue;
+                    if (!entity_is_valid(*en2, tr))
+                        continue;
+                    if (en2->of_type(Entity::Type::CIRCLE_2D))
+                        continue;
+
+                    paths.edges.emplace_back(paths.nodes, *en2, tr);
+                }
+            }
+            else if (auto en_text = dynamic_cast<const EntityText *>(en.get())) {
+                auto tr = [en_text](const glm::dvec2 &v) { return en_text->transform(v); };
+                for (const auto &[uu2, en2] : en_text->m_content->m_entities) {
                     if (!entity_is_valid(*en2, tr))
                         continue;
                     if (en2->of_type(Entity::Type::CIRCLE_2D))

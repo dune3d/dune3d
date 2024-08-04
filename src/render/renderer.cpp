@@ -558,6 +558,39 @@ void Renderer::visit(const EntityCluster &cluster)
     }
 }
 
+void Renderer::visit(const EntityText &text)
+{
+    auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(text.m_wrkpl));
+    const auto p = wrkpl.transform(text.m_origin);
+    m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, text.m_uuid, 1});
+    const SelectableRef sr{SelectableRef::Type::ENTITY, text.m_uuid, 0};
+
+    auto wrkpl_mat = glm::translate(glm::mat4(1), glm::vec3(wrkpl.m_origin)) * glm::toMat4(glm::quat(wrkpl.m_normal));
+
+
+    auto m = glm::scale(glm::rotate(glm::translate(glm::mat4(1), glm::vec3(text.m_origin, 0.)),
+                                    (float)glm::radians(text.m_angle), glm::vec3(0., 0., 1.)),
+                        glm::vec3(text.m_scale, text.m_scale, 0.f));
+    {
+        AutoSaveRestore asr{*this};
+        m_state.no_bezier_control_lines = true;
+        m_ca.set_transform(wrkpl_mat * m);
+
+        m_ca.set_override_selectable(sr);
+
+        m_ca.set_no_points(true);
+        for (const auto &[uu, en] : text.m_content->m_entities) {
+            en->accept(*this);
+        }
+
+        m_ca.unset_override_selectable();
+    }
+    for (const auto &[i, p] : text.m_anchors) {
+        m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(text.transform(p))),
+                            SelectableRef{SelectableRef::Type::ENTITY, text.m_uuid, i});
+    }
+}
+
 static glm::vec3 project_point_onto_plane(const glm::vec3 &plane_origin, const glm::vec3 &plane_normal,
                                           const glm::vec3 &point)
 {

@@ -63,6 +63,8 @@ public:
 
     void show_delete_items_popup(const ItemsToDelete &items_selected, const ItemsToDelete &items_all) override;
 
+    Glib::RefPtr<Pango::Context> get_pango_context() override;
+
     void open_file(const std::filesystem::path &path);
 
     ~Editor();

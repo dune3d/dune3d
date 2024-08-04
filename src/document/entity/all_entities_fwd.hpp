@@ -15,4 +15,5 @@ class EntityDocument;
 class EntityBezier2D;
 class EntityBezier3D;
 class EntityCluster;
+class EntityText;
 } // namespace dune3d

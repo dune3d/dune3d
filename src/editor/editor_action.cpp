@@ -538,6 +538,8 @@ std::optional<ActionToolID> Editor::get_doubleclick_action(const SelectableRef &
             break;
         case Entity::Type::WORKPLANE:
             return ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE;
+        case Entity::Type::TEXT:
+            return ToolID::ENTER_TEXT;
         default:;
         }
     }

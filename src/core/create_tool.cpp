@@ -39,6 +39,8 @@
 #include "tools/tool_import_dxf.hpp"
 #include "tools/tool_create_cluster.hpp"
 #include "tools/tool_add_cluster_anchor.hpp"
+#include "tools/tool_draw_text.hpp"
+#include "tools/tool_enter_text.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -187,6 +189,12 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::ADD_CLUSTER_ANCHOR:
         return std::make_unique<ToolAddClusterAnchor>(tool_id, *this, m_intf, flags);
+
+    case ToolID::DRAW_TEXT:
+        return std::make_unique<ToolDrawText>(tool_id, *this, m_intf, flags);
+
+    case ToolID::ENTER_TEXT:
+        return std::make_unique<ToolToolEnterText>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

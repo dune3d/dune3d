@@ -106,6 +106,7 @@ void Editor::init()
     create_action_bar_button(ToolID::DRAW_RECTANGLE);
     create_action_bar_button(ToolID::DRAW_CIRCLE_2D);
     create_action_bar_button(ToolID::DRAW_REGULAR_POLYGON);
+    create_action_bar_button(ToolID::DRAW_TEXT);
     create_action_bar_button(ToolID::DRAW_WORKPLANE);
 
     init_view_options();
@@ -218,6 +219,7 @@ Gtk::Button &Editor::create_action_bar_button(ActionToolID action)
             {ToolID::DRAW_RECTANGLE, "action-draw-line-rectangle-symbolic"},
             {ToolID::DRAW_REGULAR_POLYGON, "action-draw-line-regular-polygon-symbolic"},
             {ToolID::DRAW_WORKPLANE, "action-draw-workplane-symbolic"},
+            {ToolID::DRAW_TEXT, "action-draw-text-symbolic"},
     };
     auto bu = Gtk::make_managed<Gtk::Button>();
     bu->set_tooltip_text(action_catalog.at(action).name);
@@ -1383,6 +1385,11 @@ void Editor::update_title()
     else {
         m_win.set_window_title("");
     }
+}
+
+Glib::RefPtr<Pango::Context> Editor::get_pango_context()
+{
+    return m_win.create_pango_context();
 }
 
 } // namespace dune3d

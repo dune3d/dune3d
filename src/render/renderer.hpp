@@ -48,6 +48,7 @@ private:
     void visit(const EntityBezier2D &en) override;
     void visit(const EntityBezier3D &en) override;
     void visit(const EntityCluster &en) override;
+    void visit(const EntityText &en) override;
     void visit(const ConstraintPointDistance &constr) override;
     void visit(const ConstraintPointDistanceHV &constr) override;
     void visit(const ConstraintPointsCoincident &constr) override;
