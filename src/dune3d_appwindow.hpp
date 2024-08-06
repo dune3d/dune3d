@@ -199,8 +199,11 @@ private:
     Gtk::SearchEntry *m_open_recent_search_entry = nullptr;
 
     Gtk::HeaderBar *m_header_bar = nullptr;
+    Gtk::Label *m_title_label = nullptr;
+    Gtk::Label *m_subtitle_label = nullptr;
     Gtk::Popover *m_open_popover = nullptr;
     Gtk::MenuButton *m_hamburger_menu_button = nullptr;
+    void set_subtitle(const std::string &label);
 
     Gtk::ListBox *m_open_recent_listbox = nullptr;
 

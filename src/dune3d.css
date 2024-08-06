@@ -44,3 +44,6 @@ button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
 .delete-revealer {border-radius: 5px;}
 .delete-revealer button {border-radius: 0px;}
 .selection-menu contents,arrow {background-color: alpha(@theme_bg_color, .75);}
+
+.window-title-label {font-weight: bold;}
+.window-subtitle-label {font-size: 80%;}

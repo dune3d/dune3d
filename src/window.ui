@@ -9,6 +9,24 @@
     <property name="title">Dune 3D</property>
     <property name="titlebar">
       <object class="GtkHeaderBar" id="titlebar">
+        <property name="title-widget">
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="spacing">3</property>
+            <property name="valign">center</property>
+            <child>
+              <object class="GtkLabel" id="title_label">
+                <property name="css-classes">window-title-label</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="subtitle_label">
+                <property name="css-classes">window-subtitle-label
+dim-label</property>
+              </object>
+            </child>
+          </object>
+        </property>
         <child>
           <object class="GtkBox" id="top_box">
             <property name="css-classes">linked</property>

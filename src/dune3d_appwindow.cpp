@@ -95,6 +95,8 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     }
 
     m_header_bar = refBuilder->get_widget<Gtk::HeaderBar>("titlebar");
+    m_title_label = refBuilder->get_widget<Gtk::Label>("title_label");
+    m_subtitle_label = refBuilder->get_widget<Gtk::Label>("subtitle_label");
 
     m_open_button = refBuilder->get_widget<Gtk::Button>("open_button");
     m_open_popover = refBuilder->get_widget<Gtk::Popover>("open_popover");
@@ -508,17 +510,25 @@ void Dune3DAppWindow::set_window_title_from_path(const std::filesystem::path &pa
     else {
         auto filename = path_to_string(path.filename());
         set_window_title(filename);
+        set_subtitle(path_to_string(path.parent_path()));
     }
 }
 
 void Dune3DAppWindow::set_window_title(const std::string &extra)
 {
-    if (extra.empty()) {
-        set_title("Dune 3D");
+    std::string title = "Dune 3D";
+    if (!extra.empty()) {
+        title = extra + " - " + title;
     }
-    else {
-        set_title(extra + " - Dune 3D");
-    }
+    set_title(title);
+    m_title_label->set_label(title);
+    set_subtitle("");
+}
+
+void Dune3DAppWindow::set_subtitle(const std::string &label)
+{
+    m_subtitle_label->set_visible(label.size());
+    m_subtitle_label->set_label(label);
 }
 
 

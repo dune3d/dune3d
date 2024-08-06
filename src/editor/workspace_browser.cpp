@@ -4,6 +4,7 @@
 #include "document/group/group.hpp"
 #include "document/group/igroup_source_group.hpp"
 #include "workspace/document_view.hpp"
+#include "util/fs_util.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -102,6 +103,7 @@ public:
 
 
     Glib::Property<Glib::ustring> m_name;
+    Glib::Property<Glib::ustring> m_tooltip;
     Glib::Property<bool> m_active;
     Glib::Property<bool> m_check_active;
     Glib::Property<bool> m_check_sensitive;
@@ -122,9 +124,9 @@ public:
 
 private:
     DocumentItem()
-        : Glib::ObjectBase("DocumentItem"), m_name(*this, "name"), m_active(*this, "active"),
-          m_check_active(*this, "check_active", false), m_check_sensitive(*this, "check_sensitive", true),
-          m_close_sensitive(*this, "close_sensitive", true)
+        : Glib::ObjectBase("DocumentItem"), m_name(*this, "name"), m_tooltip(*this, "tooltip"),
+          m_active(*this, "active"), m_check_active(*this, "check_active", false),
+          m_check_sensitive(*this, "check_sensitive", true), m_close_sensitive(*this, "close_sensitive", true)
     {
         m_body_store = Gio::ListStore<BodyItem>::create();
     }
@@ -211,6 +213,11 @@ static std::string icon_name_from_status(GroupStatusMessage::Status st)
 void WorkspaceBrowser::update_name(DocumentItem &it_doc, IDocumentInfo &doci)
 {
     const auto bn = doci.get_basename();
+    if (doci.get_path().empty())
+        it_doc.m_tooltip = "Not saved yet";
+    else
+        it_doc.m_tooltip = path_to_string(doci.get_path());
+
     if (bn.size())
         it_doc.m_name = bn;
     else
@@ -358,6 +365,7 @@ public:
 
         m_label = Gtk::make_managed<Gtk::Label>();
         m_label->set_halign(Gtk::Align::START);
+        m_label->set_has_tooltip();
 
         m_source_group_image = Gtk::make_managed<Gtk::Image>();
         m_source_group_image->set_hexpand(true);
@@ -448,6 +456,8 @@ public:
         m_bindings.push_back(Glib::Binding::bind_property_value(it.m_close_sensitive.get_proxy(),
                                                                 m_close_button->property_sensitive(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
+        m_bindings.push_back(Glib::Binding::bind_property_value(
+                it.m_tooltip.get_proxy(), m_label->property_tooltip_text(), Glib::Binding::Flags::SYNC_CREATE));
         update_label_attrs(it);
 
 
