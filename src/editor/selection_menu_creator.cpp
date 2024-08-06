@@ -5,6 +5,7 @@
 #include "document/constraint/constraint.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
 #include "document/group/group.hpp"
+#include "util/selection_util.hpp"
 
 namespace dune3d {
 
@@ -24,42 +25,8 @@ std::vector<SelectableCheckButton *> SelectionMenuCreator::create(Gtk::Popover &
         if (it.selectable.has_value()) {
             if (!first_vertex_type.has_value())
                 first_vertex_type = it.vertex_type;
-            std::string label;
-            switch (it.selectable->type) {
-            case SelectableRef::Type::ENTITY: {
-                auto &doc = m_core.get_current_document();
-                auto &entity = doc.get_entity(it.selectable->item);
-                auto &group = doc.get_group(entity.m_group);
-                if (entity.m_construction)
-                    label = "Construction ";
-                label += entity.get_type_name();
-                if (entity.has_name() && entity.m_name.size())
-                    label += " " + entity.m_name;
-                if (auto point_name = entity.get_point_name(it.selectable->point); point_name.size())
-                    label += " (" + point_name + ")";
-                label += " in group " + group.m_name;
-            } break;
-
-            case SelectableRef::Type::CONSTRAINT: {
-                auto &doc = m_core.get_current_document();
-                auto &constraint = doc.get_constraint(it.selectable->item);
-                auto &group = doc.get_group(constraint.m_group);
-
-                std::string name = "constraint";
-                if (auto dat = dynamic_cast<const IConstraintDatum *>(&constraint); dat && dat->is_measurement())
-                    name = "measurement";
-
-                label = constraint.get_type_name() + " " + name + " in group " + group.m_name;
-            } break;
-
-            case SelectableRef::Type::DOCUMENT: {
-                label = "Document " + m_core.get_idocument_info(it.selectable->item).get_basename();
-            } break;
-
-            case SelectableRef::Type::SOLID_MODEL_EDGE: {
-                label = "Solid model edge";
-            } break;
-            }
+            const auto label = get_selectable_ref_description(m_core, m_core.get_current_idocument_info().get_uuid(),
+                                                              *it.selectable);
             auto cb = Gtk::make_managed<SelectableCheckButton>(label);
             cb->m_selectable = it.selectable.value();
             buttons.push_back(cb);

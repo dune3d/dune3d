@@ -3,7 +3,12 @@
 #include "document/entity/entity_line2d.hpp"
 #include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_line3d.hpp"
+#include "document/group/group.hpp"
+#include "document/constraint/constraint.hpp"
+#include "document/constraint/iconstraint_datum.hpp"
 #include "canvas/selectable_ref.hpp"
+#include "core/idocument_info.hpp"
+#include "core/idocument_provider.hpp"
 #include <algorithm>
 
 namespace dune3d {
@@ -221,6 +226,45 @@ std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel)
     if (!it.is_document())
         return {};
     return it.item;
+}
+
+std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &current_doc, const SelectableRef &sr)
+{
+    const auto &doc = prv.get_idocument_info(current_doc).get_document();
+    std::string label;
+    switch (sr.type) {
+    case SelectableRef::Type::ENTITY: {
+        auto &entity = doc.get_entity(sr.item);
+        auto &group = doc.get_group(entity.m_group);
+        if (entity.m_construction)
+            label = "Construction ";
+        label += entity.get_type_name();
+        if (entity.has_name() && entity.m_name.size())
+            label += " " + entity.m_name;
+        if (auto point_name = entity.get_point_name(sr.point); point_name.size())
+            label += " (" + point_name + ")";
+        label += " in group " + group.m_name;
+    } break;
+
+    case SelectableRef::Type::CONSTRAINT: {
+        auto &constraint = doc.get_constraint(sr.item);
+
+        std::string name = "constraint";
+        if (auto dat = dynamic_cast<const IConstraintDatum *>(&constraint); dat && dat->is_measurement())
+            name = "measurement";
+
+        label = constraint.get_type_name() + " " + name;
+    } break;
+
+    case SelectableRef::Type::DOCUMENT: {
+        label = "Document " + prv.get_idocument_info(sr.item).get_basename();
+    } break;
+
+    case SelectableRef::Type::SOLID_MODEL_EDGE: {
+        label = "Solid model edge";
+    } break;
+    }
+    return label;
 }
 
 } // namespace dune3d
