@@ -416,6 +416,22 @@ void Editor::init_canvas()
     get_canvas().signal_selection_mode_changed().connect(sigc::mem_fun(*this, &Editor::update_selection_mode_label));
     update_selection_mode_label();
 
+    get_canvas().signal_query_tooltip().connect(
+            [this](int x, int y, bool keyboard_tooltip, const Glib::RefPtr<Gtk::Tooltip> &tooltip) {
+                if (keyboard_tooltip)
+                    return false;
+                auto sr = get_canvas().get_hover_selection();
+                if (!sr.has_value())
+                    return false;
+
+                auto tip = get_selectable_ref_description(m_core, m_core.get_current_idocument_info().get_uuid(), *sr);
+                tooltip->set_text(tip);
+
+                return true;
+            },
+            true);
+    get_canvas().set_has_tooltip(true);
+
     get_canvas().set_selection_menu_creator(m_selection_menu_creator);
 
     /*
