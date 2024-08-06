@@ -68,6 +68,11 @@ public:
     {
         m_state.no_points = c;
     }
+    void set_line_style(LineStyle style) override
+    {
+        m_state.line_style = style;
+    }
+
     void save() override;
     void restore() override;
 
@@ -377,6 +382,7 @@ private:
         CONSTRUCTION = (1 << 4),
         HIGHLIGHT = (1 << 5),
         SCREEN = (1 << 6),
+        LINE_THIN = (1 << 7),
         COLOR_MASK = SELECTED | HOVER | INACTIVE | CONSTRAINT | CONSTRUCTION | HIGHLIGHT,
     };
 
@@ -515,6 +521,7 @@ private:
     type_signal_view_changed m_signal_selection_mode_changed;
 
     void apply_flags(VertexFlags &flags);
+    void apply_line_flags(VertexFlags &flags);
 
     void set_flag_for_selectables(const std::set<SelectableRef> &sr, VertexFlags flag);
 
@@ -548,6 +555,7 @@ private:
         bool vertex_constraint = false;
         bool vertex_construction = false;
         bool no_points = false;
+        LineStyle line_style = LineStyle::DEFAULT;
     };
 
     State m_state;

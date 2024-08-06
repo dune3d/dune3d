@@ -1263,6 +1263,7 @@ ICanvas::VertexRef Canvas::draw_line(glm::vec3 a, glm::vec3 b)
     auto &lines = m_state.selection_invisible ? m_lines_selection_invisible : m_lines;
     auto &li = lines.emplace_back(transform_point(a), transform_point(b));
     apply_flags(li.flags);
+    apply_line_flags(li.flags);
 
     if (m_state.selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
@@ -1276,6 +1277,7 @@ ICanvas::VertexRef Canvas::draw_screen_line(glm::vec3 a, glm::vec3 b)
     auto &li = lines.emplace_back(transform_point(a), transform_point_rel(b));
     li.flags |= VertexFlags::SCREEN;
     apply_flags(li.flags);
+    apply_line_flags(li.flags);
     if (m_state.selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
     return {VertexType::LINE, m_lines.size() - 1};
@@ -1289,6 +1291,12 @@ void Canvas::apply_flags(VertexFlags &flags)
         flags |= VertexFlags::CONSTRAINT;
     if (m_state.vertex_construction)
         flags |= VertexFlags::CONSTRUCTION;
+}
+
+void Canvas::apply_line_flags(VertexFlags &flags)
+{
+    if (m_state.line_style == LineStyle::THIN)
+        flags |= VertexFlags::LINE_THIN;
 }
 
 static const float char_space = 1;

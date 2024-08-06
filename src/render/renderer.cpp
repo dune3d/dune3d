@@ -480,6 +480,7 @@ void Renderer::visit(const EntityBezier2D &bezier)
     if (m_state.no_bezier_control_lines == false) {
         AutoSaveRestore asr{*this};
         m_ca.set_selection_invisible(true);
+        m_ca.set_line_style(ICanvas::LineStyle::THIN);
         m_ca.draw_line(p1, c1);
         m_ca.draw_line(p2, c2);
     }

@@ -31,6 +31,8 @@ void main() {
 	vec2 o2 = vec2(-v.y, -v.x);
 	o2 /= length(o2);
 	o2 *= line_width/2;
+	if(FLAG_IS_SET(flags_to_geom[0], VERTEX_FLAG_LINE_THIN))
+		o2 *= .5;
 	
 	vec4 o = vec4((screen*vec3(o2,0)).xy, 0, 0);
 	

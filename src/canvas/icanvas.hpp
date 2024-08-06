@@ -23,6 +23,11 @@ public:
         friend bool operator==(const VertexRef &, const VertexRef &) = default;
     };
 
+    enum class LineStyle {
+        DEFAULT = 0,
+        THIN = (1 << 0),
+    };
+
     virtual void clear() = 0;
     virtual VertexRef draw_point(glm::vec3 p) = 0;
     virtual VertexRef draw_line(glm::vec3 from, glm::vec3 to) = 0;
@@ -50,6 +55,7 @@ public:
     virtual void set_vertex_constraint(bool c) = 0;
     virtual void set_vertex_construction(bool c) = 0;
     virtual void set_no_points(bool c) = 0;
+    virtual void set_line_style(LineStyle style) = 0;
     virtual void set_transform(const glm::mat4 &transform) = 0;
 
     virtual void set_override_selectable(const SelectableRef &sr) = 0;
