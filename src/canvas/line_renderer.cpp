@@ -65,6 +65,8 @@ void LineRenderer::realize()
 
     realize_base();
     GET_LOC(this, screen_scale);
+    GET_LOC(this, screen);
+    GET_LOC(this, line_width);
 }
 
 void LineRenderer::push()
@@ -91,11 +93,11 @@ void LineRenderer::render()
         const auto m = std::min(m_ca.m_width, m_ca.m_height);
         glUniform1f(m_screen_scale_loc, 1e3 / m);
     }
+    glUniformMatrix3fv(m_screen_loc, 1, GL_FALSE, glm::value_ptr(m_ca.m_screenmat));
     load_uniforms();
 
-#ifndef __APPLE__
-    glLineWidth(m_ca.m_appearance.line_width * m_ca.m_scale_factor);
-#endif
+    glUniform1f(m_line_width_loc, m_ca.m_appearance.line_width * m_ca.m_scale_factor);
+
     glDrawArrays(GL_POINTS, 0, m_ca.m_n_lines);
     glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDrawArrays(GL_POINTS, m_ca.m_n_lines, m_ca.m_n_lines_selection_invisible);

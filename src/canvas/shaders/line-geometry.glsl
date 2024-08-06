@@ -1,7 +1,9 @@
 #version 330
 layout(points) in;
-layout(line_strip, max_vertices = 2) out;
+layout(triangle_strip, max_vertices = 4) out;
 
+uniform mat3 screen;
+uniform float line_width;
 
 in vec4 p1_to_geom[1];
 in vec4 p2_to_geom[1];
@@ -21,12 +23,31 @@ void main() {
 	if(test_peel(pick_to_geom[0]))
 		return;
 	
+	
+	vec4 p0x = p1_to_geom[0] / p1_to_geom[0].w;
+	vec4 p1x = p2_to_geom[0] / p2_to_geom[0].w;
+	
+	vec2 v = p1x.xy-p0x.xy;
+	vec2 o2 = vec2(-v.y, -v.x);
+	o2 /= length(o2);
+	o2 *= line_width/2;
+	
+	vec4 o = vec4((screen*vec3(o2,0)).xy, 0, 0);
+	
 	pick_to_frag = pick_to_geom[0];
-	gl_Position = p1_to_geom[0];
+	gl_Position = p0x-o;
 	EmitVertex();
 	
 	pick_to_frag = pick_to_geom[0];
-	gl_Position = p2_to_geom[0];
+	gl_Position = p0x+o;
+	EmitVertex();
+
+	pick_to_frag = pick_to_geom[0];
+	gl_Position = p1x-o;
+	EmitVertex();
+	
+	pick_to_frag = pick_to_geom[0];
+	gl_Position = p1x+o;
 	EmitVertex();
 	
 	EndPrimitive();
