@@ -1260,6 +1260,8 @@ void Editor::update_version_info()
 
 void Editor::open_file(const std::filesystem::path &path)
 {
+    if (m_core.get_idocument_info_by_path(path))
+        return;
     try {
         const UUID doc_uu = UUID::random();
 
