@@ -5,6 +5,7 @@
 #include "nlohmann/json.hpp"
 #include "util/fs_util.hpp"
 #include "util/util.hpp"
+#include <format>
 
 namespace dune3d {
 
@@ -12,7 +13,6 @@ UUID Editor::create_workspace_view()
 {
     auto uu = UUID::random();
     auto &wv = m_workspace_views[uu];
-    wv.m_name = "Default";
     append_workspace_view_page(wv.m_name, uu);
     return uu;
 }
@@ -21,7 +21,8 @@ UUID Editor::create_workspace_view_from_current()
 {
     auto uu = UUID::random();
     auto &wv = m_workspace_views.emplace(uu, m_workspace_views.at(m_current_workspace_view)).first->second;
-    wv.m_name += " (Copy)";
+    if (wv.m_name.size())
+        wv.m_name += " (Copy)";
     append_workspace_view_page(wv.m_name, uu);
     return uu;
 }
@@ -33,6 +34,7 @@ void Editor::append_workspace_view_page(const std::string &name, const UUID &uu)
     la.signal_close().connect([this, uu] { close_workspace_view(uu); });
     la.signal_rename().connect([this, uu] { rename_workspace_view(uu); });
     update_can_close_workspace_view_pages();
+    update_workspace_view_names();
 }
 
 void Editor::close_workspace_view(const UUID &uu)
@@ -44,6 +46,7 @@ void Editor::close_workspace_view(const UUID &uu)
     m_workspace_views.erase(uu);
     m_win.remove_workspace_view_page(uu);
     update_can_close_workspace_view_pages();
+    update_workspace_view_names();
 }
 
 void Editor::update_can_close_workspace_view_pages()
@@ -173,12 +176,29 @@ void Editor::auto_close_workspace_views()
 
 void Editor::update_workspace_view_names()
 {
+    std::map<std::string, unsigned int> name_count;
     auto pages = m_win.get_workspace_notebook().get_pages();
     for (size_t i = 0; i < pages->get_n_items(); i++) {
         auto &page = dynamic_cast<Gtk::NotebookPage &>(*pages->get_object(i).get());
         auto &it = dynamic_cast<WorkspaceViewPage &>(*page.get_child());
+        const auto &wv = m_workspace_views.at(it.m_uuid);
+        auto name = wv.m_name;
+        if (name.empty()) {
+            for (const auto &[uu, dv] : wv.m_documents) {
+                if (dv.document_is_visible() && m_core.has_document(uu)) {
+                    if (name.size())
+                        name += ", ";
+                    name += m_core.get_idocument_info(uu).get_name();
+                }
+            }
+        }
+        if (name_count.contains(name)) {
+            name += std::format(" ({})", name_count.at(name)++);
+        }
+        else
+            name_count.emplace(name, 1);
         dynamic_cast<Dune3DAppWindow::WorkspaceTabLabel &>(*m_win.get_workspace_notebook().get_tab_label(it))
-                .set_label(m_workspace_views.at(it.m_uuid).m_name);
+                .set_label(name);
     }
 }
 

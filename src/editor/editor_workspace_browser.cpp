@@ -270,6 +270,7 @@ void Editor::on_workspace_browser_document_checked(const UUID &uu_doc, bool chec
     get_current_document_views()[uu_doc].m_document_is_visible = checked;
     m_workspace_browser->update_current_group(get_current_document_views());
     canvas_update_keep_selection();
+    update_workspace_view_names();
 }
 
 void Editor::on_workspace_browser_group_checked(const UUID &uu_doc, const UUID &uu_group, bool checked)

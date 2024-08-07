@@ -56,6 +56,8 @@ WorkspaceView::WorkspaceView(const json &j)
       m_cam_quat(j.at("cam_quat").get<glm::dquat>())
 {
     m_documents.emplace(UUID{}, j.at("document"));
+    if (m_name == "Default")
+        m_name = "";
 }
 
 } // namespace dune3d

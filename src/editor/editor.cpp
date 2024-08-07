@@ -50,6 +50,7 @@ void Editor::init()
     m_core.signal_needs_save().connect([this] {
         update_action_sensitivity();
         m_workspace_browser->update_needs_save();
+        update_workspace_view_names();
     });
     get_canvas().signal_selection_changed().connect([this] { update_action_sensitivity(); });
 
@@ -1313,7 +1314,6 @@ void Editor::open_file(const std::filesystem::path &path)
 
         if (new_dv) {
             new_dv->m_current_group = m_core.get_idocument_info(doc_uu).get_current_group();
-            m_workspace_views.at(wsv).m_name = m_core.get_idocument_info(doc_uu).get_basename();
         }
         if (current_wsv && m_core.get_current_idocument_info().get_uuid() == doc_uu) {
             auto &dv = m_workspace_views.at(current_wsv).m_documents[doc_uu];

@@ -74,6 +74,7 @@ void Editor::init_actions()
         m_workspace_views.at(wsv).m_current_document = uu;
         set_current_workspace_view(wsv);
         update_title();
+        update_workspace_view_names();
     });
     connect_action(ActionID::OPEN_DOCUMENT, sigc::mem_fun(*this, &Editor::on_open_document));
 

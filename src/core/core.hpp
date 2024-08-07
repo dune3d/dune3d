@@ -104,6 +104,12 @@ public:
     {
         return m_documents.at(uu);
     }
+
+    bool has_document(const UUID &uu) const
+    {
+        return m_documents.contains(uu);
+    }
+
     IDocumentInfo *get_idocument_info_by_path(const std::filesystem::path &path) override;
 
 
