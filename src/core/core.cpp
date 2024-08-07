@@ -229,6 +229,15 @@ std::string Core::DocumentInfo::get_basename() const
     return path_to_string(m_path.filename());
 }
 
+std::string Core::DocumentInfo::get_name() const
+{
+    auto bn = get_basename();
+    if (bn.size())
+        return bn;
+    else
+        return "New Document";
+}
+
 std::filesystem::path Core::DocumentInfo::get_dirname() const
 {
     return m_path.parent_path();

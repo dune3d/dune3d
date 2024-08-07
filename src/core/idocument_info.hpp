@@ -11,6 +11,7 @@ public:
     virtual Document &get_document() = 0;
     virtual const Document &get_document() const = 0;
     virtual std::string get_basename() const = 0;
+    virtual std::string get_name() const = 0;
     virtual std::filesystem::path get_dirname() const = 0;
     virtual std::filesystem::path get_path() const = 0;
     virtual UUID get_current_group() const = 0;

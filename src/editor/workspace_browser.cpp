@@ -212,16 +212,12 @@ static std::string icon_name_from_status(GroupStatusMessage::Status st)
 
 void WorkspaceBrowser::update_name(DocumentItem &it_doc, IDocumentInfo &doci)
 {
-    const auto bn = doci.get_basename();
     if (doci.get_path().empty())
         it_doc.m_tooltip = "Not saved yet";
     else
         it_doc.m_tooltip = path_to_string(doci.get_path());
 
-    if (bn.size())
-        it_doc.m_name = bn;
-    else
-        it_doc.m_name = "New Document";
+    it_doc.m_name = doci.get_name();
     if (doci.get_needs_save())
         it_doc.m_name = it_doc.m_name + " *";
 }

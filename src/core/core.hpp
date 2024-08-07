@@ -178,6 +178,7 @@ private:
 
         const Document &get_last_document() const;
         std::string get_basename() const override;
+        std::string get_name() const override;
         std::filesystem::path get_dirname() const override;
         std::filesystem::path get_path() const override;
 
