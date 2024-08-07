@@ -443,7 +443,10 @@ Dune3DAppWindow::WorkspaceTabLabel::WorkspaceTabLabel(const std::string &label) 
     {
         auto controller = Gtk::GestureClick::create();
         controller->set_button(2);
-        controller->signal_pressed().connect([this](int, double, double) { m_signal_close.emit(); });
+        controller->signal_pressed().connect([this](int, double, double) {
+            if (m_can_close)
+                m_signal_close.emit();
+        });
         add_controller(controller);
     }
     {
@@ -465,6 +468,7 @@ void Dune3DAppWindow::WorkspaceTabLabel::set_label(const std::string &label)
 void Dune3DAppWindow::WorkspaceTabLabel::set_can_close(bool can_close)
 {
     m_close_button->set_sensitive(can_close);
+    m_can_close = can_close;
 }
 
 Dune3DAppWindow::WorkspaceTabLabel &Dune3DAppWindow::append_workspace_view_page(const std::string &name, const UUID &uu)
@@ -472,7 +476,6 @@ Dune3DAppWindow::WorkspaceTabLabel &Dune3DAppWindow::append_workspace_view_page(
     auto pg = Gtk::make_managed<WorkspaceViewPage>(uu);
     auto la = Gtk::make_managed<WorkspaceTabLabel>(name);
     m_workspace_notebook->append_page(*pg, *la);
-    update_can_close_workspace_pages();
     return *la;
 }
 
@@ -484,23 +487,11 @@ void Dune3DAppWindow::remove_workspace_view_page(const UUID &uu)
         auto &it = dynamic_cast<WorkspaceViewPage &>(*page.get_child());
         if (it.m_uuid == uu) {
             m_workspace_notebook->remove_page(it);
-            update_can_close_workspace_pages();
             return;
         }
     }
 }
 
-void Dune3DAppWindow::update_can_close_workspace_pages()
-{
-    const auto can_close = m_workspace_notebook->get_n_pages() > 1;
-    auto pages = m_workspace_notebook->get_pages();
-    for (size_t i = 0; i < pages->get_n_items(); i++) {
-        auto &page = dynamic_cast<Gtk::NotebookPage &>(*pages->get_object(i).get());
-        auto &it = dynamic_cast<WorkspaceViewPage &>(*page.get_child());
-        auto &la = dynamic_cast<WorkspaceTabLabel &>(*m_workspace_notebook->get_tab_label(it));
-        la.set_can_close(can_close);
-    }
-}
 
 void Dune3DAppWindow::set_window_title_from_path(const std::filesystem::path &path)
 {

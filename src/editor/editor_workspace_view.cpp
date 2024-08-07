@@ -32,6 +32,7 @@ void Editor::append_workspace_view_page(const std::string &name, const UUID &uu)
     auto &la = m_win.append_workspace_view_page(name, uu);
     la.signal_close().connect([this, uu] { close_workspace_view(uu); });
     la.signal_rename().connect([this, uu] { rename_workspace_view(uu); });
+    update_can_close_workspace_view_pages();
 }
 
 void Editor::close_workspace_view(const UUID &uu)
@@ -42,6 +43,45 @@ void Editor::close_workspace_view(const UUID &uu)
         return;
     m_workspace_views.erase(uu);
     m_win.remove_workspace_view_page(uu);
+    update_can_close_workspace_view_pages();
+}
+
+void Editor::update_can_close_workspace_view_pages()
+{
+    auto pages = m_win.get_workspace_notebook().get_pages();
+    auto docs = m_core.get_documents();
+    for (size_t i = 0; i < pages->get_n_items(); i++) {
+        auto &page = dynamic_cast<Gtk::NotebookPage &>(*pages->get_object(i).get());
+        auto &it = dynamic_cast<WorkspaceViewPage &>(*page.get_child());
+
+        // we can only close a workspace view if the documents visible in it are visible in other views
+        std::set<UUID> docs_in_this_view;
+        {
+            auto &wv = m_workspace_views.at(it.m_uuid);
+            for (auto doc : docs) {
+                if (wv.document_is_visible(doc->get_uuid()))
+                    docs_in_this_view.insert(doc->get_uuid());
+            }
+        }
+
+        bool can_close = false;
+        for (const auto &doc : docs_in_this_view) {
+            for (const auto &[uu, wv] : m_workspace_views) {
+                if (uu == it.m_uuid) // this view
+                    continue;
+                if (wv.document_is_visible(doc)) {
+                    can_close = true;
+                    break;
+                }
+            }
+            if (can_close)
+                break;
+        }
+
+
+        dynamic_cast<Dune3DAppWindow::WorkspaceTabLabel &>(*m_win.get_workspace_notebook().get_tab_label(it))
+                .set_can_close(can_close);
+    }
 }
 
 class RenameWindow : public Gtk::Window, public Changeable {

@@ -220,6 +220,8 @@ private:
     UUID create_workspace_view_from_current();
     void set_current_workspace_view(const UUID &uu);
     void update_workspace_view_names();
+    void update_can_close_workspace_view_pages();
+
     bool m_workspace_view_loading = false;
     void save_workspace_view(const UUID &doc_uu);
     void append_workspace_view_page(const std::string &name, const UUID &uu);

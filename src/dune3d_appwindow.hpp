@@ -174,6 +174,7 @@ public:
     private:
         Gtk::Label *m_label = nullptr;
         Gtk::Button *m_close_button = nullptr;
+        bool m_can_close = true;
 
         type_signal_close m_signal_close;
         type_signal_close m_signal_rename;
@@ -238,8 +239,6 @@ private:
     Gtk::Label *m_workplane_label = nullptr;
     Gtk::Notebook *m_workspace_notebook = nullptr;
     Gtk::Button *m_workspace_add_button = nullptr;
-
-    void update_can_close_workspace_pages();
 
     Gtk::MenuButton *m_view_options_button = nullptr;
     Gtk::Label *m_view_hints_label = nullptr;
