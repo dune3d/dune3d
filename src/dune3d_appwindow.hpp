@@ -170,14 +170,21 @@ public:
             return m_signal_rename;
         }
 
+        type_signal_close signal_duplicate()
+        {
+            return m_signal_duplicate;
+        }
+
 
     private:
         Gtk::Label *m_label = nullptr;
         Gtk::Button *m_close_button = nullptr;
         bool m_can_close = true;
+        Glib::RefPtr<Gio::SimpleAction> m_close_action;
 
         type_signal_close m_signal_close;
         type_signal_close m_signal_rename;
+        type_signal_close m_signal_duplicate;
     };
 
     WorkspaceTabLabel &append_workspace_view_page(const std::string &name, const UUID &uu);

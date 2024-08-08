@@ -19,20 +19,25 @@ UUID Editor::create_workspace_view()
 
 UUID Editor::create_workspace_view_from_current()
 {
+    return duplicate_workspace_view(m_current_workspace_view);
+}
+
+UUID Editor::duplicate_workspace_view(const UUID &wv_uu)
+{
     auto uu = UUID::random();
-    auto &wv = m_workspace_views.emplace(uu, m_workspace_views.at(m_current_workspace_view)).first->second;
+    auto &wv = m_workspace_views.emplace(uu, m_workspace_views.at(wv_uu)).first->second;
     if (wv.m_name.size())
         wv.m_name += " (Copy)";
     append_workspace_view_page(wv.m_name, uu);
     return uu;
 }
 
-
 void Editor::append_workspace_view_page(const std::string &name, const UUID &uu)
 {
     auto &la = m_win.append_workspace_view_page(name, uu);
     la.signal_close().connect([this, uu] { close_workspace_view(uu); });
     la.signal_rename().connect([this, uu] { rename_workspace_view(uu); });
+    la.signal_duplicate().connect([this, uu] { set_current_workspace_view(duplicate_workspace_view(uu)); });
     update_can_close_workspace_view_pages();
     update_workspace_view_names();
 }

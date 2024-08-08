@@ -458,6 +458,26 @@ Dune3DAppWindow::WorkspaceTabLabel::WorkspaceTabLabel(const std::string &label) 
         });
         add_controller(controller);
     }
+
+    auto popover = Gtk::make_managed<Gtk::PopoverMenu>();
+    auto menu = Gio::Menu::create();
+    auto actions = Gio::SimpleActionGroup::create();
+    m_close_action = actions->add_action("close", [this] { m_signal_close.emit(); });
+    actions->add_action("rename", [this] { m_signal_rename.emit(); });
+    actions->add_action("duplicate", [this] { m_signal_duplicate.emit(); });
+    insert_action_group("view", actions);
+    menu->append("Duplicate", "view.duplicate");
+    menu->append("Close", "view.close");
+    menu->append("Rename", "view.rename");
+
+    popover->set_menu_model(menu);
+    popover->set_parent(*this);
+    {
+        auto controller = Gtk::GestureClick::create();
+        controller->set_button(3);
+        controller->signal_pressed().connect([popover](int n_press, double, double) { popover->popup(); });
+        add_controller(controller);
+    }
 }
 
 void Dune3DAppWindow::WorkspaceTabLabel::set_label(const std::string &label)
@@ -469,6 +489,7 @@ void Dune3DAppWindow::WorkspaceTabLabel::set_can_close(bool can_close)
 {
     m_close_button->set_sensitive(can_close);
     m_can_close = can_close;
+    m_close_action->set_enabled(can_close);
 }
 
 Dune3DAppWindow::WorkspaceTabLabel &Dune3DAppWindow::append_workspace_view_page(const std::string &name, const UUID &uu)
