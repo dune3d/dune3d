@@ -1317,12 +1317,8 @@ void Editor::open_file(const std::filesystem::path &path)
         }
         if (current_wsv && m_core.get_current_idocument_info().get_uuid() == doc_uu) {
             auto &dv = m_workspace_views.at(current_wsv).m_documents[doc_uu];
-            m_core.set_current_group(dv.m_current_group);
+            set_current_group(dv.m_current_group);
             set_show_previous_construction_entities(dv.m_show_construction_entities_from_previous_groups);
-            canvas_update_keep_selection();
-            m_workspace_browser->update_current_group(get_current_document_views());
-            update_group_editor();
-            update_action_sensitivity();
         }
 
         update_workspace_view_names();
@@ -1352,6 +1348,19 @@ void Editor::load_linked_documents(const UUID &uu_doc)
             }
         }
     }
+}
+
+void Editor::set_current_group(const UUID &uu_group)
+{
+    m_core.set_current_group(uu_group);
+    m_workspace_browser->update_current_group(get_current_document_views());
+    canvas_update_keep_selection();
+    update_workplane_label();
+    m_constraints_box->update();
+    update_group_editor();
+    update_action_sensitivity();
+    update_action_bar_buttons_sensitivity();
+    update_selection_editor();
 }
 
 void Editor::tool_bar_set_tool_tip(const std::string &s)

@@ -234,9 +234,7 @@ void Editor::set_current_workspace_view(const UUID &uu)
     }
     if (m_core.has_documents()) {
         m_core.set_current_document(wv.m_current_document);
-        m_core.set_current_group(get_current_document_view().m_current_group);
-        set_show_previous_construction_entities(
-                get_current_document_view().m_show_construction_entities_from_previous_groups);
+        set_current_group(get_current_document_view().m_current_group);
     }
     update_action_sensitivity();
     canvas_update_keep_selection();

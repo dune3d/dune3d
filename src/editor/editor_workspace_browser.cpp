@@ -61,16 +61,8 @@ void Editor::on_workspace_browser_group_selected(const UUID &uu_doc, const UUID 
     m_core.set_current_document(uu_doc);
     m_workspace_views.at(m_current_workspace_view).m_current_document = uu_doc;
     update_version_info();
-    m_core.set_current_group(uu_group);
     get_current_document_view().m_current_group = uu_group;
-    m_workspace_browser->update_current_group(get_current_document_views());
-    canvas_update_keep_selection();
-    update_workplane_label();
-    m_constraints_box->update();
-    update_group_editor();
-    update_action_sensitivity();
-    update_action_bar_buttons_sensitivity();
-    update_selection_editor();
+    set_current_group(uu_group);
 }
 
 void Editor::on_add_group(Group::Type group_type)
@@ -237,13 +229,13 @@ void Editor::on_delete_current_group()
         doc.delete_items(items);
     }
 
-    m_core.set_current_group(previous_group);
     get_current_document_view().m_current_group = previous_group;
+    m_core.set_current_group(previous_group);
+    m_workspace_browser->update_documents(get_current_document_views());
+    set_current_group(previous_group);
 
     m_core.set_needs_save();
     m_core.rebuild("delete group");
-    canvas_update_keep_selection();
-    m_workspace_browser->update_documents(get_current_document_views());
 }
 
 void Editor::on_move_group(Document::MoveGroup op)

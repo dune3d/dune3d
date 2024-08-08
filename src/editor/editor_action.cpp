@@ -108,6 +108,7 @@ void Editor::init_actions()
         canvas_update_keep_selection();
         update_workplane_label();
         update_selection_editor();
+        update_action_sensitivity();
     });
     connect_action(ActionID::REDO, [this](const auto &a) {
         m_core.redo();
@@ -115,6 +116,7 @@ void Editor::init_actions()
         canvas_update_keep_selection();
         update_workplane_label();
         update_selection_editor();
+        update_action_sensitivity();
     });
 
     connect_action(ActionID::PREFERENCES, [this](const auto &a) {

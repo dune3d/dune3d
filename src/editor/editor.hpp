@@ -112,6 +112,7 @@ private:
     std::set<SelectableRef> m_context_menu_selection;
     void open_context_menu();
 
+    void set_current_group(const UUID &group);
     void canvas_update();
     void canvas_update_keep_selection();
     void render_document(const IDocumentInfo &doc);
