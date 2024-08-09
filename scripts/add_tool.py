@@ -68,7 +68,7 @@ def create_files():
 
 namespace dune3d {
 
-class Tool$class_name : public ToolCommon {
+class $class_name : public ToolCommon {
 public:
     using ToolCommon::ToolCommon;
 
@@ -96,18 +96,18 @@ private:
 
 namespace dune3d {
 
-ToolBase::CanBegin Tool$class_name::can_begin()
+ToolBase::CanBegin $class_name::can_begin()
 {
     return true;
 }
 
-ToolResponse Tool$class_name::begin(const ToolArgs &args)
+ToolResponse $class_name::begin(const ToolArgs &args)
 {
 
     return ToolResponse();
 }
 
-ToolResponse Tool$class_name::update(const ToolArgs &args)
+ToolResponse $class_name::update(const ToolArgs &args)
 {
   
     return ToolResponse();
@@ -147,7 +147,7 @@ def add_to_create_tool():
     new_lines += lines[idx1:idx2]
     new_lines.append("")
     new_lines.append(f"    case ToolID::{tool_id}:")
-    new_lines.append(f"        return std::make_unique<Tool{class_name}>(tool_id, *this, m_intf, flags);")
+    new_lines.append(f"        return std::make_unique<{class_name}>(tool_id, *this, m_intf, flags);")
     new_lines += lines[idx2:]
     
     new_lines.append("")
