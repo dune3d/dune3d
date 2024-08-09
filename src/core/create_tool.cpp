@@ -194,7 +194,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolDrawText>(tool_id, *this, m_intf, flags);
 
     case ToolID::ENTER_TEXT:
-        return std::make_unique<ToolToolEnterText>(tool_id, *this, m_intf, flags);
+        return std::make_unique<ToolEnterText>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

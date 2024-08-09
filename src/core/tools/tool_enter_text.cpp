@@ -11,7 +11,7 @@
 
 namespace dune3d {
 
-ToolBase::CanBegin ToolToolEnterText::can_begin()
+ToolBase::CanBegin ToolEnterText::can_begin()
 {
     auto enp = point_from_selection(get_doc(), m_selection, Entity::Type::TEXT);
     if (!enp)
@@ -19,7 +19,7 @@ ToolBase::CanBegin ToolToolEnterText::can_begin()
     return enp->point == 0;
 }
 
-ToolResponse ToolToolEnterText::begin(const ToolArgs &args)
+ToolResponse ToolEnterText::begin(const ToolArgs &args)
 {
     auto enp = point_from_selection(get_doc(), m_selection, Entity::Type::TEXT);
     if (!enp)
@@ -31,7 +31,7 @@ ToolResponse ToolToolEnterText::begin(const ToolArgs &args)
     return ToolResponse();
 }
 
-ToolResponse ToolToolEnterText::update(const ToolArgs &args)
+ToolResponse ToolEnterText::update(const ToolArgs &args)
 {
     if (args.type == ToolEventType::DATA) {
         if (auto data = dynamic_cast<const ToolDataWindow *>(args.data.get())) {

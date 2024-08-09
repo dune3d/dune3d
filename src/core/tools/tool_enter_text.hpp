@@ -4,7 +4,7 @@ namespace dune3d {
 
 class EntityText;
 
-class ToolToolEnterText : public ToolCommon {
+class ToolEnterText : public ToolCommon {
 public:
     using ToolCommon::ToolCommon;
 
