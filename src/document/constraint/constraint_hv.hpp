@@ -28,6 +28,9 @@ public:
     void accept(ConstraintVisitor &visitor) const override;
 
     bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
+
+    constexpr static auto s_referenced_entities_and_points_tuple =
+            std::make_tuple(&ConstraintHV::m_entity1, &ConstraintHV::m_entity2, &ConstraintHV::m_wrkpl);
 };
 
 class ConstraintHorizontal : public ConstraintHV {

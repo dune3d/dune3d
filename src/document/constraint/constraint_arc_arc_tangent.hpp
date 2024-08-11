@@ -16,9 +16,8 @@ public:
     EntityAndPoint m_arc1;
     EntityAndPoint m_arc2;
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
-    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
+    constexpr static auto s_referenced_entities_and_points_tuple =
+            std::make_tuple(&ConstraintArcArcTangent::m_arc1, &ConstraintArcArcTangent::m_arc2);
 };
 
 } // namespace dune3d

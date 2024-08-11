@@ -17,6 +17,7 @@ public:
 
     UUID m_align_entity;
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
+    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
 
     double measure_distance(const Document &doc) const override;
     glm::dvec3 get_align_vector(const Document &doc) const;

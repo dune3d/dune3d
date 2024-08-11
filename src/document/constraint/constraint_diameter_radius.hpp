@@ -78,6 +78,10 @@ public:
 
     void accept(ConstraintVisitor &visitor) const override;
 
+    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
+
+    constexpr static auto s_referenced_entities_and_points_tuple = std::make_tuple(&ConstraintDiameterRadius::m_entity);
+
 protected:
     double measure_radius(const Document &doc) const;
 };

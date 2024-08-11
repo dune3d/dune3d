@@ -1,7 +1,7 @@
 #include "constraint_point_on_line_base.hpp"
+#include "constraint_util.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
-#include "constraint_visitor.hpp"
 
 namespace dune3d {
 ConstraintPointOnLineBase::ConstraintPointOnLineBase(const UUID &uu) : Constraint(uu)
@@ -14,7 +14,6 @@ ConstraintPointOnLineBase::ConstraintPointOnLineBase(const UUID &uu, const json 
 {
 }
 
-
 json ConstraintPointOnLineBase::serialize() const
 {
     json j = Constraint::serialize();
@@ -26,16 +25,12 @@ json ConstraintPointOnLineBase::serialize() const
 
 std::set<EntityAndPoint> ConstraintPointOnLineBase::get_referenced_entities_and_points() const
 {
-    return {m_point, {m_line, 0}};
+    return get_referenced_entities_and_points_from_constraint(*this);
 }
 
 bool ConstraintPointOnLineBase::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
 {
-    if (m_point == old_point) {
-        m_point = new_point;
-        return true;
-    }
-    return false;
+    return replace_constraint_points(*this, old_point, new_point);
 }
 
 } // namespace dune3d

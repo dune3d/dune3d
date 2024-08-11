@@ -16,9 +16,8 @@ public:
     EntityAndPoint m_bezier;
     UUID m_line;
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
-    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
+    constexpr static auto s_referenced_entities_and_points_tuple =
+            std::make_tuple(&ConstraintBezierLineTangent::m_bezier, &ConstraintBezierLineTangent::m_line);
 };
 
 } // namespace dune3d

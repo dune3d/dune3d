@@ -25,7 +25,11 @@ public:
         return m_wrkpl;
     }
 
+    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
     std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
+
+    constexpr static auto s_referenced_entities_and_points_tuple = std::make_tuple(
+            &ConstraintAngleBase::m_entity1, &ConstraintAngleBase::m_entity2, &ConstraintAngleBase::m_wrkpl);
 };
 
 class ConstraintLinesPerpendicular : public ConstraintAngleBase {

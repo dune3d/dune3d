@@ -28,11 +28,6 @@ json ConstraintWorkplaneNormal::serialize() const
     return j;
 }
 
-std::set<EntityAndPoint> ConstraintWorkplaneNormal::get_referenced_entities_and_points() const
-{
-    return {{m_line1, 0}, {m_line2, 0}, {m_wrkpl, 0}};
-}
-
 static bool coincident(const glm::dvec3 &p1, const glm::dvec3 &p2)
 {
     return glm::length(p1 - p2) < 1e-6;

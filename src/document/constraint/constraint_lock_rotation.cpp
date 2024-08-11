@@ -20,9 +20,4 @@ json ConstraintLockRotation::serialize() const
     return j;
 }
 
-std::set<EntityAndPoint> ConstraintLockRotation::get_referenced_entities_and_points() const
-{
-    return {{m_entity, 0}};
-}
-
 } // namespace dune3d

@@ -21,19 +21,4 @@ json ConstraintPointInWorkplane::serialize() const
     return j;
 }
 
-std::set<EntityAndPoint> ConstraintPointInWorkplane::get_referenced_entities_and_points() const
-{
-    return {m_point, {m_wrkpl, 0}};
-}
-
-
-bool ConstraintPointInWorkplane::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
-{
-    if (m_point == old_point) {
-        m_point = new_point;
-        return true;
-    }
-    return false;
-}
-
 } // namespace dune3d

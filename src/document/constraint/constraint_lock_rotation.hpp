@@ -15,6 +15,6 @@ public:
 
     UUID m_entity;
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
+    constexpr static auto s_referenced_entities_and_points_tuple = std::make_tuple(&ConstraintLockRotation::m_entity);
 };
 } // namespace dune3d

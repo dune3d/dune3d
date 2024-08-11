@@ -1,4 +1,5 @@
 #include "constraint_point_distance_aligned.hpp"
+#include "constraint_util.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
 #include "document/document.hpp"
@@ -28,6 +29,13 @@ std::set<EntityAndPoint> ConstraintPointDistanceAligned::get_referenced_entities
     auto enps = ConstraintPointDistanceBase::get_referenced_entities_and_points();
     enps.emplace(m_align_entity, 0);
     return enps;
+}
+
+bool ConstraintPointDistanceAligned::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
+{
+    const auto a = ConstraintPointDistanceBase::replace_point(old_point, new_point);
+    const auto b = replace_points(old_point, new_point, m_align_entity);
+    return a || b;
 }
 
 std::unique_ptr<Constraint> ConstraintPointDistanceAligned::clone() const

@@ -1,4 +1,5 @@
 #include "constraint_angle.hpp"
+#include "constraint_util.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
@@ -28,7 +29,12 @@ json ConstraintAngleBase::serialize() const
 
 std::set<EntityAndPoint> ConstraintAngleBase::get_referenced_entities_and_points() const
 {
-    return {{m_entity1, 0}, {m_entity2, 0}};
+    return get_referenced_entities_and_points_from_constraint(*this);
+}
+
+bool ConstraintAngleBase::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
+{
+    return replace_constraint_points(*this, old_point, new_point);
 }
 
 void ConstraintLinesAngle::accept(ConstraintVisitor &visitor) const
@@ -124,6 +130,5 @@ double ConstraintLinesAngle::get_display_angle(const Document &doc) const
         return m_angle;
     }
 }
-
 
 } // namespace dune3d

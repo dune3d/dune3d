@@ -31,7 +31,9 @@ public:
 
     void pre_solve(Document &doc) const override;
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
+    constexpr static auto s_referenced_entities_and_points_tuple =
+            std::make_tuple(&ConstraintWorkplaneNormal::m_line1, &ConstraintWorkplaneNormal::m_line2,
+                            &ConstraintWorkplaneNormal::m_wrkpl);
 };
 
 } // namespace dune3d

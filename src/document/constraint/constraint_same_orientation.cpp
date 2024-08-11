@@ -23,10 +23,4 @@ json ConstraintSameOrientation::serialize() const
     return j;
 }
 
-std::set<EntityAndPoint> ConstraintSameOrientation::get_referenced_entities_and_points() const
-{
-    return {{m_entity1, 0}, {m_entity2, 0}};
-}
-
-
 } // namespace dune3d
