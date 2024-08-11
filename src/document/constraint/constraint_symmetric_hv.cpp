@@ -1,4 +1,5 @@
 #include "constraint_symmetric_hv.hpp"
+#include "constraint_util.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
 #include "constraint_visitor.hpp"
@@ -33,27 +34,19 @@ std::unique_ptr<Constraint> ConstraintSymmetricVertical::clone() const
     return std::make_unique<ConstraintSymmetricVertical>(*this);
 }
 
-std::set<EntityAndPoint> ConstraintSymmetricHV::get_referenced_entities_and_points() const
-{
-    return {m_entity1, m_entity2, {m_wrkpl, 0}};
-}
-
 void ConstraintSymmetricHV::accept(ConstraintVisitor &visitor) const
 {
     visitor.visit(*this);
 }
 
+std::set<EntityAndPoint> ConstraintSymmetricHV::get_referenced_entities_and_points() const
+{
+    return get_referenced_entities_and_points_from_constraint(*this);
+}
+
 bool ConstraintSymmetricHV::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
 {
-    if (m_entity1 == old_point) {
-        m_entity1 = new_point;
-        return true;
-    }
-    else if (m_entity2 == old_point) {
-        m_entity2 = new_point;
-        return true;
-    }
-    return false;
+    return replace_constraint_points(*this, old_point, new_point);
 }
 
 } // namespace dune3d

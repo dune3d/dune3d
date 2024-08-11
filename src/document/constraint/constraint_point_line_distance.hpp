@@ -57,8 +57,9 @@ public:
         return false;
     }
 
-
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
+    constexpr static auto s_referenced_entities_and_points_tuple =
+            std::make_tuple(&ConstraintPointLineDistance::m_point, &ConstraintPointLineDistance::m_line,
+                            &ConstraintPointLineDistance::m_wrkpl);
 
     std::string get_datum_name() const override
     {

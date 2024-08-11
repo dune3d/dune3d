@@ -22,7 +22,8 @@ public:
         return m_wrkpl;
     }
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
+    constexpr static auto s_referenced_entities_and_points_tuple = std::make_tuple(
+            &ConstraintEqualLength::m_entity1, &ConstraintEqualLength::m_entity2, &ConstraintEqualLength::m_wrkpl);
 };
 
 } // namespace dune3d

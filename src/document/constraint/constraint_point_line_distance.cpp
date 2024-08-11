@@ -50,15 +50,6 @@ glm::dvec3 ConstraintPointLineDistance::get_origin(const Document &doc) const
     return p;
 }
 
-
-std::set<EntityAndPoint> ConstraintPointLineDistance::get_referenced_entities_and_points() const
-{
-    std::set<EntityAndPoint> r = {m_point, {m_line, 0}};
-    if (m_wrkpl)
-        r.emplace(m_wrkpl, 0);
-    return r;
-}
-
 double ConstraintPointLineDistance::measure_distance(const Document &doc) const
 {
     auto lp1 = doc.get_point({m_line, 1});

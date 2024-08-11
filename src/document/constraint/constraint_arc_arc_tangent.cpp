@@ -21,24 +21,4 @@ json ConstraintArcArcTangent::serialize() const
     return j;
 }
 
-
-std::set<EntityAndPoint> ConstraintArcArcTangent::get_referenced_entities_and_points() const
-{
-    return {m_arc1, m_arc2};
-}
-
-
-bool ConstraintArcArcTangent::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
-{
-    if (m_arc1 == old_point) {
-        m_arc1 = new_point;
-        return true;
-    }
-    else if (m_arc2 == old_point) {
-        m_arc2 = new_point;
-        return true;
-    }
-    return false;
-}
-
 } // namespace dune3d

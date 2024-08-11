@@ -25,13 +25,6 @@ std::unique_ptr<Constraint> ConstraintPointDistanceVertical::clone() const
     return std::make_unique<ConstraintPointDistanceVertical>(*this);
 }
 
-std::set<EntityAndPoint> ConstraintPointDistanceHV::get_referenced_entities_and_points() const
-{
-    std::set<EntityAndPoint> r = ConstraintPointDistanceBase::get_referenced_entities_and_points();
-    r.emplace(m_wrkpl, 0);
-    return r;
-}
-
 void ConstraintPointDistanceHV::accept(ConstraintVisitor &visitor) const
 {
     visitor.visit(*this);

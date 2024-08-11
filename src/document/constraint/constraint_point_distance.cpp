@@ -1,4 +1,5 @@
 #include "constraint_point_distance.hpp"
+#include "constraint_util.hpp"
 #include "nlohmann/json.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity.hpp"
@@ -63,10 +64,12 @@ double ConstraintPointDistance::measure_distance(const Document &doc) const
 
 std::set<EntityAndPoint> ConstraintPointDistanceBase::get_referenced_entities_and_points() const
 {
-    std::set<EntityAndPoint> r = {m_entity1, m_entity2};
-    if (m_wrkpl)
-        r.emplace(m_wrkpl, 0);
-    return r;
+    return get_referenced_entities_and_points_from_constraint(*this);
+}
+
+bool ConstraintPointDistanceBase::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
+{
+    return replace_constraint_points(*this, old_point, new_point);
 }
 
 void ConstraintPointDistance::accept(ConstraintVisitor &visitor) const

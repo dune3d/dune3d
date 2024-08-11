@@ -23,11 +23,12 @@ public:
         return m_wrkpl;
     }
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
     void accept(ConstraintVisitor &visitor) const override;
 
+    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
     bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
+    constexpr static auto s_referenced_entities_and_points_tuple = std::make_tuple(
+            &ConstraintSymmetricHV::m_entity1, &ConstraintSymmetricHV::m_entity2, &ConstraintSymmetricHV::m_wrkpl);
 };
 
 class ConstraintSymmetricHorizontal : public ConstraintSymmetricHV {

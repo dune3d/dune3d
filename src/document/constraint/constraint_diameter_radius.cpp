@@ -1,4 +1,5 @@
 #include "constraint_diameter_radius.hpp"
+#include "constraint_util.hpp"
 #include "nlohmann/json.hpp"
 #include "document/document.hpp"
 #include "document/entity/ientity_radius.hpp"
@@ -42,7 +43,12 @@ std::unique_ptr<Constraint> ConstraintRadius::clone() const
 
 std::set<EntityAndPoint> ConstraintDiameterRadius::get_referenced_entities_and_points() const
 {
-    return {{m_entity, 0}};
+    return get_referenced_entities_and_points_from_constraint(*this);
+}
+
+bool ConstraintDiameterRadius::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
+{
+    return replace_constraint_points(*this, old_point, new_point);
 }
 
 void ConstraintDiameterRadius::measure(const Document &doc)
@@ -91,6 +97,5 @@ double ConstraintDiameterRadius::get_display_distance(const Document &doc) const
     else
         return m_distance;
 }
-
 
 } // namespace dune3d

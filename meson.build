@@ -89,6 +89,7 @@ src = files(
   'src/document/entity/entity_cluster.cpp',
   'src/document/entity/entity_text.cpp',
   'src/document/constraint/constraint.cpp',
+  'src/document/constraint/constraint_util.cpp',
   'src/document/constraint/constraint_points_coincident.cpp',
   'src/document/constraint/constraint_parallel.cpp',
   'src/document/constraint/constraint_equal_length.cpp',

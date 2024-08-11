@@ -23,13 +23,4 @@ json ConstraintEqualLength::serialize() const
     return j;
 }
 
-
-std::set<EntityAndPoint> ConstraintEqualLength::get_referenced_entities_and_points() const
-{
-    std::set<EntityAndPoint> r = {{m_entity1, 0}, {m_entity2, 0}};
-    if (m_wrkpl)
-        r.emplace(m_wrkpl, 0);
-    return r;
-}
-
 } // namespace dune3d

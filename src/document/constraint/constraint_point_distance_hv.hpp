@@ -15,8 +15,6 @@ public:
         return {-1e6, 1e6};
     }
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
     void accept(ConstraintVisitor &visitor) const override;
 };
 

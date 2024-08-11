@@ -82,10 +82,7 @@ public:
     bool m_modify_to_satisfy = false;
 
     // returns true if replaced
-    virtual bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
-    {
-        return false;
-    }
+    virtual bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) = 0;
 
 protected:
     explicit Constraint(const UUID &uu);

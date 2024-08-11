@@ -69,28 +69,12 @@ double ConstraintPointPlaneDistance::measure_distance(const Document &doc) const
     return glm::dot(vn, vd);
 }
 
-
-std::set<EntityAndPoint> ConstraintPointPlaneDistance::get_referenced_entities_and_points() const
-{
-    return {m_point, {m_line1, 0}, {m_line2, 0}};
-}
-
-
 double ConstraintPointPlaneDistance::get_display_distance(const Document &doc) const
 {
     if (m_measurement)
         return measure_distance(doc);
     else
         return m_distance;
-}
-
-bool ConstraintPointPlaneDistance::replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point)
-{
-    if (m_point == old_point) {
-        m_point = new_point;
-        return true;
-    }
-    return false;
 }
 
 } // namespace dune3d

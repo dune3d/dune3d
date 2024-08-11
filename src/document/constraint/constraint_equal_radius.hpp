@@ -15,7 +15,8 @@ public:
     UUID m_entity1;
     UUID m_entity2;
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
+    constexpr static auto s_referenced_entities_and_points_tuple =
+            std::make_tuple(&ConstraintEqualRadius::m_entity1, &ConstraintEqualRadius::m_entity2);
 };
 
 } // namespace dune3d

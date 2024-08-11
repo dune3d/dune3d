@@ -16,10 +16,8 @@ public:
     EntityAndPoint m_point;
     UUID m_wrkpl;
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
-
-    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
+    constexpr static auto s_referenced_entities_and_points_tuple =
+            std::make_tuple(&ConstraintPointInWorkplane::m_point, &ConstraintPointInWorkplane::m_wrkpl);
 };
 
 } // namespace dune3d

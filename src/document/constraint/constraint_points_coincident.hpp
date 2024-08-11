@@ -24,9 +24,9 @@ public:
         return m_wrkpl;
     }
 
-    std::set<EntityAndPoint> get_referenced_entities_and_points() const override;
-
-    bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;
+    constexpr static auto s_referenced_entities_and_points_tuple =
+            std::make_tuple(&ConstraintPointsCoincident::m_entity1, &ConstraintPointsCoincident::m_entity2,
+                            &ConstraintPointsCoincident::m_wrkpl);
 };
 
 } // namespace dune3d
