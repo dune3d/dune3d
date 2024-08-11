@@ -17,15 +17,12 @@ ToolBase::CanBegin ToolCreateCluster::can_begin()
     if (!get_workplane_uuid())
         return false;
     for (const auto &sr : m_selection) {
-        if (sr.type == SelectableRef::Type::ENTITY) {
+        if (sr.is_entity()) {
             auto &entity = get_entity(sr.item);
             if (entity.can_delete(get_doc())
                 && entity.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D,
                                   Entity::Type::BEZIER_2D))
                 return true;
-        }
-        else if (sr.type == SelectableRef::Type::CONSTRAINT) {
-            return true;
         }
     }
     return false;
