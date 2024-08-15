@@ -19,9 +19,7 @@ ToolBase::CanBegin ToolCreateCluster::can_begin()
     for (const auto &sr : m_selection) {
         if (sr.is_entity()) {
             auto &entity = get_entity(sr.item);
-            if (entity.can_delete(get_doc())
-                && entity.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::CIRCLE_2D,
-                                  Entity::Type::BEZIER_2D))
+            if (entity.can_delete(get_doc()) && EntityCluster::is_supported_entity(entity))
                 return true;
         }
     }
