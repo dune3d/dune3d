@@ -14,6 +14,7 @@
 #include "core/idocument_provider.hpp"
 #include "core/idocument_info.hpp"
 #include "util/fs_util.hpp"
+#include "util/arc_util.hpp"
 #include <iostream>
 #include <array>
 #include <format>
@@ -196,25 +197,6 @@ void Renderer::visit(const EntityPoint2D &point)
     auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(point.m_wrkpl));
     const auto p = wrkpl.transform(point.m_p);
     m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, point.m_uuid, 0});
-}
-static double angle(const glm::dvec2 &v)
-{
-    return glm::atan(v.y, v.x);
-}
-
-template <typename T> T c2pi(T x)
-{
-    while (x < 0)
-        x += 2 * M_PI;
-
-    while (x > 2 * M_PI)
-        x -= 2 * M_PI;
-    return x;
-}
-
-static glm::dvec2 euler(double r, double phi)
-{
-    return {r * cos(phi), r * sin(phi)};
 }
 
 void Renderer::visit(const EntityArc2D &arc)

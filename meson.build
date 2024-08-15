@@ -252,6 +252,7 @@ src = files(
   'src/util/cluster_content.cpp',
   'src/editor/changeable_commit_mode.cpp',
   'src/util/text_render.cpp',
+  'src/util/arc_util.cpp',
 )
 
 prog_python = find_program('python3')
