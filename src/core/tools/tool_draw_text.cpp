@@ -52,7 +52,7 @@ ToolResponse ToolDrawText::update(const ToolArgs &args)
     }
     else if (args.type == ToolEventType::MOVE) {
         if (m_entity) {
-            m_entity->m_origin = get_cursor_pos_for_workplane(*get_workplane());
+            m_entity->m_origin = m_wrkpl->project(get_cursor_pos_for_workplane(*m_wrkpl));
             update_tip();
         }
     }
