@@ -67,7 +67,9 @@ ToolResponse ToolCreateCluster::begin(const ToolArgs &args)
         }
     }
     for (auto constraint : constraints) {
-        content->m_constraints.emplace(constraint->m_uuid, constraint->clone());
+        auto co_cloned = constraint->clone();
+        co_cloned->replace_entity(wrkpl, cloned_wrkpl_uu);
+        content->m_constraints.emplace(constraint->m_uuid, std::move(co_cloned));
     }
     en_cluster.m_content = content;
     ItemsToDelete selected_items = items_to_delete;

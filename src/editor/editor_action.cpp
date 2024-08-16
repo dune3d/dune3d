@@ -736,7 +736,10 @@ void Editor::on_explode_cluster(const ActionConnection &conn)
     group.m_active_wrkpl = cluster.m_wrkpl;
     cluster.m_exploded_group = group.m_uuid;
     group.m_cluster = cluster.m_uuid;
+    UUID content_wrkpl;
     for (const auto &[uu, en] : cluster.m_content->m_entities) {
+        if (!content_wrkpl)
+            content_wrkpl = dynamic_cast<const IEntityInWorkplane &>(*en).get_workplane();
         auto en_cloned = en->clone();
         en_cloned->m_group = group.m_uuid;
         dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(cluster.m_wrkpl);
@@ -745,6 +748,7 @@ void Editor::on_explode_cluster(const ActionConnection &conn)
     for (const auto &[uu, co] : cluster.m_content->m_constraints) {
         auto co_cloned = co->clone();
         co_cloned->m_group = group.m_uuid;
+        co_cloned->replace_entity(content_wrkpl, cluster.m_wrkpl);
         doc.m_constraints.emplace(uu, std::move(co_cloned));
     }
     finish_add_group(&group);
@@ -757,6 +761,8 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
     if (group_base.get_type() != Group::Type::EXPLODED_CLUSTER)
         return;
     auto &group = dynamic_cast<GroupExplodedCluster &>(group_base);
+    if (!group.m_active_wrkpl)
+        return;
     auto &cluster = doc.get_entity<EntityCluster &>(group.m_cluster);
 
     auto content = ClusterContent::create();
@@ -765,6 +771,8 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
 
     for (auto &[uu, en] : doc.m_entities) {
         if (en->m_group != group.m_uuid)
+            continue;
+        if (dynamic_cast<const IEntityInWorkplane &>(*en).get_workplane() != group.m_active_wrkpl)
             continue;
         auto en_cloned = en->clone();
         en_cloned->m_group = cluster.m_group;
@@ -775,6 +783,7 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
         if (co->m_group != group.m_uuid)
             continue;
         auto co_cloned = co->clone();
+        co_cloned->replace_entity(group.m_active_wrkpl, cloned_wrkpl_uu);
         co_cloned->m_group = cluster.m_group;
         content->m_constraints.emplace(uu, std::move(co_cloned));
     }
