@@ -83,6 +83,7 @@ public:
 
     // returns true if replaced
     virtual bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) = 0;
+    bool replace_entity(const UUID &old_entity, const UUID &new_entity);
 
 protected:
     explicit Constraint(const UUID &uu);

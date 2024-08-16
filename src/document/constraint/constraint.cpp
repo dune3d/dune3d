@@ -237,5 +237,18 @@ std::set<UUID> Constraint::get_referenced_entities() const
     return r;
 }
 
+bool Constraint::replace_entity(const UUID &old_entity, const UUID &new_entity)
+{
+    auto enps = get_referenced_entities_and_points();
+    bool r = false;
+    for (const auto &enp : enps) {
+        if (enp.entity == old_entity) {
+            if (replace_point(enp, {new_entity, enp.point}))
+                r = true;
+        }
+    }
+    return r;
+}
+
 Constraint::~Constraint() = default;
 } // namespace dune3d
