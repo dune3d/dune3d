@@ -2,11 +2,15 @@
 #include "entityt.hpp"
 #include "ientity_in_workplane_set.hpp"
 #include "ientity_movable2d.hpp"
+#include "ientity_bounding_box2d.hpp"
 #include "util/cluster_content.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityText : public EntityT<EntityText>, public IEntityInWorkplaneSet, public IEntityMovable2D {
+class EntityText : public EntityT<EntityText>,
+                   public IEntityInWorkplaneSet,
+                   public IEntityMovable2D,
+                   public IEntityBoundingBox2D {
 public:
     explicit EntityText(const UUID &uu);
     explicit EntityText(const UUID &uu, const json &j);
@@ -79,6 +83,8 @@ public:
         m_wrkpl = uu;
     }
 
+
+    std::pair<glm::dvec2, glm::dvec2> get_bbox() const override;
     std::set<UUID> get_referenced_entities() const override;
 };
 

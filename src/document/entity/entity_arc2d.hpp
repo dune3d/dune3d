@@ -4,6 +4,7 @@
 #include "ientity_radius.hpp"
 #include "ientity_tangent.hpp"
 #include "ientity_movable2d.hpp"
+#include "ientity_bounding_box2d.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -11,7 +12,8 @@ class EntityArc2D : public EntityT<EntityArc2D>,
                     public IEntityInWorkplaneSet,
                     public IEntityRadius,
                     public IEntityTangent,
-                    public IEntityMovable2D {
+                    public IEntityMovable2D,
+                    public IEntityBoundingBox2D {
 public:
     explicit EntityArc2D(const UUID &uu);
     explicit EntityArc2D(const UUID &uu, const json &j);
@@ -55,6 +57,8 @@ public:
     {
         return m_center;
     }
+
+    std::pair<glm::dvec2, glm::dvec2> get_bbox() const override;
 };
 
 } // namespace dune3d

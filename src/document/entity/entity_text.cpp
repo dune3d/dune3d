@@ -2,6 +2,7 @@
 #include "nlohmann/json.hpp"
 #include "util/glm_util.hpp"
 #include "util/json_util.hpp"
+#include "util/bbox_accumulator.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
 #include "entityt_impl.hpp"
@@ -167,6 +168,17 @@ void EntityText::clear_anchors()
 {
     m_anchors.clear();
     m_anchors_transformed.clear();
+}
+
+std::pair<glm::dvec2, glm::dvec2> EntityText::get_bbox() const
+{
+    const auto bb = m_content->get_bbox();
+    BBoxAccumulator<glm::dvec2> acc;
+    acc.accumulate(transform(bb.first));
+    acc.accumulate(transform({bb.first.x, bb.second.y}));
+    acc.accumulate(transform(bb.second));
+    acc.accumulate(transform({bb.second.x, bb.first.y}));
+    return acc.get().value();
 }
 
 } // namespace dune3d

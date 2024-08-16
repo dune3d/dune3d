@@ -3,9 +3,11 @@
 #include "util/glm_util.hpp"
 #include "util/json_util.hpp"
 #include "util/template_util.hpp"
+#include "util/bbox_accumulator.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
 #include "entityt_impl.hpp"
+#include "util/arc_util.hpp"
 
 namespace dune3d {
 EntityArc2D::EntityArc2D(const UUID &uu) : Base(uu)
@@ -130,6 +132,22 @@ void EntityArc2D::move(const Entity &last, const glm::dvec2 &delta, unsigned int
     if (point == 0 || point == 3) {
         m_center = en_last.m_center + delta;
     }
+}
+
+std::pair<glm::dvec2, glm::dvec2> EntityArc2D::get_bbox() const
+{
+    BBoxAccumulator<glm::dvec2> acc;
+    acc.accumulate(m_from);
+    acc.accumulate(m_to);
+    const auto a0 = c2pi(angle(m_from - m_center));
+    const auto a1 = c2pi(angle(m_to - m_center));
+    float dphi = c2pi(a1 - a0);
+    for (int i = 0; i < 4; i++) {
+        const auto a = i * M_PI / 4;
+        if (c2pi(a - a0) < dphi)
+            acc.accumulate(m_center + euler(get_radius(), a));
+    }
+    return acc.get().value();
 }
 
 } // namespace dune3d

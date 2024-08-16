@@ -6,6 +6,7 @@
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
 #include "entityt_impl.hpp"
+#include "util/bbox_accumulator.hpp"
 
 namespace dune3d {
 EntityLine2D::EntityLine2D(const UUID &uu) : Base(uu)
@@ -111,6 +112,14 @@ void EntityLine2D::move(const Entity &last, const glm::dvec2 &delta, unsigned in
     if (point == 0 || point == 2) {
         m_p2 = en_last.m_p2 + delta;
     }
+}
+
+std::pair<glm::dvec2, glm::dvec2> EntityLine2D::get_bbox() const
+{
+    BBoxAccumulator<glm::dvec2> acc;
+    acc.accumulate(m_p1);
+    acc.accumulate(m_p2);
+    return acc.get().value();
 }
 
 } // namespace dune3d

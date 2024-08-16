@@ -3,6 +3,7 @@
 #include "util/glm_util.hpp"
 #include "util/json_util.hpp"
 #include "util/template_util.hpp"
+#include "util/bbox_accumulator.hpp"
 #include "document/document.hpp"
 #include "entity_workplane.hpp"
 #include "entityt_impl.hpp"
@@ -150,6 +151,16 @@ void EntityBezier2D::move(const Entity &last, const glm::dvec2 &delta, unsigned 
     if (point == 0 || point == 4 || point == 2) {
         m_c2 = en_last.m_c2 + delta;
     }
+}
+
+std::pair<glm::dvec2, glm::dvec2> EntityBezier2D::get_bbox() const
+{
+    BBoxAccumulator<glm::dvec2> acc;
+    acc.accumulate(m_p1);
+    acc.accumulate(m_p2);
+    acc.accumulate(m_c1);
+    acc.accumulate(m_c2);
+    return acc.get().value();
 }
 
 } // namespace dune3d

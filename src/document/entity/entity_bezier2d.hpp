@@ -3,13 +3,15 @@
 #include "ientity_in_workplane_set.hpp"
 #include "ientity_tangent.hpp"
 #include "ientity_movable2d.hpp"
+#include "ientity_bounding_box2d.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
 class EntityBezier2D : public EntityT<EntityBezier2D>,
                        public IEntityInWorkplaneSet,
                        public IEntityTangent,
-                       public IEntityMovable2D {
+                       public IEntityMovable2D,
+                       public IEntityBoundingBox2D {
 public:
     explicit EntityBezier2D(const UUID &uu);
     explicit EntityBezier2D(const UUID &uu, const json &j);
@@ -47,6 +49,8 @@ public:
     {
         m_wrkpl = uu;
     }
+
+    std::pair<glm::dvec2, glm::dvec2> get_bbox() const override;
 
     std::set<UUID> get_referenced_entities() const override;
 };

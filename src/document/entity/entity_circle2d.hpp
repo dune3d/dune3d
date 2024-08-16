@@ -3,13 +3,15 @@
 #include "ientity_in_workplane_set.hpp"
 #include "ientity_radius.hpp"
 #include "ientity_movable2d_initial_pos.hpp"
+#include "ientity_bounding_box2d.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
 class EntityCircle2D : public EntityT<EntityCircle2D>,
                        public IEntityInWorkplaneSet,
                        public IEntityRadius,
-                       public IEntityMovable2DIntialPos {
+                       public IEntityMovable2DIntialPos,
+                       public IEntityBoundingBox2D {
 public:
     explicit EntityCircle2D(const UUID &uu);
     explicit EntityCircle2D(const UUID &uu, const json &j);
@@ -49,6 +51,8 @@ public:
     void move(const Entity &last, const glm::dvec2 &intial, const glm::dvec2 &pos, unsigned int point) override;
 
     std::string get_point_name(unsigned int point) const override;
+
+    std::pair<glm::dvec2, glm::dvec2> get_bbox() const override;
 
     std::set<UUID> get_referenced_entities() const override;
 };

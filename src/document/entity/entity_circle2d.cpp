@@ -94,4 +94,10 @@ void EntityCircle2D::move(const Entity &last, const glm::dvec2 &initial, const g
     }
 }
 
+std::pair<glm::dvec2, glm::dvec2> EntityCircle2D::get_bbox() const
+{
+    const auto r = glm::dvec2(m_radius, m_radius);
+    return {m_center - r, m_center + r};
+}
+
 } // namespace dune3d

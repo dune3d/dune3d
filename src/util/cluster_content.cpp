@@ -1,7 +1,9 @@
 #include "cluster_content.hpp"
 #include "nlohmann/json.hpp"
 #include "document/entity/entity.hpp"
+#include "document/entity/ientity_bounding_box2d.hpp"
 #include "document/constraint/constraint.hpp"
+#include "util/bbox_accumulator.hpp"
 
 namespace dune3d {
 std::shared_ptr<ClusterContent> ClusterContent::create()
@@ -47,6 +49,16 @@ void ClusterContent::serialize(json &j) const
         }
         j["constraints"] = o;
     }
+}
+
+std::pair<glm::dvec2, glm::dvec2> ClusterContent::get_bbox() const
+{
+    BBoxAccumulator<glm::dvec2> acc;
+    for (const auto &[uu, en] : m_entities) {
+        if (auto bb = dynamic_cast<const IEntityBoundingBox2D *>(en.get()))
+            acc.accumulate(bb->get_bbox());
+    }
+    return acc.get_or_0();
 }
 
 ClusterContent::~ClusterContent() = default;

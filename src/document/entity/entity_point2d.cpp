@@ -74,4 +74,9 @@ void EntityPoint2D::move(const Entity &last, const glm::dvec2 &delta, unsigned i
     }
 }
 
+std::pair<glm::dvec2, glm::dvec2> EntityPoint2D::get_bbox() const
+{
+    return {m_p, m_p};
+}
+
 } // namespace dune3d

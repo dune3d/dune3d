@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <glm/glm.hpp>
 #include "nlohmann/json_fwd.hpp"
 #include "uuid.hpp"
 #include "badge.hpp"
@@ -22,6 +23,7 @@ public:
 
     void serialize(json &j) const;
 
+    std::pair<glm::dvec2, glm::dvec2> get_bbox() const;
 
     ClusterContent(Badge<ClusterContent>);
     ClusterContent(Badge<ClusterContent>, const json &j);
