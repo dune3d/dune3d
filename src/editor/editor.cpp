@@ -1277,7 +1277,7 @@ void Editor::open_file(const std::filesystem::path &path)
             }
         }
     }
-
+    add_to_recent_docs(path);
     try {
         const UUID doc_uu = UUID::random();
 

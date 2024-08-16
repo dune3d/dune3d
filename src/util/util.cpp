@@ -5,6 +5,7 @@
 #include <giomm.h>
 #ifdef G_OS_WIN32
 #include <windows.h>
+#include <shlobj.h>
 #include <iostream>
 #endif
 
@@ -114,6 +115,13 @@ const std::locale &get_locale()
 {
     static std::locale the_locale = setup_locale();
     return the_locale;
+}
+
+void add_to_recent_docs(const std::filesystem::path &path)
+{
+#ifdef G_OS_WIN32
+    SHAddToRecentDocs(SHARD_PATHW, path.c_str());
+#endif
 }
 
 } // namespace dune3d

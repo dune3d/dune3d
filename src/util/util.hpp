@@ -26,4 +26,6 @@ std::string append_suffix_if_required(const std::string &s, const std::string &s
 
 const std::locale &get_locale();
 
+void add_to_recent_docs(const std::filesystem::path &path);
+
 } // namespace dune3d
