@@ -48,6 +48,11 @@ public:
         return m_center;
     }
 
+    unsigned int get_point_for_move() const override
+    {
+        return 1;
+    }
+
     void move(const Entity &last, const glm::dvec2 &intial, const glm::dvec2 &pos, unsigned int point) override;
 
     std::string get_point_name(unsigned int point) const override;

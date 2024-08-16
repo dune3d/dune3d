@@ -84,6 +84,11 @@ public:
         return "";
     }
 
+    virtual unsigned int get_point_for_move() const
+    {
+        return 0;
+    }
+
     bool m_construction = false;
 
     ItemKind m_kind = ItemKind::USER;
