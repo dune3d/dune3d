@@ -7,8 +7,6 @@
 #include "document/group/group_reference.hpp"
 #include "tool_common_impl.hpp"
 #include "editor/editor_interface.hpp"
-#include <iostream>
-#include <algorithm>
 
 namespace dune3d {
 
@@ -16,12 +14,15 @@ ToolBase::CanBegin ToolCreateCluster::can_begin()
 {
     if (get_group().get_type() == Group::Type::EXPLODED_CLUSTER)
         return false;
-    if (!get_workplane_uuid())
+    const auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
         return false;
     for (const auto &sr : m_selection) {
         if (sr.is_entity()) {
             auto &entity = get_entity(sr.item);
-            if (entity.can_delete(get_doc()) && EntityCluster::is_supported_entity(entity))
+            if (entity.can_delete(get_doc()) && EntityCluster::is_supported_entity(entity)
+                && entity.m_group == m_core.get_current_group()
+                && dynamic_cast<const IEntityInWorkplane &>(entity).get_workplane() == wrkpl)
                 return true;
         }
     }
@@ -35,7 +36,8 @@ ToolResponse ToolCreateCluster::begin(const ToolArgs &args)
     ItemsToDelete items_to_delete;
 
     auto &en_cluster = add_entity<EntityCluster>();
-    en_cluster.m_wrkpl = get_workplane_uuid();
+    const auto wrkpl = get_workplane_uuid();
+    en_cluster.m_wrkpl = wrkpl;
 
     std::set<const Constraint *> constraints;
     auto cloned_wrkpl_uu = get_doc().get_reference_group().get_workplane_xy_uuid();
@@ -46,6 +48,10 @@ ToolResponse ToolCreateCluster::begin(const ToolArgs &args)
         if (sr.type == SelectableRef::Type::ENTITY) {
             auto &en = doc.get_entity(sr.item);
             if (!en.can_delete(doc) || !EntityCluster::is_supported_entity(en))
+                continue;
+            if (en.m_group != m_core.get_current_group())
+                continue;
+            if (dynamic_cast<const IEntityInWorkplane &>(en).get_workplane() != wrkpl)
                 continue;
 
             items_to_delete.entities.insert(sr.item);
