@@ -43,9 +43,16 @@ def directory(root, breadcrumb, level, exclude=[]):
 		_id = '_%06d' % (len(file_ids.keys()) + 1)
 		file_ids[file_key] = 'component' + _id
 		wxs.write(indent(level)+ "<Component Id='component" + _id + "' Guid='" + str(uuid.uuid4()) + "' DiskId='1' Win64='$(var.Win64)'>\n")
-		#if file == 'horizon-eda.exe':
-		#	_id = '_horizon_exe'
 		wxs.write(indent(level + 1)+ "<File Id='file" + _id + "' Name='" + file + "' DiskId='1' Source='" + file_key + "' KeyPath='yes' />\n")
+		if file == 'dune3d.exe' :
+			wxs.write(f"""
+		   <ProgId Id='dune3d.d3ddoc' Description='Dune 3D Document'>
+			<Extension Id='d3ddoc'>
+			<Verb Id='open' Command='Open' TargetFile='file{_id}' Argument='"%1"' />
+		  </Extension>
+		</ProgId>
+		""")
+
 		wxs.write(indent(level)+ "</Component>\n")
 
 	# then all directories
