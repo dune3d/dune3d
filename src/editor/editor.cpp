@@ -27,6 +27,7 @@
 #include "system/system.hpp"
 #include "logger/log_util.hpp"
 #include "nlohmann/json.hpp"
+#include "buffer.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -1417,6 +1418,17 @@ void Editor::update_title()
 Glib::RefPtr<Pango::Context> Editor::get_pango_context()
 {
     return m_win.create_pango_context();
+}
+
+
+void Editor::set_buffer(std::unique_ptr<const Buffer> buffer)
+{
+    m_win.get_app().m_buffer = std::move(buffer);
+}
+
+const Buffer *Editor::get_buffer() const
+{
+    return m_win.get_app().m_buffer.get();
 }
 
 } // namespace dune3d

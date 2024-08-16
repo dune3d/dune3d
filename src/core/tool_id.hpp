@@ -67,5 +67,7 @@ enum class ToolID {
     CREATE_CLUSTER,
     DRAW_TEXT,
     ENTER_TEXT,
+    PASTE,
+    CUT,
 };
 }

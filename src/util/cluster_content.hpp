@@ -15,6 +15,7 @@ class ClusterContent {
 public:
     static std::shared_ptr<ClusterContent> from_json(const json &j);
     static std::shared_ptr<ClusterContent> create();
+    std::shared_ptr<ClusterContent> clone_for_new_workplane(const UUID &uu) const;
 
     std::map<UUID, std::unique_ptr<Entity>> m_entities;
     std::map<UUID, std::unique_ptr<Constraint>> m_constraints;

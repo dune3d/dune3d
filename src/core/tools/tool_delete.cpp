@@ -6,8 +6,9 @@
 #include "document/group/group.hpp"
 #include "tool_common_impl.hpp"
 #include "editor/editor_interface.hpp"
+#include "editor/buffer.hpp"
 #include <iostream>
-#include <algorithm>
+#include "core/tool_id.hpp"
 
 namespace dune3d {
 
@@ -78,6 +79,12 @@ ToolResponse ToolDelete::begin(const ToolArgs &args)
 
     auto extra_items = doc.get_additional_items_to_delete(items_to_delete);
     items_to_delete.append(extra_items);
+
+    if (m_tool_id == ToolID::CUT) {
+        auto buffer = Buffer::create(get_doc(), m_selection, Buffer::Operation::CUT);
+        if (buffer)
+            m_intf.set_buffer(std::move(buffer));
+    }
 
     m_intf.show_delete_items_popup(selected_items, items_to_delete);
 

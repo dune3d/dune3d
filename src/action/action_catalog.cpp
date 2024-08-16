@@ -165,13 +165,17 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Toggle previous construction entities", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_IN_TOOL}},
         {ToolID::DRAW_TEXT, {"Draw text", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::ENTER_TEXT, {"Enter Text", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::COPY, {"Copy", ActionGroup::CLIPBOARD, ActionCatalogItem::FLAGS_SPECIFIC}},
+        {ToolID::PASTE, {"Paste", ActionGroup::CLIPBOARD, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CUT, {"Cut", ActionGroup::CLIPBOARD, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
 const std::vector<std::pair<ActionGroup, std::string>> action_group_catalog = {
         {ActionGroup::CONSTRAIN, "Constrain"}, {ActionGroup::MEASURE, "Measure"}, {ActionGroup::DRAW, "Draw"},
         {ActionGroup::MOVE, "Move"},           {ActionGroup::UNDO, "Undo"},       {ActionGroup::GROUP, "Group"},
-        {ActionGroup::DOCUMENT, "Document"},   {ActionGroup::VIEW, "View"},       {ActionGroup::UNKNOWN, "Misc"},
+        {ActionGroup::DOCUMENT, "Document"},   {ActionGroup::VIEW, "View"},       {ActionGroup::CLIPBOARD, "Clipboard"},
+        {ActionGroup::UNKNOWN, "Misc"},
 };
 
 #define ACTION_LUT_ITEM(x) {#x, ActionID::x}
@@ -228,6 +232,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(EXPLODE_CLUSTER),
         ACTION_LUT_ITEM(UNEXPLODE_CLUSTER),
         ACTION_LUT_ITEM(TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES),
+        ACTION_LUT_ITEM(COPY),
 };
 
 #define TOOL_LUT_ITEM(x) {#x, ToolID::x}
@@ -298,6 +303,8 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CREATE_CLUSTER),
         TOOL_LUT_ITEM(DRAW_TEXT),
         TOOL_LUT_ITEM(ENTER_TEXT),
+        TOOL_LUT_ITEM(PASTE),
+        TOOL_LUT_ITEM(CUT),
 };
 
 

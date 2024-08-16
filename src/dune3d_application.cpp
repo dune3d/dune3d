@@ -9,6 +9,7 @@
 #include "widgets/log_window.hpp"
 #include "widgets/log_view.hpp"
 #include "logger/log_util.hpp"
+#include "editor/buffer.hpp"
 #include <iostream>
 #include <iomanip>
 
@@ -214,5 +215,6 @@ void Dune3DApplication::add_recent_item(const std::filesystem::path &path)
     m_signal_recent_items_changed.emit();
 }
 
+Dune3DApplication::~Dune3DApplication() = default;
 
 } // namespace dune3d

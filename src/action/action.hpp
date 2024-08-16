@@ -23,6 +23,7 @@ enum class ActionGroup {
     DOCUMENT,
     GROUP,
     VIEW,
+    CLIPBOARD,
 };
 
 enum class ActionSource {

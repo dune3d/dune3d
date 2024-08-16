@@ -18,6 +18,7 @@
 #include "util/key_util.hpp"
 #include "document/solid_model_util.hpp"
 #include "core/tool_id.hpp"
+#include "buffer.hpp"
 
 namespace dune3d {
 
@@ -235,6 +236,12 @@ void Editor::init_actions()
                 !get_current_document_view().m_show_construction_entities_from_previous_groups);
     });
 
+    connect_action(ActionID::COPY, [this](const auto &conn) {
+        if (auto buf = Buffer::create(m_core.get_current_document(), get_canvas().get_selection(),
+                                      Buffer::Operation::COPY))
+            set_buffer(std::move(buf));
+    });
+
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
     m_core.signal_rebuilt().connect([this] {
         if (!m_current_workspace_view)
@@ -413,6 +420,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         }
 
         m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = current_group.get_type() == Group::Type::EXPLODED_CLUSTER;
+        m_action_sensitivity[ActionID::COPY] = Buffer::can_create(m_core.get_current_document(), sel);
     }
     else {
         m_action_sensitivity[ActionID::PREVIOUS_GROUP] = false;
@@ -428,6 +436,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = false;
         m_action_sensitivity[ActionID::EXPLODE_CLUSTER] = false;
         m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = false;
+        m_action_sensitivity[ActionID::COPY] = false;
     }
 
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = has_solid_model;

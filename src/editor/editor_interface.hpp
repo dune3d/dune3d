@@ -15,6 +15,7 @@ class Dialogs;
 enum class SelectionMode;
 enum class ConstraintType;
 struct ItemsToDelete;
+class Buffer;
 
 class EditorInterface {
 public:
@@ -44,5 +45,8 @@ public:
     virtual Dialogs &get_dialogs() = 0;
 
     virtual Glib::RefPtr<Pango::Context> get_pango_context() = 0;
+
+    virtual void set_buffer(std::unique_ptr<const Buffer> buffer) = 0;
+    virtual const Buffer *get_buffer() const = 0;
 };
 } // namespace dune3d

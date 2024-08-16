@@ -200,6 +200,7 @@ src = files(
   'src/core/tools/tool_link_document.cpp',
   'src/core/tools/tool_create_cluster.cpp',
   'src/core/tools/tool_enter_text.cpp',
+  'src/core/tools/tool_paste.cpp',
   'src/core/tools/tool_draw_text.cpp',
   'src/util/history_manager.cpp',
   'src/action/action.cpp',
@@ -252,6 +253,7 @@ src = files(
   'src/util/cluster_content.cpp',
   'src/editor/changeable_commit_mode.cpp',
   'src/util/text_render.cpp',
+  'src/editor/buffer.cpp',
   'src/util/arc_util.cpp',
 )
 

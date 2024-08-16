@@ -2,6 +2,7 @@
 #include "nlohmann/json.hpp"
 #include "document/entity/entity.hpp"
 #include "document/entity/ientity_bounding_box2d.hpp"
+#include "document/entity/ientity_in_workplane_set.hpp"
 #include "document/constraint/constraint.hpp"
 #include "util/bbox_accumulator.hpp"
 
@@ -60,6 +61,35 @@ std::pair<glm::dvec2, glm::dvec2> ClusterContent::get_bbox() const
     }
     return acc.get_or_0();
 }
+
+std::shared_ptr<ClusterContent> ClusterContent::clone_for_new_workplane(const UUID &wrkpl) const
+{
+    auto n = create();
+    std::map<UUID, UUID> entity_xlat;
+    UUID old_wrkpl;
+    for (const auto &[uu, en] : m_entities) {
+        if (!old_wrkpl)
+            old_wrkpl = dynamic_cast<const IEntityInWorkplane &>(*en).get_workplane();
+        auto en_cloned = en->clone();
+        en_cloned->m_uuid = UUID::random();
+        entity_xlat.emplace(uu, en_cloned->m_uuid);
+        dynamic_cast<IEntityInWorkplaneSet &>(*en_cloned).set_workplane(wrkpl);
+        n->m_entities.emplace(en_cloned->m_uuid, std::move(en_cloned));
+    }
+    for (const auto &[uu, co] : m_constraints) {
+        auto co_cloned = co->clone();
+        co_cloned->m_uuid = UUID::random();
+        co_cloned->replace_entity(old_wrkpl, wrkpl);
+        auto referenced = co_cloned->get_referenced_entities_and_points();
+        for (const auto &enp : referenced) {
+            if (entity_xlat.contains(enp.entity))
+                co_cloned->replace_point(enp, {entity_xlat.at(enp.entity), enp.point});
+        }
+        n->m_constraints.emplace(co_cloned->m_uuid, std::move(co_cloned));
+    }
+    return n;
+}
+
 
 ClusterContent::~ClusterContent() = default;
 

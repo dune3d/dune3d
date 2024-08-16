@@ -41,6 +41,7 @@
 #include "tools/tool_add_cluster_anchor.hpp"
 #include "tools/tool_draw_text.hpp"
 #include "tools/tool_enter_text.hpp"
+#include "tools/tool_paste.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -67,6 +68,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolDrawContour>(tool_id, *this, m_intf, flags);
 
     case ToolID::DELETE:
+    case ToolID::CUT:
         return std::make_unique<ToolDelete>(tool_id, *this, m_intf, flags);
 
     case ToolID::MOVE:
@@ -195,6 +197,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::ENTER_TEXT:
         return std::make_unique<ToolEnterText>(tool_id, *this, m_intf, flags);
+
+    case ToolID::PASTE:
+        return std::make_unique<ToolPaste>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

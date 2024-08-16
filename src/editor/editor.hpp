@@ -26,6 +26,7 @@ class Dune3DAppWindow;
 class Canvas;
 class ClippingPlaneWindow;
 class SelectionFilterWindow;
+class Buffer;
 enum class SelectionMode;
 enum class CommitMode;
 
@@ -64,6 +65,9 @@ public:
     void show_delete_items_popup(const ItemsToDelete &items_selected, const ItemsToDelete &items_all) override;
 
     Glib::RefPtr<Pango::Context> get_pango_context() override;
+
+    void set_buffer(std::unique_ptr<const Buffer> buffer) override;
+    const Buffer *get_buffer() const override;
 
     void open_file(const std::filesystem::path &path);
 
@@ -125,9 +129,7 @@ private:
     double m_last_y = NAN;
     void handle_click(unsigned int button, unsigned int n);
 
-
     void apply_preferences();
-
 
     Gtk::Button *create_action_button(ActionToolID action);
     void attach_action_button(Gtk::Button &button, ActionToolID action);

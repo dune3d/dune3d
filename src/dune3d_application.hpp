@@ -8,6 +8,7 @@
 namespace dune3d {
 
 class Dune3DAppWindow;
+class Buffer;
 
 class Dune3DApplication : public Gtk::Application {
 protected:
@@ -51,6 +52,9 @@ public:
     class PreferencesWindow *show_preferences_window(guint32 timestamp = 0);
     class LogWindow *show_log_window(guint32 timestamp = 0);
 
+    std::unique_ptr<const Buffer> m_buffer;
+
+    ~Dune3DApplication();
 
 protected:
     // Override default signal handlers:
