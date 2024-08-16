@@ -1,12 +1,12 @@
 #pragma once
 #include "entityt.hpp"
-#include "ientity_in_workplane.hpp"
+#include "ientity_in_workplane_set.hpp"
 #include "ientity_movable2d.hpp"
 #include "util/cluster_content.hpp"
 #include <glm/glm.hpp>
 
 namespace dune3d {
-class EntityCluster : public EntityT<EntityCluster>, public IEntityInWorkplane, public IEntityMovable2D {
+class EntityCluster : public EntityT<EntityCluster>, public IEntityInWorkplaneSet, public IEntityMovable2D {
 public:
     explicit EntityCluster(const UUID &uu);
     explicit EntityCluster(const UUID &uu, const json &j);
@@ -60,6 +60,11 @@ public:
     const UUID &get_workplane() const override
     {
         return m_wrkpl;
+    }
+
+    void set_workplane(const UUID &uu) override
+    {
+        m_wrkpl = uu;
     }
 
     std::set<UUID> get_referenced_entities() const override;
