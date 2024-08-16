@@ -1260,10 +1260,24 @@ void Editor::update_version_info()
     m_win.set_version_info(ver.get_message());
 }
 
+bool Editor::has_file(const std::filesystem::path &path)
+{
+    return m_core.get_idocument_info_by_path(path);
+}
+
 void Editor::open_file(const std::filesystem::path &path)
 {
-    if (m_core.get_idocument_info_by_path(path))
+    if (has_file(path))
         return;
+    for (auto win : m_win.get_app().get_windows()) {
+        if (auto appwin = dynamic_cast<Dune3DAppWindow *>(win)) {
+            if (appwin->has_file(path)) {
+                appwin->present();
+                return;
+            }
+        }
+    }
+
     try {
         const UUID doc_uu = UUID::random();
 

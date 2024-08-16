@@ -333,6 +333,11 @@ void Dune3DAppWindow::open_file_view(const Glib::RefPtr<Gio::File> &file)
     m_editor.open_file(path_from_string(file->get_path()));
 }
 
+bool Dune3DAppWindow::has_file(const std::filesystem::path &path)
+{
+    return m_editor.has_file(path);
+}
+
 void Dune3DAppWindow::set_welcome_box_visible(bool v)
 {
     m_welcome_box->set_visible(v);

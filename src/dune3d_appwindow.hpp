@@ -23,6 +23,7 @@ public:
                     class Dune3DApplication &app);
 
     void open_file_view(const Glib::RefPtr<Gio::File> &file);
+    bool has_file(const std::filesystem::path &path);
 
     Dune3DApplication &get_app()
     {

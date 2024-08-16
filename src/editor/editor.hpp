@@ -70,6 +70,7 @@ public:
     const Buffer *get_buffer() const override;
 
     void open_file(const std::filesystem::path &path);
+    bool has_file(const std::filesystem::path &path);
 
     ~Editor();
 
