@@ -14,6 +14,8 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolCreateCluster::can_begin()
 {
+    if (get_group().get_type() == Group::Type::EXPLODED_CLUSTER)
+        return false;
     if (!get_workplane_uuid())
         return false;
     for (const auto &sr : m_selection) {
