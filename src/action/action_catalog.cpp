@@ -182,6 +182,12 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Constrain point/plane distance", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::MEASURE_POINT_PLANE_DISTANCE,
          {"Measure point/plane distance", ActionGroup::MEASURE, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_ARC_LINE_TANGENT,
+         {"Constrain arc/line tangent", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_BEZIER_LINE_TANGENT,
+         {"Constrain bezier/line tangent", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_CURVE_CURVE_TANGENT,
+         {"Constrain curve/curve tangent", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -326,6 +332,9 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(MEASURE_POINT_LINE_DISTANCE),
         TOOL_LUT_ITEM(CONSTRAIN_POINT_PLANE_DISTANCE),
         TOOL_LUT_ITEM(MEASURE_POINT_PLANE_DISTANCE),
+        TOOL_LUT_ITEM(CONSTRAIN_ARC_LINE_TANGENT),
+        TOOL_LUT_ITEM(CONSTRAIN_BEZIER_LINE_TANGENT),
+        TOOL_LUT_ITEM(CONSTRAIN_CURVE_CURVE_TANGENT),
 };
 
 

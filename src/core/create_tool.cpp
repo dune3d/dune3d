@@ -47,6 +47,9 @@
 #include "tools/tool_constrain_point_on_bezier.hpp"
 #include "tools/tool_constrain_point_line_distance.hpp"
 #include "tools/tool_constrain_point_plane_distance.hpp"
+#include "tools/tool_constrain_arc_line_tangent.hpp"
+#include "tools/tool_constrain_bezier_line_tangent.hpp"
+#include "tools/tool_constrain_curve_curve_tangent.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -103,7 +106,6 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainSameOrientation>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_PARALLEL:
-    case ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC:
         return std::make_unique<ToolConstrainParallel>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_WORKPLANE_NORMAL:
@@ -222,6 +224,16 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::CONSTRAIN_POINT_PLANE_DISTANCE:
     case ToolID::MEASURE_POINT_PLANE_DISTANCE:
         return std::make_unique<ToolConstrainPointPlaneDistance>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_ARC_LINE_TANGENT:
+        return std::make_unique<ToolConstrainArcLineTangent>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_BEZIER_LINE_TANGENT:
+        return std::make_unique<ToolConstrainBezierLineTangent>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_CURVE_CURVE_TANGENT:
+    case ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC:
+        return std::make_unique<ToolConstrainCurveCurveTangent>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }
