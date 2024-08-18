@@ -45,6 +45,8 @@
 #include "tools/tool_constrain_point_on_line.hpp"
 #include "tools/tool_constrain_point_on_circle.hpp"
 #include "tools/tool_constrain_point_on_bezier.hpp"
+#include "tools/tool_constrain_point_line_distance.hpp"
+#include "tools/tool_constrain_point_plane_distance.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -212,6 +214,14 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_POINT_ON_BEZIER:
         return std::make_unique<ToolConstrainPointOnBezier>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_POINT_LINE_DISTANCE:
+    case ToolID::MEASURE_POINT_LINE_DISTANCE:
+        return std::make_unique<ToolConstrainPointLineDistance>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_POINT_PLANE_DISTANCE:
+    case ToolID::MEASURE_POINT_PLANE_DISTANCE:
+        return std::make_unique<ToolConstrainPointPlaneDistance>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

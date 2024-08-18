@@ -204,6 +204,8 @@ src = files(
   'src/core/tools/tool_create_cluster.cpp',
   'src/core/tools/tool_enter_text.cpp',
   'src/core/tools/tool_paste.cpp',
+  'src/core/tools/tool_constrain_point_line_distance.cpp',
+  'src/core/tools/tool_constrain_point_plane_distance.cpp',
   'src/core/tools/tool_draw_text.cpp',
   'src/util/history_manager.cpp',
   'src/action/action.cpp',

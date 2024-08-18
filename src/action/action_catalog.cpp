@@ -174,6 +174,14 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Constrain point on circle", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_POINT_ON_BEZIER,
          {"Constrain point on bezier curve", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_POINT_LINE_DISTANCE,
+         {"Constrain point/line distance", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::MEASURE_POINT_LINE_DISTANCE,
+         {"Measure point/line distance", ActionGroup::MEASURE, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_POINT_PLANE_DISTANCE,
+         {"Constrain point/plane distance", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::MEASURE_POINT_PLANE_DISTANCE,
+         {"Measure point/plane distance", ActionGroup::MEASURE, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -314,6 +322,10 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_POINT_ON_LINE),
         TOOL_LUT_ITEM(CONSTRAIN_POINT_ON_CIRCLE),
         TOOL_LUT_ITEM(CONSTRAIN_POINT_ON_BEZIER),
+        TOOL_LUT_ITEM(CONSTRAIN_POINT_LINE_DISTANCE),
+        TOOL_LUT_ITEM(MEASURE_POINT_LINE_DISTANCE),
+        TOOL_LUT_ITEM(CONSTRAIN_POINT_PLANE_DISTANCE),
+        TOOL_LUT_ITEM(MEASURE_POINT_PLANE_DISTANCE),
 };
 
 

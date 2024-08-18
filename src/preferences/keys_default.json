@@ -599,6 +599,44 @@
                     "mod": 0
                 },
                 {
+                    "key": "d",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_POINT_PLANE_DISTANCE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
+                    "key": "d",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_POINT_LINE_DISTANCE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "d",
+                    "mod": 0
+                },
+                {
                     "key": "h",
                     "mod": 0
                 }
