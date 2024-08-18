@@ -6,7 +6,6 @@
 #include "tools/tool_draw_contour.hpp"
 #include "tools/tool_delete.hpp"
 #include "tools/tool_move.hpp"
-#include "tools/tool_constrain_coincident.hpp"
 #include "tools/tool_constrain_hv.hpp"
 #include "tools/tool_constrain_distance.hpp"
 #include "tools/tool_enter_datum.hpp"
@@ -42,6 +41,10 @@
 #include "tools/tool_draw_text.hpp"
 #include "tools/tool_enter_text.hpp"
 #include "tools/tool_paste.hpp"
+#include "tools/tool_constrain_point_on_point.hpp"
+#include "tools/tool_constrain_point_on_line.hpp"
+#include "tools/tool_constrain_point_on_circle.hpp"
+#include "tools/tool_constrain_point_on_bezier.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -73,9 +76,6 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::MOVE:
         return std::make_unique<ToolMove>(tool_id, *this, m_intf, flags);
-
-    case ToolID::CONSTRAIN_COINCIDENT:
-        return std::make_unique<ToolConstrainCoincident>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_HORIZONTAL:
     case ToolID::CONSTRAIN_HORIZONTAL_AUTO:
@@ -200,6 +200,18 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::PASTE:
         return std::make_unique<ToolPaste>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_POINT_ON_POINT:
+        return std::make_unique<ToolConstrainPointOnPoint>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_POINT_ON_LINE:
+        return std::make_unique<ToolConstrainPointOnLine>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_POINT_ON_CIRCLE:
+        return std::make_unique<ToolConstrainPointOnCircle>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_POINT_ON_BEZIER:
+        return std::make_unique<ToolConstrainPointOnBezier>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

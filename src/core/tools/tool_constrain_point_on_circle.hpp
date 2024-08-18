@@ -1,10 +1,8 @@
 #include "tool_common.hpp"
-#include "in_tool_action/in_tool_action.hpp"
 
 namespace dune3d {
 
-
-class ToolConstrainCoincident : public ToolCommon {
+class ToolConstrainPointOnCircle : public ToolCommon {
 public:
     using ToolCommon::ToolCommon;
 
@@ -14,13 +12,10 @@ public:
     {
         return true;
     }
+
     CanBegin can_begin() override;
 
-
 private:
-    bool is_point_on_point();
-    bool is_point_on_line();
-    bool is_point_on_circle();
-    bool is_point_on_bezier();
 };
+
 } // namespace dune3d

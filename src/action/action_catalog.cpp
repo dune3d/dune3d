@@ -28,8 +28,6 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::POPOVER, {"Popover", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_NO_POPOVER}},
         {ToolID::SET_WORKPLANE, {"Set active workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::UNSET_WORKPLANE, {"Unset active workplane", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
-        {ToolID::CONSTRAIN_COINCIDENT,
-         {"Constrain coincident", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_HORIZONTAL,
          {"Constrain horizontal", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_VERTICAL, {"Constrain vertical", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
@@ -168,6 +166,14 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::COPY, {"Copy", ActionGroup::CLIPBOARD, ActionCatalogItem::FLAGS_SPECIFIC}},
         {ToolID::PASTE, {"Paste", ActionGroup::CLIPBOARD, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CUT, {"Cut", ActionGroup::CLIPBOARD, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_POINT_ON_POINT,
+         {"Constrain point on point", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_POINT_ON_LINE,
+         {"Constrain point on line", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_POINT_ON_CIRCLE,
+         {"Constrain point on circle", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_POINT_ON_BEZIER,
+         {"Constrain point on bezier curve", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -250,7 +256,6 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(DRAW_WORKPLANE),
         TOOL_LUT_ITEM(DRAW_CONTOUR),
         TOOL_LUT_ITEM(DRAW_CONTOUR_FROM_POINT),
-        TOOL_LUT_ITEM(CONSTRAIN_COINCIDENT),
         TOOL_LUT_ITEM(CONSTRAIN_HORIZONTAL),
         TOOL_LUT_ITEM(CONSTRAIN_HORIZONTAL_AUTO),
         TOOL_LUT_ITEM(CONSTRAIN_VERTICAL),
@@ -305,6 +310,10 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(ENTER_TEXT),
         TOOL_LUT_ITEM(PASTE),
         TOOL_LUT_ITEM(CUT),
+        TOOL_LUT_ITEM(CONSTRAIN_POINT_ON_POINT),
+        TOOL_LUT_ITEM(CONSTRAIN_POINT_ON_LINE),
+        TOOL_LUT_ITEM(CONSTRAIN_POINT_ON_CIRCLE),
+        TOOL_LUT_ITEM(CONSTRAIN_POINT_ON_BEZIER),
 };
 
 

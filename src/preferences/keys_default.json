@@ -441,7 +441,52 @@
                 }
             ]
         ],
-        "tool": "CONSTRAIN_COINCIDENT"
+        "tool": "CONSTRAIN_POINT_ON_POINT"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "c",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_POINT_ON_LINE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "c",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_POINT_ON_CIRCLE"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
+                    "key": "c",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_POINT_ON_BEZIER"
     },
     {
         "keys": [
