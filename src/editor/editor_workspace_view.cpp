@@ -52,6 +52,8 @@ void Editor::close_workspace_view(const UUID &uu)
     m_win.remove_workspace_view_page(uu);
     update_can_close_workspace_view_pages();
     update_workspace_view_names();
+    if (m_workspace_views.size() == 0)
+        m_current_workspace_view = {};
 }
 
 void Editor::update_can_close_workspace_view_pages()
