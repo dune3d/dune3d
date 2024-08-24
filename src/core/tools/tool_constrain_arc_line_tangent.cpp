@@ -1,76 +1,99 @@
 #include "tool_constrain_arc_line_tangent.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_arc2d.hpp"
-#include "document/entity/entity_line2d.hpp"
+#include "document/entity/entity.hpp"
+#include "document/entity/ientity_in_workplane.hpp"
 #include "document/constraint/constraint_arc_line_tangent.hpp"
-
+#include "document/constraint/constraint_bezier_line_tangent.hpp"
+#include "document/constraint/constraint_points_coincident.hpp"
+#include "util/selection_util.hpp"
 #include "editor/editor_interface.hpp"
 #include "tool_common_impl.hpp"
+#include "core/tool_id.hpp"
 
 namespace dune3d {
 
-struct ArcAndLine {
-    UUID arc;
-    UUID line;
+struct CurveAndLine {
+    EntityAndPoint curve;
+    EntityAndPoint line;
+    UUID coincident_constraint;
 };
 
-static std::optional<ArcAndLine> arc_and_line_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+static std::optional<CurveAndLine>
+curve_and_line_from_selection(const Document &doc, const std::set<SelectableRef> &sel, Entity::Type curve_type)
 {
-    if (sel.size() != 2)
-        return {};
-    auto it = sel.begin();
-    auto &sr1 = *it++;
-    auto &sr2 = *it;
-
-    if (sr1.type != SelectableRef::Type::ENTITY)
-        return {};
-    if (sr2.type != SelectableRef::Type::ENTITY)
+    auto cc = constraint_points_coincident_from_selection(doc, sel, {Entity::Type::ARC_2D, Entity::Type::LINE_2D});
+    if (!cc)
         return {};
 
-    if (sr1.point != 0)
-        return {};
-
-    if (sr2.point != 0)
-        return {};
-
-    auto &en1 = doc.get_entity(sr1.item);
-    auto &en2 = doc.get_entity(sr2.item);
-    if (en1.get_type() == Entity::Type::ARC_2D && en2.get_type() == Entity::Type::LINE_2D)
-        return {{en1.m_uuid, en2.m_uuid}};
-    else if (en1.get_type() == Entity::Type::LINE_2D && en2.get_type() == Entity::Type::ARC_2D)
-        return {{en2.m_uuid, en1.m_uuid}};
+    auto &en1 = doc.get_entity(cc->m_entity1.entity);
+    auto &en2 = doc.get_entity(cc->m_entity2.entity);
+    if (en1.of_type(curve_type) && en2.of_type(Entity::Type::LINE_2D))
+        return {{cc->m_entity1, cc->m_entity2, cc->m_uuid}};
+    else if (en2.of_type(curve_type) && en1.of_type(Entity::Type::LINE_2D))
+        return {{cc->m_entity2, cc->m_entity1, cc->m_uuid}};
 
     return {};
 }
 
+EntityType ToolConstrainArcLineTangent::get_curve_type() const
+{
+    if (m_tool_id == ToolID::CONSTRAIN_ARC_LINE_TANGENT)
+        return Entity::Type::ARC_2D;
+    else
+        return Entity::Type::BEZIER_2D;
+}
+
 ToolBase::CanBegin ToolConstrainArcLineTangent::can_begin()
 {
-    return arc_and_line_from_selection(get_doc(), m_selection).has_value();
+    auto al = curve_and_line_from_selection(get_doc(), m_selection, get_curve_type());
+    if (!al.has_value())
+        return false;
+
+    const auto constraint_type = m_tool_id == ToolID::CONSTRAIN_ARC_LINE_TANGENT
+                                         ? Constraint::Type::ARC_LINE_TANGENT
+                                         : Constraint::Type::BEZIER_LINE_TANGENT;
+
+    auto constraints = get_doc().find_constraints({al->curve, {al->line.entity, 0}});
+    for (auto constraint : constraints) {
+        if (constraint->of_type(constraint_type))
+            return false;
+    }
+
+    return true;
 }
 
 ToolResponse ToolConstrainArcLineTangent::begin(const ToolArgs &args)
 {
-    auto tp = arc_and_line_from_selection(get_doc(), m_selection);
+    auto tp = curve_and_line_from_selection(get_doc(), m_selection, get_curve_type());
     if (!tp)
         return ToolResponse::end();
+    {
+        const auto &curve = get_entity<IEntityInWorkplane>(tp->curve.entity);
+        const auto &line = get_entity<IEntityInWorkplane>(tp->line.entity);
+        if (curve.get_workplane() != line.get_workplane()) {
+            m_intf.tool_bar_flash("curve and line must be in the same workplane");
+            return ToolResponse::end();
+        }
 
-    const auto &arc = get_entity<EntityArc2D>(tp->arc);
-    const auto &line = get_entity<EntityLine2D>(tp->line);
-    if (arc.m_wrkpl != line.m_wrkpl)
-        return ToolResponse::end();
-    for (const unsigned int arc_pt : {1, 2}) {
-        for (const unsigned int line_pt : {1, 2}) {
-            auto ap = arc.get_point(arc_pt, get_doc());
-            auto lp = line.get_point(line_pt, get_doc());
-            if (glm::length(ap - lp) < 1e-6) {
-                auto &constraint = add_constraint<ConstraintArcLineTangent>();
-                constraint.m_arc = {tp->arc, arc_pt};
-                constraint.m_line = tp->line;
-                reset_selection_after_constrain();
-                return ToolResponse::commit();
-            }
+        auto &cc = get_doc().get_constraint<ConstraintPointsCoincident>(tp->coincident_constraint);
+        if (cc.m_wrkpl != curve.get_workplane()) {
+            m_intf.tool_bar_flash("curve and line must be coincident in their workplane");
+            return ToolResponse::end();
         }
     }
+
+    if (m_tool_id == ToolID::CONSTRAIN_ARC_LINE_TANGENT) {
+        auto &constraint = add_constraint<ConstraintArcLineTangent>();
+        constraint.m_arc = tp->curve;
+        constraint.m_line = tp->line.entity;
+    }
+    else {
+        auto &constraint = add_constraint<ConstraintBezierLineTangent>();
+        constraint.m_bezier = tp->curve;
+        constraint.m_line = tp->line.entity;
+    }
+    reset_selection_after_constrain();
+    return ToolResponse::commit();
 
     return ToolResponse::end();
 }

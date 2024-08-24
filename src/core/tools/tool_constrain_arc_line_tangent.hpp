@@ -2,6 +2,8 @@
 
 namespace dune3d {
 
+enum class EntityType;
+
 class ToolConstrainArcLineTangent : public ToolCommon {
 public:
     using ToolCommon::ToolCommon;
@@ -16,6 +18,7 @@ public:
     CanBegin can_begin() override;
 
 private:
+    EntityType get_curve_type() const;
 };
 
 } // namespace dune3d

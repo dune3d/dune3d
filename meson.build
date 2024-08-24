@@ -207,7 +207,6 @@ src = files(
   'src/core/tools/tool_constrain_point_line_distance.cpp',
   'src/core/tools/tool_constrain_point_plane_distance.cpp',
   'src/core/tools/tool_constrain_arc_line_tangent.cpp',
-  'src/core/tools/tool_constrain_bezier_line_tangent.cpp',
   'src/core/tools/tool_constrain_curve_curve_tangent.cpp',
   'src/core/tools/tool_constrain_line_points_perpendicular.cpp',
   'src/core/tools/tool_draw_text.cpp',

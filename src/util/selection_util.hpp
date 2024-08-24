@@ -11,6 +11,7 @@ class Document;
 class SelectableRef;
 enum class EntityType;
 class IDocumentProvider;
+class ConstraintPointsCoincident;
 
 struct TwoPoints {
     EntityAndPoint point1;
@@ -60,6 +61,10 @@ struct LinesAndPoint {
 
 std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
 std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel);
+
+const ConstraintPointsCoincident *constraint_points_coincident_from_selection(const Document &doc,
+                                                                              const std::set<SelectableRef> &sel,
+                                                                              const std::set<EntityType> &types);
 
 std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &current_doc, const SelectableRef &sr);
 

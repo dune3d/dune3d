@@ -5,6 +5,7 @@
 #include "document/entity/entity_line3d.hpp"
 #include "document/group/group.hpp"
 #include "document/constraint/constraint.hpp"
+#include "document/constraint/constraint_points_coincident.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
 #include "canvas/selectable_ref.hpp"
 #include "core/idocument_info.hpp"
@@ -266,5 +267,35 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
     }
     return label;
 }
+
+
+const ConstraintPointsCoincident *constraint_points_coincident_from_selection(const Document &doc,
+                                                                              const std::set<SelectableRef> &sel,
+                                                                              const std::set<Entity::Type> &types)
+{
+    auto pt = point_from_selection(doc, sel);
+    if (!pt)
+        return nullptr;
+
+    if (pt->point == 0)
+        return nullptr;
+
+    auto &en = doc.get_entity(pt->entity);
+
+    if (!types.contains(en.get_type()))
+        return nullptr;
+
+    auto constraints = en.get_constraints(doc);
+    for (const auto constraint : constraints) {
+        const auto refs = constraint->get_referenced_entities_and_points();
+        if (!refs.contains(*pt))
+            continue;
+        if (auto cc = dynamic_cast<const ConstraintPointsCoincident *>(constraint))
+            return cc;
+    }
+
+    return nullptr;
+}
+
 
 } // namespace dune3d
