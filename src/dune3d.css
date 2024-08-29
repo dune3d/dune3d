@@ -47,3 +47,5 @@ button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
 
 .window-title-label {font-weight: bold;}
 .window-subtitle-label {font-size: 80%;}
+
+.workspace-browser-toast {border-radius: 5px; padding: 5px;}

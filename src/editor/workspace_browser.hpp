@@ -82,6 +82,8 @@ public:
     void group_prev_next(int dir);
     void select_group(const UUID &uu);
 
+    void show_toast(const std::string &msg);
+
 private:
     Gtk::ListView *m_view = nullptr;
 
@@ -96,7 +98,8 @@ private:
     Glib::RefPtr<Gio::ListModel> create_model(const Glib::RefPtr<Glib::ObjectBase> &item = {});
     Glib::RefPtr<Gtk::TreeListModel> m_model;
     Glib::RefPtr<Gtk::SingleSelection> m_selection_model;
-    Gtk::ScrolledWindow *m_sc = nullptr;
+    Gtk::Revealer *m_toast_revealer = nullptr;
+    Gtk::Label *m_toast_label = nullptr;
     Gtk::InfoBar *m_info_bar = nullptr;
     Gtk::Image *m_info_bar_icon = nullptr;
     Gtk::Label *m_info_bar_label = nullptr;
@@ -119,5 +122,7 @@ private:
     void unblock_signals();
 
     static void update_name(DocumentItem &it, IDocumentInfo &doci);
+
+    sigc::connection m_toast_connection;
 };
 } // namespace dune3d

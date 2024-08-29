@@ -72,60 +72,60 @@ void Editor::on_add_group(Group::Type group_type)
     auto &doc = m_core.get_current_document();
     auto &current_group = doc.get_group(m_core.get_current_group());
     Group *new_group = nullptr;
+    static const std::string toast_prefix = "Couldn't create group\n";
     if (group_type == Group::Type::SKETCH) {
         auto &group = doc.insert_group<GroupSketch>(UUID::random(), current_group.m_uuid);
         new_group = &group;
     }
     else if (group_type == Group::Type::EXTRUDE) {
-        if (!current_group.m_active_wrkpl)
+        if (!current_group.m_active_wrkpl) {
+            m_workspace_browser->show_toast(toast_prefix + "Current group needs an active workplane");
             return;
+        }
         auto &group = doc.insert_group<GroupExtrude>(UUID::random(), current_group.m_uuid);
         new_group = &group;
         group.m_wrkpl = current_group.m_active_wrkpl;
         group.m_dvec = doc.get_entity<EntityWorkplane>(group.m_wrkpl).get_normal_vector();
         group.m_source_group = current_group.m_uuid;
     }
-    else if (group_type == Group::Type::LATHE) {
-        if (!current_group.m_active_wrkpl)
+    else if (any_of(group_type, Group::Type::LATHE, Group::Type::REVOLVE)) {
+        if (!current_group.m_active_wrkpl) {
+            m_workspace_browser->show_toast(toast_prefix + "Current group needs an active workplane");
             return;
+        }
         auto sel = get_canvas().get_selection();
         auto axis_enp = point_from_selection(doc, sel);
-        if (!axis_enp)
+        if (!axis_enp) {
+            m_workspace_browser->show_toast(toast_prefix + "Select an axis entity (workplane or line)");
             return;
-        if (axis_enp->point != 0)
-            return;
-        const auto &axis = doc.get_entity(axis_enp->entity);
-        if (axis.get_type() != Entity::Type::WORKPLANE && axis.get_type() != Entity::Type::LINE_2D
-            && axis.get_type() != Entity::Type::LINE_3D)
-            return;
+        }
 
-        auto &group = doc.insert_group<GroupLathe>(UUID::random(), current_group.m_uuid);
-        new_group = &group;
-        group.m_wrkpl = current_group.m_active_wrkpl;
-        group.m_source_group = current_group.m_uuid;
-        group.m_origin = {axis_enp->entity, 1};
-        group.m_normal = axis_enp->entity;
-    }
-    else if (group_type == Group::Type::REVOLVE) {
-        if (!current_group.m_active_wrkpl)
+        if (axis_enp->point != 0) {
+            m_workspace_browser->show_toast(toast_prefix + "Select the body of the axis entity");
             return;
-        auto sel = get_canvas().get_selection();
-        auto axis_enp = point_from_selection(doc, sel);
-        if (!axis_enp)
-            return;
-        if (axis_enp->point != 0)
-            return;
+        }
         const auto &axis = doc.get_entity(axis_enp->entity);
-        if (axis.get_type() != Entity::Type::WORKPLANE && axis.get_type() != Entity::Type::LINE_2D
-            && axis.get_type() != Entity::Type::LINE_3D)
+        if (!axis.of_type(Entity::Type::WORKPLANE, Entity::Type::LINE_2D, Entity::Type::LINE_3D)) {
+            m_workspace_browser->show_toast(toast_prefix + "Axis entity must be a line or a workplane");
             return;
+        }
 
-        auto &group = doc.insert_group<GroupRevolve>(UUID::random(), current_group.m_uuid);
-        new_group = &group;
-        group.m_wrkpl = current_group.m_active_wrkpl;
-        group.m_source_group = current_group.m_uuid;
-        group.m_origin = {axis_enp->entity, 1};
-        group.m_normal = axis_enp->entity;
+        if (group_type == Group::Type::LATHE) {
+            auto &group = doc.insert_group<GroupLathe>(UUID::random(), current_group.m_uuid);
+            new_group = &group;
+            group.m_wrkpl = current_group.m_active_wrkpl;
+            group.m_source_group = current_group.m_uuid;
+            group.m_origin = {axis_enp->entity, 1};
+            group.m_normal = axis_enp->entity;
+        }
+        else {
+            auto &group = doc.insert_group<GroupRevolve>(UUID::random(), current_group.m_uuid);
+            new_group = &group;
+            group.m_wrkpl = current_group.m_active_wrkpl;
+            group.m_source_group = current_group.m_uuid;
+            group.m_origin = {axis_enp->entity, 1};
+            group.m_normal = axis_enp->entity;
+        }
     }
     else if (group_type == Group::Type::FILLET) {
         auto &group = doc.insert_group<GroupFillet>(UUID::random(), current_group.m_uuid);
@@ -154,8 +154,10 @@ void Editor::on_add_group(Group::Type group_type)
             if (owrkpl)
                 wrkpl = owrkpl->entity;
         }
-        if (!wrkpl)
+        if (!wrkpl) {
+            m_workspace_browser->show_toast(toast_prefix + "Current group needs an active workplane or select one");
             return;
+        }
         auto &group = doc.insert_group<GroupPolarArray>(UUID::random(), current_group.m_uuid);
         new_group = &group;
         group.m_active_wrkpl = wrkpl;
@@ -168,8 +170,10 @@ void Editor::on_add_group(Group::Type group_type)
         dia->present();
         dia->signal_changed().connect([this, dia, &current_group, &doc] {
             auto groups = dia->get_selected_groups();
-            if (groups.size() < 2)
+            if (groups.size() < 2) {
+                m_workspace_browser->show_toast(toast_prefix + "Select at least two groups");
                 return;
+            }
             auto &group = doc.insert_group<GroupLoft>(UUID::random(), current_group.m_uuid);
             for (const auto &uu : groups) {
                 const auto &src = doc.get_group(uu);

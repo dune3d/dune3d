@@ -659,11 +659,30 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
         }
     });
     m_view->add_css_class("navigation-sidebar");
-    m_sc = Gtk::make_managed<Gtk::ScrolledWindow>();
-    m_sc->set_child(*m_view);
-    m_sc->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::AUTOMATIC);
-    m_sc->set_vexpand(true);
-    append(*m_sc);
+    {
+        auto sc = Gtk::make_managed<Gtk::ScrolledWindow>();
+        sc->set_child(*m_view);
+        sc->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::AUTOMATIC);
+        sc->set_vexpand(true);
+
+        auto overlay = Gtk::make_managed<Gtk::Overlay>();
+        overlay->set_vexpand(true);
+        overlay->set_child(*sc);
+
+        m_toast_label = Gtk::make_managed<Gtk::Label>();
+        m_toast_revealer = Gtk::make_managed<Gtk::Revealer>();
+        m_toast_revealer->set_child(*m_toast_label);
+        m_toast_revealer->set_visible(false);
+        m_toast_revealer->set_halign(Gtk::Align::CENTER);
+        m_toast_revealer->set_valign(Gtk::Align::END);
+        m_toast_revealer->set_transition_type(Gtk::RevealerTransitionType::CROSSFADE);
+        m_toast_revealer->add_css_class("osd");
+        m_toast_revealer->add_css_class("workspace-browser-toast");
+        m_toast_revealer->set_margin_bottom(20);
+        overlay->add_overlay(*m_toast_revealer);
+
+        append(*overlay);
+    }
 
     m_info_bar = Gtk::make_managed<Gtk::InfoBar>();
     m_info_bar->set_revealed(false);
@@ -813,6 +832,20 @@ void WorkspaceBrowser::select_group(const UUID &uu)
             return;
         }
     }
+}
+
+void WorkspaceBrowser::show_toast(const std::string &msg)
+{
+    m_toast_connection.disconnect();
+    m_toast_label->set_label(msg);
+    m_toast_revealer->set_reveal_child(true);
+    m_toast_revealer->set_visible(true);
+    m_toast_connection = Glib::signal_timeout().connect(
+            [this] {
+                m_toast_revealer->set_reveal_child(false);
+                return false;
+            },
+            3000);
 }
 
 } // namespace dune3d
