@@ -3,9 +3,8 @@
 #include "document/entity/entity.hpp"
 #include "document/constraint/constraint_angle.hpp"
 #include "core/tool_id.hpp"
-#include <optional>
 #include "util/selection_util.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -42,7 +41,18 @@ static std::optional<std::pair<UUID, UUID>> two_lines_from_selection(const Docum
 
 ToolBase::CanBegin ToolConstrainPerpendicular::can_begin()
 {
-    return two_lines_from_selection(get_doc(), m_selection).has_value();
+    auto tl = two_lines_from_selection(get_doc(), m_selection);
+    if (!tl.has_value())
+        return false;
+
+    if (m_tool_id == ToolID::MEASURE_ANGLE)
+        return true;
+
+
+    std::set<EntityAndPoint> enps = {{tl->first, 0}, {tl->second, 0}};
+
+    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
+                                                Constraint::Type::LINES_ANGLE);
 }
 
 ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
@@ -73,12 +83,8 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
     constraint->m_entity1 = tl->first;
     constraint->m_entity2 = tl->second;
 
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
+    return commit();
 }
 
-ToolResponse ToolConstrainPerpendicular::update(const ToolArgs &args)
-{
-    return ToolResponse();
-}
+
 } // namespace dune3d

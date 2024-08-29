@@ -3,11 +3,8 @@
 #include "document/entity/entity.hpp"
 #include "document/entity/ientity_in_workplane.hpp"
 #include "document/constraint/constraint_point_in_workplane.hpp"
-#include <optional>
-#include <array>
-#include <algorithm>
 #include "util/selection_util.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -71,17 +68,11 @@ ToolResponse ToolConstrainPointInWorkplane::begin(const ToolArgs &args)
     if (!wp.has_value())
         return ToolResponse::end();
 
-
     auto &constraint = add_constraint<ConstraintPointInWorkplane>();
     constraint.m_point = wp->point;
     constraint.m_wrkpl = wp->wrkpl;
 
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
+    return commit();
 }
 
-ToolResponse ToolConstrainPointInWorkplane::update(const ToolArgs &args)
-{
-    return ToolResponse();
-}
 } // namespace dune3d

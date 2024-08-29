@@ -1,42 +1,32 @@
 #include "tool_constrain_workplane_normal.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity.hpp"
-#include "document/entity/entity_workplane.hpp"
 #include "document/constraint/constraint_workplane_normal.hpp"
-#include "core/tool_id.hpp"
-#include <optional>
-#include <iostream>
 #include "util/selection_util.hpp"
 #include "editor/editor_interface.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 #include "util/action_label.hpp"
+#include "in_tool_action/in_tool_action.hpp"
 
 
 namespace dune3d {
 
-EntityWorkplane *ToolConstrainWorkplaneNormal::get_wrkpl()
+UUID ToolConstrainWorkplaneNormal::get_wrkpl()
 {
-    if (m_selection.size() != 1)
-        return {};
-    auto it = m_selection.begin();
-    auto &sr1 = *it++;
-
-    if (sr1.type != SelectableRef::Type::ENTITY)
+    auto enp = point_from_selection(get_doc(), m_selection, Entity::Type::WORKPLANE);
+    if (!enp)
         return {};
 
-    auto &en1 = get_entity(sr1.item);
-    if (en1.get_type() == Entity::Type::WORKPLANE) {
-        auto &wrkpl = dynamic_cast<EntityWorkplane &>(en1);
-        if (en1.m_group == m_core.get_current_group() && en1.m_kind == ItemKind::USER)
-            return &wrkpl;
-    }
+    auto &wrkpl = get_entity(enp->entity);
+    if (wrkpl.m_group == m_core.get_current_group() && wrkpl.m_kind == ItemKind::USER)
+        return wrkpl.m_uuid;
 
-    return nullptr;
+    return {};
 }
 
 ToolBase::CanBegin ToolConstrainWorkplaneNormal::can_begin()
 {
-    return get_wrkpl();
+    return get_wrkpl() != UUID{};
 }
 
 ToolResponse ToolConstrainWorkplaneNormal::begin(const ToolArgs &args)
@@ -48,7 +38,7 @@ ToolResponse ToolConstrainWorkplaneNormal::begin(const ToolArgs &args)
     m_intf.enable_hover_selection();
 
     m_constraint = &add_constraint<ConstraintWorkplaneNormal>();
-    m_constraint->m_wrkpl = m_wrkpl->m_uuid;
+    m_constraint->m_wrkpl = m_wrkpl;
     update_tip();
 
     return ToolResponse();
@@ -97,12 +87,12 @@ ToolResponse ToolConstrainWorkplaneNormal::update(const ToolArgs &args)
                 return ToolResponse();
             }
 
-            if (m_line1 == nullptr) {
-                m_line1 = &entity;
+            if (m_line1 == UUID{}) {
+                m_line1 = entity.m_uuid;
                 update_tip();
             }
             else {
-                m_constraint->m_line1 = m_line1->m_uuid;
+                m_constraint->m_line1 = m_line1;
                 m_constraint->m_line2 = entity.m_uuid;
                 auto uvn = m_constraint->get_uvn(get_doc());
                 if (!uvn.has_value()) {
@@ -114,8 +104,7 @@ ToolResponse ToolConstrainWorkplaneNormal::update(const ToolArgs &args)
                 if (d > 0)
                     m_constraint->m_flip_normal = true;
 
-                reset_selection_after_constrain();
-                return ToolResponse::commit();
+                return commit();
             }
 
             m_selection.insert(*hsel);
@@ -124,7 +113,6 @@ ToolResponse ToolConstrainWorkplaneNormal::update(const ToolArgs &args)
 
         case InToolActionID::RMB:
         case InToolActionID::CANCEL:
-
             return ToolResponse::revert();
 
         default:;

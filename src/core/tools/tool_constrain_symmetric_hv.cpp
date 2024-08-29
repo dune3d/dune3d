@@ -1,12 +1,10 @@
 #include "tool_constrain_symmetric_hv.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_workplane.hpp"
 #include "document/constraint/constraint_symmetric_hv.hpp"
 #include "core/tool_id.hpp"
 #include <optional>
 #include "util/selection_util.hpp"
-#include "util/template_util.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -20,23 +18,16 @@ ToolBase::CanBegin ToolConstrainSymmetricHV::can_begin()
     if (!tp)
         return false;
 
-    auto constraints = get_doc().find_constraints(tp->get_enps());
-    for (auto constraint : constraints) {
-        if (any_of(m_tool_id, ToolID::CONSTRAIN_SYMMETRIC_HORIZONTAL)) {
-            if (constraint->of_type(Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
-                                    Constraint::Type::SYMMETRIC_HORIZONTAL, Constraint::Type::SYMMETRIC_VERTICAL,
-                                    Constraint::Type::POINT_DISTANCE_VERTICAL))
-                return false;
-        }
-        else {
-            if (constraint->of_type(Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
-                                    Constraint::Type::SYMMETRIC_HORIZONTAL, Constraint::Type::SYMMETRIC_VERTICAL,
-                                    Constraint::Type::POINT_DISTANCE_HORIZONTAL))
-                return false;
-        }
-    }
-
-    return true;
+    if (m_tool_id == ToolID::CONSTRAIN_SYMMETRIC_HORIZONTAL)
+        return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::HORIZONTAL,
+                                                    Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_HORIZONTAL,
+                                                    Constraint::Type::SYMMETRIC_VERTICAL,
+                                                    Constraint::Type::POINT_DISTANCE_VERTICAL);
+    else
+        return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::HORIZONTAL,
+                                                    Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_HORIZONTAL,
+                                                    Constraint::Type::SYMMETRIC_VERTICAL,
+                                                    Constraint::Type::POINT_DISTANCE_HORIZONTAL);
 }
 
 ToolResponse ToolConstrainSymmetricHV::begin(const ToolArgs &args)
@@ -55,13 +46,7 @@ ToolResponse ToolConstrainSymmetricHV::begin(const ToolArgs &args)
     constraint->m_entity2 = tp->point2;
     constraint->m_wrkpl = get_workplane_uuid();
 
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
+    return commit();
 }
 
-
-ToolResponse ToolConstrainSymmetricHV::update(const ToolArgs &args)
-{
-    return ToolResponse();
-}
 } // namespace dune3d

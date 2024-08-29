@@ -1,21 +1,12 @@
-#include "tool_common.hpp"
-#include "in_tool_action/in_tool_action.hpp"
+#include "tool_common_constrain.hpp"
 
 namespace dune3d {
 
-class ToolConstrainPointInWorkplane : public ToolCommon {
+class ToolConstrainPointInWorkplane : public ToolCommonConstrain {
 public:
-    using ToolCommon::ToolCommon;
+    using ToolCommonConstrain::ToolCommonConstrain;
 
     ToolResponse begin(const ToolArgs &args) override;
-    ToolResponse update(const ToolArgs &args) override;
-    bool is_specific() override
-    {
-        return true;
-    }
     CanBegin can_begin() override;
-
-
-private:
 };
 } // namespace dune3d

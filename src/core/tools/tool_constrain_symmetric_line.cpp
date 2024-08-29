@@ -1,12 +1,13 @@
 #include "tool_constrain_symmetric_line.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_workplane.hpp"
+#include "document/entity/entity.hpp"
 #include "document/constraint/constraint_symmetric_line.hpp"
 #include "core/tool_id.hpp"
+#include "in_tool_action/in_tool_action.hpp"
 #include <optional>
 #include "util/selection_util.hpp"
 #include "util/template_util.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 #include "util/action_label.hpp"
 #include "editor/editor_interface.hpp"
 
@@ -18,27 +19,7 @@ ToolBase::CanBegin ToolConstrainSymmetricLine::can_begin()
     if (!get_workplane_uuid())
         return false;
 
-    auto tp = two_points_from_selection(get_doc(), m_selection);
-    if (!tp)
-        return false;
-
-    auto constraints = get_doc().find_constraints(tp->get_enps());
-    for (auto constraint : constraints) {
-        if (any_of(m_tool_id, ToolID::CONSTRAIN_SYMMETRIC_HORIZONTAL)) {
-            if (constraint->of_type(Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
-                                    Constraint::Type::SYMMETRIC_HORIZONTAL, Constraint::Type::SYMMETRIC_VERTICAL,
-                                    Constraint::Type::POINT_DISTANCE_VERTICAL))
-                return false;
-        }
-        else {
-            if (constraint->of_type(Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
-                                    Constraint::Type::SYMMETRIC_HORIZONTAL, Constraint::Type::SYMMETRIC_VERTICAL,
-                                    Constraint::Type::POINT_DISTANCE_HORIZONTAL))
-                return false;
-        }
-    }
-
-    return true;
+    return two_points_from_selection(get_doc(), m_selection).has_value();
 }
 
 ToolResponse ToolConstrainSymmetricLine::begin(const ToolArgs &args)
@@ -96,8 +77,7 @@ ToolResponse ToolConstrainSymmetricLine::update(const ToolArgs &args)
             constraint.m_line = entity.m_uuid;
             constraint.m_wrkpl = get_workplane_uuid();
 
-            reset_selection_after_constrain();
-            return ToolResponse::commit();
+            return commit();
         } break;
 
         case InToolActionID::RMB:

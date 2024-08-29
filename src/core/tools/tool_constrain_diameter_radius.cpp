@@ -1,13 +1,11 @@
 #include "tool_constrain_diameter_radius.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_arc2d.hpp"
-#include "document/entity/entity_circle2d.hpp"
+#include "document/entity/entity.hpp"
 #include "document/constraint/constraint_diameter_radius.hpp"
 #include "util/selection_util.hpp"
-#include "util/util.hpp"
 #include "util/template_util.hpp"
 #include "core/tool_id.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -60,13 +58,6 @@ ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
     constraint->measure(get_doc());
     constraint->m_measurement = any_of(m_tool_id, ToolID::MEASURE_DIAMETER, ToolID::MEASURE_RADIUS);
 
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
-}
-
-
-ToolResponse ToolConstrainDiameterRadius::update(const ToolArgs &args)
-{
-    return ToolResponse();
+    return commit();
 }
 } // namespace dune3d

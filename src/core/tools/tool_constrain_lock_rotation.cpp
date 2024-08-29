@@ -3,10 +3,7 @@
 #include "document/entity/entity.hpp"
 #include "document/entity/ientity_normal.hpp"
 #include "util/selection_util.hpp"
-#include "util/util.hpp"
-#include "util/template_util.hpp"
-#include "core/tool_id.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -35,13 +32,6 @@ ToolResponse ToolConstrainLockRotation::begin(const ToolArgs &args)
     auto &constraint = add_constraint<ConstraintLockRotation>();
     constraint.m_entity = enp->entity;
 
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
-}
-
-
-ToolResponse ToolConstrainLockRotation::update(const ToolArgs &args)
-{
-    return ToolResponse();
+    return commit();
 }
 } // namespace dune3d

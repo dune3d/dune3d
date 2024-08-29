@@ -3,6 +3,7 @@
 #include <optional>
 #include <set>
 #include <array>
+#include <list>
 #include "document/entity/entity_and_point.hpp"
 
 namespace dune3d {
@@ -65,6 +66,10 @@ std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel);
 const ConstraintPointsCoincident *constraint_points_coincident_from_selection(const Document &doc,
                                                                               const std::set<SelectableRef> &sel,
                                                                               const std::set<EntityType> &types);
+
+std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                        const std::set<EntityType> &types);
+
 
 std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &current_doc, const SelectableRef &sr);
 

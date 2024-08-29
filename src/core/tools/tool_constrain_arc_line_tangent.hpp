@@ -1,20 +1,14 @@
-#include "tool_common.hpp"
+#include "tool_common_constrain.hpp"
 
 namespace dune3d {
 
 enum class EntityType;
 
-class ToolConstrainArcLineTangent : public ToolCommon {
+class ToolConstrainArcLineTangent : public ToolCommonConstrain {
 public:
-    using ToolCommon::ToolCommon;
+    using ToolCommonConstrain::ToolCommonConstrain;
 
     ToolResponse begin(const ToolArgs &args) override;
-    ToolResponse update(const ToolArgs &args) override;
-    bool is_specific() override
-    {
-        return true;
-    }
-
     CanBegin can_begin() override;
 
 private:

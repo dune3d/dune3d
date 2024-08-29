@@ -3,7 +3,7 @@
 #include "document/entity/entity.hpp"
 #include "document/constraint/constraint_parallel.hpp"
 #include "util/selection_util.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -36,7 +36,15 @@ static std::optional<std::pair<UUID, UUID>> two_entities_from_selection(const Do
 
 ToolBase::CanBegin ToolConstrainParallel::can_begin()
 {
-    return two_entities_from_selection(get_doc(), m_selection).has_value();
+    auto tp = two_entities_from_selection(get_doc(), m_selection);
+
+    if (!tp.has_value())
+        return false;
+
+    std::set<EntityAndPoint> enps = {{tp->first, 0}, {tp->second, 0}};
+
+    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
+                                                Constraint::Type::LINES_ANGLE);
 }
 
 ToolResponse ToolConstrainParallel::begin(const ToolArgs &args)
@@ -49,12 +57,8 @@ ToolResponse ToolConstrainParallel::begin(const ToolArgs &args)
     constraint.m_entity1 = tp->first;
     constraint.m_entity2 = tp->second;
     constraint.m_wrkpl = get_workplane_uuid();
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
+
+    return commit();
 }
 
-ToolResponse ToolConstrainParallel::update(const ToolArgs &args)
-{
-    return ToolResponse();
-}
 } // namespace dune3d

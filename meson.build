@@ -158,6 +158,7 @@ src = files(
   'src/core/tool.cpp',
   'src/core/create_tool.cpp',
   'src/core/tools/tool_common.cpp',
+  'src/core/tools/tool_common_constrain.cpp',
   'src/core/tools/tool_draw_line_3d.cpp',
   'src/core/tools/tool_draw_point_2d.cpp',
   'src/core/tools/tool_draw_circle_2d.cpp',

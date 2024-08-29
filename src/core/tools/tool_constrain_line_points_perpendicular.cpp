@@ -5,7 +5,7 @@
 #include "document/constraint/constraint_line_points_perpendicular.hpp"
 
 #include "editor/editor_interface.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -81,17 +81,11 @@ ToolResponse ToolConstrainLinePointsPerpendicular::begin(const ToolArgs &args)
                 constraint.m_point_line = tp->points.at(pt);
                 constraint.m_point = tp->points.at(other_pt);
 
-                reset_selection_after_constrain();
-                return ToolResponse::commit();
+                return commit();
             }
         }
     }
     return ToolResponse::end();
-}
-
-ToolResponse ToolConstrainLinePointsPerpendicular::update(const ToolArgs &args)
-{
-    return ToolResponse();
 }
 
 } // namespace dune3d

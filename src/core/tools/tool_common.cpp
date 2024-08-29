@@ -3,7 +3,6 @@
 #include "tool_common_impl.hpp"
 #include "document/group/group.hpp"
 #include "editor/editor_interface.hpp"
-#include "canvas/selection_mode.hpp"
 #include "system/system.hpp"
 
 namespace dune3d {
@@ -47,12 +46,6 @@ void ToolCommon::set_current_group_generate_pending()
 void ToolCommon::set_current_group_update_solid_model_pending()
 {
     get_doc().set_group_update_solid_model_pending(m_core.get_current_group());
-}
-
-void ToolCommon::reset_selection_after_constrain()
-{
-    m_selection.clear();
-    m_intf.set_canvas_selection_mode(SelectionMode::HOVER);
 }
 
 glm::dvec3 ToolCommon::get_cursor_pos_for_workplane(const EntityWorkplane &wrkpl) const

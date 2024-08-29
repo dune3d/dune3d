@@ -1,19 +1,14 @@
-#include "tool_common.hpp"
-#include "in_tool_action/in_tool_action.hpp"
+#include "tool_common_constrain.hpp"
 #include "util/selection_util.hpp"
 
 namespace dune3d {
 
-class ToolConstrainSymmetricLine : public ToolCommon {
+class ToolConstrainSymmetricLine : public ToolCommonConstrain {
 public:
-    using ToolCommon::ToolCommon;
+    using ToolCommonConstrain::ToolCommonConstrain;
 
     ToolResponse begin(const ToolArgs &args) override;
     ToolResponse update(const ToolArgs &args) override;
-    bool is_specific() override
-    {
-        return true;
-    }
     CanBegin can_begin() override;
 
 private:

@@ -297,5 +297,20 @@ const ConstraintPointsCoincident *constraint_points_coincident_from_selection(co
     return nullptr;
 }
 
+std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                        const std::set<Entity::Type> &types)
+{
+    std::list<UUID> r;
+    for (const auto &sr : sel) {
+        if (sr.type != SelectableRef::Type::ENTITY)
+            continue;
+        if (sr.point != 0)
+            continue;
+        auto &en = doc.get_entity(sr.item);
+        if (types.contains(en.get_type()))
+            r.push_back(sr.item);
+    }
+    return r;
+}
 
 } // namespace dune3d

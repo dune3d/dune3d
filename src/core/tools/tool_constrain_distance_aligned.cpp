@@ -4,9 +4,10 @@
 #include "document/constraint/constraint_point_distance_aligned.hpp"
 #include "util/selection_util.hpp"
 #include "core/tool_id.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 #include "util/action_label.hpp"
 #include "editor/editor_interface.hpp"
+#include "in_tool_action/in_tool_action.hpp"
 
 namespace dune3d {
 
@@ -74,8 +75,7 @@ ToolResponse ToolConstrainDistanceAligned::update(const ToolArgs &args)
             constraint.m_distance = constraint.measure_distance(get_doc());
             constraint.m_measurement = m_tool_id == ToolID::MEASURE_DISTANCE_ALIGNED;
 
-            reset_selection_after_constrain();
-            return ToolResponse::commit();
+            return commit();
         } break;
 
         case InToolActionID::RMB:

@@ -2,10 +2,8 @@
 #include "document/document.hpp"
 #include "document/entity/entity.hpp"
 #include "document/constraint/constraint_same_orientation.hpp"
-#include "core/tool_id.hpp"
-#include <optional>
 #include "util/selection_util.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -35,7 +33,11 @@ std::optional<std::pair<UUID, UUID>> two_wrkpl_from_selection(const Document &do
 
 ToolBase::CanBegin ToolConstrainSameOrientation::can_begin()
 {
-    return two_wrkpl_from_selection(get_doc(), m_selection).has_value();
+    auto tw = two_wrkpl_from_selection(get_doc(), m_selection);
+    if (!tw.has_value())
+        return false;
+
+    return !has_constraint_of_type({{tw->first, 0}, {tw->second, 0}}, Constraint::Type::SAME_ORIENTATION);
 }
 
 ToolResponse ToolConstrainSameOrientation::begin(const ToolArgs &args)
@@ -45,17 +47,11 @@ ToolResponse ToolConstrainSameOrientation::begin(const ToolArgs &args)
     if (!tp.has_value())
         return ToolResponse::end();
 
-
     auto &constraint = add_constraint<ConstraintSameOrientation>();
     constraint.m_entity1 = tp->first;
     constraint.m_entity2 = tp->second;
 
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
+    return commit();
 }
 
-ToolResponse ToolConstrainSameOrientation::update(const ToolArgs &args)
-{
-    return ToolResponse();
-}
 } // namespace dune3d

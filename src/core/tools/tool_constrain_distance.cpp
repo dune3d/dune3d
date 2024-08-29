@@ -1,15 +1,11 @@
 #include "tool_constrain_distance.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_line3d.hpp"
-#include "document/entity/entity_line2d.hpp"
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_point_distance_hv.hpp"
-#include "document/constraint/constraint_point_line_distance.hpp"
-#include "document/constraint/constraint_point_plane_distance.hpp"
 #include "util/selection_util.hpp"
 #include "util/template_util.hpp"
 #include "core/tool_id.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
@@ -28,36 +24,25 @@ ToolBase::CanBegin ToolConstrainDistance::can_begin()
                ToolID::MEASURE_DISTANCE_VERTICAL))
         return true;
 
-    auto constraints = get_doc().find_constraints(tp->get_enps());
-    for (auto constraint : constraints) {
-        switch (m_tool_id) {
-        case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
-            if (constraint->of_type(Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::VERTICAL,
-                                    Constraint::Type::SYMMETRIC_VERTICAL))
-                return false;
-            break;
+    switch (m_tool_id) {
+    case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
+        return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::POINT_DISTANCE_HORIZONTAL,
+                                                    Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_VERTICAL);
 
-        case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
-            if (constraint->of_type(Constraint::Type::POINT_DISTANCE_VERTICAL, Constraint::Type::HORIZONTAL,
-                                    Constraint::Type::SYMMETRIC_HORIZONTAL))
-                return false;
-            break;
+    case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
+        return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::POINT_DISTANCE_VERTICAL,
+                                                    Constraint::Type::HORIZONTAL,
+                                                    Constraint::Type::SYMMETRIC_HORIZONTAL);
 
-        case ToolID::CONSTRAIN_DISTANCE:
-            if (constraint->of_type(Constraint::Type::POINT_DISTANCE, Constraint::Type::HORIZONTAL,
-                                    Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_HORIZONTAL,
-                                    Constraint::Type::SYMMETRIC_VERTICAL))
-                return false;
-            break;
+    case ToolID::CONSTRAIN_DISTANCE:
+        return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::POINT_DISTANCE,
+                                                    Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
+                                                    Constraint::Type::SYMMETRIC_HORIZONTAL,
+                                                    Constraint::Type::SYMMETRIC_VERTICAL);
 
-        default:
-            return false;
-        }
+    default:
+        return false;
     }
-    return true;
-
-
-    return false;
 }
 
 ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
@@ -96,14 +81,6 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
         constraint->flip();
     constraint->m_distance = std::abs(dist);
 
-
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
-}
-
-
-ToolResponse ToolConstrainDistance::update(const ToolArgs &args)
-{
-    return ToolResponse();
+    return commit();
 }
 } // namespace dune3d

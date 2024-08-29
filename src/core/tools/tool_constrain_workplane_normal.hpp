@@ -1,37 +1,21 @@
-#include "tool_common.hpp"
-#include "in_tool_action/in_tool_action.hpp"
+#include "tool_common_constrain.hpp"
 
 namespace dune3d {
 
-class EntityWorkplane;
-class Entity;
 class ConstraintWorkplaneNormal;
 
-class ToolConstrainWorkplaneNormal : public ToolCommon {
+class ToolConstrainWorkplaneNormal : public ToolCommonConstrain {
 public:
-    using ToolCommon::ToolCommon;
+    using ToolCommonConstrain::ToolCommonConstrain;
 
     ToolResponse begin(const ToolArgs &args) override;
     ToolResponse update(const ToolArgs &args) override;
-    bool is_specific() override
-    {
-        return true;
-    }
     CanBegin can_begin() override;
-    std::set<InToolActionID> get_actions() const override
-    {
-        using I = InToolActionID;
-        return {
-                I::LMB,
-                I::CANCEL,
-                I::RMB,
-        };
-    }
 
 private:
-    EntityWorkplane *m_wrkpl = nullptr;
-    EntityWorkplane *get_wrkpl();
-    Entity *m_line1 = nullptr;
+    UUID m_wrkpl;
+    UUID get_wrkpl();
+    UUID m_line1;
     ConstraintWorkplaneNormal *m_constraint = nullptr;
     void update_tip();
 };

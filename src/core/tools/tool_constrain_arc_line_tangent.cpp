@@ -7,7 +7,7 @@
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "util/selection_util.hpp"
 #include "editor/editor_interface.hpp"
-#include "tool_common_impl.hpp"
+#include "tool_common_constrain_impl.hpp"
 #include "core/tool_id.hpp"
 
 namespace dune3d {
@@ -53,13 +53,7 @@ ToolBase::CanBegin ToolConstrainArcLineTangent::can_begin()
                                          ? Constraint::Type::ARC_LINE_TANGENT
                                          : Constraint::Type::BEZIER_LINE_TANGENT;
 
-    auto constraints = get_doc().find_constraints({al->curve, {al->line.entity, 0}});
-    for (auto constraint : constraints) {
-        if (constraint->of_type(constraint_type))
-            return false;
-    }
-
-    return true;
+    return !has_constraint_of_type({al->curve, {al->line.entity, 0}}, constraint_type);
 }
 
 ToolResponse ToolConstrainArcLineTangent::begin(const ToolArgs &args)
@@ -92,15 +86,8 @@ ToolResponse ToolConstrainArcLineTangent::begin(const ToolArgs &args)
         constraint.m_bezier = tp->curve;
         constraint.m_line = tp->line.entity;
     }
-    reset_selection_after_constrain();
-    return ToolResponse::commit();
 
-    return ToolResponse::end();
-}
-
-ToolResponse ToolConstrainArcLineTangent::update(const ToolArgs &args)
-{
-    return ToolResponse();
+    return commit();
 }
 
 } // namespace dune3d
