@@ -231,7 +231,9 @@ std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel)
 
 std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &current_doc, const SelectableRef &sr)
 {
-    const auto &doc = prv.get_idocument_info(current_doc).get_document();
+    auto &doci = prv.get_idocument_info(current_doc);
+    const auto &doc = doci.get_document();
+    const UUID current_group = doci.get_current_group();
     std::string label;
     switch (sr.type) {
     case SelectableRef::Type::ENTITY: {
@@ -246,7 +248,10 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
             label += " " + entity->m_name;
         if (auto point_name = entity->get_point_name(sr.point); point_name.size())
             label += " (" + point_name + ")";
-        label += " in group " + group.m_name;
+        if (group.m_uuid == current_group)
+            label += " in current group";
+        else
+            label += " in group " + group.m_name;
     } break;
 
     case SelectableRef::Type::CONSTRAINT: {
@@ -260,12 +265,17 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
 
         label = constraint->get_type_name() + " " + name;
         if (auto constraint_wrkpl = dynamic_cast<const IConstraintWorkplane *>(constraint)) {
-            auto &wrkpl = doc.get_entity(constraint_wrkpl->get_workplane(doc));
-            auto &wrkpl_group = doc.get_group(wrkpl.m_group);
-            label += " in workplane";
-            if (wrkpl.has_name() && wrkpl.m_name.size())
-                label += " " + wrkpl.m_name;
-            label += " from group " + wrkpl_group.m_name;
+            if (auto wrkpl_uu = constraint_wrkpl->get_workplane(doc)) {
+                auto &wrkpl = doc.get_entity(wrkpl_uu);
+                auto &wrkpl_group = doc.get_group(wrkpl.m_group);
+                label += " in workplane";
+                if (wrkpl.has_name() && wrkpl.m_name.size())
+                    label += " " + wrkpl.m_name;
+                if (wrkpl_group.m_uuid == current_group)
+                    label += " from current group";
+                else
+                    label += " from group " + wrkpl_group.m_name;
+            }
         }
     } break;
 
