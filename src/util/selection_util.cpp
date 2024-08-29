@@ -235,6 +235,8 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
     std::string label;
     switch (sr.type) {
     case SelectableRef::Type::ENTITY: {
+        if (!doc.m_entities.contains(sr.item))
+            return "not found";
         auto &entity = doc.get_entity(sr.item);
         auto &group = doc.get_group(entity.m_group);
         if (entity.m_construction)
@@ -248,6 +250,8 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
     } break;
 
     case SelectableRef::Type::CONSTRAINT: {
+        if (!doc.m_constraints.contains(sr.item))
+            return "not found";
         auto &constraint = doc.get_constraint(sr.item);
 
         std::string name = "constraint";
@@ -255,6 +259,14 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
             name = "measurement";
 
         label = constraint.get_type_name() + " " + name;
+        if (auto constraint_wrkpl = dynamic_cast<const IConstraintWorkplane *>(&constraint)) {
+            auto &wrkpl = doc.get_entity(constraint_wrkpl->get_workplane(doc));
+            auto &wrkpl_group = doc.get_group(wrkpl.m_group);
+            label += " in workplane";
+            if (wrkpl.has_name() && wrkpl.m_name.size())
+                label += " " + wrkpl.m_name;
+            label += " from group " + wrkpl_group.m_name;
+        }
     } break;
 
     case SelectableRef::Type::DOCUMENT: {
