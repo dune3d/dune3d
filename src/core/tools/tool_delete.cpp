@@ -14,6 +14,9 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolDelete::can_begin()
 {
+    if (m_tool_id == ToolID::CUT && !Buffer::can_create(get_doc(), m_selection))
+        return false;
+
     for (const auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {
             auto &entity = get_entity(sr.item);
