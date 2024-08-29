@@ -21,7 +21,8 @@ struct CurveAndLine {
 static std::optional<CurveAndLine>
 curve_and_line_from_selection(const Document &doc, const std::set<SelectableRef> &sel, Entity::Type curve_type)
 {
-    auto cc = constraint_points_coincident_from_selection(doc, sel, {Entity::Type::ARC_2D, Entity::Type::LINE_2D});
+    auto cc = constraint_points_coincident_from_selection(
+            doc, sel, {Entity::Type::ARC_2D, Entity::Type::LINE_2D, Entity::Type::BEZIER_2D});
     if (!cc)
         return {};
 

@@ -32,9 +32,16 @@ ToolBase::CanBegin ToolConstrainCurveCurveTangent::can_begin()
     if (!curves.has_value())
         return false;
 
+    const auto &en1 = get_entity(curves->curve1.entity);
+    const auto &en2 = get_entity(curves->curve2.entity);
+
     if (m_tool_id == ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC) {
-        if (!(get_entity(curves->curve1.entity).of_type(Entity::Type::BEZIER_2D)
-              && get_entity(curves->curve2.entity).of_type(Entity::Type::BEZIER_2D)))
+        if (!(en1.of_type(Entity::Type::BEZIER_2D) && en2.of_type(Entity::Type::BEZIER_2D)))
+            return false;
+    }
+    else {
+        if (!(en1.of_type(Entity::Type::BEZIER_2D, Entity::Type::ARC_2D)
+              && en2.of_type(Entity::Type::BEZIER_2D, Entity::Type::ARC_2D)))
             return false;
     }
 
