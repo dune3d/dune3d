@@ -136,6 +136,28 @@ void Canvas::handle_spnav()
 }
 #endif
 
+static glm::quat quat_from_between_vectors(glm::vec3 u, glm::vec3 v)
+{
+    // from https://github.com/rawify/Quaternion.js
+    u = glm::normalize(u);
+    v = glm::normalize(v);
+    const auto dot = glm::dot(u, v);
+    static const auto eps = 1e-5;
+    if (dot >= 1 - eps) {
+        return glm::quat_identity<float, glm::defaultp>();
+    }
+    if (1 + dot <= eps) {
+        if (std::abs(u.x) > std::abs(u.z))
+            return glm::normalize(glm::quat(0, -u.y, u.x, 0));
+        else
+            return glm::normalize(glm::quat(0, 0, -u.z, u.y));
+    }
+
+    const auto w = glm::cross(u, v);
+
+    return glm::normalize(glm::quat(1 + dot, w.x, w.y, w.z));
+}
+
 void Canvas::setup_controllers()
 {
     {
@@ -256,16 +278,24 @@ void Canvas::setup_controllers()
         }
         const auto delta = glm::mat2(1, 0, 0, -1) * (glm::vec2(x, y) - m_pointer_pos_orig);
         if (m_pan_mode == PanMode::ROTATE) {
-            glm::quat rz;
-            if (m_rotation_scheme == RotationScheme::DEFAULT)
-                rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360),
-                                    glm::rotate(m_cam_quat_orig, glm::vec3(0, 1, 0)));
-            else
-                rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360), glm::vec3(0, 0, 1));
+            if (m_rotation_scheme == RotationScheme::ARCBALL) {
+                const auto a = project_arcball(m_pointer_pos_orig);
+                const auto b = project_arcball({x, y});
+                auto q = quat_from_between_vectors(a, b);
+                set_cam_quat(m_cam_quat_orig * glm::inverse(q * q));
+            }
+            else {
+                glm::quat rz;
+                if (m_rotation_scheme != RotationScheme::LEGACY)
+                    rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360),
+                                        glm::rotate(m_cam_quat_orig, glm::vec3(0, 1, 0)));
+                else
+                    rz = glm::angleAxis(glm::radians((delta.x / m_width) * -360), glm::vec3(0, 0, 1));
 
-            auto rx = glm::angleAxis(glm::radians((delta.y / m_height) * 90),
-                                     glm::rotate(m_cam_quat_orig, glm::vec3(1, 0, 0)));
-            set_cam_quat(rz * rx * m_cam_quat_orig);
+                auto rx = glm::angleAxis(glm::radians((delta.y / m_height) * 90),
+                                         glm::rotate(m_cam_quat_orig, glm::vec3(1, 0, 0)));
+                set_cam_quat(rz * rx * m_cam_quat_orig);
+            }
         }
         else if (m_pan_mode == PanMode::TILT) {
             auto ry = glm::angleAxis(glm::radians((delta.x / m_width) * 90),
@@ -283,6 +313,21 @@ void Canvas::setup_controllers()
         }
     });
     add_controller(controller);
+}
+
+glm::vec3 Canvas::project_arcball(const glm::vec2 &v) const
+{
+    // from https://raw.org/code/trackball-rotation-using-quaternions/
+    const float res = std::min(m_width, m_height) - 1;
+    const auto p = glm::vec2((2 * v.x - m_width - 1), -(2 * v.y - m_height - 1)) / res;
+    const auto d = glm::length2(p);
+    float z;
+    const float r = 1;
+    if (2 * d <= r * r)
+        z = sqrt(r * r - d);
+    else
+        z = r * r / 2 / sqrt(d);
+    return {p.x, p.y, z};
 }
 
 void Canvas::handle_click_release()
@@ -422,7 +467,7 @@ void Canvas::scroll_rotate(double dx, double dy, Gtk::EventController &ctrl)
 
     // auto rz = glm::angleAxis(glm::radians(delta.x * -9.f), glm::vec3(0, 0, 1));
     glm::quat rz;
-    if (m_rotation_scheme == RotationScheme::DEFAULT)
+    if (m_rotation_scheme != RotationScheme::LEGACY)
         rz = glm::angleAxis(glm::radians(delta.x * -9.f), glm::rotate(m_cam_quat, glm::vec3(0, 1, 0)));
     else
         rz = glm::angleAxis(glm::radians(delta.x * -9.f), glm::vec3(0, 0, 1));
@@ -495,7 +540,7 @@ void Canvas::rotate_gesture_update_cb(Gdk::EventSequence *seq)
     m_gesture_rotate->get_bounding_box_center(cx, cy);
     float dy = cy - m_gesture_rotate_pos_orig.y;
     glm::quat rz;
-    if (m_rotation_scheme == RotationScheme::DEFAULT)
+    if (m_rotation_scheme != RotationScheme::LEGACY)
         rz = glm::angleAxis((float)delta, glm::rotate(m_gesture_rotate_cam_quat_orig, glm::vec3(0, 0, 1)));
     else
         rz = glm::angleAxis((float)delta, glm::vec3(0, 0, 1));

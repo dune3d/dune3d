@@ -1,5 +1,5 @@
 #pragma once
 
 namespace dune3d {
-enum class RotationScheme { DEFAULT, LEGACY };
+enum class RotationScheme { DEFAULT, LEGACY, ARCBALL };
 }
