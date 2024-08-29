@@ -367,6 +367,7 @@ private:
 
     glm::vec2 m_pointer_pos_orig;
     glm::quat m_cam_quat_orig;
+    glm::vec3 project_arcball(const glm::vec2 &p) const;
 
     glm::vec3 m_center_orig;
     glm::vec3 get_center_shift(const glm::vec2 &shift) const;

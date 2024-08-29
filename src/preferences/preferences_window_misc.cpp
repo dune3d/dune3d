@@ -45,8 +45,9 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
         }
         {
             static const std::vector<std::pair<RotationScheme, std::string>> rotation_schemes = {
-                    {RotationScheme::DEFAULT, "Default"},
-                    {RotationScheme::LEGACY, "Legacy"},
+                    {RotationScheme::DEFAULT, "Tumbler"},
+                    {RotationScheme::LEGACY, "Turntable"},
+                    {RotationScheme::ARCBALL, "Trackball"},
             };
             auto r = Gtk::make_managed<PreferencesRowEnum<RotationScheme>>(
                     "Rotation scheme", "How to translate mouse movement to rotation", m_preferences,

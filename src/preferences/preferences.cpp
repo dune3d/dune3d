@@ -214,6 +214,7 @@ static const LutEnumStr<CanvasPreferences::ThemeVariant> theme_variant_lut = {
 static const LutEnumStr<RotationScheme> rotation_scheme_lut = {
         {"default", RotationScheme::DEFAULT},
         {"legacy", RotationScheme::LEGACY},
+        {"arcball", RotationScheme::ARCBALL},
 };
 
 json CanvasPreferences::serialize() const
@@ -230,6 +231,7 @@ json CanvasPreferences::serialize() const
     j["error_overlay"] = error_overlay;
     j["zoom_to_cursor"] = zoom_to_cursor;
     j["rotation_scheme"] = rotation_scheme_lut.lookup_reverse(rotation_scheme);
+    j["supports_arcball"] = true;
     return j;
 }
 
@@ -268,7 +270,9 @@ void CanvasPreferences::load_from_json(const json &j)
     error_overlay = j.value("error_overlay", true);
     zoom_to_cursor = j.value("zoom_to_cursor", true);
     if (j.contains("rotation_scheme"))
-        rotation_scheme = rotation_scheme_lut.lookup(j.at("rotation_scheme"), RotationScheme::DEFAULT);
+        rotation_scheme = rotation_scheme_lut.lookup(j.at("rotation_scheme"), RotationScheme::ARCBALL);
+    if (!j.value("supports_arcball", false))
+        rotation_scheme = RotationScheme::ARCBALL;
     load_colors_from_json(j);
 }
 
