@@ -56,6 +56,15 @@ public:
         return dynamic_cast<T &>(*m_entities.at(uu));
     }
 
+    template <typename T = Entity> T *get_entity_ptr(const UUID &uu)
+    {
+        auto it = m_entities.find(uu);
+        if (it == m_entities.end())
+            return nullptr;
+        else
+            return dynamic_cast<T *>(it->second.get());
+    }
+
     template <typename T> T &get_or_add_entity(const UUID &uu, bool *was_added = nullptr)
     {
         if (m_entities.count(uu)) {
@@ -75,6 +84,15 @@ public:
         return dynamic_cast<const T &>(*m_entities.at(uu));
     }
 
+    template <typename T = Entity> const T *get_entity_ptr(const UUID &uu) const
+    {
+        auto it = m_entities.find(uu);
+        if (it == m_entities.end())
+            return nullptr;
+        else
+            return dynamic_cast<const T *>(it->second.get());
+    }
+
     template <typename T = Constraint> const T &get_constraint(const UUID &uu) const
     {
         return dynamic_cast<const T &>(*m_constraints.at(uu));
@@ -87,7 +105,20 @@ public:
 
     template <typename T = Constraint> T *get_constraint_ptr(const UUID &uu)
     {
-        return dynamic_cast<T *>(m_constraints.at(uu).get());
+        auto it = m_constraints.find(uu);
+        if (it == m_constraints.end())
+            return nullptr;
+        else
+            return dynamic_cast<T *>(it->second.get());
+    }
+
+    template <typename T = Constraint> const T *get_constraint_ptr(const UUID &uu) const
+    {
+        auto it = m_constraints.find(uu);
+        if (it == m_constraints.end())
+            return nullptr;
+        else
+            return dynamic_cast<const T *>(it->second.get());
     }
 
     template <typename T> T &add_constraint(const UUID &uu)

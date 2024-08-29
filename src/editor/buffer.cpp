@@ -105,10 +105,10 @@ bool Buffer::can_create(const Document &doc, const std::set<SelectableRef> &sel)
 {
     for (const auto &sr : sel) {
         if (sr.is_entity()) {
-            if (!doc.m_entities.contains(sr.item))
+            const auto entity = doc.get_entity_ptr(sr.item);
+            if (!entity)
                 continue;
-            const auto &entity = doc.get_entity(sr.item);
-            if (!entity_is_supported(entity))
+            if (!entity_is_supported(*entity))
                 continue;
             return true;
         }

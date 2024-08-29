@@ -235,31 +235,31 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
     std::string label;
     switch (sr.type) {
     case SelectableRef::Type::ENTITY: {
-        if (!doc.m_entities.contains(sr.item))
+        auto entity = doc.get_entity_ptr(sr.item);
+        if (!entity)
             return "not found";
-        auto &entity = doc.get_entity(sr.item);
-        auto &group = doc.get_group(entity.m_group);
-        if (entity.m_construction)
+        auto &group = doc.get_group(entity->m_group);
+        if (entity->m_construction)
             label = "Construction ";
-        label += entity.get_type_name();
-        if (entity.has_name() && entity.m_name.size())
-            label += " " + entity.m_name;
-        if (auto point_name = entity.get_point_name(sr.point); point_name.size())
+        label += entity->get_type_name();
+        if (entity->has_name() && entity->m_name.size())
+            label += " " + entity->m_name;
+        if (auto point_name = entity->get_point_name(sr.point); point_name.size())
             label += " (" + point_name + ")";
         label += " in group " + group.m_name;
     } break;
 
     case SelectableRef::Type::CONSTRAINT: {
-        if (!doc.m_constraints.contains(sr.item))
+        auto constraint = doc.get_constraint_ptr(sr.item);
+        if (!constraint)
             return "not found";
-        auto &constraint = doc.get_constraint(sr.item);
 
         std::string name = "constraint";
-        if (auto dat = dynamic_cast<const IConstraintDatum *>(&constraint); dat && dat->is_measurement())
+        if (auto dat = dynamic_cast<const IConstraintDatum *>(constraint); dat && dat->is_measurement())
             name = "measurement";
 
-        label = constraint.get_type_name() + " " + name;
-        if (auto constraint_wrkpl = dynamic_cast<const IConstraintWorkplane *>(&constraint)) {
+        label = constraint->get_type_name() + " " + name;
+        if (auto constraint_wrkpl = dynamic_cast<const IConstraintWorkplane *>(constraint)) {
             auto &wrkpl = doc.get_entity(constraint_wrkpl->get_workplane(doc));
             auto &wrkpl_group = doc.get_group(wrkpl.m_group);
             label += " in workplane";
