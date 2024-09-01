@@ -12,6 +12,7 @@
 #include "action/action.hpp"
 #include "canvas/color_palette.hpp"
 #include "util/fs_util.hpp"
+#include "util/json_util.hpp"
 
 namespace dune3d {
 
@@ -230,21 +231,6 @@ json CanvasPreferences::serialize() const
     j["zoom_to_cursor"] = zoom_to_cursor;
     j["rotation_scheme"] = rotation_scheme_lut.lookup_reverse(rotation_scheme);
     return j;
-}
-
-static void to_json(json &j, const Color &c)
-{
-    j["r"] = c.r;
-    j["g"] = c.g;
-    j["b"] = c.b;
-}
-
-
-static void from_json(const json &j, Color &c)
-{
-    c.r = j.at("r").get<float>();
-    c.g = j.at("g").get<float>();
-    c.b = j.at("b").get<float>();
 }
 
 json CanvasPreferences::serialize_colors() const
