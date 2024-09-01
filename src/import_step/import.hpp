@@ -15,6 +15,7 @@ class Result {
 public:
     Faces faces;
     std::vector<Point> points;
+    std::vector<std::vector<Point>> edges;
 };
 
 Result import(const std::filesystem::path &filename);

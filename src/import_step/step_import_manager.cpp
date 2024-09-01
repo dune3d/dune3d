@@ -105,7 +105,7 @@ namespace STEPImporter {
 
 static void to_json(json &j, const Result &r)
 {
-    j = {{"faces", r.faces}, {"points", r.points}};
+    j = {{"faces", r.faces}, {"points", r.points}, {"edges", r.edges}};
 }
 
 static void from_json(const json &j, Result &r)
@@ -113,6 +113,7 @@ static void from_json(const json &j, Result &r)
 
     j.at("points").get_to(r.points);
     j.at("faces").get_to(r.faces);
+    j.at("edges").get_to(r.edges);
 }
 
 } // namespace STEPImporter
@@ -130,6 +131,7 @@ std::shared_ptr<ImportedSTEP> STEPImportManager::import_step(const std::filesyst
 
     auto imported = std::make_shared<ImportedSTEP>(path, hash);
     imported->ready = true;
+    bool cache_ok = false;
 
     auto cache_path = get_cache_dir() / (hash + ".ubjson");
 
@@ -137,9 +139,13 @@ std::shared_ptr<ImportedSTEP> STEPImportManager::import_step(const std::filesyst
         // json::from_ubjson(
         auto rd = Glib::file_get_contents(cache_path.string());
         auto j = json::from_ubjson(std::span(rd.data(), rd.size()));
-        j.get_to(imported->result);
+        if (j.contains("edges")) {
+            j.get_to(imported->result);
+            cache_ok = true;
+        }
     }
-    else {
+
+    if (!cache_ok) {
         imported->result = STEPImporter::import(path.generic_string());
 
         json j = imported->result;

@@ -22,7 +22,7 @@ class EntityViewSTEP : public EntityView {
 public:
     EntityViewSTEP();
     explicit EntityViewSTEP(const json &j);
-    enum class Display { SOLID, OFF, WIREFRAME };
+    enum class Display { SOLID, OFF, WIREFRAME, SOLID_WIREFRAME };
     Display m_display = Display::SOLID;
     EntityType get_type() const override;
     std::unique_ptr<EntityView> clone() const override;

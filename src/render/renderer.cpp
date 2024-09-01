@@ -15,6 +15,7 @@
 #include "core/idocument_info.hpp"
 #include "util/fs_util.hpp"
 #include "util/arc_util.hpp"
+#include "util/template_util.hpp"
 #include <iostream>
 #include <array>
 #include <format>
@@ -378,11 +379,23 @@ void Renderer::visit(const EntitySTEP &en)
     if (view)
         display = view->m_display;
 
+    SelectableRef sr{SelectableRef::Type::ENTITY, en.m_uuid, 0};
     if (en.m_imported) {
-        if (display == EntityViewSTEP::Display::SOLID)
+        if (any_of(display, EntityViewSTEP::Display::SOLID, EntityViewSTEP::Display::SOLID_WIREFRAME))
             m_ca.add_selectable(m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal,
                                                     ICanvas::FaceColor::AS_IS),
-                                SelectableRef{SelectableRef::Type::ENTITY, en.m_uuid, 0});
+                                sr);
+
+        if (any_of(display, EntityViewSTEP::Display::WIREFRAME, EntityViewSTEP::Display::SOLID_WIREFRAME)) {
+            for (const auto &path : en.m_imported->result.edges) {
+                for (size_t i = 1; i < path.size(); i++) {
+                    const auto &a = path.at(i - 1);
+                    const auto &b = path.at(i);
+                    m_ca.add_selectable(m_ca.draw_line(en.transform({a.x, a.y, a.z}), en.transform({b.x, b.y, b.z})),
+                                        sr);
+                }
+            }
+        }
         if (en.m_show_points) {
             unsigned int idx = EntitySTEP::s_imported_point_offset;
             for (auto &pt : en.m_imported->result.points) {

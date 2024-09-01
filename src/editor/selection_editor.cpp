@@ -302,6 +302,8 @@ public:
         auto items = Gtk::StringList::create();
         items->append("Solid");
         items->append("Hidden");
+        items->append("Wireframe");
+        items->append("Solid and wireframe");
 
         m_display_combo = Gtk::make_managed<Gtk::DropDown>(items);
         m_display_combo->set_hexpand(true);

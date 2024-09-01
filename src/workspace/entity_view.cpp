@@ -44,11 +44,13 @@ std::unique_ptr<EntityView> EntityViewSTEP::clone() const
     return std::make_unique<EntityViewSTEP>(*this);
 }
 
-NLOHMANN_JSON_SERIALIZE_ENUM(EntityViewSTEP::Display, {
-                                                              {EntityViewSTEP::Display::OFF, "off"},
-                                                              {EntityViewSTEP::Display::SOLID, "solid"},
-                                                              {EntityViewSTEP::Display::WIREFRAME, "wireframe"},
-                                                      })
+NLOHMANN_JSON_SERIALIZE_ENUM(EntityViewSTEP::Display,
+                             {
+                                     {EntityViewSTEP::Display::OFF, "off"},
+                                     {EntityViewSTEP::Display::SOLID, "solid"},
+                                     {EntityViewSTEP::Display::WIREFRAME, "wireframe"},
+                                     {EntityViewSTEP::Display::SOLID_WIREFRAME, "solid_wireframe"},
+                             })
 
 EntityViewSTEP::EntityViewSTEP() = default;
 EntityViewSTEP::EntityViewSTEP(const json &j) : m_display(j.at("display").get<Display>())

@@ -41,6 +41,7 @@
 #include <TDF_LabelSequence.hxx>
 #include <Poly.hxx>
 #include <gp_Circ.hxx>
+#include <GCPnts_TangentialDeflection.hxx>
 
 #define USER_PREC (0.14)
 #define USER_ANGLE (0.52359878)
@@ -51,6 +52,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/transform.hpp>
 #include <map>
+#include <list>
 
 #include "util/fs_util.hpp"
 
@@ -453,9 +455,40 @@ Result STEPImporter::get_faces_and_points()
     while (id <= nshapes) {
         TopoDS_Shape shape = m_assy->GetShape(frshapes.Value(id));
         if (!shape.IsNull() && processNode(shape)) {
+            TopExp_Explorer topex(shape, TopAbs_EDGE);
+            std::list<TopoDS_Shape> edges;
+            while (topex.More()) {
+                auto edge = TopoDS::Edge(topex.Current());
+                bool skip = false;
+                for (const auto &other : edges) {
+                    if (other.IsSame(topex.Current())) {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (skip) {
+                    topex.Next();
+                    continue;
+                }
+                edges.push_back(edge);
+                {
+                    auto curve = BRepAdaptor_Curve(edge);
+                    GCPnts_TangentialDeflection discretizer(curve, M_PI / 16, 1e3);
+                    auto &e = res.edges.emplace_back();
+                    if (discretizer.NbPoints() > 0) {
+                        int nbPoints = discretizer.NbPoints();
+                        for (int i = 1; i <= nbPoints; i++) {
+                            const gp_Pnt pnt = discretizer.Value(i);
+                            e.emplace_back(pnt.X(), pnt.Y(), pnt.Z());
+                        }
+                    }
+                }
+                topex.Next();
+            }
         }
         ++id;
     }
+
     result = nullptr;
     return res;
 }
