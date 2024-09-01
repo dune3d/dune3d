@@ -14,7 +14,7 @@ using Point = TVertex<double>;
 class Result {
 public:
     Faces faces;
-    std::deque<Point> points;
+    std::vector<Point> points;
 };
 
 Result import(const std::filesystem::path &filename);
