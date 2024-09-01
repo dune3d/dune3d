@@ -40,6 +40,7 @@ public:
     bool m_show_points = false;
 
     std::shared_ptr<const ImportedSTEP> m_imported;
+    bool m_include_in_solid_model = false;
 
     void update_imported(const std::filesystem::path &containing_dir);
 

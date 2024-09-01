@@ -10,6 +10,7 @@ class STEPImportManager {
 public:
     static STEPImportManager &get();
     std::shared_ptr<ImportedSTEP> import_step(const std::filesystem::path &path);
+    void load_shapes(const ImportedSTEP &imported);
 
 private:
     STEPImportManager();

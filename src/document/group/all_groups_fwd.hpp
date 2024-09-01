@@ -2,6 +2,7 @@
 
 namespace dune3d {
 class Group;
+class GroupSketch;
 class GroupExtrude;
 class GroupLathe;
 class GroupRevolve;

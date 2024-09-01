@@ -55,6 +55,7 @@
 #include <list>
 
 #include "util/fs_util.hpp"
+#include "shapes.hpp"
 
 namespace dune3d::STEPImporter {
 
@@ -519,5 +520,18 @@ Result import(const std::filesystem::path &filename)
         return {};
     return importer.get_faces_and_points();
 }
+
+std::shared_ptr<const Shapes> import_shapes(const std::filesystem::path &filename)
+{
+    STEPImporter importer(filename);
+    if (!importer.is_loaded())
+        return {};
+    auto shapes = std ::make_shared<Shapes>();
+    shapes->shapes = importer.get_shapes();
+    return shapes;
+}
+
+Result::~Result() = default;
+
 
 } // namespace dune3d::STEPImporter

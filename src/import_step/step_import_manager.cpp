@@ -147,7 +147,6 @@ std::shared_ptr<ImportedSTEP> STEPImportManager::import_step(const std::filesyst
 
     if (!cache_ok) {
         imported->result = STEPImporter::import(path.generic_string());
-
         json j = imported->result;
         auto bs = json::to_ubjson(j);
         Glib::file_set_contents(cache_path.string(), reinterpret_cast<const gchar *>(bs.data()), bs.size());
@@ -158,5 +157,23 @@ std::shared_ptr<ImportedSTEP> STEPImportManager::import_step(const std::filesyst
     return imported;
 }
 
+void STEPImportManager::load_shapes(const ImportedSTEP &imported)
+{
+    auto &it = m_imported.at(imported.path);
+    if (it.get() != &imported)
+        return;
+
+    it->result.shapes = STEPImporter::import_shapes(imported.path);
+}
+
+const STEPImporter::Shapes *ImportedSTEP::get_shapes() const
+{
+    if (result.shapes)
+        return result.shapes.get();
+
+    auto &mgr = STEPImportManager::get();
+    mgr.load_shapes(*this);
+    return result.shapes.get();
+}
 
 } // namespace dune3d

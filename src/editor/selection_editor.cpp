@@ -198,6 +198,17 @@ public:
 
         int top = 0;
         grid_attach_label_and_widget(*this, "Path", *box, top);
+
+        auto include_in_solid_model_switch = Gtk::make_managed<Gtk::CheckButton>("In solid model");
+        include_in_solid_model_switch->set_halign(Gtk::Align::START);
+        include_in_solid_model_switch->set_active(step.m_include_in_solid_model);
+        include_in_solid_model_switch->property_active().signal_changed().connect(
+                [this, include_in_solid_model_switch] {
+                    m_step.m_include_in_solid_model = include_in_solid_model_switch->get_active();
+                    m_signal_changed.emit(CommitMode::IMMEDIATE);
+                });
+
+        attach(*include_in_solid_model_switch, 1, top++);
     }
 
 private:
@@ -521,7 +532,11 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
             auto ed = Gtk::make_managed<STEPEditor>(m_core.get_current_document_directory(),
                                                     m_core.get_current_document().get_entity<EntitySTEP>(step->entity));
             m_editor = ed;
-            ed->signal_changed().connect([this](auto mode) { m_signal_changed.emit(mode); });
+            auto group = m_core.get_current_document().get_entity(step->entity).m_group;
+            ed->signal_changed().connect([this, group](auto mode) {
+                m_core.get_current_document().set_group_update_solid_model_pending(group);
+                m_signal_changed.emit(mode);
+            });
 
             auto ved =
                     Gtk::make_managed<EntityViewEditorSTEP>(m_doc_view_prv.get_current_document_view(), step->entity);

@@ -51,7 +51,7 @@ json Document::serialize() const
     return j;
 }
 
-static const unsigned int app_version = 21;
+static const unsigned int app_version = 22;
 
 unsigned int Document::get_app_version()
 {

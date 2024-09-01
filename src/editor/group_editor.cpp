@@ -84,6 +84,14 @@ private:
     }
 };
 
+class GroupEditorSketch : public GroupEditorSolidModel {
+public:
+    GroupEditorSketch(Core &core, const UUID &group_uu) : GroupEditorSolidModel(core, group_uu)
+    {
+        add_operation_combo();
+    }
+};
+
 class GroupEditorExtrude : public GroupEditorSweep {
 public:
     GroupEditorExtrude(Core &core, const UUID &group_uu) : GroupEditorSweep(core, group_uu)
@@ -552,6 +560,8 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
 {
     auto &group = core.get_current_document().get_group(group_uu);
     switch (group.get_type()) {
+    case Group::Type::SKETCH:
+        return Gtk::make_managed<GroupEditorSketch>(core, group_uu);
     case Group::Type::EXTRUDE:
         return Gtk::make_managed<GroupEditorExtrude>(core, group_uu);
     case Group::Type::LATHE:

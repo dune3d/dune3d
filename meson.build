@@ -127,6 +127,7 @@ src = files(
   'src/document/solid_model_extrude.cpp',
   'src/document/solid_model_util.cpp',
   'src/document/solid_model_loft.cpp',
+  'src/document/solid_model_sketch.cpp',
   'src/document/group/group.cpp',
   'src/document/group/group_sketch.cpp',
   'src/document/group/group_reference.cpp',
