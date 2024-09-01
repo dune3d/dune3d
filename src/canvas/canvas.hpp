@@ -10,7 +10,6 @@
 #include "selection_texture_renderer.hpp"
 #include "icanvas.hpp"
 #include "selection_mode.hpp"
-#include "color.hpp"
 #include "bitmask_operators.hpp"
 #include "selectable_ref.hpp"
 #include "face.hpp"

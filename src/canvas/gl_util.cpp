@@ -1,5 +1,5 @@
 #include "gl_util.hpp"
-#include "color.hpp"
+#include "util/color.hpp"
 #include <giomm/resource.h>
 #include <iostream>
 #include <glm/mat3x3.hpp>

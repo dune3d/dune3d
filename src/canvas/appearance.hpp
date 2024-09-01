@@ -1,5 +1,5 @@
 #pragma once
-#include "color.hpp"
+#include "util/color.hpp"
 #include <map>
 
 namespace dune3d {

@@ -1,5 +1,5 @@
 #include "axes_lollipop.hpp"
-#include "color.hpp"
+#include "util/color.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 
 namespace dune3d {

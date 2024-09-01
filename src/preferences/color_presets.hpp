@@ -2,7 +2,7 @@
 #include <map>
 #include <string>
 #include "canvas/color_palette.hpp"
-#include "color.hpp"
+#include "util/color.hpp"
 
 namespace dune3d {
 
