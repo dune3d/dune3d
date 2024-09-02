@@ -64,18 +64,10 @@ static std::shared_ptr<const SolidModel> create_circular_sweep(const Document &d
         return nullptr;
     }
 
-    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(SolidModel::get_last_solid_model(doc, group));
-    mod->update_acc(group.m_operation, last_solid_model);
-
-    if (mod->m_shape_acc.IsNull()) {
+    if (!mod->update_acc_finish(doc, group)) {
         group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "didn't generate a shape");
         return nullptr;
     }
-
-    mod->find_edges();
-
-    mod->triangulate();
-
     return mod;
 }
 

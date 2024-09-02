@@ -78,8 +78,8 @@ std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, Gr
         return nullptr;
     }
 
-    mod->find_edges();
-    mod->triangulate();
+    mod->finish(doc, group);
+
     return mod;
 }
 

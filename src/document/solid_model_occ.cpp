@@ -1,6 +1,8 @@
 #include "solid_model_occ.hpp"
 #include "preferences/preferences.hpp"
 #include "canvas/color_palette.hpp"
+#include "group/group.hpp"
+#include "group/igroup_solid_model.hpp"
 #include "util/fs_util.hpp"
 
 #include <Quantity_Color.hxx>
@@ -615,6 +617,28 @@ void SolidModelOcc::update_acc(IGroupSolidModel::Operation op, const SolidModelO
         update_acc(op, last->m_shape_acc);
     else
         m_shape_acc = m_shape;
+}
+
+
+bool SolidModelOcc::update_acc_finish(const Document &doc, const Group &group)
+{
+    auto operation = dynamic_cast<const IGroupSolidModel &>(group).get_operation();
+    const auto last_solid_model = dynamic_cast<const SolidModelOcc *>(get_last_solid_model(doc, group));
+    update_acc(operation, last_solid_model);
+
+    if (m_shape_acc.IsNull()) {
+        return false;
+    }
+
+    finish(doc, group);
+
+    return true;
+}
+
+void SolidModelOcc::finish(const Document &doc, const Group &group)
+{
+    triangulate();
+    find_edges();
 }
 
 } // namespace dune3d
