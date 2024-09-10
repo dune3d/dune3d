@@ -8,6 +8,7 @@
 #include "canvas/canvas.hpp"
 #include "workspace_browser.hpp"
 #include "util/template_util.hpp"
+#include "util/gtk_util.hpp"
 #include "core/tool_id.hpp"
 #include "nlohmann/json.hpp"
 #include "action/action_id.hpp"
@@ -37,6 +38,11 @@ void Editor::init_workspace_browser()
             sigc::mem_fun(*this, &Editor::on_workspace_browser_body_solid_model_checked));
     m_workspace_browser->signale_active_link().connect(
             sigc::mem_fun(*this, &Editor::on_workspace_browser_activate_link));
+    m_workspace_browser->signal_rename_body().connect(sigc::mem_fun(*this, &Editor::on_workspace_browser_rename_body));
+    m_workspace_browser->signal_reset_body_color().connect(
+            sigc::mem_fun(*this, &Editor::on_workspace_browser_reset_body_color));
+    m_workspace_browser->signal_set_body_color().connect(
+            sigc::mem_fun(*this, &Editor::on_workspace_browser_set_body_color));
 
     m_workspace_browser->set_sensitive(m_core.has_documents());
 
@@ -303,4 +309,62 @@ void Editor::on_workspace_browser_activate_link(const std::string &link)
             trigger_action(ActionID::UNDO);
     }
 }
+
+void Editor::on_workspace_browser_rename_body(const UUID &uu_doc, const UUID &uu_group)
+{
+    auto &doc = m_core.get_idocument_info(uu_doc).get_document();
+    auto &body = doc.get_group(uu_group).m_body.value();
+
+    auto win = new RenameWindow("Rename body");
+    win->set_text(body.m_name);
+    win->set_transient_for(m_win);
+    win->set_modal(true);
+    win->present();
+    win->signal_changed().connect([this, win, &body, &doc, &uu_group] {
+        auto txt = win->get_text();
+        body.m_name = txt;
+
+        doc.set_group_update_solid_model_pending(uu_group);
+        m_core.rebuild("rename body");
+        canvas_update_keep_selection();
+    });
+}
+
+void Editor::on_workspace_browser_set_body_color(const UUID &uu_doc, const UUID &uu_group)
+{
+
+    auto dia = Gtk::ColorDialog::create();
+    dia->set_with_alpha(false);
+    Color initial{.5, .5, .5};
+    auto &doc = m_core.get_idocument_info(uu_doc).get_document();
+    auto &body = doc.get_group(uu_group).m_body.value();
+
+    if (body.m_color)
+        initial = body.m_color.value();
+
+    dia->choose_rgba(m_win, rgba_from_color(initial),
+                     [this, dia, &body, &doc, &uu_group](Glib::RefPtr<Gio::AsyncResult> &result) {
+                         try {
+                             auto rgba = dia->choose_rgba_finish(result);
+                             body.m_color = color_from_rgba(rgba);
+
+                             doc.set_group_update_solid_model_pending(uu_group);
+                             m_core.rebuild("set body color");
+                             canvas_update_keep_selection();
+                         }
+                         catch (const Gtk::DialogError &err) {
+                             // Can be thrown by dialog->open_finish(result).
+                         }
+                     });
+}
+
+void Editor::on_workspace_browser_reset_body_color(const UUID &uu_doc, const UUID &uu_group)
+{
+    auto &doc = m_core.get_idocument_info(uu_doc).get_document();
+    doc.get_group(uu_group).m_body.value().m_color.reset();
+    doc.set_group_update_solid_model_pending(uu_group);
+    m_core.rebuild("reset body color");
+    canvas_update_keep_selection();
+}
+
 } // namespace dune3d

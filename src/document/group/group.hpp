@@ -1,6 +1,7 @@
 #pragma once
 #include "util/uuid.hpp"
 #include "util/badge.hpp"
+#include "util/color.hpp"
 #include "nlohmann/json_fwd.hpp"
 #include "system/solve_result.hpp"
 #include <memory>
@@ -19,6 +20,7 @@ public:
     Body();
 
     std::string m_name = "Body";
+    std::optional<Color> m_color;
 
     json serialize() const;
 };

@@ -639,6 +639,14 @@ void SolidModelOcc::finish(const Document &doc, const Group &group)
 {
     triangulate();
     find_edges();
+
+    auto body = group.find_body(doc).body;
+    if (body.m_color) {
+        auto &c = *body.m_color;
+        for (auto &face : m_faces) {
+            face.color = {c.r, c.g, c.b};
+        }
+    }
 }
 
 } // namespace dune3d

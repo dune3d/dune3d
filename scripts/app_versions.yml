@@ -22,3 +22,4 @@ versions:
     20: add point on bezier constraint
     21: add text entities
     22: add option to use STEP entities in solid model
+    23: add body colors

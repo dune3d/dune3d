@@ -125,8 +125,9 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
         if (last_solid_model) {
             const auto is_current = std::ranges::any_of(
                     body_groups.groups, [current_group](auto group) { return group->m_uuid == current_group; });
-            const auto color =
-                    is_current ? ICanvas::FaceColor::SOLID_MODEL : ICanvas::FaceColor::OTHER_BODY_SOLID_MODEL;
+            auto color = is_current ? ICanvas::FaceColor::SOLID_MODEL : ICanvas::FaceColor::OTHER_BODY_SOLID_MODEL;
+            if (body_groups.body.m_color.has_value())
+                color = ICanvas::FaceColor::AS_IS;
             const auto vref = m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0},
                                                   glm::quat_identity<float, glm::defaultp>(), color);
             if (sr)

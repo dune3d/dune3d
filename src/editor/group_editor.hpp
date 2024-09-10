@@ -33,6 +33,8 @@ private:
     Gtk::Entry *m_wrkpl_label = nullptr;
 
     Gtk::CheckButton *m_body_cb = nullptr;
+    Gtk::CheckButton *m_body_color_cb = nullptr;
+    Gtk::ColorDialogButton *m_body_color_button = nullptr;
     Gtk::Entry *m_body_entry = nullptr;
 
     bool m_reloading = false;
