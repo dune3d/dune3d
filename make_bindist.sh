@@ -55,6 +55,7 @@ LIBS=(
 	libgdk_pixbuf-2.0-0.dll\
 	libgraphene-1.0-0.dll\
 	libharfbuzz-0.dll\
+	libharfbuzz-subset-0.dll\
 	libthai-0.dll\
 	libfribidi-0.dll\
 	libpangocairo-1.0-0.dll\
