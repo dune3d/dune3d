@@ -260,7 +260,7 @@ void CanvasPreferences::load_from_json(const json &j)
 {
     appearance.msaa = std::max(j.value("msaa", 0), 1);
     appearance.line_width = j.value("line_width", 2.5);
-    appearance.selection_glow = j.value("selection_glow", true);
+    appearance.selection_glow = j.value("selection_glow", false);
     enable_animations = j.value("enable_animations", true);
     theme = j.value("theme", "Default");
     if (j.contains("theme_variant"))
