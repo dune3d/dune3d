@@ -82,5 +82,48 @@ void header_func_separator(Gtk::ListBoxRow *row, Gtk::ListBoxRow *before)
     }
 }
 
+RenameWindow::RenameWindow(const std::string &caption)
+{
+    auto hb = Gtk::make_managed<Gtk::HeaderBar>();
+    hb->set_show_title_buttons(false);
+    set_title(caption);
+    set_titlebar(*hb);
+    auto sg = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::HORIZONTAL);
+    {
+        auto cancel_button = Gtk::make_managed<Gtk::Button>("Cancel");
+        cancel_button->signal_clicked().connect([this] { close(); });
+        hb->pack_start(*cancel_button);
+        sg->add_widget(*cancel_button);
+    }
+    {
+        auto ok_button = Gtk::make_managed<Gtk::Button>("OK");
+        ok_button->add_css_class("suggested-action");
+        ok_button->signal_clicked().connect([this] { ok(); });
+        hb->pack_end(*ok_button);
+        sg->add_widget(*ok_button);
+    }
+
+    m_entry = Gtk::make_managed<Gtk::Entry>();
+    m_entry->set_margin(10);
+    m_entry->signal_activate().connect([this] { ok(); });
+    set_child(*m_entry);
+}
+
+std::string RenameWindow::get_text() const
+{
+    return m_entry->get_text();
+}
+
+void RenameWindow::set_text(const std::string &text)
+{
+    m_entry->set_text(text);
+}
+
+void RenameWindow::ok()
+{
+    m_signal_changed.emit();
+    close();
+}
+
 
 } // namespace dune3d

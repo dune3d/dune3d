@@ -5,6 +5,7 @@
 #include "nlohmann/json.hpp"
 #include "util/fs_util.hpp"
 #include "util/util.hpp"
+#include "util/gtk_util.hpp"
 #include <format>
 
 namespace dune3d {
@@ -94,61 +95,12 @@ void Editor::update_can_close_workspace_view_pages()
     }
 }
 
-class RenameWindow : public Gtk::Window, public Changeable {
-public:
-    RenameWindow()
-    {
-        auto hb = Gtk::make_managed<Gtk::HeaderBar>();
-        hb->set_show_title_buttons(false);
-        set_title("Rename workspace view");
-        set_titlebar(*hb);
-        auto sg = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::HORIZONTAL);
-        {
-            auto cancel_button = Gtk::make_managed<Gtk::Button>("Cancel");
-            cancel_button->signal_clicked().connect([this] { close(); });
-            hb->pack_start(*cancel_button);
-            sg->add_widget(*cancel_button);
-        }
-        {
-            auto ok_button = Gtk::make_managed<Gtk::Button>("OK");
-            ok_button->add_css_class("suggested-action");
-            ok_button->signal_clicked().connect([this] { ok(); });
-            hb->pack_end(*ok_button);
-            sg->add_widget(*ok_button);
-        }
-
-        m_entry = Gtk::make_managed<Gtk::Entry>();
-        m_entry->set_margin(10);
-        m_entry->signal_activate().connect([this] { ok(); });
-        set_child(*m_entry);
-    }
-
-    std::string get_text() const
-    {
-        return m_entry->get_text();
-    }
-
-    void set_text(const std::string &text)
-    {
-        m_entry->set_text(text);
-    }
-
-private:
-    Gtk::Entry *m_entry = nullptr;
-
-    void ok()
-    {
-        m_signal_changed.emit();
-        close();
-    }
-};
-
 void Editor::rename_workspace_view(const UUID &uu)
 {
     if (!m_workspace_views.contains(uu))
         return;
 
-    auto win = new RenameWindow();
+    auto win = new RenameWindow("Rename workspace view");
     win->set_text(m_workspace_views.at(uu).m_name);
     win->set_transient_for(m_win);
     win->set_modal(true);

@@ -1,5 +1,6 @@
 #pragma once
 #include <gtkmm.h>
+#include "util/changeable.hpp"
 
 namespace dune3d {
 void install_esc_to_close(Gtk::Window &win);
@@ -25,5 +26,19 @@ void bind_widget(std::map<T, Gtk::ToggleButton *> &widgets, T &v, std::function<
     }
 }
 
+
+class RenameWindow : public Gtk::Window, public Changeable {
+public:
+    RenameWindow(const std::string &caption);
+
+    std::string get_text() const;
+
+    void set_text(const std::string &text);
+
+private:
+    Gtk::Entry *m_entry = nullptr;
+
+    void ok();
+};
 
 } // namespace dune3d
