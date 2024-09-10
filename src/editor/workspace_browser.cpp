@@ -499,12 +499,13 @@ public:
         controller->signal_pressed().connect([this](int n_press, double x, double y) {
             if (!m_body)
                 return;
-            auto pt = compute_point(m_browser, Gdk::Graphene::Point(x, y));
-            if (!pt)
+            const graphene_point_t pt_in{(float)x, (float)y};
+            graphene_point_t pt_out;
+            if (!gtk_widget_compute_point(GTK_WIDGET(gobj()), GTK_WIDGET(m_browser.gobj()), &pt_in, &pt_out))
                 return;
             Gdk::Rectangle rect;
-            rect.set_x(pt->get_x());
-            rect.set_y(pt->get_y());
+            rect.set_x(pt_out.x);
+            rect.set_y(pt_out.y);
             m_browser.m_body_menu_document = m_body->m_doc;
             m_browser.m_body_menu_body = m_body->m_uuid;
             m_browser.m_reset_body_color_action->set_enabled(m_body->m_has_color);
