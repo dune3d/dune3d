@@ -25,6 +25,21 @@ public:
         return m_signal_group_selected;
     }
 
+    type_signal_group_selected signal_rename_body()
+    {
+        return m_signal_rename_body;
+    }
+
+    type_signal_group_selected signal_set_body_color()
+    {
+        return m_signal_set_body_color;
+    }
+
+    type_signal_group_selected signal_reset_body_color()
+    {
+        return m_signal_reset_body_color;
+    }
+
     using type_signal_group_checked = sigc::signal<void(UUID, UUID, bool)>;
     using type_signal_document_checked = sigc::signal<void(UUID, bool)>;
     type_signal_group_checked signal_group_checked()
@@ -118,11 +133,21 @@ private:
     type_signal_close_document m_signal_close_document;
     type_signal_activate_link m_signal_activate_link;
 
+    type_signal_group_selected m_signal_rename_body;
+    type_signal_group_selected m_signal_set_body_color;
+    type_signal_group_selected m_signal_reset_body_color;
+
     void block_signals();
     void unblock_signals();
 
     static void update_name(DocumentItem &it, IDocumentInfo &doci);
 
     sigc::connection m_toast_connection;
+
+    Gtk::PopoverMenu *m_body_popover = nullptr;
+    Glib::RefPtr<Gio::Menu> m_body_menu = nullptr;
+    UUID m_body_menu_document;
+    UUID m_body_menu_body;
+    Glib::RefPtr<Gio::SimpleAction> m_reset_body_color_action;
 };
 } // namespace dune3d

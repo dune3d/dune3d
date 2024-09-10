@@ -29,6 +29,11 @@ static void from_json(const json &j, std::optional<Body> &b)
 
 Body::Body(const json &j) : m_name(j.at("name").get<std::string>())
 {
+    if (j.contains("color")) {
+        const auto &jc = j.at("color");
+        if (jc != nullptr)
+            m_color = jc;
+    }
 }
 
 Body::Body()
@@ -37,7 +42,12 @@ Body::Body()
 
 json Body::serialize() const
 {
-    return json{{"name", m_name}};
+    auto j = json{{"name", m_name}};
+    if (m_color)
+        j["color"] = Color{*m_color};
+    else
+        j["color"] = nullptr;
+    return j;
 }
 
 Group::Group(const UUID &uu) : m_uuid(uu)

@@ -68,6 +68,9 @@ public:
     Glib::Property<bool> m_check_active;
     Glib::Property<bool> m_check_sensitive;
     Glib::Property<bool> m_solid_model_active;
+    Glib::Property<bool> m_has_color;
+    Glib::Property<Gdk::RGBA> m_color;
+
     Glib::RefPtr<Gio::ListStore<GroupItem>> m_group_store;
 
     // No idea why the ObjectBase::get_type won't work for us but
@@ -84,7 +87,8 @@ public:
 private:
     BodyItem()
         : Glib::ObjectBase("BodyItem"), m_name(*this, "name"), m_check_active(*this, "check_active", false),
-          m_check_sensitive(*this, "check_sensitive", true), m_solid_model_active(*this, "m_solid_model_active", true)
+          m_check_sensitive(*this, "check_sensitive", true), m_solid_model_active(*this, "m_solid_model_active", true),
+          m_has_color(*this, "has_color", false), m_color(*this, "color")
     {
         m_group_store = Gio::ListStore<GroupItem>::create();
     }
@@ -134,6 +138,14 @@ private:
     static GType gtype;
 };
 
+static Gdk::RGBA rgba_from_color(const Color &c)
+{
+    Gdk::RGBA r;
+    r.set_rgba(c.r, c.g, c.b);
+    return r;
+}
+
+
 GType WorkspaceBrowser::DocumentItem::gtype;
 
 void WorkspaceBrowser::update_documents(const std::map<UUID, DocumentView> &doc_views)
@@ -151,6 +163,9 @@ void WorkspaceBrowser::update_documents(const std::map<UUID, DocumentView> &doc_
             if (gr->m_body.has_value()) {
                 body_item = BodyItem::create();
                 body_item->m_name = gr->m_body->m_name;
+                body_item->m_has_color = gr->m_body->m_color.has_value();
+                if (gr->m_body->m_color.has_value())
+                    body_item->m_color = rgba_from_color(gr->m_body->m_color.value());
                 body_item->m_uuid = gr->m_uuid;
                 body_item->m_doc = mi->m_uuid;
                 mi->m_body_store->append(body_item);
@@ -252,6 +267,7 @@ void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &
 
             it_body.m_solid_model_active = doc_view.body_solid_model_is_visible(it_body.m_uuid);
 
+
             for (size_t i_group = 0; i_group < it_body.m_group_store->get_n_items(); i_group++) {
                 auto &it_group = *it_body.m_group_store->get_item(i_group);
                 bool is_current = doci.get_current_group() == it_group.m_uuid;
@@ -330,20 +346,68 @@ public:
     {
         add_css_class("solid-model-toggle-button");
         set_has_frame(false);
-        update_icon();
         signal_toggled().connect(sigc::mem_fun(*this, &SolidModelToggleButton::update_icon));
+        m_area = Gtk::make_managed<Gtk::DrawingArea>();
+        m_area->set_content_height(16);
+        m_area->set_content_width(16);
+        m_area->set_valign(Gtk::Align::CENTER);
+        m_area->set_draw_func(sigc::mem_fun(*this, &SolidModelToggleButton::render_icon));
+        set_child(*m_area);
+        update_icon();
+    }
+
+    void set_body_color(const std::optional<Gdk::RGBA> &color)
+    {
+        m_body_color = color;
+        m_area->queue_draw();
     }
 
 private:
     void update_icon()
     {
-        if (get_active()) {
-            set_image_from_icon_name("view-show-solid-model-symbolic");
+        m_area->queue_draw();
+    }
+
+    void render_icon(const Cairo::RefPtr<Cairo::Context> &cr, int w, int h)
+    {
+        static const std::vector<glm::vec2> points = {
+                {.5, 4.}, {.5, 14.}, {10.5, 15.5}, {15.5, 11.}, {15.5, 1.5}, {6.5, .5},
+        };
+        static const glm::vec2 center = {10.5, 5.5};
+        cr->set_line_width(1);
+        cr->set_line_cap(Cairo::Context::LineCap::ROUND);
+        cr->set_line_join(Cairo::Context::LineJoin::ROUND);
+        const auto line_color = get_color();
+
+        for (const auto &pt : points) {
+            cr->line_to(pt.x, pt.y);
         }
-        else {
-            set_image_from_icon_name("view-hide-solid-model-symbolic");
+        cr->close_path();
+
+        if (get_active()) {
+            auto solid_color = line_color;
+            solid_color.set_alpha(.3);
+            if (m_body_color.has_value()) {
+                solid_color = *m_body_color;
+            }
+            Gdk::Cairo::set_source_rgba(cr, solid_color);
+            cr->fill_preserve();
+        }
+
+        Gdk::Cairo::set_source_rgba(cr, line_color);
+
+        cr->stroke();
+
+        for (size_t i = 0; i < points.size(); i += 2) {
+            cr->move_to(center.x, center.y);
+            const auto &pt = points.at(i);
+            cr->line_to(pt.x, pt.y);
+            cr->stroke();
         }
     }
+
+    Gtk::DrawingArea *m_area = nullptr;
+    std::optional<Gdk::RGBA> m_body_color;
 };
 
 class WorkspaceBrowser::WorkspaceRow : public Gtk::TreeExpander {
@@ -429,6 +493,25 @@ public:
         box->append(*m_dof_label);
 
         set_child(*box);
+
+        auto controller = Gtk::GestureClick::create();
+        controller->set_button(3);
+        controller->signal_pressed().connect([this](int n_press, double x, double y) {
+            if (!m_body)
+                return;
+            auto pt = compute_point(m_browser, Gdk::Graphene::Point(x, y));
+            if (!pt)
+                return;
+            Gdk::Rectangle rect;
+            rect.set_x(pt->get_x());
+            rect.set_y(pt->get_y());
+            m_browser.m_body_menu_document = m_body->m_doc;
+            m_browser.m_body_menu_body = m_body->m_uuid;
+            m_browser.m_reset_body_color_action->set_enabled(m_body->m_has_color);
+            m_browser.m_body_popover->set_pointing_to(rect);
+            m_browser.m_body_popover->popup();
+        });
+        add_controller(controller);
     }
 
     void bind(DocumentItem &it)
@@ -485,6 +568,17 @@ public:
         m_bindings.push_back(Glib::Binding::bind_property_value(it.m_solid_model_active.get_proxy(),
                                                                 m_solid_toggle->property_active(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
+        const bool has_color = it.m_has_color.get_value();
+        if (has_color)
+            m_solid_toggle->set_body_color(it.m_color.get_value());
+        else
+            m_solid_toggle->set_body_color({});
+
+        m_connections.push_back(
+                it.m_color.get_proxy().signal_changed().connect([this, &it] { update_solid_color(it); }));
+        m_connections.push_back(
+                it.m_has_color.get_proxy().signal_changed().connect([this, &it] { update_solid_color(it); }));
+
         m_browser.unblock_signals();
     }
     void bind(GroupItem &it)
@@ -544,13 +638,14 @@ private:
     const BodyItem *m_body = nullptr;
 
     Gtk::CheckButton *m_checkbutton = nullptr;
-    Gtk::ToggleButton *m_solid_toggle = nullptr;
+    SolidModelToggleButton *m_solid_toggle = nullptr;
     Gtk::Label *m_label = nullptr;
     Gtk::Image *m_source_group_image = nullptr;
     Gtk::Label *m_dof_label = nullptr;
     Gtk::MenuButton *m_status_button = nullptr;
     Gtk::Label *m_status_label = nullptr;
     Gtk::Button *m_close_button = nullptr;
+
     std::vector<Glib::RefPtr<Glib::Binding>> m_bindings;
     std::vector<sigc::connection> m_connections;
 
@@ -578,6 +673,15 @@ private:
         using S = GroupStatusMessage::Status;
         m_status_button->set_visible(st != S::NONE);
         m_status_button->set_icon_name(icon_name_from_status(st));
+    }
+
+    void update_solid_color(const BodyItem &it)
+    {
+        const bool has_color = it.m_has_color.get_value();
+        if (has_color)
+            m_solid_toggle->set_body_color(it.m_color.get_value());
+        else
+            m_solid_toggle->set_body_color({});
     }
 };
 
@@ -781,6 +885,23 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
         }
         append(*box);
     }
+
+    m_body_menu = Gio::Menu::create();
+    auto actions = Gio::SimpleActionGroup::create();
+    m_reset_body_color_action = actions->add_action(
+            "reset_color", [this] { signal_reset_body_color().emit(m_body_menu_document, m_body_menu_body); });
+    actions->add_action("rename", [this] { signal_rename_body().emit(m_body_menu_document, m_body_menu_body); });
+    actions->add_action("set_color", [this] { signal_set_body_color().emit(m_body_menu_document, m_body_menu_body); });
+    insert_action_group("body", actions);
+    m_body_menu->append("Set color", "body.set_color");
+    m_body_menu->append("Reset color", "body.reset_color");
+    m_body_menu->append("Rename", "body.rename");
+
+
+    m_body_popover = Gtk::make_managed<Gtk::PopoverMenu>();
+    m_body_popover->set_menu_model(m_body_menu);
+
+    m_body_popover->set_parent(*this);
 }
 
 Glib::RefPtr<Gio::ListModel> WorkspaceBrowser::create_model(const Glib::RefPtr<Glib::ObjectBase> &item)
