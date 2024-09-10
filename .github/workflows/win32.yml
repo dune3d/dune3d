@@ -52,7 +52,7 @@ jobs:
     - name: set artifact name
       shell: msys2 {0}
       run: echo "artifact_name=dune3d-win64-$(date +%Y-%m-%d-%H%M)-$(echo ${{ github.ref_name }} | tr / -)" >> $GITHUB_ENV
-    - uses: actions/upload-artifact@v2-preview
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{ env.artifact_name }}
         path: dist/*.zip
@@ -62,7 +62,7 @@ jobs:
         $env:PATH += ";$($Env:WIX)\bin"
         cd wix
         .\install.bat
-    - uses: actions/upload-artifact@v2-preview
+    - uses: actions/upload-artifact@v4
       if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/win32-installer'
       with:
         name: dune3d-win64-installer
