@@ -40,7 +40,8 @@ std::set<Entity *> ToolToggleConstruction::get_entities()
     for (auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {
             auto &en = get_entity(sr.item);
-            entities.insert(&en);
+            if (en.m_kind == ItemKind::USER)
+                entities.insert(&en);
         }
     }
     return entities;
