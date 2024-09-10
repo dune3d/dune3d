@@ -125,5 +125,17 @@ void RenameWindow::ok()
     close();
 }
 
+Gdk::RGBA rgba_from_color(const Color &c)
+{
+    Gdk::RGBA r;
+    r.set_rgba(c.r, c.g, c.b);
+    return r;
+}
+
+Color color_from_rgba(const Gdk::RGBA &r)
+{
+    return {r.get_red(), r.get_green(), r.get_blue()};
+}
+
 
 } // namespace dune3d

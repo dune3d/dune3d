@@ -52,12 +52,6 @@ ColorEditorPalette::ColorEditorPalette(Appearance &a, Preferences &p, ColorP c)
 {
     auto la = Gtk::make_managed<Gtk::Label>(color_names.at(m_color));
     la->set_xalign(0);
-    Gdk::RGBA rgba;
-    auto co = get_color();
-    rgba.set_red(co.r);
-    rgba.set_green(co.g);
-    rgba.set_blue(co.b);
-    rgba.set_alpha(1);
     m_colorbox = Gtk::manage(new Gtk::DrawingArea);
     m_colorbox->set_content_height(20);
     m_colorbox->set_content_width(20);
@@ -208,10 +202,7 @@ CanvasPreferencesEditor::CanvasPreferencesEditor(BaseObjectType *cobject, const 
         auto it = dynamic_cast<ColorEditorPalette *>(sel.front()->get_child());
         Color c;
         auto rgba = m_color_chooser->get_rgba();
-        c.r = rgba.get_red();
-        c.g = rgba.get_green();
-        c.b = rgba.get_blue();
-        it->set_color(c);
+        it->set_color(color_from_rgba(rgba));
     });
 
     m_colors_box->signal_selected_children_changed().connect(
@@ -247,8 +238,7 @@ void CanvasPreferencesEditor::update_color_chooser()
     m_color_chooser_conn.block();
     Gdk::RGBA rgba;
     m_color_chooser->set_rgba(rgba); // fixes things...
-    auto c = it->get_color();
-    rgba.set_rgba(c.r, c.g, c.b, 1);
+    rgba = rgba_from_color(it->get_color());
     m_color_chooser->set_rgba(rgba);
     m_color_chooser_conn.unblock();
 }

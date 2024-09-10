@@ -1,6 +1,7 @@
 #pragma once
 #include <gtkmm.h>
 #include "util/changeable.hpp"
+#include "color.hpp"
 
 namespace dune3d {
 void install_esc_to_close(Gtk::Window &win);
@@ -40,5 +41,8 @@ private:
 
     void ok();
 };
+
+Gdk::RGBA rgba_from_color(const Color &c);
+Color color_from_rgba(const Gdk::RGBA &r);
 
 } // namespace dune3d
