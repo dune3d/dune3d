@@ -50,6 +50,7 @@
 #include "tools/tool_constrain_arc_line_tangent.hpp"
 #include "tools/tool_constrain_curve_curve_tangent.hpp"
 #include "tools/tool_constrain_line_points_perpendicular.hpp"
+#include "tools/tool_text_to_cluster.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -235,6 +236,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_LINE_POINTS_PERPENDICULAR:
         return std::make_unique<ToolConstrainLinePointsPerpendicular>(tool_id, *this, m_intf, flags);
+
+    case ToolID::TEXT_TO_CLUSTER:
+        return std::make_unique<ToolTextToCluster>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

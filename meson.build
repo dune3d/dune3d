@@ -211,6 +211,7 @@ src = files(
   'src/core/tools/tool_constrain_arc_line_tangent.cpp',
   'src/core/tools/tool_constrain_curve_curve_tangent.cpp',
   'src/core/tools/tool_constrain_line_points_perpendicular.cpp',
+  'src/core/tools/tool_text_to_cluster.cpp',
   'src/core/tools/tool_draw_text.cpp',
   'src/util/history_manager.cpp',
   'src/action/action.cpp',

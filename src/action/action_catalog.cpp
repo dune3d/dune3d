@@ -190,6 +190,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Constrain curve/curve tangent", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::CONSTRAIN_LINE_POINTS_PERPENDICULAR,
          {"Constrain line/points perpendicular", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::TEXT_TO_CLUSTER, {"Convert to Cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -338,6 +339,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_BEZIER_LINE_TANGENT),
         TOOL_LUT_ITEM(CONSTRAIN_CURVE_CURVE_TANGENT),
         TOOL_LUT_ITEM(CONSTRAIN_LINE_POINTS_PERPENDICULAR),
+        TOOL_LUT_ITEM(TEXT_TO_CLUSTER),
 };
 
 
