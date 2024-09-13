@@ -90,69 +90,10 @@ LIBS=(
 	libwebp-7.dll\
 	libzstd.dll\
 	libLerc.dll\
-	avformat-58.dll\
-	avcodec-58.dll\
-	avutil-56.dll\
-	swscale-5.dll\
-	libopenvr_api.dll\
-	libfreeimage-3.dll\
 	libbrotlicommon.dll\
 	libsharpyuv-0.dll\
-	libbluray-2.dll\
-	libgme.dll\
-	libgnutls-30.dll\
-	libmodplug-1.dll\
-	librtmp-1.dll\
-	libsrt.dll\
-	libssh.dll\
 	libxml2-2.dll\
-	libaom.dll\
-	libdav1d-7.dll\
-	libgsm.dll\
-	libmfx-1.dll\
-	libmp3lame-0.dll\
-	libopencore-amrnb-0.dll\
-	libopencore-amrwb-0.dll\
-	libopenjp2-7.dll\
-	libopus-0.dll\
-	rav1e.dll\
 	librsvg-2-2.dll\
-	libspeex-1.dll\
-	libSvtAv1Enc-2.dll
-	libtheoradec-1.dll\
-	libtheoraenc-1.dll\
-	libvorbis-0.dll\
-	libvorbisenc-2.dll\
-	libvpx-1.dll\
-	libx264-164.dll\
-	libwebpmux-3.dll\
-	xvidcore.dll\
-	libx265-209.dll\
-	swresample-3.dll\
-	vulkan-1.dll\
-	libjxrglue.dll\
-	libraw-23.dll\
-	libIex-3_2.dll\
-	libgmp-10.dll\
-	libhogweed-6.dll\
-	libbrotlienc.dll\
-	libidn2-0.dll\
-	libnettle-8.dll\
-	libp11-kit-0.dll\
-	libunistring-5.dll\
-	libtasn1-6.dll\
-	libcrypto-3-x64.dll\
-	libcrypto-3-x64.dll\
-	libOpenEXR-3_2.dll\
-	libogg-0.dll\
-	libsoxr.dll\
-	libjpegxr.dll\
-	libgomp-1.dll\
-	liblcms2-2.dll\
-	libImath-3_1.dll\
-	libOpenEXRCore-3_2.dll\
-	libIlmThread-3_2.dll\
-	libzvbi-0.dll\
 	gspawn-win64-helper.exe\
 	gspawn-win64-helper-console.exe
 )
