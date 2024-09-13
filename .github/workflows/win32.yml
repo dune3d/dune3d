@@ -39,7 +39,9 @@ jobs:
           dos2unix
     - name: Install Opencascade lite
       shell: msys2 {0}
-      run: pacman -U https://github.com/carrotIndustries/mingw-opencascade-lite/releases/download/v7.7.2-1/mingw-w64-x86_64-opencascade-lite-7.7.2-1-any.pkg.tar.zst --noconfirm
+      run: |
+        wget https://github.com/carrotIndustries/mingw-opencascade-lite/releases/download/v7.7.2-1/mingw-w64-x86_64-opencascade-lite-7.7.2-1-any.pkg.tar.zst
+        pacman -U mingw-w64-x86_64-opencascade-lite-7.7.2-1-any.pkg.tar.zst --noconfirm
     - name: Build
       shell: msys2 {0}
       run: |
