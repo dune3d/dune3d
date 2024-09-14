@@ -17,7 +17,7 @@ glm = dependency('glm')
 harfbuzz = dependency('harfbuzz')
 freetype = dependency('freetype2')
 
-opencascade = dependency('OpenCASCADE', method : 'cmake')
+opencascade = dependency('OpenCASCADE', method : 'cmake', args:'-Wl,--as-needed')
 if target_machine.system() == 'darwin'
   message('meson\'s framework handling on macos with the cmake method is broken, replacing')
   opencascade_link_args = []
