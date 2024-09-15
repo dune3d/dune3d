@@ -12,6 +12,7 @@
 #include "core/tool_id.hpp"
 #include "nlohmann/json.hpp"
 #include "action/action_id.hpp"
+#include "document/solid_model.hpp"
 #include "widgets/select_groups_dialog.hpp"
 
 namespace dune3d {
@@ -133,21 +134,26 @@ void Editor::on_add_group(Group::Type group_type)
             group.m_normal = axis_enp->entity;
         }
     }
-    else if (group_type == Group::Type::FILLET) {
-        auto &group = doc.insert_group<GroupFillet>(UUID::random(), current_group.m_uuid);
-        new_group = &group;
-    }
-    else if (group_type == Group::Type::CHAMFER) {
-        auto &group = doc.insert_group<GroupChamfer>(UUID::random(), current_group.m_uuid);
-        new_group = &group;
-        m_core.set_needs_save();
+    else if (any_of(group_type, Group::Type::FILLET, Group::Type::CHAMFER)) {
+        auto solid_model = SolidModel::get_last_solid_model(doc, current_group, SolidModel::IncludeGroup::YES);
+        if (!solid_model) {
+            m_workspace_browser->show_toast(toast_prefix + "Body has no solid model");
+            return;
+        }
+        if (group_type == Group::Type::FILLET) {
+            auto &group = doc.insert_group<GroupFillet>(UUID::random(), current_group.m_uuid);
+            new_group = &group;
+        }
+        else {
+            auto &group = doc.insert_group<GroupChamfer>(UUID::random(), current_group.m_uuid);
+            new_group = &group;
+        }
     }
     else if (group_type == Group::Type::LINEAR_ARRAY) {
         auto &group = doc.insert_group<GroupLinearArray>(UUID::random(), current_group.m_uuid);
         new_group = &group;
         group.m_active_wrkpl = current_group.m_active_wrkpl;
         group.m_source_group = current_group.m_uuid;
-        m_core.set_needs_save();
     }
     else if (group_type == Group::Type::POLAR_ARRAY) {
         UUID wrkpl;
@@ -168,7 +174,6 @@ void Editor::on_add_group(Group::Type group_type)
         new_group = &group;
         group.m_active_wrkpl = wrkpl;
         group.m_source_group = current_group.m_uuid;
-        m_core.set_needs_save();
     }
     else if (group_type == Group::Type::LOFT) {
         auto dia = SelectGroupsDialog::create(m_core.get_current_document(), m_core.get_current_group(), {});

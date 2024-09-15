@@ -35,8 +35,11 @@ public:
 
     virtual ~SolidModel();
 
-    static const SolidModel *get_last_solid_model(const Document &doc, const Group &group);
-    static const IGroupSolidModel *get_last_solid_model_group(const Document &doc, const Group &group);
+    enum class IncludeGroup { YES, NO };
+    static const SolidModel *get_last_solid_model(const Document &doc, const Group &group,
+                                                  IncludeGroup include_group = IncludeGroup::NO);
+    static const IGroupSolidModel *get_last_solid_model_group(const Document &doc, const Group &group,
+                                                              IncludeGroup include_group = IncludeGroup::NO);
 };
 
 } // namespace dune3d
