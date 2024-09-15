@@ -179,7 +179,7 @@ void Editor::set_current_workspace_view(const UUID &uu)
         m_workspace_view_loading = true;
         auto &ca = m_win.get_canvas();
 
-        ca.set_cam_distance(wv.m_cam_distance);
+        ca.set_cam_distance(wv.m_cam_distance, Canvas::ZoomCenter::CURSOR);
         ca.set_cam_quat(wv.m_cam_quat);
         ca.set_center(wv.m_center);
         set_perspective_projection(wv.m_projection == CanvasProjection::PERSP);

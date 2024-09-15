@@ -93,6 +93,9 @@ private:
     void on_workspace_browser_body_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
     void on_workspace_browser_body_solid_model_checked(const UUID &uu_doc, const UUID &uu_group, bool checked);
     void on_workspace_browser_activate_link(const std::string &link);
+    void on_view_rotate(const ActionConnection &conn);
+    void on_view_zoom(const ActionConnection &conn);
+    void on_view_pan(const ActionConnection &conn);
 
     void on_workspace_browser_rename_body(const UUID &uu_doc, const UUID &uu_group);
     void on_workspace_browser_set_body_color(const UUID &uu_doc, const UUID &uu_group);

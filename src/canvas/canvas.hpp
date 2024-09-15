@@ -117,15 +117,20 @@ public:
     {
         return m_cam_distance;
     }
-    void set_cam_distance(float dist);
+
+    enum class ZoomCenter { SCREEN, CURSOR };
+    void set_cam_distance(float dist, ZoomCenter zoom_center);
+    void animate_zoom(float factor, ZoomCenter zoom_center);
 
     glm::vec3 get_center() const
     {
         return m_center;
     }
     void set_center(glm::vec3 center);
+    void animate_pan(glm::vec2 shift);
 
     void animate_to_cam_quat(const glm::quat &quat);
+    void animate_to_cam_quat_rel(const glm::quat &quat);
     void animate_to_center_abs(const glm::vec3 &center);
 
     using Projection = CanvasProjection;
@@ -329,10 +334,13 @@ private:
     MSDAnimator m_cx_animator;
     MSDAnimator m_cy_animator;
     MSDAnimator m_cz_animator;
+    ZoomCenter m_animation_zoom_center = ZoomCenter::SCREEN;
 
     std::vector<MSDAnimator *> m_animators;
 
     void set_translation_rotation_animator_params(const MSD::Params &params);
+    void animate_zoom_internal(float factor, ZoomCenter zoom_center);
+
 
     int animate_step(GdkFrameClock *frame_clock);
     static int anim_tick_cb(GtkWidget *cwidget, GdkFrameClock *frame_clock, gpointer user_data);

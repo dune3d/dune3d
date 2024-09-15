@@ -113,6 +113,7 @@ void Canvas::handle_spnav()
             if (std::any_of(values.begin(), values.end(), [thre](auto x) { return std::abs(x) > thre; })) {
                 set_translation_rotation_animator_params(msd_params_normal);
                 start_anim();
+                m_animation_zoom_center = ZoomCenter::SCREEN;
                 m_zoom_animator.target += e.motion.y * -0.001f;
 
                 // reduce shifting speed when zoomed in
@@ -441,16 +442,9 @@ void Canvas::end_pan()
 
 void Canvas::scroll_zoom(double dx, double dy, Gtk::EventController &ctrl)
 {
-    const float zoom_base = 1.5;
-    if (m_enable_animations) {
-        if (dy == 0)
-            return;
-        start_anim();
-        m_zoom_animator.target += dy;
-    }
-    else {
-        set_cam_distance(m_cam_distance * pow(zoom_base, dy));
-    }
+    const auto zoom_center = m_zoom_to_cursor ? ZoomCenter::CURSOR : ZoomCenter::SCREEN;
+    m_zoom_animator.set_params(msd_params_normal);
+    animate_zoom_internal(dy, zoom_center);
 }
 
 void Canvas::scroll_move(double dx, double dy, Gtk::EventController &ctrl)
@@ -516,7 +510,7 @@ void Canvas::zoom_gesture_begin_cb(Gdk::EventSequence *seq)
 void Canvas::zoom_gesture_update_cb(Gdk::EventSequence *seq)
 {
     auto delta = m_gesture_zoom->get_scale_delta();
-    set_cam_distance(m_gesture_zoom_cam_dist_orig / delta);
+    set_cam_distance(m_gesture_zoom_cam_dist_orig / delta, ZoomCenter::CURSOR);
     queue_draw();
 }
 
@@ -556,18 +550,58 @@ void Canvas::set_cam_quat(const glm::quat &q)
     m_signal_view_changed.emit();
 }
 
-void Canvas::set_cam_distance(float dist)
+void Canvas::set_cam_distance(float dist, ZoomCenter zoom_center)
 {
     update_mats();
     glm::vec3 before = get_cursor_pos();
     m_cam_distance = dist;
     update_mats();
     glm::vec3 after = get_cursor_pos();
-    if (m_zoom_to_cursor)
+    if (zoom_center == ZoomCenter::CURSOR)
         set_center(get_center() - (after - before));
     queue_draw();
     m_signal_view_changed.emit();
 }
+
+void Canvas::animate_zoom(float factor, ZoomCenter zoom_center)
+{
+    m_zoom_animator.set_params(msd_params_slow);
+    animate_zoom_internal(factor, zoom_center);
+}
+
+void Canvas::animate_zoom_internal(float factor, ZoomCenter zoom_center)
+{
+    const float zoom_base = 1.5;
+    if (m_enable_animations) {
+        if (factor == 0)
+            return;
+        start_anim();
+        m_animation_zoom_center = zoom_center;
+        m_zoom_animator.target += factor;
+    }
+    else {
+        set_cam_distance(m_cam_distance * pow(zoom_base, factor), zoom_center);
+    }
+}
+
+void Canvas::animate_pan(glm::vec2 shift)
+{
+    auto cs = get_center_shift(shift);
+    if (m_enable_animations) {
+        if (glm::length(shift) == 0)
+            return;
+
+        set_translation_rotation_animator_params(msd_params_slow);
+        start_anim();
+        m_cx_animator.target += cs.x;
+        m_cy_animator.target += cs.y;
+        m_cz_animator.target += cs.z;
+    }
+    else {
+        set_center(get_center() + cs);
+    }
+}
+
 
 void Canvas::set_center(glm::vec3 center)
 {
@@ -589,6 +623,24 @@ void Canvas::animate_to_cam_quat(const glm::quat &q)
     m_quat_x_animator.target = q.x;
     m_quat_y_animator.target = q.y;
     m_quat_z_animator.target = q.z;
+}
+
+void Canvas::animate_to_cam_quat_rel(const glm::quat &q)
+{
+    if (!m_enable_animations) {
+        set_cam_quat(q * get_cam_quat());
+        return;
+    }
+    set_translation_rotation_animator_params(msd_params_slow);
+    start_anim();
+
+    glm::quat qc{m_quat_w_animator.target, m_quat_x_animator.target, m_quat_y_animator.target,
+                 m_quat_z_animator.target};
+    qc = qc * q;
+    m_quat_w_animator.target = qc.w;
+    m_quat_x_animator.target = qc.x;
+    m_quat_y_animator.target = qc.y;
+    m_quat_z_animator.target = qc.z;
 }
 
 void Canvas::animate_to_center_abs(const glm::vec3 &center)
@@ -1641,7 +1693,7 @@ int Canvas::animate_step(GdkFrameClock *frame_clock)
     set_cam_quat(glm::quat(m_quat_w_animator.get_s(), m_quat_x_animator.get_s(), m_quat_y_animator.get_s(),
                            m_quat_z_animator.get_s()));
     const auto ca = glm::vec3{m_cx_animator.get_s_delta(), m_cy_animator.get_s_delta(), m_cz_animator.get_s_delta()};
-    set_cam_distance(cam_dist_from_anim(m_zoom_animator.get_s()));
+    set_cam_distance(cam_dist_from_anim(m_zoom_animator.get_s()), m_animation_zoom_center);
     set_center(get_center() + ca);
 
     if (stop)

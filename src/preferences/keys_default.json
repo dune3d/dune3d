@@ -160,6 +160,144 @@
         ]
     },
     {
+        "action": "VIEW_ROTATE_UP",
+        "keys": [
+            [
+                {
+                    "key": "Up",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ROTATE_DOWN",
+        "keys": [
+            [
+                {
+                    "key": "Down",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ROTATE_LEFT",
+        "keys": [
+            [
+                {
+                    "key": "Left",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ROTATE_RIGHT",
+        "keys": [
+            [
+                {
+                    "key": "Right",
+                    "mod": 1
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_TILT_LEFT",
+        "keys": [
+            [
+                {
+                    "key": "Left",
+                    "mod": 5
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_TILT_RIGHT",
+        "keys": [
+            [
+                {
+                    "key": "Right",
+                    "mod": 5
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ZOOM_IN",
+        "keys": [
+            [
+                {
+                    "key": "equal",
+                    "mod": 0
+                }
+            ],
+            [
+                {
+                    "key": "plus",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_ZOOM_OUT",
+        "keys": [
+            [
+                {
+                    "key": "minus",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_PAN_UP",
+        "keys": [
+            [
+                {
+                    "key": "Up",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_PAN_DOWN",
+        "keys": [
+            [
+                {
+                    "key": "Down",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_PAN_LEFT",
+        "keys": [
+            [
+                {
+                    "key": "Left",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "action": "VIEW_PAN_RIGHT",
+        "keys": [
+            [
+                {
+                    "key": "Right",
+                    "mod": 0
+                }
+            ]
+        ]
+    },
+    {
         "action": "VIEW_TOGGLE_PERSP_ORTHO",
         "keys": [
             [

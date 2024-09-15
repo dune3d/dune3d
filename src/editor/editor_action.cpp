@@ -128,7 +128,7 @@ void Editor::init_actions()
 
     connect_action(ActionID::VIEW_ALL, [this](auto &a) {
         get_canvas().set_cam_quat(glm::quat_identity<float, glm::defaultp>());
-        get_canvas().set_cam_distance(10);
+        get_canvas().set_cam_distance(10, Canvas::ZoomCenter::CURSOR);
         get_canvas().set_center({0, 0, 0});
     });
 
@@ -154,6 +154,22 @@ void Editor::init_actions()
     connect_action(ActionID::VIEW_TOGGLE_PERSP_ORTHO, [this](auto &a) {
         set_perspective_projection(get_canvas().get_projection() == Canvas::Projection::ORTHO);
     });
+
+    connect_action(ActionID::VIEW_ROTATE_UP, sigc::mem_fun(*this, &Editor::on_view_rotate));
+    connect_action(ActionID::VIEW_ROTATE_DOWN, sigc::mem_fun(*this, &Editor::on_view_rotate));
+    connect_action(ActionID::VIEW_ROTATE_LEFT, sigc::mem_fun(*this, &Editor::on_view_rotate));
+    connect_action(ActionID::VIEW_ROTATE_RIGHT, sigc::mem_fun(*this, &Editor::on_view_rotate));
+
+    connect_action(ActionID::VIEW_TILT_LEFT, sigc::mem_fun(*this, &Editor::on_view_rotate));
+    connect_action(ActionID::VIEW_TILT_RIGHT, sigc::mem_fun(*this, &Editor::on_view_rotate));
+
+    connect_action(ActionID::VIEW_ZOOM_IN, sigc::mem_fun(*this, &Editor::on_view_zoom));
+    connect_action(ActionID::VIEW_ZOOM_OUT, sigc::mem_fun(*this, &Editor::on_view_zoom));
+
+    connect_action(ActionID::VIEW_PAN_UP, sigc::mem_fun(*this, &Editor::on_view_pan));
+    connect_action(ActionID::VIEW_PAN_DOWN, sigc::mem_fun(*this, &Editor::on_view_pan));
+    connect_action(ActionID::VIEW_PAN_LEFT, sigc::mem_fun(*this, &Editor::on_view_pan));
+    connect_action(ActionID::VIEW_PAN_RIGHT, sigc::mem_fun(*this, &Editor::on_view_pan));
 
     connect_action(ActionID::DELETE_CURRENT_GROUP, [this](auto &a) { on_delete_current_group(); });
 
@@ -839,6 +855,59 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
     m_workspace_browser->update_documents(get_current_document_views());
     canvas_update_keep_selection();
     m_workspace_browser->select_group(cluster.m_group);
+}
+
+
+void Editor::on_view_rotate(const ActionConnection &conn)
+{
+    const auto action = std::get<ActionID>(conn.id);
+
+    glm::vec3 direction = {0, 0, 0};
+    if (action == ActionID::VIEW_ROTATE_UP)
+        direction = glm::vec3(1, 0, 0);
+    else if (action == ActionID::VIEW_ROTATE_DOWN)
+        direction = glm::vec3(-1, 0, 0);
+    else if (action == ActionID::VIEW_ROTATE_LEFT)
+        direction = glm::vec3(0, 1, 0);
+    else if (action == ActionID::VIEW_ROTATE_RIGHT)
+        direction = glm::vec3(0, -1, 0);
+    else if (action == ActionID::VIEW_TILT_LEFT)
+        direction = glm::vec3(0, 0, -1);
+    else if (action == ActionID::VIEW_TILT_RIGHT)
+        direction = glm::vec3(0, 0, 1);
+
+    auto r = glm::angleAxis(glm::radians(90.f), direction);
+    get_canvas().animate_to_cam_quat_rel(r);
+}
+
+void Editor::on_view_zoom(const ActionConnection &conn)
+{
+    const auto action = std::get<ActionID>(conn.id);
+
+    auto factor = 1;
+    if (action == ActionID::VIEW_ZOOM_IN)
+        factor = -1;
+    else if (action == ActionID::VIEW_ZOOM_OUT)
+        factor = 1;
+
+    get_canvas().animate_zoom(factor, Canvas::ZoomCenter::SCREEN);
+}
+
+void Editor::on_view_pan(const ActionConnection &conn)
+{
+    const auto action = std::get<ActionID>(conn.id);
+
+    glm::vec2 direction = {0, 0};
+    if (action == ActionID::VIEW_PAN_UP)
+        direction = glm::vec2(0, 1);
+    else if (action == ActionID::VIEW_PAN_DOWN)
+        direction = glm::vec2(0, -1);
+    else if (action == ActionID::VIEW_PAN_LEFT)
+        direction = glm::vec2(-1, 0);
+    else if (action == ActionID::VIEW_PAN_RIGHT)
+        direction = glm::vec2(1, 0);
+
+    get_canvas().animate_pan(direction * 50.f);
 }
 
 
