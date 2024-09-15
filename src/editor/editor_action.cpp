@@ -561,6 +561,7 @@ std::optional<ActionToolID> Editor::get_doubleclick_action(const SelectableRef &
         switch (entity.get_type()) {
         case Entity::Type::LINE_2D:
         case Entity::Type::ARC_2D:
+        case Entity::Type::BEZIER_2D:
             if (sr.point == 1 || sr.point == 2)
                 return ToolID::DRAW_CONTOUR_FROM_POINT;
             break;

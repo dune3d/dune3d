@@ -33,7 +33,7 @@ ToolResponse ToolDrawContour::begin(const ToolArgs &args)
         if (sr.type != SelectableRef::Type::ENTITY)
             return ToolResponse();
         auto &en = get_entity(sr.item);
-        if ((en.get_type() != Entity::Type::LINE_2D) && (en.get_type() != Entity::Type::ARC_2D))
+        if (!en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::BEZIER_2D))
             return ToolResponse();
         if (sr.point == 0)
             return ToolResponse();
