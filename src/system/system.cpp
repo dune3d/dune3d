@@ -1911,7 +1911,7 @@ void System::visit(const ConstraintPointDistanceAligned &constraint)
             align_vec = en_align->VectorGetExprs().WithMagnitude(Expr::From(1));
         }
     }
-    AddEq(hConstraint{c}, &m_sys->eq, align_vec.Dot(v2.Minus(v1))->Minus(Expr::From(constraint.m_distance)), 0);
+    AddEq(hConstraint{c}, &m_sys->eq, align_vec.Dot(v1.Minus(v2))->Minus(Expr::From(constraint.m_distance)), 0);
 }
 
 void System::visit(const ConstraintPointLineDistance &constraint)
