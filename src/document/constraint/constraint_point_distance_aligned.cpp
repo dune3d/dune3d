@@ -70,7 +70,12 @@ glm::dvec3 ConstraintPointDistanceAligned::get_align_vector(const Document &doc)
 
 double ConstraintPointDistanceAligned::measure_distance(const Document &doc) const
 {
-    return glm::dot(get_distance_vector(doc), get_align_vector(doc));
+    auto v = get_distance_vector(doc);
+    if (m_wrkpl) {
+        auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
+        v = wrkpl.transform_relative(v);
+    }
+    return glm::dot(v, get_align_vector(doc));
 }
 
 } // namespace dune3d
