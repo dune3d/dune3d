@@ -358,6 +358,7 @@ public:
         grid_attach_label_and_widget(*this, "Angle", *m_angle_sp, top);
 
         m_lock_angle_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_angle_button->set_tooltip_text("Lock angle");
         m_lock_angle_button->set_icon_name("system-lock-screen-symbolic");
         m_lock_angle_button->set_active(m_cluster.m_lock_angle);
         m_lock_angle_button->signal_toggled().connect([this] {
@@ -377,6 +378,7 @@ public:
         grid_attach_label_and_widget(*this, "X scale", *m_scale_x_sp, top);
 
         m_lock_scale_x_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_scale_x_button->set_tooltip_text("Lock X scale");
         m_lock_scale_x_button->set_icon_name("system-lock-screen-symbolic");
         m_lock_scale_x_button->set_active(m_cluster.m_lock_scale_x);
         m_lock_scale_x_button->signal_toggled().connect([this] {
@@ -396,6 +398,7 @@ public:
         grid_attach_label_and_widget(*this, "Y scale", *m_scale_y_sp, top);
 
         m_lock_scale_y_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_scale_y_button->set_tooltip_text("Lock Y scale");
         m_lock_scale_y_button->set_icon_name("system-lock-screen-symbolic");
         m_lock_scale_y_button->set_active(m_cluster.m_lock_scale_y);
         m_lock_scale_y_button->signal_toggled().connect([this] {
@@ -405,6 +408,7 @@ public:
         attach(*m_lock_scale_y_button, 2, top - 1);
 
         m_lock_aspect_ratio_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_aspect_ratio_button->set_tooltip_text("Lock aspect ratio");
         m_lock_aspect_ratio_button->set_icon_name("system-lock-screen-symbolic");
         attach(*m_lock_aspect_ratio_button, 3, top - 2, 1, 2);
         m_lock_aspect_ratio_button->set_active(m_cluster.m_lock_aspect_ratio);
@@ -467,6 +471,7 @@ public:
         grid_attach_label_and_widget(*this, "Angle", *m_angle_sp, top);
 
         m_lock_angle_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_angle_button->set_tooltip_text("Lock angle");
         m_lock_angle_button->set_icon_name("system-lock-screen-symbolic");
         m_lock_angle_button->set_active(m_text.m_lock_angle);
         m_lock_angle_button->signal_toggled().connect([this] {
@@ -485,6 +490,7 @@ public:
         grid_attach_label_and_widget(*this, "Scale", *m_scale_sp, top);
 
         m_lock_scale_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_scale_button->set_tooltip_text("Lock scale");
         m_lock_scale_button->set_icon_name("system-lock-screen-symbolic");
         m_lock_scale_button->set_active(m_text.m_lock_scale);
         m_lock_scale_button->signal_toggled().connect([this] {
