@@ -54,7 +54,7 @@ std::string Constraint::get_type_name(Type type)
     case Type::ARC_LINE_TANGENT:
         return "Arc/Line tangent";
     case Type::ARC_ARC_TANGENT:
-        return "Arc/Arc tangent";
+        return "Curve/Curve tangent";
     case Type::LINE_POINTS_PERPENDICULAR:
         return "Line/points perpendicular";
     case Type::LINES_PERPENDICULAR:
