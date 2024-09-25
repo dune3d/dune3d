@@ -17,13 +17,17 @@ ToolBase::CanBegin ToolCreateCluster::can_begin()
     const auto wrkpl = get_workplane_uuid();
     if (!wrkpl)
         return false;
+    size_t n = 0;
     for (const auto &sr : m_selection) {
         if (sr.is_entity()) {
             auto &entity = get_entity(sr.item);
             if (entity.can_delete(get_doc()) && EntityCluster::is_supported_entity(entity)
                 && entity.m_group == m_core.get_current_group()
-                && dynamic_cast<const IEntityInWorkplane &>(entity).get_workplane() == wrkpl)
-                return true;
+                && dynamic_cast<const IEntityInWorkplane &>(entity).get_workplane() == wrkpl) {
+                n++;
+                if (n >= 2)
+                    return true;
+            }
         }
     }
     return false;
