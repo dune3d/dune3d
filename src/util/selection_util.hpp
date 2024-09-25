@@ -19,6 +19,7 @@ struct TwoPoints {
     EntityAndPoint point2;
 
     std::set<EntityAndPoint> get_enps() const;
+    std::tuple<EntityAndPoint, EntityAndPoint> get_enps_as_tuple() const;
 };
 
 std::optional<TwoPoints> two_points_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
@@ -33,6 +34,7 @@ struct LineAndPoint {
     enum class AllowSameEntity { YES, NO };
 
     std::set<EntityAndPoint> get_enps() const;
+    std::tuple<EntityAndPoint, EntityAndPoint> get_enps_as_tuple() const;
 };
 
 
@@ -58,6 +60,7 @@ struct LinesAndPoint {
     EntityAndPoint point;
 
     std::set<EntityAndPoint> get_enps() const;
+    std::tuple<EntityAndPoint, EntityAndPoint, EntityAndPoint> get_enps_as_tuple() const;
 };
 
 std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);

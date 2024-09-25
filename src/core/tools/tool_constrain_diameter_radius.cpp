@@ -25,6 +25,9 @@ ToolBase::CanBegin ToolConstrainDiameterRadius::can_begin()
     if (any_of(m_tool_id, ToolID::MEASURE_DIAMETER, ToolID::MEASURE_RADIUS))
         return true;
 
+    if (!any_entity_from_current_group(en))
+        return false;
+
     const auto constraint_types = en.get_constraint_types(doc);
     if (set_contains(constraint_types, Constraint::Type::RADIUS, Constraint::Type::DIAMETER))
         return false;

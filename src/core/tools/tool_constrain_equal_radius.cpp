@@ -24,6 +24,9 @@ ToolBase::CanBegin ToolConstrainEqualRadius::can_begin()
         enps.emplace(uu, 0);
     }
 
+    if (!any_entity_from_current_group(enps))
+        return false;
+
     return !has_constraint_of_type(enps, Constraint::Type::EQUAL_RADIUS);
 }
 

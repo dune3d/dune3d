@@ -59,7 +59,15 @@ static std::optional<LineAndPoints> line_and_points_from_selection(const Documen
 
 ToolBase::CanBegin ToolConstrainLinePointsPerpendicular::can_begin()
 {
-    return line_and_points_from_selection(get_doc(), m_selection).has_value();
+    auto lps = line_and_points_from_selection(get_doc(), m_selection);
+
+    if (!lps.has_value())
+        return false;
+
+    if (!any_entity_from_current_group(lps->line, std::get<0>(lps->points), std::get<1>(lps->points)))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainLinePointsPerpendicular::begin(const ToolArgs &args)

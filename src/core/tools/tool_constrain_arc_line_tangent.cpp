@@ -50,6 +50,9 @@ ToolBase::CanBegin ToolConstrainArcLineTangent::can_begin()
     if (!al.has_value())
         return false;
 
+    if (!any_entity_from_current_group(al->curve, al->line))
+        return false;
+
     const auto constraint_type = m_tool_id == ToolID::CONSTRAIN_ARC_LINE_TANGENT
                                          ? Constraint::Type::ARC_LINE_TANGENT
                                          : Constraint::Type::BEZIER_LINE_TANGENT;

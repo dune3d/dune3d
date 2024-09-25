@@ -43,6 +43,9 @@ ToolBase::CanBegin ToolConstrainParallel::can_begin()
 
     std::set<EntityAndPoint> enps = {{tp->first, 0}, {tp->second, 0}};
 
+    if (!any_entity_from_current_group(enps))
+        return false;
+
     return !has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
                                                 Constraint::Type::LINES_ANGLE);
 }

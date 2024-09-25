@@ -17,6 +17,10 @@ ToolBase::CanBegin ToolConstrainLockRotation::can_begin()
         return false;
     if (!dynamic_cast<IEntityNormal *>(&en))
         return false;
+
+    if (!any_entity_from_current_group(en))
+        return false;
+
     const auto constraint_types = en.get_constraint_types(get_doc());
     if (constraint_types.contains(Constraint::Type::LOCK_ROTATION))
         return false;

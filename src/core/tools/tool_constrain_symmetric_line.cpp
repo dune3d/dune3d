@@ -19,7 +19,14 @@ ToolBase::CanBegin ToolConstrainSymmetricLine::can_begin()
     if (!get_workplane_uuid())
         return false;
 
-    return two_points_from_selection(get_doc(), m_selection).has_value();
+    auto tp = two_points_from_selection(get_doc(), m_selection);
+    if (!tp.has_value())
+        return false;
+
+    if (!any_entity_from_current_group(tp->get_enps_as_tuple()))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainSymmetricLine::begin(const ToolArgs &args)

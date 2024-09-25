@@ -16,6 +16,10 @@ ToolBase::CanBegin ToolConstrainDistanceAligned::can_begin()
     auto tp = two_points_from_selection(get_doc(), m_selection);
     if (!tp)
         return false;
+
+    if (!any_entity_from_current_group(tp->get_enps_as_tuple()))
+        return false;
+
     return true;
 }
 

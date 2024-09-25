@@ -18,16 +18,18 @@ ToolBase::CanBegin ToolConstrainSymmetricHV::can_begin()
     if (!tp)
         return false;
 
+    const auto enps = tp->get_enps();
+    if (!any_entity_from_current_group(enps))
+        return false;
+
     if (m_tool_id == ToolID::CONSTRAIN_SYMMETRIC_HORIZONTAL)
-        return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::HORIZONTAL,
-                                                    Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_HORIZONTAL,
-                                                    Constraint::Type::SYMMETRIC_VERTICAL,
-                                                    Constraint::Type::POINT_DISTANCE_VERTICAL);
+        return !has_constraint_of_type_in_workplane(
+                enps, Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_HORIZONTAL,
+                Constraint::Type::SYMMETRIC_VERTICAL, Constraint::Type::POINT_DISTANCE_VERTICAL);
     else
-        return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::HORIZONTAL,
-                                                    Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_HORIZONTAL,
-                                                    Constraint::Type::SYMMETRIC_VERTICAL,
-                                                    Constraint::Type::POINT_DISTANCE_HORIZONTAL);
+        return !has_constraint_of_type_in_workplane(
+                enps, Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL, Constraint::Type::SYMMETRIC_HORIZONTAL,
+                Constraint::Type::SYMMETRIC_VERTICAL, Constraint::Type::POINT_DISTANCE_HORIZONTAL);
 }
 
 ToolResponse ToolConstrainSymmetricHV::begin(const ToolArgs &args)

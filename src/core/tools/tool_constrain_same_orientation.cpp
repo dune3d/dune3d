@@ -37,7 +37,11 @@ ToolBase::CanBegin ToolConstrainSameOrientation::can_begin()
     if (!tw.has_value())
         return false;
 
-    return !has_constraint_of_type({{tw->first, 0}, {tw->second, 0}}, Constraint::Type::SAME_ORIENTATION);
+    const std::set<EntityAndPoint> enps = {{tw->first, 0}, {tw->second, 0}};
+    if (!any_entity_from_current_group(enps))
+        return false;
+
+    return !has_constraint_of_type(enps, Constraint::Type::SAME_ORIENTATION);
 }
 
 ToolResponse ToolConstrainSameOrientation::begin(const ToolArgs &args)

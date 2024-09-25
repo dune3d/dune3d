@@ -11,8 +11,12 @@ ToolBase::CanBegin ToolConstrainPointOnLine::can_begin()
     if (!tp.has_value())
         return false;
 
-    return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::POINT_ON_LINE,
-                                                Constraint::Type::MIDPOINT, Constraint::Type::POINT_LINE_DISTANCE);
+    const auto enps = tp->get_enps();
+    if (!any_entity_from_current_group(enps))
+        return false;
+
+    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::POINT_ON_LINE, Constraint::Type::MIDPOINT,
+                                                Constraint::Type::POINT_LINE_DISTANCE);
 }
 
 ToolResponse ToolConstrainPointOnLine::begin(const ToolArgs &args)

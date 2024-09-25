@@ -14,7 +14,11 @@ ToolBase::CanBegin ToolConstrainPointOnBezier::can_begin()
     if (!tp.has_value())
         return false;
 
-    return !has_constraint_of_type(tp->get_enps(), Constraint::Type::POINT_ON_BEZIER);
+    const auto enps = tp->get_enps();
+    if (!any_entity_from_current_group(enps))
+        return false;
+
+    return !has_constraint_of_type(enps, Constraint::Type::POINT_ON_BEZIER);
 }
 
 ToolResponse ToolConstrainPointOnBezier::begin(const ToolArgs &args)

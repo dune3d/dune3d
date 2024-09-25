@@ -24,6 +24,9 @@ ToolBase::CanBegin ToolConstrainDistance::can_begin()
                ToolID::MEASURE_DISTANCE_VERTICAL))
         return true;
 
+    if (!any_entity_from_current_group(tp->get_enps_as_tuple()))
+        return false;
+
     switch (m_tool_id) {
     case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
         return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::POINT_DISTANCE_HORIZONTAL,

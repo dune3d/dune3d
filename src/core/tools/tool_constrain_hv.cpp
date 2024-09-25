@@ -19,6 +19,9 @@ ToolBase::CanBegin ToolConstrainHV::can_begin()
     if (!tp)
         return false;
 
+    if (!any_entity_from_current_group(tp->get_enps_as_tuple()))
+        return false;
+
     auto wrkpl = get_workplane();
     const auto p1 = wrkpl->project(get_doc().get_point(tp->point1));
     const auto p2 = wrkpl->project(get_doc().get_point(tp->point2));

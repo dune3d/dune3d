@@ -13,7 +13,11 @@ ToolBase::CanBegin ToolConstrainPointPlaneDistance::can_begin()
     if (!lps)
         return false;
 
-    return !has_constraint_of_type(lps->get_enps(), Constraint::Type::POINT_PLANE_DISTANCE);
+    const auto enps = lps->get_enps();
+    if (!any_entity_from_current_group(enps))
+        return false;
+
+    return !has_constraint_of_type(enps, Constraint::Type::POINT_PLANE_DISTANCE);
 }
 
 ToolResponse ToolConstrainPointPlaneDistance::begin(const ToolArgs &args)

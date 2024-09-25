@@ -48,8 +48,10 @@ ToolBase::CanBegin ToolConstrainPerpendicular::can_begin()
     if (m_tool_id == ToolID::MEASURE_ANGLE)
         return true;
 
-
     std::set<EntityAndPoint> enps = {{tl->first, 0}, {tl->second, 0}};
+
+    if (!any_entity_from_current_group(enps))
+        return false;
 
     return !has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
                                                 Constraint::Type::LINES_ANGLE);

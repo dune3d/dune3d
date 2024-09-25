@@ -19,12 +19,27 @@ std::set<EntityAndPoint> TwoPoints::get_enps() const
     return {point1, point2};
 }
 
+std::tuple<EntityAndPoint, EntityAndPoint> TwoPoints::get_enps_as_tuple() const
+{
+    return {point1, point2};
+}
+
 std::set<EntityAndPoint> LineAndPoint::get_enps() const
 {
     return {{line, 0}, point};
 }
 
+std::tuple<EntityAndPoint, EntityAndPoint> LineAndPoint::get_enps_as_tuple() const
+{
+    return {{line, 0}, point};
+}
+
 std::set<EntityAndPoint> LinesAndPoint::get_enps() const
+{
+    return {{std::get<0>(lines), 0}, {std::get<1>(lines), 0}, point};
+}
+
+std::tuple<EntityAndPoint, EntityAndPoint, EntityAndPoint> LinesAndPoint::get_enps_as_tuple() const
 {
     return {{std::get<0>(lines), 0}, {std::get<1>(lines), 0}, point};
 }

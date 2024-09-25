@@ -35,6 +35,9 @@ ToolBase::CanBegin ToolConstrainCurveCurveTangent::can_begin()
     const auto &en1 = get_entity(curves->curve1.entity);
     const auto &en2 = get_entity(curves->curve2.entity);
 
+    if (!any_entity_from_current_group(en1, en2))
+        return false;
+
     if (m_tool_id == ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC) {
         if (!(en1.of_type(Entity::Type::BEZIER_2D) && en2.of_type(Entity::Type::BEZIER_2D)))
             return false;

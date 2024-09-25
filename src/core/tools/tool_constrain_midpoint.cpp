@@ -10,6 +10,9 @@ ToolBase::CanBegin ToolConstrainMidpoint::can_begin()
     if (!lp)
         return false;
 
+    if (!any_entity_from_current_group(lp->get_enps_as_tuple()))
+        return false;
+
     return !has_constraint_of_type_in_workplane(lp->get_enps(), Constraint::Type::POINT_LINE_DISTANCE,
                                                 Constraint::Type::POINT_ON_LINE, Constraint::Type::MIDPOINT);
 }

@@ -58,7 +58,14 @@ std::optional<WorkplaneAndPoint> workplane_and_point_from_selection(const Docume
 
 ToolBase::CanBegin ToolConstrainPointInWorkplane::can_begin()
 {
-    return workplane_and_point_from_selection(get_doc(), m_selection).has_value();
+    auto wp = workplane_and_point_from_selection(get_doc(), m_selection);
+    if (!wp.has_value())
+        return false;
+
+    if (!any_entity_from_current_group(wp->point, wp->wrkpl))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainPointInWorkplane::begin(const ToolArgs &args)

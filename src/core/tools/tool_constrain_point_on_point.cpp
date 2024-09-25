@@ -17,8 +17,12 @@ ToolBase::CanBegin ToolConstrainPointOnPoint::can_begin()
         return get_entity<Entity>(tp->point1.entity).of_type(Entity::Type::ARC_2D, Entity::Type::BEZIER_2D);
     }
 
+    const auto enps = tp->get_enps();
+    if (!any_entity_from_current_group(enps))
+        return false;
+
     return !has_constraint_of_type_in_workplane(
-            tp->get_enps(), Constraint::Type::POINT_DISTANCE, Constraint::Type::POINTS_COINCIDENT,
+            enps, Constraint::Type::POINT_DISTANCE, Constraint::Type::POINTS_COINCIDENT,
             Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::POINT_DISTANCE_VERTICAL);
 }
 

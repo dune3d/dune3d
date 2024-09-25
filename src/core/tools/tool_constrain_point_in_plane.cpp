@@ -7,7 +7,14 @@ namespace dune3d {
 
 ToolBase::CanBegin ToolConstrainPointInPlane::can_begin()
 {
-    return lines_and_point_from_selection(get_doc(), m_selection).has_value();
+    auto lps = lines_and_point_from_selection(get_doc(), m_selection);
+    if (!lps.has_value())
+        return false;
+
+    if (!any_entity_from_current_group(lps->get_enps_as_tuple()))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainPointInPlane::begin(const ToolArgs &args)
