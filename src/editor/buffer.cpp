@@ -25,9 +25,11 @@ Buffer::Buffer(Badge<Buffer>, const Document &doc, const std::set<SelectableRef>
         std::map<UUID, unsigned int> wrkpl_count;
         for (const auto &sr : sel) {
             if (sr.is_entity()) {
-                if (auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(&doc.get_entity(sr.item))) {
+                const auto &en = doc.get_entity(sr.item);
+                if (auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(&en))
                     wrkpl_count[en_wrkpl->get_workplane()]++;
-                }
+                else if (en.of_type(Entity::Type::WORKPLANE))
+                    wrkpl_count[en.m_uuid]++;
             }
         }
         if (wrkpl_count.empty())
