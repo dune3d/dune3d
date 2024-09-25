@@ -325,12 +325,14 @@ std::list<UUID> entities_from_selection(const Document &doc, const std::set<Sele
     std::list<UUID> r;
     for (const auto &sr : sel) {
         if (sr.type != SelectableRef::Type::ENTITY)
-            continue;
+            return {};
         if (sr.point != 0)
-            continue;
+            return {};
         auto &en = doc.get_entity(sr.item);
         if (types.contains(en.get_type()))
             r.push_back(sr.item);
+        else
+            return {};
     }
     return r;
 }
