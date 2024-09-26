@@ -37,6 +37,10 @@ Use the "set workplane" tool to set a group's workplane.
 
 Also check out the [documentation](https://docs.dune3d.org/).
 
+## Where to go with questions
+
+The project's discussion platforms are a [matrix room](https://matrix.to/#/#dune3d:selfnet.de) and [GitHub Discussions](https://github.com/dune3d/dune3d/discussions).
+
 ## Anticipated questions
 
 ### Where do I find sample files?
