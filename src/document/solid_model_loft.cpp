@@ -2,6 +2,9 @@
 #include "solid_model_util.hpp"
 #include "solid_model_occ.hpp"
 #include "group/group_loft.hpp"
+#include "document.hpp"
+#include "group/group.hpp"
+#include <format>
 
 #include <BRepOffsetAPI_ThruSections.hxx>
 
@@ -18,8 +21,16 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupL
         for (auto &src : group.m_sources) {
             auto face_builder = FaceBuilder::from_document(doc, src.wrkpl, src.group, {0, 0, 0});
             auto &wires = face_builder.get_wires();
-            if (wires.size() == 1)
+            if (wires.size() == 1) {
                 mkTS.AddWire(wires.front());
+            }
+            else {
+                auto &group_name = doc.get_group(src.group).m_name;
+                group.m_loft_messages.emplace_back(
+                        GroupStatusMessage::Status::ERR,
+                        std::format("Source group {} has {} paths, need 1", group_name, wires.size()));
+                return nullptr;
+            }
         }
 
         mod->m_shape = mkTS.Shape();
