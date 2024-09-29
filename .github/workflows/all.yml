@@ -65,7 +65,6 @@ jobs:
         ninja -C ../build ${{ matrix.target }}
         cp ../build/icon_texture_atlas.png .
     - name: set artifact name
-      shell: msys2 {0}
       run: |
         container = ${{matrix.os.container}}
         echo "artifact_name=${container//:/-} >> $GITHUB_ENV
