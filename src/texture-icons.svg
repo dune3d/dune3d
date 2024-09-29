@@ -2,9 +2,6 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
    version="1.1"
    id="svg1"
    inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
@@ -24,10 +21,10 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="22.627417"
-     inkscape:cx="97.028308"
-     inkscape:cy="43.487067"
-     inkscape:window-width="1424"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="63.63961"
+     inkscape:cy="67.705474"
+     inkscape:window-width="1387"
      inkscape:window-height="1150"
      inkscape:window-x="0"
      inkscape:window-y="0"
@@ -38,8 +35,8 @@
        units="px"
        originx="0"
        originy="0"
-       spacingx="0.26458333"
-       spacingy="0.26458333"
+       spacingx="1"
+       spacingy="1"
        empcolor="#0000ff"
        empopacity="0.25098039"
        color="#0000ff"
@@ -75,852 +72,844 @@
      inkscape:groupmode="layer"
      id="layer1">
     <g
-       id="CONSTRAINT_POINTS_COINCIDENT"
-       transform="translate(-5.2916673,-6.3499997)">
+       id="CONSTRAINT_POINTS_COINCIDENT">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect1"
-         width="4.2333331"
-         height="4.2333331"
-         x="8.4666672"
-         y="8.4666662" />
+         width="15.999996"
+         height="15.999996"
+         x="4.0000005"
+         y="3.9999998" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="path2"
-         cx="10.583333"
-         cy="10.583332"
-         r="1.0583333" />
+         cx="11.999996"
+         cy="11.999995"
+         r="3.999999" />
     </g>
     <g
        id="CONSTRAINT_HORIZONTAL">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect2"
-         width="4.2333331"
-         height="4.2333331"
-         x="8.4666672"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="24.000021"
+         y="4.000001" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect3"
-         width="4.2333326"
-         height="0.52916652"
-         x="8.4666662"
-         y="3.9687498" />
+         width="15.999994"
+         height="1.999999"
+         x="24.000017"
+         y="10.999996" />
     </g>
     <g
        id="CONSTRAINT_VERTICAL">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect4"
-         width="4.2333331"
-         height="4.2333331"
-         x="13.758333"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="44.000015"
+         y="4.000001" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect5"
-         width="4.2333326"
-         height="0.52916652"
-         x="2.1166668"
-         y="-16.139582"
+         width="15.999994"
+         height="1.999999"
+         x="3.9999993"
+         y="-53.000008"
          transform="rotate(90)" />
     </g>
     <g
        id="CONSTRAINT_PARALLEL">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect6"
-         width="4.2333331"
-         height="4.2333331"
-         x="19.049999"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="64.000008"
+         y="4.000001" />
       <path
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
-         d="M 19.049999,4.4979171 V 3.9687504 L 23.283333,2.9104173 V 3.4395839 Z"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
+         d="M 64.000008,12.999999 V 10.999999 L 80.000007,7.0000006 V 9 Z"
          id="path7"
          sodipodi:nodetypes="ccccc" />
       <path
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
-         d="M 19.049999,5.5562504 V 5.0270837 L 23.283333,3.9687505 V 4.4979171 Z"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
+         d="M 64.000008,16.999998 V 14.999998 L 80.000007,10.999999 V 12.999999 Z"
          id="path8"
          sodipodi:nodetypes="ccccc" />
     </g>
     <g
        id="CONSTRAINT_EQUAL_LENGTH">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect8"
-         width="4.2333331"
-         height="4.2333331"
-         x="24.341665"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="84"
+         y="4.000001" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect10"
-         width="2.1166663"
-         height="0.52916664"
-         x="25.4"
-         y="3.4395831" />
+         width="7.9999971"
+         height="1.9999995"
+         x="88.000008"
+         y="8.9999971" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect11"
-         width="2.116667"
-         height="0.52916658"
-         x="25.4"
-         y="4.4979162" />
+         width="8"
+         height="1.9999993"
+         x="88.000008"
+         y="12.999995" />
     </g>
     <g
        id="CONSTRAINT_POINT_ON_LINE">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect12"
-         width="4.2333331"
-         height="4.2333331"
-         x="29.633331"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="104"
+         y="4.000001" />
       <path
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
-         d="M 29.633332,5.0270829 V 4.4979162 L 33.866666,3.4395831 V 3.9687497 Z"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
+         d="M 104,14.999995 V 12.999995 L 120,8.999997 V 10.999996 Z"
          id="path12"
          sodipodi:nodetypes="ccccc" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="path13"
-         cx="32.543751"
-         cy="3.9687498"
-         r="1.0583333" />
+         cx="115.00001"
+         cy="10.999996"
+         r="3.999999" />
     </g>
     <g
-       id="CONSTRAINT_MIDPOINT"
-       transform="translate(5.2916649)">
+       id="CONSTRAINT_MIDPOINT">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect13"
-         width="4.2333331"
-         height="4.2333331"
-         x="29.633331"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="123.99998"
+         y="4.000001" />
       <path
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
-         d="M 29.633332,5.0270829 V 4.4979162 L 33.866666,3.4395831 V 3.9687497 Z"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
+         d="M 123.99998,14.999995 V 12.999995 L 139.99998,8.999997 V 10.999996 Z"
          id="path14"
          sodipodi:nodetypes="ccccc" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="circle14"
-         cx="31.75"
-         cy="4.2333331"
-         r="1.0583333" />
+         cx="131.99998"
+         cy="11.999996"
+         r="3.999999" />
     </g>
     <g
        id="CONSTRAINT_WORKPLANE_NORMAL">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect26"
-         width="4.2333331"
-         height="4.2333331"
-         x="40.216663"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="143.99998"
+         y="4.000001" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect27"
-         width="3.7041655"
-         height="0.52917057"
-         x="2.645833"
-         y="-42.597916"
+         width="13.999993"
+         height="2.0000143"
+         x="5.9999971"
+         y="-152.99998"
          transform="rotate(90)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect28"
-         width="4.2333331"
-         height="0.52916664"
-         x="40.216667"
-         y="5.8208337" />
+         width="15.999996"
+         height="1.9999995"
+         x="144"
+         y="17.999998" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 41.539582,3.1750007 42.333332,2.3812507 43.127082,3.1750007"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 148.99999,8.0000007 151.99999,5.0000012 154.99999,8.0000007"
          id="path23-5"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect23-6"
-         width="0.26458332"
-         height="0.26458332"
-         x="43.127083"
-         y="3.1749997" />
+         width="0.99999976"
+         height="0.99999976"
+         x="155"
+         y="7.9999971" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect23-6-7"
-         width="0.26458332"
-         height="0.26458332"
-         x="41.274998"
-         y="3.1749997" />
+         width="0.99999976"
+         height="0.99999976"
+         x="147.99998"
+         y="7.9999971" />
     </g>
     <g
-       id="CONSTRAINT_SAME_ORIENTATION"
-       transform="translate(5.2916649)">
-      <g
-         id="g3">
-        <rect
-           style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
-           id="rect29"
-           width="4.2333331"
-           height="4.2333331"
-           x="40.216663"
-           y="2.1166673" />
-        <rect
-           style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
-           id="rect30"
-           width="3.7041655"
-           height="0.52917057"
-           x="2.645833"
-           y="-41.539585"
-           transform="rotate(90)" />
-        <path
-           style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-           d="M 40.48125,3.1750008 41.275,2.3812508 42.06875,3.1750008"
-           id="path31"
-           sodipodi:nodetypes="ccc" />
-        <rect
-           style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-           id="rect32"
-           width="0.26458332"
-           height="0.26458332"
-           x="42.068752"
-           y="3.1749997" />
-        <rect
-           style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-           id="rect33"
-           width="0.26458332"
-           height="0.26458332"
-           x="40.216667"
-           y="3.1749997" />
-        <rect
-           style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
-           id="rect34"
-           width="3.7041655"
-           height="0.52917057"
-           x="2.645833"
-           y="-43.65625"
-           transform="rotate(90)" />
-        <path
-           style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-           d="M 42.597915,3.1750009 43.391665,2.3812509 44.185415,3.1750009"
-           id="path34"
-           sodipodi:nodetypes="ccc" />
-        <rect
-           style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-           id="rect35"
-           width="0.26458332"
-           height="0.26458332"
-           x="44.185417"
-           y="3.1749997" />
-        <rect
-           style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-           id="rect36"
-           width="0.26458332"
-           height="0.26458332"
-           x="42.333332"
-           y="3.1749997" />
-      </g>
+       id="CONSTRAINT_SAME_ORIENTATION">
+      <rect
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect29"
+         width="15.999996"
+         height="15.999996"
+         x="163.99997"
+         y="4.000001" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect30"
+         width="13.999993"
+         height="2.0000143"
+         x="5.9999971"
+         y="-168.99998"
+         transform="rotate(90)" />
+      <path
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 164.99998,8.000001 167.99998,5.0000016 170.99998,8.000001"
+         id="path31"
+         sodipodi:nodetypes="ccc" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect32"
+         width="0.99999976"
+         height="0.99999976"
+         x="170.99998"
+         y="7.9999971" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect33"
+         width="0.99999976"
+         height="0.99999976"
+         x="163.99998"
+         y="7.9999971" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect34"
+         width="13.999993"
+         height="2.0000143"
+         x="5.9999971"
+         y="-176.99997"
+         transform="rotate(90)" />
+      <path
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 172.99997,8.0000014 175.99997,5.0000019 178.99997,8.0000014"
+         id="path34"
+         sodipodi:nodetypes="ccc" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect35"
+         width="0.99999976"
+         height="0.99999976"
+         x="178.99997"
+         y="7.9999971" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect36"
+         width="0.99999976"
+         height="0.99999976"
+         x="171.99997"
+         y="7.9999971" />
     </g>
     <g
        id="CONSTRAINT_POINT_ON_CIRCLE">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect37"
-         width="4.2333331"
-         height="4.2333331"
-         x="50.799999"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="183.99998"
+         y="4.000001" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="circle37"
-         cx="53.181248"
-         cy="3.9687498"
-         r="1.0583333" />
+         cx="192.99998"
+         cy="10.999996"
+         r="3.999999" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path38"
          sodipodi:type="arc"
-         sodipodi:cx="50.799999"
-         sodipodi:cy="6.3499994"
-         sodipodi:rx="3.4395833"
-         sodipodi:ry="3.4395833"
+         sodipodi:cx="183.99998"
+         sodipodi:cy="19.999994"
+         sodipodi:rx="12.999997"
+         sodipodi:ry="12.999997"
          sodipodi:start="4.712389"
          sodipodi:end="0"
          sodipodi:open="true"
          sodipodi:arc-type="arc"
-         d="M 50.799999,2.9104161 A 3.4395833,3.4395833 0 0 1 54.239583,6.3499994" />
+         d="M 183.99998,6.9999971 A 12.999997,12.999997 0 0 1 196.99998,19.999994" />
     </g>
     <g
        id="CONSTRAINT_ARC_ARC_TANGENT">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect40"
-         width="4.2333331"
-         height="4.2333331"
-         x="61.383331"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="223.99997"
+         y="4.000001" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path41"
          sodipodi:type="arc"
-         sodipodi:cx="63.235416"
-         sodipodi:cy="6.0854163"
-         sodipodi:rx="2.1166649"
-         sodipodi:ry="2.1166649"
+         sodipodi:cx="230.99998"
+         sodipodi:cy="18.999994"
+         sodipodi:rx="7.9999919"
+         sodipodi:ry="7.9999919"
          sodipodi:start="4.7071853"
          sodipodi:end="0"
          sodipodi:open="true"
          sodipodi:arc-type="arc"
-         d="M 63.224402,3.9687801 A 2.1166649,2.1166649 0 0 1 64.728225,4.5848191 2.1166649,2.1166649 0 0 1 65.352081,6.0854163" />
+         d="M 230.95836,11.000111 A 7.9999919,7.9999919 0 0 1 236.6421,13.328447 7.9999919,7.9999919 0 0 1 238.99998,18.999994" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path42"
          sodipodi:type="arc"
-         sodipodi:cx="63.235416"
-         sodipodi:cy="2.3812511"
-         sodipodi:rx="1.5874983"
-         sodipodi:ry="1.5874983"
+         sodipodi:cx="230.99998"
+         sodipodi:cy="5.0000029"
+         sodipodi:rx="5.9999924"
+         sodipodi:ry="5.9999924"
          sodipodi:start="1.5707963"
          sodipodi:end="3.1415927"
          sodipodi:open="true"
          sodipodi:arc-type="arc"
-         d="M 63.235416,3.9687494 A 1.5874983,1.5874983 0 0 1 62.112886,3.5037819 1.5874983,1.5874983 0 0 1 61.647918,2.3812511" />
+         d="M 230.99998,10.999995 A 5.9999924,5.9999924 0 0 1 226.75735,9.2426381 5.9999924,5.9999924 0 0 1 224.99999,5.0000029" />
     </g>
     <g
        id="CONSTRAINT_ARC_LINE_TANGENT">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect44"
-         width="4.2333331"
-         height="4.2333331"
-         x="56.091667"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="203.99998"
+         y="4.000001" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path43"
          sodipodi:type="arc"
-         sodipodi:cx="57.943756"
-         sodipodi:cy="5.5562477"
-         sodipodi:rx="2.1166649"
-         sodipodi:ry="2.1166649"
+         sodipodi:cx="211.00002"
+         sodipodi:cy="16.999989"
+         sodipodi:rx="7.9999919"
+         sodipodi:ry="7.9999919"
          sodipodi:start="4.7071853"
          sodipodi:end="0"
          sodipodi:open="true"
          sodipodi:arc-type="arc"
-         d="M 57.932742,3.4396115 A 2.1166649,2.1166649 0 0 1 59.436565,4.0556505 2.1166649,2.1166649 0 0 1 60.060421,5.5562477" />
+         d="M 210.95839,9.000105 A 7.9999919,7.9999919 0 0 1 216.64213,11.328441 7.9999919,7.9999919 0 0 1 219.00001,16.999989" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect45"
-         width="1.8520833"
-         height="0.52916664"
-         x="56.091667"
-         y="3.1749997" />
+         width="6.9999986"
+         height="1.9999995"
+         x="203.99998"
+         y="7.9999971" />
     </g>
     <g
        id="CONSTRAINT_PERPENDICULAR">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect46"
-         width="4.2333331"
-         height="4.2333331"
-         x="66.675003"
-         y="2.1166666" />
+         width="15.999996"
+         height="15.999996"
+         x="243.99998"
+         y="3.9999983" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect47"
-         width="4.2333345"
-         height="0.52916658"
-         x="66.674995"
-         y="5.8208327" />
+         width="16.000002"
+         height="1.9999993"
+         x="243.99997"
+         y="17.999994" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect48"
-         width="0.52917767"
-         height="3.7041667"
-         x="66.675003"
-         y="2.1166666" />
+         width="2.0000412"
+         height="13.999997"
+         x="243.99998"
+         y="3.9999983" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path43-9"
          sodipodi:type="arc"
-         sodipodi:cx="67.204163"
-         sodipodi:cy="5.8208313"
-         sodipodi:rx="2.1166644"
-         sodipodi:ry="2.1166644"
+         sodipodi:cx="245.99997"
+         sodipodi:cy="17.999989"
+         sodipodi:rx="7.99999"
+         sodipodi:ry="7.99999"
          sodipodi:start="4.7071853"
          sodipodi:end="0"
          sodipodi:open="true"
          sodipodi:arc-type="arc"
-         d="M 67.193148,3.7041955 A 2.1166644,2.1166644 0 0 1 68.696971,4.3202344 2.1166644,2.1166644 0 0 1 69.320827,5.8208313" />
+         d="M 245.95834,10.000107 A 7.99999,7.99999 0 0 1 251.64208,12.328442 7.99999,7.99999 0 0 1 253.99996,17.999989" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path48"
-         cx="67.997917"
-         cy="5.0270829"
-         r="0.26458332" />
+         cx="248.99998"
+         cy="14.999995"
+         r="0.99999976" />
     </g>
     <g
-       id="CONSTRAINT_POINT_IN_PLANE"
-       transform="translate(5.2916634)">
+       id="CONSTRAINT_POINT_IN_PLANE">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect7"
-         width="4.2333331"
-         height="4.2333331"
-         x="66.675003"
-         y="2.1166666" />
+         width="15.999996"
+         height="15.999996"
+         x="263.99997"
+         y="3.9999983" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect9"
-         width="4.2333345"
-         height="0.52916658"
-         x="66.674995"
-         y="5.8208327" />
+         width="16.000002"
+         height="1.9999993"
+         x="263.99994"
+         y="17.999994" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect14"
-         width="0.52917767"
-         height="3.7041667"
-         x="66.675003"
-         y="2.1166666" />
+         width="2.0000412"
+         height="13.999997"
+         x="263.99997"
+         y="3.9999983" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="circle15"
-         cx="68.791672"
-         cy="4.2333331"
-         r="0.52916676" />
+         cx="271.99997"
+         cy="11.999996"
+         r="2" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect15"
-         width="0.52917767"
-         height="3.7041667"
-         x="70.379166"
-         y="2.1166663" />
+         width="2.0000412"
+         height="13.999997"
+         x="277.99994"
+         y="3.9999974" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect16"
-         width="4.2333345"
-         height="0.52916658"
-         x="66.674995"
-         y="2.1166666" />
+         width="16.000002"
+         height="1.9999993"
+         x="263.99994"
+         y="3.9999983" />
     </g>
     <g
        id="CONSTRAINT_LOCK_ROTATION">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect17"
-         width="4.2333331"
-         height="4.2333331"
-         x="77.258331"
-         y="2.1166666" />
+         width="15.999996"
+         height="15.999996"
+         x="283.99997"
+         y="3.9999983" />
       <path
-         d="M 79.133152,2.645833 C 79.285081,2.6478999 79.438043,2.6685707 79.589972,2.7088781 80.398191,2.9259193 80.962498,3.6607582 80.962498,4.4979163 H 81.491664 V 4.7624996 H 81.489597 C 81.490631,4.8327795 81.462725,4.8999588 81.41415,4.9495682 L 80.884983,5.4787349 C 80.78163,5.5820877 80.614199,5.5820877 80.510846,5.4787349 L 79.981679,4.9495682 C 79.93207,4.8999588 79.905198,4.8327795 79.905198,4.7624996 H 79.904164 V 4.4979163 H 80.433331 C 80.433331,3.8974362 80.032322,3.375504 79.452512,3.2194414 78.873736,3.064412 78.264988,3.316593 77.964231,3.8364579 77.664508,4.3563229 77.750291,5.0084795 78.175071,5.4332596 78.278424,5.5366125 78.278424,5.7040443 78.175071,5.8073971 78.071718,5.91075 77.904286,5.91075 77.800933,5.8073971 77.208722,5.2151853 77.087799,4.2963781 77.506378,3.5718746 77.820571,3.0282384 78.380743,2.6923417 78.982257,2.6510005 79.031866,2.6468664 79.082509,2.6447995 79.133152,2.645833 Z M 79.133152,2.645833"
+         d="M 291.0859,5.9999971 C 291.66012,6.007809 292.23824,6.0859348 292.81246,6.2382777 295.86715,7.0585908 297.99996,9.8359342 297.99996,12.999996 H 299.99996 V 13.999995 H 299.99215 C 299.99606,14.26562 299.89058,14.519526 299.70699,14.707026 L 297.70699,16.707026 C 297.31637,17.097651 296.68356,17.097651 296.29293,16.707026 L 294.29293,14.707026 C 294.10543,14.519526 294.00387,14.26562 294.00387,13.999995 H 293.99996 V 12.999996 H 295.99996 C 295.99996,10.730465 294.48434,8.7578083 292.29293,8.1679655 290.10543,7.5820277 287.80465,8.5351526 286.66793,10.499996 285.53512,12.46484 285.85934,14.929683 287.46481,16.535151 287.85543,16.925776 287.85543,17.558589 287.46481,17.949214 287.07418,18.339839 286.44137,18.339839 286.05074,17.949214 283.81247,15.710933 283.35543,12.238277 284.93746,9.4999962 286.12497,7.4453086 288.24215,6.175778 290.51559,6.0195278 290.70309,6.0039029 290.89449,5.996091 291.0859,5.9999971 Z M 291.0859,5.9999971"
          fill="#2e3436"
          id="path1"
-         style="stroke-width:0.264583;fill:#000000" />
+         style="fill:#000000;stroke-width:0.999999" />
     </g>
     <g
        id="CONSTRAINT_SYMMETRIC_HORIZONTAL">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect18"
-         width="4.2333331"
-         height="4.2333331"
-         x="82.549995"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="303.99994"
+         y="4.000001" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect19"
-         width="4.2333326"
-         height="0.52916652"
-         x="82.549995"
-         y="3.9687498" />
+         width="15.999994"
+         height="1.999999"
+         x="303.99994"
+         y="10.999996" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 83.872919,5.8208338 84.666669,5.0270838 85.460419,5.8208338"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 308.99998,17.999998 311.99998,14.999999 314.99998,17.999998"
          id="path23-5-5"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect23-6-3"
-         width="0.26458332"
-         height="0.26458332"
-         x="85.460419"
-         y="5.8208327" />
+         width="0.99999976"
+         height="0.99999976"
+         x="314.99997"
+         y="17.999994" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect23-6-7-5"
-         width="0.26458332"
-         height="0.26458332"
-         x="83.608337"
-         y="5.8208327" />
+         width="0.99999976"
+         height="0.99999976"
+         x="307.99997"
+         y="17.999994" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 85.460414,2.6458331 84.666664,3.4395831 83.872914,2.6458331"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 314.99996,5.9999975 311.99996,8.999997 308.99996,5.9999975"
          id="path19"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect20"
-         width="0.26458332"
-         height="0.26458332"
-         x="-83.872917"
-         y="-2.6458371"
+         width="0.99999976"
+         height="0.99999976"
+         x="-308.99997"
+         y="-6.0000124"
          transform="scale(-1)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect21"
-         width="0.26458332"
-         height="0.26458332"
-         x="-85.724998"
-         y="-2.6458371"
+         width="0.99999976"
+         height="0.99999976"
+         x="-315.99997"
+         y="-6.0000124"
          transform="scale(-1)" />
     </g>
     <g
        id="CONSTRAINT_SYMMETRIC_VERTICAL">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect22"
-         width="4.2333331"
-         height="4.2333331"
-         x="2.1166673"
-         y="-92.074997"
+         width="15.999996"
+         height="15.999996"
+         x="4.000001"
+         y="-339.99994"
          transform="rotate(90)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect23"
-         width="4.2333326"
-         height="0.52916652"
-         x="2.1166673"
-         y="-90.222916"
+         width="15.999994"
+         height="1.999999"
+         x="4.000001"
+         y="-332.99997"
          transform="rotate(90)" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 88.370834,3.4395881 89.164584,4.2333381 88.370834,5.0270881"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 325.99997,9.0000158 328.99997,12.000015 325.99997,15.000015"
          id="path23"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect24"
-         width="0.26458332"
-         height="0.26458332"
-         x="5.0270905"
-         y="-88.370834"
+         width="0.99999976"
+         height="0.99999976"
+         x="15.000024"
+         y="-325.99997"
          transform="rotate(90)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect25"
-         width="0.26458332"
-         height="0.26458332"
-         x="3.1750093"
-         y="-88.370834"
+         width="0.99999976"
+         height="0.99999976"
+         x="8.0000334"
+         y="-325.99997"
          transform="rotate(90)" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 91.545834,5.0270831 90.752084,4.2333331 91.545834,3.4395831"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 337.99997,14.999996 334.99997,11.999996 337.99997,8.999997"
          id="path25"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect31"
-         width="0.26458332"
-         height="0.26458332"
-         x="-3.439589"
-         y="91.54583"
+         width="0.99999976"
+         height="0.99999976"
+         x="-9.0000191"
+         y="337.99994"
          transform="rotate(-90)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect38"
-         width="0.26458332"
-         height="0.26458332"
-         x="-5.2916703"
-         y="91.54583"
+         width="0.99999976"
+         height="0.99999976"
+         x="-16.00001"
+         y="337.99994"
          transform="rotate(-90)" />
     </g>
     <g
-       id="CONSTRAINT_SYMMETRIC_LINE"
-       transform="translate(5.2916676)">
+       id="CONSTRAINT_SYMMETRIC_LINE">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect39"
-         width="4.2333331"
-         height="4.2333331"
-         x="2.1166673"
-         y="-92.074997"
+         width="15.999996"
+         height="15.999996"
+         x="4.000001"
+         y="-359.99994"
          transform="rotate(90)" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 88.370834,3.4395881 89.164584,4.2333381 88.370834,5.0270881"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 345.99996,9.0000158 348.99996,12.000015 345.99996,15.000015"
          id="path44"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect49"
-         width="0.26458332"
-         height="0.26458332"
-         x="5.0270905"
-         y="-88.370834"
+         width="0.99999976"
+         height="0.99999976"
+         x="15.000024"
+         y="-345.99997"
          transform="rotate(90)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect50"
-         width="0.26458332"
-         height="0.26458332"
-         x="3.1750093"
-         y="-88.370834"
+         width="0.99999976"
+         height="0.99999976"
+         x="8.0000334"
+         y="-345.99997"
          transform="rotate(90)" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 91.545834,5.0270831 90.752084,4.2333331 91.545834,3.4395831"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 357.99996,14.999996 354.99996,11.999996 357.99996,8.999997"
          id="path50"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect51"
-         width="0.26458332"
-         height="0.26458332"
-         x="-3.439589"
-         y="91.54583"
+         width="0.99999976"
+         height="0.99999976"
+         x="-9.0000191"
+         y="357.99994"
          transform="rotate(-90)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect52"
-         width="0.26458332"
-         height="0.26458332"
-         x="-5.2916703"
-         y="91.54583"
+         width="0.99999976"
+         height="0.99999976"
+         x="-16.00001"
+         y="357.99994"
          transform="rotate(-90)" />
     </g>
     <g
        id="CONSTRAINT_BEZIER_BEZIER_TANGENT_SYMMETRIC">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect41"
-         width="4.2333331"
-         height="4.2333331"
-         x="98.425003"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="363.99997"
+         y="4.000001" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path46"
          sodipodi:type="arc"
-         sodipodi:cx="100.54166"
-         sodipodi:cy="2.3812571"
-         sodipodi:rx="1.8520758"
-         sodipodi:ry="1.8520758"
+         sodipodi:cx="371.99991"
+         sodipodi:cy="5.0000253"
+         sodipodi:rx="6.9999704"
+         sodipodi:ry="6.9999704"
          sodipodi:start="1.5707963"
          sodipodi:end="3.1415927"
          sodipodi:arc-type="arc"
-         d="M 100.54166,4.2333329 A 1.8520758,1.8520758 0 0 1 99.232041,3.6908724 1.8520758,1.8520758 0 0 1 98.689581,2.3812571"
+         d="M 371.99991,11.999996 A 6.9999704,6.9999704 0 0 1 367.05018,9.9497518 6.9999704,6.9999704 0 0 1 364.99994,5.0000253"
          sodipodi:open="true" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 101.33541,2.3812478 100.54166,3.1749948 99.747909,2.3812478"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 374.99993,4.9999902 371.99993,7.9999784 368.99993,4.9999902"
          id="path50-2"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect51-9"
-         width="0.26458332"
-         height="0.26458332"
-         x="-99.747917"
-         y="-2.381249"
+         width="0.99999976"
+         height="0.99999976"
+         x="-368.99997"
+         y="-4.9999948"
          transform="scale(-1)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect52-1"
-         width="0.26458332"
-         height="0.26458332"
-         x="-101.6"
-         y="-2.381249"
+         width="0.99999976"
+         height="0.99999976"
+         x="-375.99994"
+         y="-4.9999948"
          transform="scale(-1)" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
-         d="M 101.33541,6.085417 100.54166,5.29167 99.74791,6.085417"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         d="M 374.99993,18.999997 371.99993,16.000009 368.99993,18.999997"
          id="path47"
          sodipodi:nodetypes="ccc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect53"
-         width="0.26458332"
-         height="0.26458332"
-         x="-99.747917"
-         y="6.0854163"
+         width="0.99999976"
+         height="0.99999976"
+         x="-368.99997"
+         y="18.999994"
          transform="scale(-1,1)" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="rect54"
-         width="0.26458332"
-         height="0.26458332"
-         x="-101.6"
-         y="6.0854163"
+         width="0.99999976"
+         height="0.99999976"
+         x="-375.99994"
+         y="18.999994"
          transform="scale(-1,1)" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path54"
          sodipodi:type="arc"
-         sodipodi:cx="-100.54166"
-         sodipodi:cy="-6.0854087"
-         sodipodi:rx="1.8520758"
-         sodipodi:ry="1.8520758"
+         sodipodi:cx="-371.99991"
+         sodipodi:cy="-18.999966"
+         sodipodi:rx="6.9999704"
+         sodipodi:ry="6.9999704"
          sodipodi:start="1.5707963"
          sodipodi:end="3.1415927"
          sodipodi:arc-type="arc"
-         d="M -100.54166,-4.2333329 A 1.8520758,1.8520758 0 0 1 -101.85127,-4.7757933 1.8520758,1.8520758 0 0 1 -102.39373,-6.0854087"
+         d="M -371.99991,-11.999995 A 6.9999704,6.9999704 0 0 1 -376.94964,-14.050239 6.9999704,6.9999704 0 0 1 -378.99988,-18.999966"
          sodipodi:open="true"
          transform="scale(-1)" />
     </g>
     <g
        id="CONSTRAINT_POINT_ON_BEZIER">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect42"
-         width="4.2333331"
-         height="4.2333331"
-         x="103.71667"
-         y="2.1166673" />
+         width="15.999996"
+         height="15.999996"
+         x="383.99997"
+         y="4.000001" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path45"
          sodipodi:type="arc"
-         sodipodi:cx="105.83333"
-         sodipodi:cy="2.3812571"
-         sodipodi:rx="1.8520758"
-         sodipodi:ry="1.8520758"
+         sodipodi:cx="391.99994"
+         sodipodi:cy="5.0000253"
+         sodipodi:rx="6.9999704"
+         sodipodi:ry="6.9999704"
          sodipodi:start="1.5707963"
          sodipodi:end="3.1415927"
          sodipodi:arc-type="arc"
-         d="M 105.83333,4.2333329 A 1.8520758,1.8520758 0 0 1 104.52371,3.6908724 1.8520758,1.8520758 0 0 1 103.98125,2.3812571"
+         d="M 391.99994,11.999996 A 6.9999704,6.9999704 0 0 1 387.05021,9.9497518 6.9999704,6.9999704 0 0 1 384.99997,5.0000253"
          sodipodi:open="true" />
       <path
-         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="path58"
          sodipodi:type="arc"
-         sodipodi:cx="-105.83333"
-         sodipodi:cy="-6.0854087"
-         sodipodi:rx="1.8520758"
-         sodipodi:ry="1.8520758"
+         sodipodi:cx="-391.99994"
+         sodipodi:cy="-18.999966"
+         sodipodi:rx="6.9999704"
+         sodipodi:ry="6.9999704"
          sodipodi:start="1.5707963"
          sodipodi:end="3.1415927"
          sodipodi:arc-type="arc"
-         d="M -105.83333,-4.2333329 A 1.8520758,1.8520758 0 0 1 -107.14294,-4.7757933 1.8520758,1.8520758 0 0 1 -107.6854,-6.0854087"
+         d="M -391.99994,-11.999995 A 6.9999704,6.9999704 0 0 1 -396.94967,-14.050239 6.9999704,6.9999704 0 0 1 -398.99991,-18.999966"
          sodipodi:open="true"
          transform="scale(-1)" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="path13-5"
-         cx="105.83333"
-         cy="4.2333331"
-         r="1.0583333" />
+         cx="391.99994"
+         cy="11.999996"
+         r="3.999999" />
     </g>
     <g
        id="POINT_BOX">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect43"
-         width="4.2333331"
-         height="4.2333331"
-         x="3.175"
-         y="7.4083328" />
+         width="15.999996"
+         height="15.999996"
+         x="4.0000219"
+         y="23.999992" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:1.13386;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
          id="rect55"
-         width="2.6458335"
-         height="2.6458333"
-         x="3.9687498"
-         y="8.2020826" />
+         width="9.999999"
+         height="9.9999981"
+         x="7.0000205"
+         y="26.999992" />
     </g>
     <g
        id="POINT_CIRCLE">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect56"
-         width="4.2333331"
-         height="4.2333331"
-         x="8.4666672"
-         y="7.4083328" />
+         width="15.999996"
+         height="15.999996"
+         x="24.000021"
+         y="23.999992" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:1.13386;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
          id="path57"
-         cx="10.583334"
-         cy="9.5249987"
-         r="1.4552083" />
+         cx="32.000019"
+         cy="31.999989"
+         r="5.499999" />
     </g>
     <g
        id="POINT_DIAMOND">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect58"
-         width="4.2333331"
-         height="4.2333331"
-         x="13.758333"
-         y="7.4083328" />
+         width="15.999996"
+         height="15.999996"
+         x="44.000015"
+         y="23.999992" />
       <path
-         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
-         d="M 14.022917,9.5249991 15.875,7.6729161 17.727084,9.5249991 15.875,11.377082 Z"
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke-width:1.13386;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         d="M 45.000016,31.99999 52.000014,24.999993 59.000015,31.99999 52.000014,38.999988 Z"
          id="path59" />
     </g>
     <g
        id="POINT_CROSS">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect59"
-         width="4.2333331"
-         height="4.2333331"
-         x="19.049999"
-         y="7.4083328" />
+         width="15.999996"
+         height="15.999996"
+         x="64.000008"
+         y="23.999992" />
       <path
-         style="color:#000000;overflow:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
-         d="M 20.240627,8.5989586 22.09271,10.451042"
+         style="color:#000000;overflow:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3.99999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         d="M 68.500018,28.499995 75.500016,35.499994"
          id="path60"
          sodipodi:nodetypes="cc" />
       <path
-         style="color:#000000;overflow:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
-         d="M 22.09271,8.598958 20.240627,10.451042"
+         style="color:#000000;overflow:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3.99999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         d="M 75.500016,28.499993 68.500018,35.499994"
          id="path61"
          sodipodi:nodetypes="cc" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.99999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
          id="rect61"
-         width="0.52916676"
-         height="0.52916658"
-         x="19.71146"
-         y="8.0697918" />
+         width="2"
+         height="1.9999993"
+         x="66.500015"
+         y="26.499996" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.99999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
          id="rect62"
-         width="0.52916676"
-         height="0.52916658"
-         x="19.71146"
-         y="10.451042" />
+         width="2"
+         height="1.9999993"
+         x="66.500015"
+         y="35.499996" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.99999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
          id="rect63"
-         width="0.52916676"
-         height="0.52916658"
-         x="22.09271"
-         y="10.451042" />
+         width="2"
+         height="1.9999993"
+         x="75.500015"
+         y="35.499996" />
       <rect
-         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
+         style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.99999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
          id="rect64"
-         width="0.52916676"
-         height="0.52916658"
-         x="22.09271"
-         y="8.0697918" />
+         width="2"
+         height="1.9999993"
+         x="75.500015"
+         y="26.499996" />
     </g>
     <g
        id="POINT_TRIANGLE_DOWN">
       <rect
-         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.245669;stroke-linejoin:round;paint-order:markers fill stroke"
          id="rect65"
-         width="4.2333331"
-         height="4.2333331"
-         x="24.341665"
-         y="7.4083328" />
+         width="15.999996"
+         height="15.999996"
+         x="84"
+         y="23.999992" />
       <path
          sodipodi:type="star"
          style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
@@ -937,7 +926,7 @@
          inkscape:randomized="0"
          d="M 26.458333,11.442368 C 26.454496,11.442368 24.795923,8.5696373 24.797841,8.5663147 24.799759,8.562992 28.116904,8.5629906 28.118822,8.5663133 28.120741,8.5696359 26.46217,11.442368 26.458333,11.442368 Z"
          inkscape:transform-center-y="0.26389541"
-         transform="translate(1.2685343e-7,-0.47809563)" />
+         transform="matrix(3.7795269,0,0,3.7795269,-7.9999755,-5.8069752)" />
     </g>
   </g>
 </svg>
