@@ -63,10 +63,11 @@ jobs:
         mkdir ../build
         CXX=${{ matrix.os.cxx }} CC=${{ matrix.os.cc }} meson setup ../build
         ninja -C ../build ${{ matrix.target }}
+        cp ../build/icon_texture_atlas.png .
     - uses: actions/upload-artifact@v4
       with:
         name: texture-atlas
-        path: ../build/icon_texture_atlas.png
+        path: icon_texture_atlas.png
 
   build-arch:
     strategy:
