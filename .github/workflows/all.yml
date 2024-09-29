@@ -51,6 +51,11 @@ jobs:
     needs: stylecheck
     steps:
     - uses: actions/checkout@v4
+    - name: set artifact name
+      shell: bash
+      run: |
+        container=${{matrix.os.container}}
+        echo "artifact_name=${container//:/-}" >> $GITHUB_ENV
     - name: generate locales
       run: |
         apt-get update
@@ -64,11 +69,6 @@ jobs:
         CXX=${{ matrix.os.cxx }} CC=${{ matrix.os.cc }} meson setup ../build
         ninja -C ../build ${{ matrix.target }}
         cp ../build/icon_texture_atlas.png .
-    - name: set artifact name
-      shell: bash
-      run: |
-        container=${{matrix.os.container}}
-        echo "artifact_name=${container//:/-}" >> $GITHUB_ENV
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ env.artifact_name }}
