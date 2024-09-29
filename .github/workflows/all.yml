@@ -66,8 +66,8 @@ jobs:
         cp ../build/icon_texture_atlas.png .
     - name: set artifact name
       run: |
-        $container=${{matrix.os.container}}
-        echo "artifact_name=${container//:/-} >> $GITHUB_ENV
+        container=${{matrix.os.container}}
+        echo "artifact_name=${container//:/-}" >> $GITHUB_ENV
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ env.artifact_name }}
