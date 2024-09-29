@@ -25,9 +25,9 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="22.627417"
-     inkscape:cx="97.028308"
-     inkscape:cy="43.487067"
-     inkscape:window-width="1424"
+     inkscape:cx="78.754018"
+     inkscape:cy="43.221902"
+     inkscape:window-width="1387"
      inkscape:window-height="1150"
      inkscape:window-x="0"
      inkscape:window-y="0"
@@ -874,15 +874,13 @@
          x="19.049999"
          y="7.4083328" />
       <path
-         style="color:#000000;overflow:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
-         d="M 20.240627,8.5989586 22.09271,10.451042"
-         id="path60"
-         sodipodi:nodetypes="cc" />
+         style="color:#000000;fill:#000000;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none;paint-order:stroke fill markers"
+         d="M 20.240234,8.0703125 A 0.52916503,0.52916503 0 0 0 19.867187,8.2246094 0.52916503,0.52916503 0 0 0 19.867187,8.9726563 L 21.71875,10.826172 A 0.52916503,0.52916503 0 0 0 22.466797,10.826172 0.52916503,0.52916503 0 0 0 22.466797,10.076172 L 20.615234,8.2246094 A 0.52916503,0.52916503 0 0 0 20.240234,8.0703125 Z"
+         id="path60" />
       <path
-         style="color:#000000;overflow:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
-         d="M 22.09271,8.598958 20.240627,10.451042"
-         id="path61"
-         sodipodi:nodetypes="cc" />
+         style="color:#000000;fill:#000000;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none;paint-order:stroke fill markers"
+         d="M 21.71875,8.2246094 19.867187,10.076172 A 0.52916503,0.52916503 0 0 0 19.867187,10.826172 0.52916503,0.52916503 0 0 0 20.615234,10.826172 L 22.466797,8.9726563 A 0.52916503,0.52916503 0 0 0 22.466797,8.2246094 0.52916503,0.52916503 0 0 0 21.71875,8.2246094 Z"
+         id="path61" />
       <rect
          style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers"
          id="rect61"
