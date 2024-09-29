@@ -38,11 +38,8 @@ jobs:
           - container: debian:trixie
             cxx: g++-13
             cc: gcc
-          - container: ubuntu:lunar
+          - container: ubuntu:noble
             cxx: g++-13
-            cc: gcc
-          - container: ubuntu:mantic
-            cxx: g++
             cc: gcc
         target:
           - all
