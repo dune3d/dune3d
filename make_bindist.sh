@@ -94,6 +94,7 @@ LIBS=(
 	libsharpyuv-0.dll\
 	libxml2-2.dll\
 	librsvg-2-2.dll\
+	vulkan-1.dll\
 	gspawn-win64-helper.exe\
 	gspawn-win64-helper-console.exe
 )
