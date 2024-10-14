@@ -40,8 +40,8 @@ jobs:
     - name: Install Opencascade lite
       shell: msys2 {0}
       run: |
-        wget https://github.com/carrotIndustries/mingw-opencascade-lite/releases/download/v7.7.2-2/mingw-w64-x86_64-opencascade-lite-7.7.2-2-any.pkg.tar.zst
-        pacman -U mingw-w64-x86_64-opencascade-lite-7.7.2-2-any.pkg.tar.zst --noconfirm
+        wget https://github.com/carrotIndustries/mingw-opencascade-lite/releases/download/v7.7.2-3/mingw-w64-x86_64-opencascade-lite-7.7.2-3-any.pkg.tar.zst
+        pacman -U mingw-w64-x86_64-opencascade-lite-7.7.2-3-any.pkg.tar.zst --noconfirm
     - name: Build
       shell: msys2 {0}
       run: |
