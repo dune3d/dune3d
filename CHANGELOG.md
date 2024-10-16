@@ -1,4 +1,4 @@
-# Version 1.1.90
+# Version 1.1.91
 
 As of [cb88440](https://github.com/dune3d/dune3d/commit/cb8844038aa8e0ca47b72a82589d31007ed75d13)
 
@@ -17,6 +17,7 @@ As of [cb88440](https://github.com/dune3d/dune3d/commit/cb8844038aa8e0ca47b72a82
  - support multiple documents ([dd56445](https://github.com/dune3d/dune3d/commit/dd5644582a9b5d134db1575163d7afd7be618e34))
  - add keyboard pan/zoom/rotate ([55617b4](https://github.com/dune3d/dune3d/commit/55617b48873883dbf8e3837b27a37b3832b180df))
  - add menu for selecting obscured items ([760c851](https://github.com/dune3d/dune3d/commit/760c8510b762972c77ac0eda4ca84d5f0e400e2a))
+ - add measurement constraints ([895f2b3](https://github.com/dune3d/dune3d/commit/895f2b36563c586a9f35274f7b44320fa12e30cb))
 
 ## Enhancements
 
@@ -33,7 +34,6 @@ As of [cb88440](https://github.com/dune3d/dune3d/commit/cb8844038aa8e0ca47b72a82
  - use sensible default paths in file dialogs ([9fca904](https://github.com/dune3d/dune3d/commit/9fca904798ab9686c6228cf0c8efad3a275f5509))
  - draw contour tool: support tangent constraint on start point ([c8700c4](https://github.com/dune3d/dune3d/commit/c8700c4350c595c33216fcdd91df89f8b6bd2fab))
  - add option for hiding STEP solid model ([4fca12b](https://github.com/dune3d/dune3d/commit/4fca12b13e1f092d66cae6647c344b2eb5462f48))
- - add measurement constraints ([895f2b3](https://github.com/dune3d/dune3d/commit/895f2b36563c586a9f35274f7b44320fa12e30cb))
  - let selected items glow, off by default ([8b2f77c](https://github.com/dune3d/dune3d/commit/8b2f77cec27476adba4cffd59362748e39875c1d))
  - automatically create tangent constraints when closing a contour ([e9bbf50](https://github.com/dune3d/dune3d/commit/e9bbf5075513ffc9b7502ac90a8bbb780255fd2d))
  - use different icons for sketch points depending on type ([f923ce0](https://github.com/dune3d/dune3d/commit/f923ce0d2cf7d095a8ac0bf726ff965cee641e07))
