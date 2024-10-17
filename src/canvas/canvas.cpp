@@ -8,6 +8,7 @@
 #include "logger/logger.hpp"
 #include "iselection_filter.hpp"
 #include <iostream>
+#include <format>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -663,7 +664,7 @@ Canvas::VertexRef Canvas::get_vertex_ref_for_pick(unsigned int pick) const
         if ((pick >= it.offset) && ((pick - it.offset) < it.count))
             return {ty, pick - it.offset};
     }
-    throw std::runtime_error("pick not found");
+    throw std::runtime_error(std::format("pick {} not found", pick));
 }
 
 std::optional<SelectableRef> Canvas::get_selectable_ref_for_vertex_ref(const VertexRef &vref) const
