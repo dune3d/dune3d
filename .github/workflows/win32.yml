@@ -66,6 +66,10 @@ jobs:
         $env:PATH += ";$($Env:WIX)\bin"
         cd wix
         .\install.bat
+    - name: Print MSI checksum
+      if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/win32-installer'
+      shell: msys2 {0}
+      run: sha256sum wix/*.msi
     - uses: actions/upload-artifact@v4
       if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/win32-installer'
       with:
