@@ -1,3 +1,65 @@
+# Version 1.2.0
+
+## New Features
+
+ - add copy/paste (b8802743de03cb7dbeb14f64993d57f28312812f)
+ - add body colors (3f858f158fc0a25f7f006e6f6f20eeeefe743bd6)
+ - add text entities (5dac35766a8cf86aa0fbb2a67a7c1dfc13d36b48)
+ - add cluster entities (c9503801e41389b1f5b0355d40091b18e2bb2f65)
+ - add DXF import (270e757acc73981a0f38b48f5967652ab754774d)
+ - add bezier curves (b4e5920a49182dfe8c11d7d17d0b861648804d21, aaf3e6f6b5506fdc2600e8578f5d697b68e8e413)
+ - add loft groups (80450f5e0cbbb666f4fb9949e6ab37ee482366fc)
+ - add revolve groups (936aca66c6d214402d626edf27a4a04a641857f9)
+ - workspace views for saving visible groups (eeeca50546caba676ddaaf2dd5c74acc29bad16c)
+ - support linking documents as entities (c78c9f79b06f41052ba7b702b8a3189a97b75840)
+ - support multiple documents (dd5644582a9b5d134db1575163d7afd7be618e34)
+ - add keyboard pan/zoom/rotate (55617b48873883dbf8e3837b27a37b3832b180df)
+ - add menu for selecting obscured items (760c8510b762972c77ac0eda4ca84d5f0e400e2a)
+ - add measurement constraints (895f2b36563c586a9f35274f7b44320fa12e30cb)
+
+## Enhancements
+
+ - improve rotation with new trackball scheme (42d39ce7fdd44f93ce71cce61e56bf1dc3967094)
+ - add step model wireframe display mode (8cc3b920f04315640928d271ffbf7b49263444ed)
+ - show popup if a group couldn't be created (c2cf03c1d735be527d853f0f65eff02a697348c4)
+ - add opened documents to recent list on windows (5032e94e20ab7e1c87bd635c166aed65e168b821)
+ - show document path in header bar and workspace browser tooltip (4fe082083a42de88b0d0d4b31d9fe2824b52a857)
+ - add tooltip for hover selection (32155b514a17ff8143ed4ffc0da95adabcd01036)
+ - make loading documents more tolerant to errors (fcaa664aebfa6f07665ac806acba87d960fc0297)
+ - add option for showing construction entities from previous groups (70df064886264d04a62d02139c97d327f3edfc9f, 4aa0721c66e4c15d878886a46ddd91d361078dd9)
+ - show filename in window title (160f8971407540f18f0692e7fd8c0fa50b0f257f)
+ - add STEP model reload button (7203abff704111b8f20af34a51fc7ad22b569259)
+ - use sensible default paths in file dialogs (9fca904798ab9686c6228cf0c8efad3a275f5509)
+ - draw contour tool: support tangent constraint on start point (c8700c4350c595c33216fcdd91df89f8b6bd2fab)
+ - add option for hiding STEP solid model (4fca12b13e1f092d66cae6647c344b2eb5462f48)
+ - let selected items glow, off by default (8b2f77cec27476adba4cffd59362748e39875c1d)
+ - automatically create tangent constraints when closing a contour (e9bbf5075513ffc9b7502ac90a8bbb780255fd2d)
+ - use different icons for sketch points depending on type (f923ce0d2cf7d095a8ac0bf726ff965cee641e07)
+ - separate tool for point/line and point/plane distance constraints (f0de1dd4e933794bc81370ac53d52fb02157585d)
+ - put line/points perpendicular constraint in separate tool (e6b9e64e7dcc0dcd7bef9160480260ff91df8fca)
+ - put tangent constraints in separate tools (8cc7da4c6c39a6e9147626f6c12d418031ed5c56)
+ - replace Constrain coincident tool with tools for every constraint (6272ebf07530547366453f2d9d8f4a25fd274f96)
+ - only show constrain equal radius/distance tool if just the right things are selected (5fde27dbeeef25fe74d01ebda88687784b3068bb)
+ - only create constraints if at least one entity is in current group (0e431c9a0147fc489dd5e400da5f96892935d08b)
+
+
+## Bugfixes
+
+ - don't open the same document twice in two windows (d5d2c6c06db8d35d46829742c8b20b81ca90c1c0)
+ - properly handle unknown item types (37d65bd4b585b03ab35c81e8686217aed62cb96d)
+ - refresh array offset when updating group (2f975bfa4e914b2298adf21e30dae51a73b64963)
+ - only accepts shortcuts when canvas has focus (dffc6f0412b369fdaab1ba2e68ffb593b63c0a83)
+ - properly reload changed STEP files without restarting the app (07b4e8c3a567b87fdbffb26099b92010a92f7420)
+ - allow solid model array in new body (42963ec3ee77b4910caff434fe769b6b473c7ca0)
+ - draw contour tool: properly add constraints when placing arc center (cec8d37f3d5110d670e0b7b3ad9504149ed3d677)
+ - don't require pressing enter in group editor spin buttons (bba8cbd0a6d30ffa5bbfc24f0d1b2e441b754fb4)
+ - don't require pressing enter in selection editor (f2c8c46879bf29fac197279bd9fbd7def6227c57)
+ - properly save preferences when closing window (55562dac499784d5ba0fc6195a95646ea6d7a544)
+ - increase max. distance length to 1km (a7df8fd18fe98ac03fa143c4de1c0d24330257f8)
+
+## Other changes
+ - Arc/Arc tangent constraint is now called curve/curve tangent (b821a47883e3df58e417c6e10852f93ca8f64646)
+
 # Version 1.1.0
 
 ## New Features
