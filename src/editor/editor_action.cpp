@@ -390,7 +390,10 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     }
     if (m_core.has_documents()) {
         auto &current_group = m_core.get_current_document().get_group(m_core.get_current_group());
-        has_solid_model = dynamic_cast<const IGroupSolidModel *>(&current_group);
+
+        if (auto gr_solid = dynamic_cast<const IGroupSolidModel *>(&current_group))
+            has_solid_model = gr_solid->get_solid_model() != nullptr;
+
         auto groups_sorted = m_core.get_current_document().get_groups_sorted();
         assert(groups_sorted.size());
         const bool is_first = groups_sorted.front() == &current_group;
