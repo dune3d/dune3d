@@ -9,6 +9,8 @@ public:
     }
     void accumulate(const T &v)
     {
+        if (!isfinite(v))
+            return;
         if (first) {
             mi = v;
             ma = v;
