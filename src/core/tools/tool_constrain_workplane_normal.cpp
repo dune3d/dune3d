@@ -6,8 +6,9 @@
 #include "editor/editor_interface.hpp"
 #include "tool_common_constrain_impl.hpp"
 #include "util/action_label.hpp"
+#include "util/glm_util.hpp"
 #include "in_tool_action/in_tool_action.hpp"
-
+#include <glm/gtx/quaternion.hpp>
 
 namespace dune3d {
 
@@ -98,6 +99,15 @@ ToolResponse ToolConstrainWorkplaneNormal::update(const ToolArgs &args)
                 if (!uvn.has_value()) {
                     m_intf.tool_bar_flash("line has no coincident point with first line");
                     return ToolResponse();
+                }
+
+                {
+                    auto q = quat_from_uv(uvn->u, uvn->v);
+                    auto nan = glm::isnan(q);
+                    if (nan.x || nan.y || nan.z || nan.w) {
+                        m_intf.tool_bar_flash("line must not be parallel to first line");
+                        return ToolResponse();
+                    }
                 }
 
                 auto d = glm::dot(glm::vec3(uvn->n), m_intf.get_cam_normal());
