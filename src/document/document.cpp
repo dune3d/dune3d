@@ -268,6 +268,8 @@ void Document::solve_group(Group &group, const std::vector<EntityAndPoint> &drag
         group.m_solve_result = SolveResult::OKAY;
         return;
     }
+    group.m_solve_messages.clear();
+
     System system{*this, group.m_uuid};
     for (const auto &[en, pt] : dragged) {
         system.add_dragged(en, pt);
@@ -275,7 +277,6 @@ void Document::solve_group(Group &group, const std::vector<EntityAndPoint> &drag
     const auto res = system.solve();
     group.m_solve_result = res.result;
     group.m_dof = res.dof;
-    group.m_solve_messages.clear();
     const json j_find = {{"op", "find-redundant-constraints"}};
     const json j_undo = {{"op", "undo"}};
     switch (res.result) {

@@ -3,6 +3,7 @@
 #include "util/glm_util.hpp"
 #include "document/entity/entity.hpp"
 #include "document/entity/entity_workplane.hpp"
+#include "document/group/group.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
 #include "constraintt_impl.hpp"
@@ -77,6 +78,12 @@ void ConstraintWorkplaneNormal::pre_solve(Document &doc) const
     auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
 
     wrkpl.m_normal = quat_from_uv(uvn->u, uvn->v);
+    auto nan = glm::isnan(wrkpl.m_normal);
+    if (nan.x || nan.y || nan.z || nan.w) {
+        wrkpl.m_normal = glm::quat_identity<double, glm::defaultp>();
+        auto &group = doc.get_group(m_group);
+        group.m_solve_messages.emplace_back(GroupStatusMessage::Status::ERR, "invalid workplane normal");
+    }
 }
 
 } // namespace dune3d
