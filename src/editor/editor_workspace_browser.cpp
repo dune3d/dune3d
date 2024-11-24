@@ -72,7 +72,7 @@ void Editor::on_workspace_browser_group_selected(const UUID &uu_doc, const UUID 
     set_current_group(uu_group);
 }
 
-void Editor::on_add_group(Group::Type group_type)
+void Editor::on_add_group(Group::Type group_type, WorkspaceBrowserAddGroupMode add_group_mode)
 {
     if (m_core.tool_is_active())
         return;
@@ -193,6 +193,8 @@ void Editor::on_add_group(Group::Type group_type)
             finish_add_group(&group);
         });
     }
+    if (new_group && add_group_mode == WorkspaceBrowserAddGroupMode::WITH_BODY)
+        new_group->m_body.emplace();
     finish_add_group(new_group);
 }
 

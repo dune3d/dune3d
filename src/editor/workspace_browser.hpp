@@ -9,6 +9,7 @@ namespace dune3d {
 class Core;
 class DocumentView;
 class IDocumentInfo;
+enum class WorkspaceBrowserAddGroupMode { WITH_BODY, WITHOUT_BODY };
 
 class WorkspaceBrowser : public Gtk::Box {
 public:
@@ -63,7 +64,9 @@ public:
     }
 
     using type_signal_delete_current_group = sigc::signal<void()>;
-    using type_signal_add_group = sigc::signal<void(Group::Type)>;
+
+    using AddGroupMode = WorkspaceBrowserAddGroupMode;
+    using type_signal_add_group = sigc::signal<void(Group::Type, AddGroupMode)>;
 
     type_signal_delete_current_group signal_delete_current_group()
     {
@@ -136,6 +139,8 @@ private:
     type_signal_group_selected m_signal_rename_body;
     type_signal_group_selected m_signal_set_body_color;
     type_signal_group_selected m_signal_reset_body_color;
+
+    void emit_add_group(GroupType type, AddGroupMode add_group_mode = AddGroupMode::WITHOUT_BODY);
 
     void block_signals();
     void unblock_signals();

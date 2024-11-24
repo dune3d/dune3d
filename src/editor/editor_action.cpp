@@ -298,7 +298,7 @@ void Editor::on_create_group_action(const ActionConnection &conn)
             {ActionID::CREATE_GROUP_SKETCH, Group::Type::SKETCH},
             {ActionID::CREATE_GROUP_LINEAR_ARRAY, Group::Type::LINEAR_ARRAY},
     };
-    on_add_group(group_types.at(std::get<ActionID>(conn.id)));
+    on_add_group(group_types.at(std::get<ActionID>(conn.id)), WorkspaceBrowserAddGroupMode::WITHOUT_BODY);
 }
 
 static const std::map<ActionID, Document::MoveGroup> move_types = {

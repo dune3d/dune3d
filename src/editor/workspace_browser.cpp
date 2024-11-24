@@ -820,16 +820,19 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
             {
                 auto top = Gio::Menu::create();
                 auto actions = Gio::SimpleActionGroup::create();
-                actions->add_action("sketch", [this] { m_signal_add_group.emit(Group::Type::SKETCH); });
-                actions->add_action("extrude", [this] { m_signal_add_group.emit(Group::Type::EXTRUDE); });
-                actions->add_action("lathe", [this] { m_signal_add_group.emit(Group::Type::LATHE); });
-                actions->add_action("revolve", [this] { m_signal_add_group.emit(Group::Type::REVOLVE); });
-                actions->add_action("loft", [this] { m_signal_add_group.emit(Group::Type::LOFT); });
-                actions->add_action("fillet", [this] { m_signal_add_group.emit(Group::Type::FILLET); });
-                actions->add_action("chamfer", [this] { m_signal_add_group.emit(Group::Type::CHAMFER); });
-                actions->add_action("linear_array", [this] { m_signal_add_group.emit(Group::Type::LINEAR_ARRAY); });
-                actions->add_action("polar_array", [this] { m_signal_add_group.emit(Group::Type::POLAR_ARRAY); });
+                actions->add_action("sketch", [this] { emit_add_group(Group::Type::SKETCH); });
+                actions->add_action("sketch_in_new_body",
+                                    [this] { emit_add_group(Group::Type::SKETCH, AddGroupMode::WITH_BODY); });
+                actions->add_action("extrude", [this] { emit_add_group(Group::Type::EXTRUDE); });
+                actions->add_action("lathe", [this] { emit_add_group(Group::Type::LATHE); });
+                actions->add_action("revolve", [this] { emit_add_group(Group::Type::REVOLVE); });
+                actions->add_action("loft", [this] { emit_add_group(Group::Type::LOFT); });
+                actions->add_action("fillet", [this] { emit_add_group(Group::Type::FILLET); });
+                actions->add_action("chamfer", [this] { emit_add_group(Group::Type::CHAMFER); });
+                actions->add_action("linear_array", [this] { emit_add_group(Group::Type::LINEAR_ARRAY); });
+                actions->add_action("polar_array", [this] { emit_add_group(Group::Type::POLAR_ARRAY); });
                 top->append_item(Gio::MenuItem::create("Sketch", "groups.sketch"));
+                top->append_item(Gio::MenuItem::create("Sketch in new Body", "groups.sketch_in_new_body"));
                 top->append_item(Gio::MenuItem::create("Extrude", "groups.extrude"));
                 top->append_item(Gio::MenuItem::create("Lathe", "groups.lathe"));
                 top->append_item(Gio::MenuItem::create("Revolve", "groups.revolve"));
@@ -903,6 +906,11 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
     m_body_popover->set_menu_model(m_body_menu);
 
     m_body_popover->set_parent(*this);
+}
+
+void WorkspaceBrowser::emit_add_group(GroupType type, AddGroupMode add_group_mode)
+{
+    m_signal_add_group.emit(type, add_group_mode);
 }
 
 Glib::RefPtr<Gio::ListModel> WorkspaceBrowser::create_model(const Glib::RefPtr<Glib::ObjectBase> &item)

@@ -29,6 +29,7 @@ class SelectionFilterWindow;
 class Buffer;
 enum class SelectionMode;
 enum class CommitMode;
+enum class WorkspaceBrowserAddGroupMode;
 
 class Editor : private EditorInterface, private IDocumentViewProvider {
 public:
@@ -84,7 +85,7 @@ private:
     void init_view_options();
 
     void on_workspace_browser_group_selected(const UUID &uu_doc, const UUID &uu_group);
-    void on_add_group(Group::Type group_type);
+    void on_add_group(Group::Type group_type, WorkspaceBrowserAddGroupMode add_group_mode);
     void finish_add_group(Group *new_group);
     void on_delete_current_group();
     void on_move_group(Document::MoveGroup op);
