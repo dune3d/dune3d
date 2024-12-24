@@ -59,21 +59,23 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
     switch (m_tool_id) {
     case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
     case ToolID::MEASURE_DISTANCE_HORIZONTAL:
-        constraint = &add_constraint<ConstraintPointDistanceHorizontal>();
+        constraint = &just_add_constraint<ConstraintPointDistanceHorizontal>();
         break;
 
     case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
     case ToolID::MEASURE_DISTANCE_VERTICAL:
-        constraint = &add_constraint<ConstraintPointDistanceVertical>();
+        constraint = &just_add_constraint<ConstraintPointDistanceVertical>();
         break;
 
     default:
-        constraint = &add_constraint<ConstraintPointDistance>();
+        constraint = &just_add_constraint<ConstraintPointDistance>();
     }
 
     if (any_of(m_tool_id, ToolID::MEASURE_DISTANCE, ToolID::MEASURE_DISTANCE_HORIZONTAL,
                ToolID::MEASURE_DISTANCE_VERTICAL))
         constraint->m_measurement = true;
+    else
+        set_current_group_solve_pending();
 
 
     constraint->m_entity1 = tp->point1;

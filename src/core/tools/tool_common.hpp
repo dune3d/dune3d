@@ -22,10 +22,15 @@ protected:
     template <typename T = Entity> T &get_entity(const UUID &uu);
 
     template <typename T> T &add_constraint(const UUID &uu);
-
     template <typename T> T &add_constraint()
     {
         return add_constraint<T>(UUID::random());
+    }
+
+    template <typename T> T &just_add_constraint(const UUID &uu);
+    template <typename T> T &just_add_constraint()
+    {
+        return just_add_constraint<T>(UUID::random());
     }
 
     void set_current_group_solve_pending();

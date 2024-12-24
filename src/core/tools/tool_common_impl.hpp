@@ -20,6 +20,11 @@ template <typename T> T &ToolCommon::get_entity(const UUID &uu)
 template <typename T> T &ToolCommon::add_constraint(const UUID &uu)
 {
     set_current_group_solve_pending();
+    return just_add_constraint<T>(uu);
+}
+
+template <typename T> T &ToolCommon::just_add_constraint(const UUID &uu)
+{
     auto &co = m_core.get_current_document().add_constraint<T>(uu);
     co.m_group = m_core.get_current_group();
     return co;

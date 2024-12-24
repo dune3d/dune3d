@@ -69,17 +69,20 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
         constraint = &add_constraint<ConstraintLinesPerpendicular>();
     }
     else {
-        auto &c = add_constraint<ConstraintLinesAngle>();
+        auto &c = just_add_constraint<ConstraintLinesAngle>();
         constraint = &c;
         const auto l1p1 = doc.get_point({tl->first, 1});
         const auto l1p2 = doc.get_point({tl->first, 2});
         const auto l2p1 = doc.get_point({tl->second, 1});
         const auto l2p2 = doc.get_point({tl->second, 2});
         c.m_negative = (l1p1 == l2p2 || l1p2 == l2p1);
-        if (m_tool_id == ToolID::MEASURE_ANGLE)
+        if (m_tool_id == ToolID::MEASURE_ANGLE) {
             c.m_measurement = true;
-        else
+        }
+        else {
+            set_current_group_solve_pending();
             c.m_modify_to_satisfy = true;
+        }
     }
     constraint->m_wrkpl = get_workplane_uuid();
     constraint->m_entity1 = tl->first;
