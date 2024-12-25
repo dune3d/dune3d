@@ -3,7 +3,7 @@
 #include "ientity_in_workplane_set.hpp"
 #include "ientity_movable2d.hpp"
 #include "ientity_bounding_box2d.hpp"
-#include "ientity_cluster_content_set.hpp"
+#include "ientity_cluster_content_update.hpp"
 #include "util/cluster_content.hpp"
 #include <glm/glm.hpp>
 
@@ -12,7 +12,7 @@ class EntityText : public EntityT<EntityText>,
                    public IEntityInWorkplaneSet,
                    public IEntityMovable2D,
                    public IEntityBoundingBox2D,
-                   public IEntityClusterContentSet {
+                   public IEntityClusterContentUpdate {
 public:
     explicit EntityText(const UUID &uu);
     explicit EntityText(const UUID &uu, const json &j);
@@ -58,6 +58,8 @@ public:
             return offset + 3;
         case AnchorY::TOP:
             return offset + 4;
+        default:
+            throw std::runtime_error("invalid y anchor");
         }
     }
 
@@ -90,10 +92,7 @@ public:
         return *m_content;
     }
 
-    void set_cluster_content(std::shared_ptr<const ClusterContent> content) override
-    {
-        m_content = content;
-    }
+    void update_cluster_content_for_new_workplane(const UUID &wrkpl) override;
 
     std::pair<glm::dvec2, glm::dvec2> get_bbox() const override;
     std::set<UUID> get_referenced_entities() const override;

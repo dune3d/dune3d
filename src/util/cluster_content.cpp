@@ -62,7 +62,7 @@ std::pair<glm::dvec2, glm::dvec2> ClusterContent::get_bbox() const
     return acc.get_or_0();
 }
 
-std::shared_ptr<ClusterContent> ClusterContent::clone_for_new_workplane(const UUID &wrkpl) const
+ClusterContent::CloneResult ClusterContent::clone_for_new_workplane(const UUID &wrkpl) const
 {
     auto n = create();
     std::map<UUID, UUID> entity_xlat;
@@ -87,7 +87,7 @@ std::shared_ptr<ClusterContent> ClusterContent::clone_for_new_workplane(const UU
         }
         n->m_constraints.emplace(co_cloned->m_uuid, std::move(co_cloned));
     }
-    return n;
+    return {n, entity_xlat};
 }
 
 

@@ -181,4 +181,10 @@ std::pair<glm::dvec2, glm::dvec2> EntityText::get_bbox() const
     return acc.get().value();
 }
 
+void EntityText::update_cluster_content_for_new_workplane(const UUID &wrkpl)
+{
+    auto clone_result = m_content->clone_for_new_workplane(wrkpl);
+    m_content = clone_result.content;
+}
+
 } // namespace dune3d

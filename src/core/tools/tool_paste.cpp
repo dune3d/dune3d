@@ -6,7 +6,7 @@
 #include "document/entity/ientity_movable2d.hpp"
 #include "document/entity/ientity_movable2d_initial_pos.hpp"
 #include "document/entity/ientity_movable3d.hpp"
-#include "document/entity/ientity_cluster_content_set.hpp"
+#include "document/entity/ientity_cluster_content_update.hpp"
 #include "document/constraint/constraint.hpp"
 #include "document/group/group.hpp"
 #include "document/group/group_reference.hpp"
@@ -91,9 +91,8 @@ ToolResponse ToolPaste::begin(const ToolArgs &args)
         if (auto en_move3 = dynamic_cast<IEntityMovable3D *>(new_entity.get())) {
             en_move3->move(*en, shift3, en->get_point_for_move());
         }
-        if (auto en_cluster = dynamic_cast<IEntityClusterContentSet *>(new_entity.get())) {
-            en_cluster->set_cluster_content(en_cluster->get_cluster_content().clone_for_new_workplane(
-                    doc.get_reference_group().get_workplane_xy_uuid()));
+        if (auto en_cluster = dynamic_cast<IEntityClusterContentUpdate *>(new_entity.get())) {
+            en_cluster->update_cluster_content_for_new_workplane(doc.get_reference_group().get_workplane_xy_uuid());
         }
 
         entity_xlat.emplace(uu, new_entity->m_uuid);
