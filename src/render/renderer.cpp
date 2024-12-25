@@ -201,28 +201,55 @@ void Renderer::visit(const EntityPoint2D &point)
     m_ca.add_selectable(m_ca.draw_point(p), SelectableRef{SelectableRef::Type::ENTITY, point.m_uuid, 0});
 }
 
+namespace {
+class ArcDiscretizer {
+public:
+    ArcDiscretizer(const EntityArc2D &arc)
+    {
+        m_center = arc.m_center;
+        m_radius = glm::length(m_center - arc.m_from);
+        const auto a0 = c2pi(angle(arc.m_from - m_center));
+        const auto a1 = c2pi(angle(arc.m_to - m_center));
+        m_segments = 64;
+
+        m_dphi = c2pi(a1 - a0);
+        if (m_dphi < 1e-2)
+            m_dphi = 2 * M_PI;
+        m_dphi /= m_segments;
+        m_a0 = a0;
+    }
+
+    bool next(glm::dvec2 &a, glm::dvec2 &b)
+    {
+        auto phi = m_a0 + m_dphi * m_i;
+        a = m_center + euler(m_radius, phi);
+        b = m_center + euler(m_radius, phi + m_dphi);
+        m_i++;
+        return m_i <= m_segments;
+    }
+
+private:
+    glm::dvec2 m_center;
+    double m_radius;
+    double m_dphi;
+    double m_a0;
+    unsigned int m_segments;
+
+    unsigned int m_i = 0;
+};
+} // namespace
+
 void Renderer::visit(const EntityArc2D &arc)
 {
     auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(arc.m_wrkpl));
-    auto center = arc.m_center;
 
     {
-        const auto radius0 = glm::length(center - arc.m_from);
-        const auto a0 = c2pi(angle(arc.m_from - center));
-        const auto a1 = c2pi(angle(arc.m_to - center));
-        unsigned int segments = 64;
+        ArcDiscretizer ad{arc};
 
-        float dphi = c2pi(a1 - a0);
-        if (dphi < 1e-2)
-            dphi = 2 * M_PI;
-        dphi /= segments;
-        float a = a0;
-        while (segments--) {
-            const auto p0 = center + euler(radius0, a);
-            const auto p1 = center + euler(radius0, a + dphi);
+        glm ::dvec2 p0, p1;
+        while (ad.next(p0, p1)) {
             m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(p0), wrkpl.transform(p1)),
                                 SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 0});
-            a += dphi;
         }
     }
 
