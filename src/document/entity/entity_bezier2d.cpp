@@ -113,7 +113,7 @@ glm::dvec3 EntityBezier2D::get_point(unsigned int point, const Document &doc) co
 
 bool EntityBezier2D::is_valid_point(unsigned int point) const
 {
-    return point == 1 || point == 2 || point == 3 || point == 4;
+    return any_of(point, 1u, 2u, 3u, 4u);
 }
 
 glm::dvec2 EntityBezier2D::get_tangent_at_point(unsigned int point) const
@@ -126,7 +126,7 @@ glm::dvec2 EntityBezier2D::get_tangent_at_point(unsigned int point) const
 
 bool EntityBezier2D::is_valid_tangent_point(unsigned int point) const
 {
-    return any_of(point, 1, 2);
+    return any_of(point, 1u, 2u);
 }
 
 std::set<UUID> EntityBezier2D::get_referenced_entities() const

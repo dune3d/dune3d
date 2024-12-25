@@ -100,7 +100,7 @@ glm::dvec2 EntityArc2D::get_tangent_at_point(unsigned int point) const
 
 bool EntityArc2D::is_valid_tangent_point(unsigned int point) const
 {
-    return any_of(point, 1, 2);
+    return any_of(point, 1u, 2u);
 }
 
 double EntityArc2D::get_radius() const

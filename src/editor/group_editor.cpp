@@ -459,7 +459,7 @@ private:
     {
         if (is_reloading())
             return false;
-        if (get_group().m_count == m_sp_count->get_value_as_int())
+        if (static_cast<int>(get_group().m_count) == m_sp_count->get_value_as_int())
             return false;
 
         get_group().m_count = m_sp_count->get_value_as_int();
