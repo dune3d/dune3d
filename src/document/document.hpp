@@ -22,7 +22,6 @@ struct ItemsToDelete {
     std::set<UUID> entities;
     std::set<UUID> groups;
     std::set<UUID> constraints;
-    UUID get_first_group(const class Document &doc) const;
 
     void append(const ItemsToDelete &other);
     void subtract(const ItemsToDelete &other);

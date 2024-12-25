@@ -413,27 +413,6 @@ void Document::accumulate_first_group(const Group *&first_group, const UUID &gro
         first_group = &group;
 }
 
-UUID ItemsToDelete::get_first_group(const Document &doc) const
-{
-    const Group *first_group = nullptr;
-    for (const auto &uu : groups) {
-        doc.accumulate_first_group(first_group, uu);
-    }
-    for (const auto &uu : entities) {
-        auto &en = doc.get_entity(uu);
-        doc.accumulate_first_group(first_group, en.m_group);
-    }
-    for (const auto &uu : constraints) {
-        auto &co = doc.get_constraint(uu);
-        doc.accumulate_first_group(first_group, co.m_group);
-    }
-
-    if (first_group)
-        return first_group->m_uuid;
-    else
-        return UUID();
-}
-
 ItemsToDelete Document::get_additional_items_to_delete(const ItemsToDelete &items_initial) const
 {
     ItemsToDelete items = items_initial;
@@ -506,7 +485,30 @@ ItemsToDelete Document::get_additional_items_to_delete(const ItemsToDelete &item
 
 void Document::delete_items(const ItemsToDelete &items)
 {
-    set_group_generate_pending(items.get_first_group(*this));
+    const Group *first_group_generate = nullptr;
+    const Group *first_group_solve = nullptr;
+    for (auto &it : items.entities) {
+        accumulate_first_group(first_group_generate, get_entity(it).m_group);
+    }
+    for (auto &it : items.groups) {
+        accumulate_first_group(first_group_generate, it);
+    }
+    for (auto &it : items.constraints) {
+        const auto &constraint = get_constraint(it);
+        auto dat = dynamic_cast<const IConstraintDatum *>(&constraint);
+        if (dat && dat->is_measurement()) {
+            // nop, deleting a measurement does nothing
+        }
+        else {
+            accumulate_first_group(first_group_solve, constraint.m_group);
+        }
+    }
+
+    if (first_group_generate)
+        set_group_generate_pending(first_group_generate->m_uuid);
+    if (first_group_solve)
+        set_group_solve_pending(first_group_solve->m_uuid);
+
     for (auto &it : items.entities) {
         m_entities.erase(it);
     }
