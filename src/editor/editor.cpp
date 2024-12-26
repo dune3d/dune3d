@@ -209,8 +209,43 @@ void Editor::init_view_options()
     m_view_options_menu->append("Clipping planes", "win.clipping_planes");
     m_view_options_menu->append("Previous construction entities", "win.previous_construction");
     m_view_options_menu->append("Perspective projection", "win.perspective");
+    {
+        auto it = Gio::MenuItem::create("scale", "scale");
+        it->set_attribute_value("custom", Glib::Variant<Glib::ustring>::create("scale"));
+
+        m_view_options_menu->append_item(it);
+    }
 
     view_options_popover->set_menu_model(m_view_options_menu);
+
+    {
+        auto adj = Gtk::Adjustment::create(-1, -1, 5, .01, .1);
+        m_curvature_comb_scale = Gtk::make_managed<Gtk::Scale>(adj);
+        m_curvature_comb_scale->add_mark(adj->get_lower(), Gtk::PositionType::BOTTOM, "Off");
+
+        adj->signal_value_changed().connect([this, adj] {
+            if (!m_core.has_documents())
+                return;
+            float scale = 0;
+            auto val = adj->get_value();
+            if (val > adj->get_lower())
+                scale = powf(10, val);
+            auto &wv = m_workspace_views.at(m_current_workspace_view);
+            wv.m_curvature_comb_scale = scale;
+            canvas_update_keep_selection();
+            update_view_hints();
+        });
+
+        auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
+        box->set_margin_start(32);
+        box->set_margin_top(6);
+        auto label = Gtk::make_managed<Gtk::Label>("Curvature comb scale");
+        label->set_xalign(0);
+        box->append(*label);
+        box->append(*m_curvature_comb_scale);
+
+        view_options_popover->add_child(*box, "scale");
+    }
 }
 
 Gtk::Button &Editor::create_action_bar_button(ActionToolID action)
@@ -670,6 +705,9 @@ void Editor::update_view_hints()
     if (m_core.has_documents()) {
         if (get_current_document_view().construction_entities_from_previous_groups_are_visible())
             hints.push_back("prev. construction entities");
+        auto &wv = m_workspace_views.at(m_current_workspace_view);
+        if (wv.m_curvature_comb_scale > 0)
+            hints.push_back("curv. combs");
     }
     m_win.set_view_hints_label(hints);
 }
@@ -983,6 +1021,7 @@ void Editor::apply_preferences()
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     update_action_bar_visibility();
     update_error_overlay();
+    canvas_update_keep_selection();
     /*
         key_sequence_dialog->clear();
         for (const auto &it : action_connections) {
@@ -1028,6 +1067,8 @@ void Editor::render_document(const IDocumentInfo &doc)
     }
     Renderer renderer(get_canvas(), m_core);
     renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
+    renderer.m_curvature_comb_scale = m_workspace_views.at(m_current_workspace_view).m_curvature_comb_scale;
+    renderer.m_connect_curvature_comb = m_preferences.canvas.connect_curvature_combs;
 
     if (doc.get_uuid() == m_core.get_current_idocument_info().get_uuid())
         renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
@@ -1340,6 +1381,7 @@ void Editor::open_file(const std::filesystem::path &path)
         }
 
         update_workspace_view_names();
+        update_can_close_workspace_view_pages();
         m_win.get_app().add_recent_item(path);
         update_title();
 

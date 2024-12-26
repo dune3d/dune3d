@@ -30,6 +30,8 @@ public:
                 const std::filesystem::path &containing_dir, std::optional<SelectableRef> sr);
 
     bool m_solid_model_edge_select_mode = false;
+    float m_curvature_comb_scale = 0;
+    bool m_connect_curvature_comb = true;
 
     void add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints);
 
@@ -113,6 +115,7 @@ private:
 
     struct State {
         bool no_bezier_control_lines = false;
+        bool no_curvature_combs = false;
     };
 
     State m_state;

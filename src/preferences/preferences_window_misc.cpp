@@ -38,6 +38,12 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
             gr->add_row(*r);
         }
         {
+            auto r = Gtk::make_managed<PreferencesRowBool>(
+                    "Connect curvature comb", "Draw a connecting line between adjacent curvature comb lines",
+                    m_preferences, m_preferences.canvas.connect_curvature_combs);
+            gr->add_row(*r);
+        }
+        {
             auto r = Gtk::make_managed<PreferencesRowBoolButton>("Zoom center", "Where to zoom with mouse or touchpad",
                                                                  "Cursor", "Screen center", m_preferences,
                                                                  m_preferences.canvas.zoom_to_cursor);

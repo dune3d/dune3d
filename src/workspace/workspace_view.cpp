@@ -18,6 +18,7 @@ json WorkspaceView::serialize(const UUID &uu_doc) const
     j["cam_distance"] = m_cam_distance;
     j["projection"] = m_projection;
     j["cam_quat"] = m_cam_quat;
+    j["curvature_comb_scale"] = m_curvature_comb_scale;
     return j;
 }
 
@@ -53,7 +54,7 @@ WorkspaceView::WorkspaceView() = default;
 WorkspaceView::WorkspaceView(const json &j)
     : m_name(j.at("name").get<std::string>()), m_center(j.at("center").get<glm::dvec3>()),
       m_cam_distance(j.at("cam_distance").get<float>()), m_projection(j.at("projection").get<CanvasProjection>()),
-      m_cam_quat(j.at("cam_quat").get<glm::dquat>())
+      m_cam_quat(j.at("cam_quat").get<glm::dquat>()), m_curvature_comb_scale(j.value("curvature_comb_scale", 0.))
 {
     m_documents.emplace(UUID{}, j.at("document"));
     if (m_name == "Default")

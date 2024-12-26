@@ -91,6 +91,23 @@ glm::dvec2 EntityBezier2D::get_tangent(double t) const
            + m_c2 * (-3 * pow(t, 2) + 6 * t * (1 - t)) + m_p2 * 3. * pow(t, 2);
 }
 
+glm::dvec2 EntityBezier2D::get_second_derivative(double t) const
+{
+    return (6 * (1 - t)) * (m_c2 - 2. * m_c1 + m_p1) + 6 * t * (m_p2 - 2. * m_c2 + m_c1);
+}
+
+double EntityBezier2D::get_curvature(double t) const
+{
+    // https://pomax.github.io/bezierinfo/#curvature
+    const auto d = get_tangent(t);
+    const auto dd = get_second_derivative(t);
+    const auto numerator = d.x * dd.y - dd.x * d.y;
+    const auto denominator = pow(d.x * d.x + d.y * d.y, 3. / 2);
+    if (denominator == 0)
+        return NAN;
+    return numerator / denominator;
+}
+
 glm::dvec2 EntityBezier2D::get_point_in_workplane(unsigned int point) const
 {
     if (point == 1)

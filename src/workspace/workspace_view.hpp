@@ -28,6 +28,7 @@ public:
     float m_cam_distance = 10;
     CanvasProjection m_projection = CanvasProjection::ORTHO;
     glm::quat m_cam_quat = glm::quat_identity<float, glm::defaultp>();
+    float m_curvature_comb_scale = 0;
 
     bool document_is_visible(const UUID &uu_doc) const;
     json serialize(const UUID &uu_doc) const;

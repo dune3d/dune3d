@@ -183,6 +183,10 @@ void Editor::set_current_workspace_view(const UUID &uu)
         ca.set_cam_quat(wv.m_cam_quat);
         ca.set_center(wv.m_center);
         set_perspective_projection(wv.m_projection == CanvasProjection::PERSP);
+        if (wv.m_curvature_comb_scale == 0)
+            m_curvature_comb_scale->set_value(m_curvature_comb_scale->get_adjustment()->get_lower());
+        else
+            m_curvature_comb_scale->set_value(log10(wv.m_curvature_comb_scale));
         update_view_hints();
         m_workspace_view_loading = false;
     }

@@ -224,6 +224,7 @@ json CanvasPreferences::serialize() const
     j["line_width"] = appearance.line_width;
     j["selection_glow"] = appearance.selection_glow;
     j["enable_animations"] = enable_animations;
+    j["connect_curvature_combs"] = connect_curvature_combs;
     j["theme"] = theme;
     j["theme_variant"] = theme_variant_lut.lookup_reverse(theme_variant);
     j["dark_theme"] = dark_theme;
@@ -262,6 +263,7 @@ void CanvasPreferences::load_from_json(const json &j)
     appearance.line_width = j.value("line_width", 2.5);
     appearance.selection_glow = j.value("selection_glow", false);
     enable_animations = j.value("enable_animations", true);
+    connect_curvature_combs = j.value("connect_curvature_combs", true);
     theme = j.value("theme", "Default");
     if (j.contains("theme_variant"))
         theme_variant = theme_variant_lut.lookup(j.at("theme_variant"), ThemeVariant::AUTO);

@@ -156,6 +156,7 @@ private:
     Glib::RefPtr<Gio::SimpleAction> m_previous_construction_entities_action;
     void set_show_previous_construction_entities(bool show);
     void add_tool_action(ActionToolID id, const std::string &action);
+    Gtk::Scale *m_curvature_comb_scale = nullptr;
 
     void update_view_hints();
 

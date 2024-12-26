@@ -225,7 +225,12 @@ public:
         a = m_center + euler(m_radius, phi);
         b = m_center + euler(m_radius, phi + m_dphi);
         m_i++;
-        return m_i <= m_segments;
+        return m_i <= m_segments + (m_include_last ? 1 : 0);
+    }
+
+    void set_include_last(bool last)
+    {
+        m_include_last = last;
     }
 
 private:
@@ -236,6 +241,7 @@ private:
     unsigned int m_segments;
 
     unsigned int m_i = 0;
+    bool m_include_last = false;
 };
 } // namespace
 
@@ -250,6 +256,27 @@ void Renderer::visit(const EntityArc2D &arc)
         while (ad.next(p0, p1)) {
             m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(p0), wrkpl.transform(p1)),
                                 SelectableRef{SelectableRef::Type::ENTITY, arc.m_uuid, 0});
+        }
+    }
+    if (arc.m_group == m_current_group->m_uuid && m_curvature_comb_scale > 0 && !m_state.no_curvature_combs) {
+        AutoSaveRestore asr{*this};
+        m_ca.set_selection_invisible(true);
+        m_ca.set_line_style(ICanvas::LineStyle::THIN);
+
+        const auto curvature = 1 / arc.get_radius() * m_curvature_comb_scale;
+        ArcDiscretizer ad{arc};
+        ad.set_include_last(true);
+        glm::dvec2 p0, p1;
+        glm::dvec2 last_comb_pt = {NAN, NAN};
+        while (ad.next(p0, p1)) {
+            const auto comb_line = glm::normalize(glm::dvec2(p0 - arc.m_center)) * curvature;
+            const auto comb_pt = p0 + comb_line;
+            m_ca.draw_line(wrkpl.transform(p0), wrkpl.transform(comb_pt));
+            if (m_connect_curvature_comb) {
+                if (!std::isnan(last_comb_pt.x))
+                    m_ca.draw_line(wrkpl.transform(last_comb_pt), wrkpl.transform(comb_pt));
+                last_comb_pt = comb_pt;
+            }
         }
     }
 
@@ -500,6 +527,27 @@ void Renderer::visit(const EntityBezier2D &bezier)
         m_ca.add_selectable(m_ca.draw_line(wrkpl.transform(last), wrkpl.transform(p)), sr);
         last = p;
     }
+    if (bezier.m_group == m_current_group->m_uuid && m_curvature_comb_scale > 0 && !m_state.no_curvature_combs) {
+        AutoSaveRestore asr{*this};
+        m_ca.set_selection_invisible(true);
+        m_ca.set_line_style(ICanvas::LineStyle::THIN);
+
+        glm::dvec2 last_comb_pt = {NAN, NAN};
+        for (unsigned int i = 0; i <= steps; i++) {
+            const auto t = (double)i / steps;
+            const auto p = bezier.get_interpolated(t);
+            const auto tangent = bezier.get_tangent(t);
+            const auto curvature = bezier.get_curvature(t) * m_curvature_comb_scale;
+            const auto comb_line = glm::normalize(glm::dvec2(tangent.y, -tangent.x)) * curvature;
+            const auto comb_pt = p + comb_line;
+            m_ca.draw_line(wrkpl.transform(p), wrkpl.transform(comb_pt));
+            if (m_connect_curvature_comb) {
+                if (!std::isnan(last_comb_pt.x))
+                    m_ca.draw_line(wrkpl.transform(last_comb_pt), wrkpl.transform(comb_pt));
+                last_comb_pt = comb_pt;
+            }
+        }
+    }
     if (m_state.no_bezier_control_lines == false) {
         AutoSaveRestore asr{*this};
         m_ca.set_selection_invisible(true);
@@ -558,6 +606,7 @@ void Renderer::visit(const EntityCluster &cluster)
     {
         AutoSaveRestore asr{*this};
         m_state.no_bezier_control_lines = !cluster.m_anchors_available.size();
+        m_state.no_curvature_combs = true;
         m_ca.set_transform(wrkpl_mat * m);
 
         m_ca.set_override_selectable(sr);
@@ -610,6 +659,7 @@ void Renderer::visit(const EntityText &text)
     {
         AutoSaveRestore asr{*this};
         m_state.no_bezier_control_lines = true;
+        m_state.no_curvature_combs = true;
         m_ca.set_transform(wrkpl_mat * m);
 
         m_ca.set_override_selectable(sr);
