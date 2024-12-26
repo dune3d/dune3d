@@ -354,6 +354,9 @@ void Editor::init_canvas()
     get_canvas().signal_cursor_moved().connect(sigc::mem_fun(*this, &Editor::handle_cursor_move));
 
     m_context_menu = Gtk::make_managed<Gtk::PopoverMenu>();
+#if GTK_CHECK_VERSION(4, 14, 0)
+    gtk_popover_menu_set_flags(m_context_menu->gobj(), GTK_POPOVER_MENU_NESTED);
+#endif
     m_context_menu->set_parent(get_canvas());
 
     auto actions = Gio::SimpleActionGroup::create();
