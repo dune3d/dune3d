@@ -4,6 +4,7 @@
 #include "entity/entity_workplane.hpp"
 #include "group/group_linear_array.hpp"
 #include "group/group_polar_array.hpp"
+#include "group/group_mirror_hv.hpp"
 #include <BRepBuilderAPI_Transform.hxx>
 
 #include <BRepAlgoAPI_Fuse.hxx>
@@ -80,6 +81,36 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupP
     auto make_trsf = [&group, &ax](unsigned int instance) {
         gp_Trsf trsf;
         trsf.SetRotation(ax, glm::radians(group.get_angle(instance)));
+        return trsf;
+    };
+
+    return create_replicate(doc, group, make_trsf);
+}
+
+std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupMirrorHV &group)
+{
+    group.m_array_messages.clear();
+    if (!group.m_active_wrkpl) {
+        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no workplane");
+        return nullptr;
+    }
+
+    auto &wrkpl = doc.get_entity<EntityWorkplane>(group.m_active_wrkpl);
+    glm::dvec3 vn;
+    if (group.get_type() == Group::Type::MIRROR_HORIZONTAL)
+        vn = glm::rotate(wrkpl.m_normal, glm::dvec3(0, 1, 0));
+    else
+        vn = glm::rotate(wrkpl.m_normal, glm::dvec3(1, 0, 0));
+
+    auto nn = glm::rotate(wrkpl.m_normal, glm::dvec3(0, 0, 1));
+
+    auto ax = gp_Ax2(gp_Pnt(wrkpl.m_origin.x, wrkpl.m_origin.y, wrkpl.m_origin.z), gp_Dir(vn.x, vn.y, vn.z),
+                     gp_Dir(nn.x, nn.y, nn.z));
+
+    auto make_trsf = [&group, &ax](unsigned int instance) {
+        gp_Trsf trsf;
+        if (instance == 0)
+            trsf.SetMirror(ax);
         return trsf;
     };
 

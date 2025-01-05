@@ -11,3 +11,4 @@
 #include "group_polar_array.hpp"
 #include "group_loft.hpp"
 #include "group_exploded_cluster.hpp"
+#include "group_mirror_hv.hpp"

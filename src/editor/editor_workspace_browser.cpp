@@ -155,7 +155,8 @@ void Editor::on_add_group(Group::Type group_type, WorkspaceBrowserAddGroupMode a
         group.m_active_wrkpl = current_group.m_active_wrkpl;
         group.m_source_group = current_group.m_uuid;
     }
-    else if (group_type == Group::Type::POLAR_ARRAY) {
+    else if (any_of(group_type, Group::Type::POLAR_ARRAY, Group::Type::MIRROR_HORIZONTAL,
+                    Group::Type::MIRROR_VERTICAL)) {
         UUID wrkpl;
         if (current_group.m_active_wrkpl) {
             wrkpl = current_group.m_active_wrkpl;
@@ -170,10 +171,16 @@ void Editor::on_add_group(Group::Type group_type, WorkspaceBrowserAddGroupMode a
             m_workspace_browser->show_toast(toast_prefix + "Current group needs an active workplane or select one");
             return;
         }
-        auto &group = doc.insert_group<GroupPolarArray>(UUID::random(), current_group.m_uuid);
-        new_group = &group;
-        group.m_active_wrkpl = wrkpl;
-        group.m_source_group = current_group.m_uuid;
+        GroupReplicate *group = nullptr;
+        if (group_type == GroupType::POLAR_ARRAY)
+            group = &doc.insert_group<GroupPolarArray>(UUID::random(), current_group.m_uuid);
+        else if (group_type == GroupType::MIRROR_HORIZONTAL)
+            group = &doc.insert_group<GroupMirrorHorizontal>(UUID::random(), current_group.m_uuid);
+        else if (group_type == GroupType::MIRROR_VERTICAL)
+            group = &doc.insert_group<GroupMirrorVertical>(UUID::random(), current_group.m_uuid);
+        new_group = group;
+        group->m_active_wrkpl = wrkpl;
+        group->m_source_group = current_group.m_uuid;
     }
     else if (group_type == Group::Type::LOFT) {
         auto dia = SelectGroupsDialog::create(m_core.get_current_document(), m_core.get_current_group(), {});

@@ -65,6 +65,7 @@ void GroupReplicate::generate(Document &doc) const
                     new_line.m_generated_from = uu;
                     new_line.m_group = m_uuid;
                     new_line.m_wrkpl = li.m_wrkpl;
+                    post_add(new_line, *it, instance);
                 }
             }
             else if (it->get_type() == Entity::Type::BEZIER_2D) {
@@ -82,6 +83,7 @@ void GroupReplicate::generate(Document &doc) const
                     new_line.m_generated_from = uu;
                     new_line.m_group = m_uuid;
                     new_line.m_wrkpl = bez.m_wrkpl;
+                    post_add(new_line, *it, instance);
                 }
             }
             else if (it->get_type() == Entity::Type::CIRCLE_2D) {
@@ -97,6 +99,7 @@ void GroupReplicate::generate(Document &doc) const
                     new_circle.m_generated_from = uu;
                     new_circle.m_group = m_uuid;
                     new_circle.m_wrkpl = circle.m_wrkpl;
+                    post_add(new_circle, *it, instance);
                 }
             }
             else if (it->get_type() == Entity::Type::ARC_2D) {
@@ -107,13 +110,20 @@ void GroupReplicate::generate(Document &doc) const
                     auto new_arc_uu = get_entity_uuid(uu, instance);
                     auto &new_arc = doc.get_or_add_entity<EntityArc2D>(new_arc_uu);
                     new_arc.m_no_radius_constraint = true;
-                    new_arc.m_from = transform(arc.m_from, instance);
-                    new_arc.m_to = transform(arc.m_to, instance);
+                    if (get_mirror_arc(instance)) {
+                        new_arc.m_from = transform(arc.m_to, instance);
+                        new_arc.m_to = transform(arc.m_from, instance);
+                    }
+                    else {
+                        new_arc.m_from = transform(arc.m_from, instance);
+                        new_arc.m_to = transform(arc.m_to, instance);
+                    }
                     new_arc.m_center = transform(arc.m_center, instance);
                     new_arc.m_kind = ItemKind::GENRERATED;
                     new_arc.m_generated_from = uu;
                     new_arc.m_group = m_uuid;
                     new_arc.m_wrkpl = arc.m_wrkpl;
+                    post_add(new_arc, *it, instance);
                 }
             }
             else if (it->get_type() == Entity::Type::LINE_3D) {
@@ -126,6 +136,7 @@ void GroupReplicate::generate(Document &doc) const
                     new_line.m_kind = ItemKind::GENRERATED;
                     new_line.m_generated_from = uu;
                     new_line.m_group = m_uuid;
+                    post_add(new_line, *it, instance);
                 }
             }
             else if (it->get_type() == Entity::Type::BEZIER_3D) {
@@ -140,6 +151,7 @@ void GroupReplicate::generate(Document &doc) const
                     new_bez.m_kind = ItemKind::GENRERATED;
                     new_bez.m_generated_from = uu;
                     new_bez.m_group = m_uuid;
+                    post_add(new_bez, *it, instance);
                 }
             }
             else if (it->get_type() == Entity::Type::CIRCLE_3D) {
@@ -152,7 +164,8 @@ void GroupReplicate::generate(Document &doc) const
                     new_circle.m_kind = ItemKind::GENRERATED;
                     new_circle.m_generated_from = uu;
                     new_circle.m_group = m_uuid;
-                    new_circle.m_normal = circle.m_normal;
+                    new_circle.m_normal = transform_normal(doc, circle.m_normal, instance);
+                    post_add(new_circle, *it, instance);
                 }
             }
             else if (it->get_type() == Entity::Type::ARC_3D) {
@@ -166,7 +179,8 @@ void GroupReplicate::generate(Document &doc) const
                     new_arc.m_kind = ItemKind::GENRERATED;
                     new_arc.m_generated_from = uu;
                     new_arc.m_group = m_uuid;
-                    new_arc.m_normal = arc.m_normal;
+                    new_arc.m_normal = transform_normal(doc, arc.m_normal, instance);
+                    post_add(new_arc, *it, instance);
                 }
             }
         }
@@ -202,5 +216,15 @@ std::list<GroupStatusMessage> GroupReplicate::get_messages() const
     msg.insert(msg.end(), m_array_messages.begin(), m_array_messages.end());
     return msg;
 }
+
+glm::dquat GroupReplicate::transform_normal(const Document &doc, const glm::dquat &q, unsigned int instance) const
+{
+    return q;
+}
+
+void GroupReplicate::post_add(Entity &new_entity, const Entity &entity, unsigned int instance) const
+{
+}
+
 
 } // namespace dune3d
