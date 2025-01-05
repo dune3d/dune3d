@@ -49,3 +49,5 @@ button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
 .window-subtitle-label {font-size: 80%;}
 
 .workspace-browser-toast {border-radius: 5px; padding: 5px;}
+
+.context-menu-button {padding-left: 11px; padding-top:2px; padding-bottom:2px;}

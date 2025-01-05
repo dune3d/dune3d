@@ -513,6 +513,7 @@ void Editor::open_context_menu()
         sel = {*hover_sel};
     m_context_menu_selection = sel;
     update_action_sensitivity(sel);
+    std::vector<ActionToolID> ids;
 
     std::list<Glib::RefPtr<Gio::MenuItem>> meas_items;
     for (const auto &[action_group, action_group_name] : action_group_catalog) {
@@ -521,16 +522,24 @@ void Editor::open_context_menu()
                 if (auto tool = std::get_if<ToolID>(&id)) {
                     auto r = m_core.tool_can_begin(*tool, sel);
                     if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
+                        ids.push_back(id);
                         auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
-                        if (it_cat.group == ActionGroup::MEASURE)
+                        if (it_cat.group == ActionGroup::MEASURE) {
                             meas_items.push_back(item);
-                        else
+                        }
+                        else {
+                            item->set_attribute_value(
+                                    "custom", Glib::Variant<Glib::ustring>::create(action_tool_id_to_string(id)));
                             menu->append_item(item);
+                        }
                     }
                 }
                 else if (auto act = std::get_if<ActionID>(&id)) {
                     if (get_action_sensitive(*act) && (it_cat.flags & ActionCatalogItem::FLAGS_SPECIFIC)) {
+                        ids.push_back(id);
                         auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
+                        item->set_attribute_value("custom",
+                                                  Glib::Variant<Glib::ustring>::create(action_tool_id_to_string(id)));
                         menu->append_item(item);
                     }
                 }
@@ -575,6 +584,28 @@ void Editor::open_context_menu()
     }
     if (menu->get_n_items() != 0) {
         m_context_menu->set_menu_model(menu);
+        for (const auto id : ids) {
+            auto button = Gtk::make_managed<Gtk::Button>();
+            button->signal_clicked().connect([this, id] {
+                m_context_menu->popdown();
+                get_canvas().set_selection(m_context_menu_selection, false);
+                trigger_action(id);
+            });
+            button->add_css_class("context-menu-button");
+            auto label = Gtk::make_managed<Gtk::Label>(action_catalog.at(id).name);
+            label->set_xalign(0);
+            label->set_hexpand(true);
+            auto label2 =
+                    Gtk::make_managed<Gtk::Label>(key_sequences_to_string(m_action_connections.at(id).key_sequences));
+            label2->add_css_class("dim-label");
+            auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 8);
+            box->append(*label);
+            box->append(*label2);
+            button->set_child(*box);
+
+            button->set_has_frame(false);
+            m_context_menu->add_child(*button, action_tool_id_to_string(id));
+        }
         m_context_menu->popup();
     }
 }
