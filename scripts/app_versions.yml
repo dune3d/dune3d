@@ -23,3 +23,4 @@ versions:
     21: add text entities
     22: add option to use STEP entities in solid model
     23: add body colors
+    24: add h/v mirror groups

@@ -46,6 +46,8 @@ enum class GroupType {
     LINEAR_ARRAY,
     POLAR_ARRAY,
     EXPLODED_CLUSTER,
+    MIRROR_HORIZONTAL,
+    MIRROR_VERTICAL,
 };
 
 class Group {

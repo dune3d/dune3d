@@ -13,6 +13,10 @@ class GroupLinearArray;
 class GroupPolarArray;
 class GroupArray;
 class GroupReplicate;
+class GroupMirror;
+class GroupMirrorHV;
+class GroupMirrorHorizontal;
+class GroupMirrorVertical;
 class GroupLoft;
 class GroupExplodedCluster;
 } // namespace dune3d

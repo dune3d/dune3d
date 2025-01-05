@@ -24,6 +24,7 @@
 #include "document/group/group_revolve.hpp"
 #include "document/group/group_linear_array.hpp"
 #include "document/group/group_polar_array.hpp"
+#include "document/group/group_mirror_hv.hpp"
 #include <array>
 #include <set>
 #include <iostream>
@@ -86,6 +87,10 @@ System::System(Document &doc, const UUID &grp, const UUID &constraint_exclude)
             break;
         case Group::Type::POLAR_ARRAY:
             add(dynamic_cast<const GroupPolarArray &>(*group));
+            break;
+        case Group::Type::MIRROR_HORIZONTAL:
+        case Group::Type::MIRROR_VERTICAL:
+            add(dynamic_cast<const GroupMirrorHV &>(*group));
             break;
         default:;
         }
@@ -1206,7 +1211,14 @@ void System::add_replicate(const GroupReplicate &group, CreateEq create_eq2, Cre
                 auto en_wrkpl = hEntity{get_entity_ref(EntityRef{arc.m_wrkpl, 0})};
 
                 for (unsigned int pt = 1; pt <= 3; pt++) {
-                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                    unsigned int pt_orig = pt;
+                    if (group.get_mirror_arc(instance)) {
+                        if (pt_orig == 1)
+                            pt_orig = 2;
+                        else if (pt_orig == 2)
+                            pt_orig = 1;
+                    }
+                    auto en_orig_p = get_entity_ref(EntityRef{uu, pt_orig});
                     auto en_new_p = get_entity_ref(EntityRef{new_arc_uu, pt});
                     EntityBase *eorig = SK.GetEntity({en_orig_p});
                     EntityBase *enew = SK.GetEntity({en_new_p});
@@ -1456,6 +1468,81 @@ void System::add(const GroupPolarArray &group)
         AddEq(hg, &m_sys->eq, normal_new.vz->Minus(rot.vz), eqi++);
         AddEq(hg, &m_sys->eq, normal_new.w->Minus(rot.w), eqi++);
     };
+
+    add_replicate(group, create_eq2, create_eq3, create_eq_n, eqi);
+}
+
+void System::add(const GroupMirrorHV &group)
+{
+    if (!group.m_active_wrkpl)
+        return;
+    auto en_wrkpl = hEntity{get_entity_ref(EntityRef{group.m_active_wrkpl, 0})};
+    auto wrkpl = SK.GetEntity(en_wrkpl);
+
+    auto hg = hGroup{(uint32_t)group.get_index() + 1};
+    unsigned int eqi = 0;
+
+    CreateEq create_eq2;
+    if (group.get_type() == Group::Type::MIRROR_HORIZONTAL)
+        create_eq2 = [this, &hg, &eqi](const ExprVector &exorig, const ExprVector &exnew, unsigned int instance) {
+            AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x), eqi++);
+            AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y->Times(Expr::From(instance == 0 ? -1 : 1))), eqi++);
+        };
+    else
+        create_eq2 = [this, &hg, &eqi](const ExprVector &exorig, const ExprVector &exnew, unsigned int instance) {
+            AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x->Times(Expr::From(instance == 0 ? -1 : 1))), eqi++);
+            AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y), eqi++);
+        };
+
+    ExprVector wp = wrkpl->WorkplaneGetOffsetExprs();
+    ExprVector wu = wrkpl->Normal()->NormalExprsU();
+    ExprVector wv = wrkpl->Normal()->NormalExprsV();
+
+    CreateEq create_eq3;
+    if (group.get_type() == Group::Type::MIRROR_HORIZONTAL)
+        create_eq3 = [this, &wp, &wv, &hg, &eqi](const ExprVector &exorig, const ExprVector &exnew,
+                                                 unsigned int instance) {
+            ExprVector pnew;
+            if (instance == 0) {
+                auto ev = exorig.Minus(wp);
+                auto d = ev.Dot(wv);
+                pnew = exorig.Minus(wv.ScaledBy(d->Times(Expr::From(2))));
+            }
+            else {
+                pnew = exorig;
+            }
+
+            AddEq(hg, &m_sys->eq, exnew.x->Minus(pnew.x), eqi++);
+            AddEq(hg, &m_sys->eq, exnew.y->Minus(pnew.y), eqi++);
+            AddEq(hg, &m_sys->eq, exnew.z->Minus(pnew.z), eqi++);
+        };
+    else
+        create_eq3 = [this, &wp, &wu, &hg, &eqi](const ExprVector &exorig, const ExprVector &exnew,
+                                                 unsigned int instance) {
+            ExprVector pnew;
+            if (instance == 0) {
+                auto ev = exorig.Minus(wp);
+                auto d = ev.Dot(wu);
+                pnew = exorig.Minus(wu.ScaledBy(d->Times(Expr::From(2))));
+            }
+            else {
+                pnew = exorig;
+            }
+
+            AddEq(hg, &m_sys->eq, exnew.x->Minus(pnew.x), eqi++);
+            AddEq(hg, &m_sys->eq, exnew.y->Minus(pnew.y), eqi++);
+            AddEq(hg, &m_sys->eq, exnew.z->Minus(pnew.z), eqi++);
+        };
+
+
+    CreateEqN create_eq_n = [this, &hg, &eqi](const ExprQuaternion &normal_orig, const ExprQuaternion &normal_new,
+                                              unsigned int instance) {
+        AddEq(hg, &m_sys->eq, normal_new.vx->Minus(Expr::From(normal_new.vx->Eval())), eqi++);
+        AddEq(hg, &m_sys->eq, normal_new.vy->Minus(Expr::From(normal_new.vy->Eval())), eqi++);
+        AddEq(hg, &m_sys->eq, normal_new.vz->Minus(Expr::From(normal_new.vz->Eval())), eqi++);
+        AddEq(hg, &m_sys->eq, normal_new.w->Minus(Expr::From(normal_new.w->Eval())), eqi++);
+    };
+
 
     add_replicate(group, create_eq2, create_eq3, create_eq_n, eqi);
 }

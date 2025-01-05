@@ -143,6 +143,8 @@ src = files(
   'src/document/group/group_polar_array.cpp',
   'src/document/group/group_array.cpp',
   'src/document/group/group_replicate.cpp',
+  'src/document/group/group_mirror.cpp',
+  'src/document/group/group_mirror_hv.cpp',
   'src/document/group/group_loft.cpp',
   'src/document/group/group_exploded_cluster.cpp',
   'src/document/export_paths.cpp',

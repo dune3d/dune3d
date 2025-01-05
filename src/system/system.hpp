@@ -107,6 +107,7 @@ private:
     void add(const GroupExtrude &group);
     void add(const GroupLinearArray &group);
     void add(const GroupPolarArray &group);
+    void add(const GroupMirrorHV &group);
     void add(const GroupLathe &group);
     void add(const GroupRevolve &group);
     using CreateEq = std::function<void(const SolveSpace::ExprVector &exorig, const SolveSpace::ExprVector &exnew,

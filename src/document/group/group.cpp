@@ -74,6 +74,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Group::Type, {
                                                   {Group::Type::POLAR_ARRAY, "polar_array"},
                                                   {Group::Type::LOFT, "loft"},
                                                   {Group::Type::EXPLODED_CLUSTER, "exploded_cluster"},
+                                                  {Group::Type::MIRROR_HORIZONTAL, "mirror_horizontal"},
+                                                  {Group::Type::MIRROR_VERTICAL, "mirror_vertical"},
                                           })
 
 json Group::serialize() const
@@ -112,6 +114,10 @@ std::string Group::get_type_name(Type type)
         return "Loft";
     case Type::EXPLODED_CLUSTER:
         return "Exploded cluster";
+    case Type::MIRROR_HORIZONTAL:
+        return "Mirror horizontally";
+    case Type::MIRROR_VERTICAL:
+        return "Mirror vertically";
     default:
         return "Group";
     }
@@ -148,6 +154,10 @@ std::unique_ptr<Group> Group::new_from_json(const UUID &uu, const json &j)
         return std::make_unique<GroupLoft>(uu, j);
     case Type::EXPLODED_CLUSTER:
         return std::make_unique<GroupExplodedCluster>(uu, j);
+    case Type::MIRROR_HORIZONTAL:
+        return std::make_unique<GroupMirrorHorizontal>(uu, j);
+    case Type::MIRROR_VERTICAL:
+        return std::make_unique<GroupMirrorVertical>(uu, j);
     case Type::INVALID:
         throw std::runtime_error("unknown group type " + j.at("type").get<std::string>());
     }
