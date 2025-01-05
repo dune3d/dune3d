@@ -1128,8 +1128,8 @@ void System::add(const GroupRevolve &group)
     }
 }
 
-void System::add_array(const GroupArray &group, CreateEq create_eq2, CreateEq create_eq3, CreateEqN create_eq_n,
-                       unsigned int &eqi)
+void System::add_replicate(const GroupReplicate &group, CreateEq create_eq2, CreateEq create_eq3, CreateEqN create_eq_n,
+                           unsigned int &eqi)
 {
     auto hg = hGroup{(uint32_t)group.get_index() + 1};
 
@@ -1138,7 +1138,7 @@ void System::add_array(const GroupArray &group, CreateEq create_eq2, CreateEq cr
             continue;
         if (it->m_construction)
             continue;
-        for (unsigned int instance = 0; instance < group.m_count; instance++) {
+        for (unsigned int instance = 0; instance < group.get_count(); instance++) {
             if (it->get_type() == Entity::Type::LINE_2D) {
                 const auto &li = dynamic_cast<const EntityLine2D &>(*it);
                 if (li.m_wrkpl != group.m_active_wrkpl)
@@ -1372,7 +1372,7 @@ void System::add(const GroupLinearArray &group)
         AddEq(hg, &m_sys->eq, normal_new.w->Minus(normal_orig.w), eqi++);
     };
 
-    add_array(group, create_eq2, create_eq3, create_eq_n, eqi);
+    add_replicate(group, create_eq2, create_eq3, create_eq_n, eqi);
 }
 
 
@@ -1457,7 +1457,7 @@ void System::add(const GroupPolarArray &group)
         AddEq(hg, &m_sys->eq, normal_new.w->Minus(rot.w), eqi++);
     };
 
-    add_array(group, create_eq2, create_eq3, create_eq_n, eqi);
+    add_replicate(group, create_eq2, create_eq3, create_eq_n, eqi);
 }
 
 void System::update_document()

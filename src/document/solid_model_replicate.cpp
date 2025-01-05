@@ -15,8 +15,8 @@
 namespace dune3d {
 
 
-static std::shared_ptr<const SolidModel> create_array(const Document &doc, GroupArray &group,
-                                                      std::function<gp_Trsf(unsigned int)> make_trsf)
+static std::shared_ptr<const SolidModel> create_replicate(const Document &doc, GroupReplicate &group,
+                                                          std::function<gp_Trsf(unsigned int)> make_trsf)
 {
     auto mod = std::make_shared<SolidModelOcc>();
     group.m_array_messages.clear();
@@ -36,7 +36,7 @@ static std::shared_ptr<const SolidModel> create_array(const Document &doc, Group
         return nullptr;
     }
 
-    for (unsigned int instance = 0; instance < group.m_count; instance++) {
+    for (unsigned int instance = 0; instance < group.get_count(); instance++) {
         auto trsf = make_trsf(instance);
         TopoDS_Shape sh = BRepBuilderAPI_Transform(source_solid_model->m_shape, trsf);
         if (mod->m_shape.IsNull())
@@ -61,7 +61,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupL
         return trsf;
     };
 
-    return create_array(doc, group, make_trsf);
+    return create_replicate(doc, group, make_trsf);
 }
 
 std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupPolarArray &group)
@@ -83,7 +83,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupP
         return trsf;
     };
 
-    return create_array(doc, group, make_trsf);
+    return create_replicate(doc, group, make_trsf);
 }
 
 } // namespace dune3d
