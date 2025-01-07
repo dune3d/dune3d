@@ -180,6 +180,18 @@ void ToolBarPreferences::load_from_json(const json &j)
     vertical_layout = j.value("vertical_layout", false);
 }
 
+json EditorPreferences::serialize() const
+{
+    json j;
+    j["preview_constraints"] = preview_constraints;
+    return j;
+}
+
+void EditorPreferences::load_from_json(const json &j)
+{
+    preview_constraints = j.value("preview_constraints", true);
+}
+
 
 #define COLORP_LUT_ITEM(x) {#x, ColorP::x}
 
@@ -286,6 +298,7 @@ json Preferences::serialize() const
     j["action_bar"] = action_bar.serialize();
     j["tool_bar"] = tool_bar.serialize();
     j["canvas"] = canvas.serialize();
+    j["editor"] = editor.serialize();
     return j;
 }
 
@@ -315,6 +328,9 @@ void Preferences::load_from_json(const json &j)
 
     if (j.count("tool_bar"))
         tool_bar.load_from_json(j.at("tool_bar"));
+
+    if (j.count("editor"))
+        editor.load_from_json(j.at("editor"));
 }
 
 void Preferences::load()

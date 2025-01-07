@@ -8,5 +8,9 @@ public:
 
     ToolResponse begin(const ToolArgs &args) override;
     CanBegin can_begin() override;
+    bool can_preview_constrain() override
+    {
+        return true;
+    }
 };
 } // namespace dune3d

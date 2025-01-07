@@ -5,7 +5,8 @@
 namespace dune3d {
 
 ToolBase::ToolBase(ToolID tool_id, ICore &core, EditorInterface &intf, Flags flags)
-    : m_tool_id(tool_id), m_core(core), m_intf(intf), m_is_transient((flags & Flags::TRANSIENT) != Flags::DEFAULT)
+    : m_tool_id(tool_id), m_core(core), m_intf(intf), m_is_transient((flags & Flags::TRANSIENT) != Flags::DEFAULT),
+      m_is_preview((flags & Flags::PREVIEW) != Flags::DEFAULT)
 {
 }
 

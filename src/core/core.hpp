@@ -64,6 +64,7 @@ public:
         }
         ToolBase::CanBegin can_begin;
         bool is_specific;
+        bool can_preview;
     };
 
     CanBeginInfo tool_can_begin(ToolID tool_id, const std::set<SelectableRef> &sel);
@@ -146,6 +147,12 @@ public:
 
     void solve_current(const DraggedList &dragged) override;
 
+    bool apply_preview(ToolID tool, const std::set<SelectableRef> &sel);
+    bool reset_preview();
+    ToolID get_current_preview_tool() const
+    {
+        return m_constraint_preview_tool;
+    }
 
 private:
     EditorInterface &m_intf;
@@ -270,6 +277,8 @@ private:
         bool m_error = false;
         static std::string tool_state_to_string(ToolState s);
     };
+
+    ToolID m_constraint_preview_tool;
 };
 
 } // namespace dune3d

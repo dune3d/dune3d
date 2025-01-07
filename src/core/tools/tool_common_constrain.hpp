@@ -1,14 +1,17 @@
 #pragma once
 #include "tool_common.hpp"
+#include "itool_constrain.hpp"
 
 namespace dune3d {
-class ToolCommonConstrain : public ToolCommon {
+class ToolCommonConstrain : public ToolCommon, public IToolConstrain {
 public:
     using ToolCommon::ToolCommon;
 
     bool is_specific() override;
 
     ToolResponse update(const ToolArgs &args) override;
+
+    bool can_preview_constrain() override;
 
 protected:
     ToolResponse commit();

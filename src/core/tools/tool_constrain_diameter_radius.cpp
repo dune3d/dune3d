@@ -35,6 +35,11 @@ ToolBase::CanBegin ToolConstrainDiameterRadius::can_begin()
     return true;
 }
 
+bool ToolConstrainDiameterRadius::can_preview_constrain()
+{
+    return any_of(m_tool_id, ToolID::CONSTRAIN_DIAMETER, ToolID::CONSTRAIN_RADIUS);
+}
+
 ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
 {
     auto enp = point_from_selection(m_core.get_current_document(), m_selection);

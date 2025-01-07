@@ -124,6 +124,7 @@ private:
     double m_rmb_last_y = NAN;
     std::set<SelectableRef> m_context_menu_selection;
     void open_context_menu();
+    sigc::connection m_context_menu_hover_timeout;
 
     void set_current_group(const UUID &group);
     void canvas_update();

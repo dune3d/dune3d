@@ -11,6 +11,11 @@ bool ToolCommonConstrain::is_specific()
     return true;
 }
 
+bool ToolCommonConstrain::can_preview_constrain()
+{
+    return false;
+}
+
 ToolResponse ToolCommonConstrain::update(const ToolArgs &args)
 {
     return ToolResponse();
@@ -24,6 +29,8 @@ ToolResponse ToolCommonConstrain::commit()
 
 void ToolCommonConstrain::reset_selection_after_constrain()
 {
+    if (m_is_preview)
+        return;
     m_selection.clear();
     m_intf.set_canvas_selection_mode(SelectionMode::HOVER);
 }

@@ -11,11 +11,12 @@
 #include "system/system.hpp"
 #include "util/fs_util.hpp"
 #include "logger/log_util.hpp"
+#include "tools/itool_constrain.hpp"
 #include <iostream>
 
 namespace dune3d {
 
-Core::Core(EditorInterface &intf) : m_intf(intf)
+Core::Core(EditorInterface &intf) : m_intf(intf), m_constraint_preview_tool(ToolID::NONE)
 {
 }
 
@@ -298,9 +299,14 @@ Core::CanBeginInfo Core::tool_can_begin(ToolID tool_id, const std::set<Selectabl
         return {ToolBase::CanBegin::NO, false};
     auto t = create_tool(tool_id);
     t->m_selection = sel;
-    auto r = t->can_begin();
-    auto s = t->is_specific();
-    return {r, s};
+    bool can_preview = false;
+    if (auto tool_constrain = dynamic_cast<IToolConstrain *>(t.get()))
+        can_preview = tool_constrain->can_preview_constrain();
+    return {
+            .can_begin = t->can_begin(),
+            .is_specific = t->is_specific(),
+            .can_preview = can_preview,
+    };
 }
 
 ToolID Core::get_tool_id() const
@@ -623,6 +629,44 @@ std::optional<ToolArgs> Core::get_pending_tool_args()
     auto r = std::move(m_pending_tool_args.front());
     m_pending_tool_args.pop_front();
     return r;
+}
+
+bool Core::apply_preview(ToolID tool_id, const std::set<SelectableRef> &sel)
+{
+    if (m_constraint_preview_tool == tool_id)
+        return false;
+
+    if (m_constraint_preview_tool != ToolID::NONE)
+        reset_preview();
+
+    auto tool = create_tool(tool_id, ToolBase::Flags::PREVIEW);
+    tool->m_selection = sel;
+
+    if (tool->can_begin() == ToolBase::CanBegin::NO)
+        return false;
+
+    if (auto constrain = dynamic_cast<IToolConstrain *>(tool.get())) {
+        if (!constrain->can_preview_constrain())
+            return false;
+    }
+    else {
+        return false;
+    }
+    if (tool->begin({}).result == ToolResponse::Result::COMMIT) {
+        get_current_document().update_pending(get_current_group());
+        m_constraint_preview_tool = tool_id;
+        return true;
+    }
+    return false;
+}
+
+bool Core::reset_preview()
+{
+    if (m_constraint_preview_tool == ToolID::NONE)
+        return false;
+    get_current_document_info().revert();
+    m_constraint_preview_tool = ToolID::NONE;
+    return true;
 }
 
 } // namespace dune3d

@@ -63,6 +63,16 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
         }
     }
     {
+        auto gr = Gtk::make_managed<PreferencesGroup>("Editor");
+        box->append(*gr);
+        {
+            auto r = Gtk::make_managed<PreferencesRowBool>(
+                    "Preview constraints", "Hover over constraints in the context menu to preview their result",
+                    m_preferences, m_preferences.editor.preview_constraints);
+            gr->add_row(*r);
+        }
+    }
+    {
         auto gr = Gtk::make_managed<PreferencesGroup>("Action Bar");
         box->append(*gr);
         gr->show();

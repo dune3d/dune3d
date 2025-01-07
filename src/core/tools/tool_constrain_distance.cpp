@@ -48,6 +48,13 @@ ToolBase::CanBegin ToolConstrainDistance::can_begin()
     }
 }
 
+bool ToolConstrainDistance::can_preview_constrain()
+{
+    return any_of(m_tool_id, ToolID::CONSTRAIN_DISTANCE, ToolID::CONSTRAIN_DISTANCE_HORIZONTAL,
+                  ToolID::CONSTRAIN_DISTANCE_VERTICAL);
+}
+
+
 ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
 {
     auto tp = two_points_from_selection(get_doc(), m_selection);

@@ -19,6 +19,11 @@ ToolBase::CanBegin ToolConstrainPointLineDistance::can_begin()
                                                 Constraint::Type::POINT_ON_LINE, Constraint::Type::MIDPOINT);
 }
 
+bool ToolConstrainPointLineDistance::can_preview_constrain()
+{
+    return m_tool_id == ToolID::CONSTRAIN_POINT_LINE_DISTANCE;
+}
+
 ToolResponse ToolConstrainPointLineDistance::begin(const ToolArgs &args)
 {
     auto lp = line_and_point_from_selection(get_doc(), m_selection, LineAndPoint::AllowSameEntity::NO);
