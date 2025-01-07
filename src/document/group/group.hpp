@@ -48,6 +48,7 @@ enum class GroupType {
     EXPLODED_CLUSTER,
     MIRROR_HORIZONTAL,
     MIRROR_VERTICAL,
+    SOLID_MODEL_OPERATION,
 };
 
 class Group {

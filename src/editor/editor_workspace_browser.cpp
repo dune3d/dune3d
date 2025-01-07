@@ -200,6 +200,10 @@ void Editor::on_add_group(Group::Type group_type, WorkspaceBrowserAddGroupMode a
             finish_add_group(&group);
         });
     }
+    else if (group_type == Group::Type::SOLID_MODEL_OPERATION) {
+        auto &group = doc.insert_group<GroupSolidModelOperation>(UUID::random(), current_group.m_uuid);
+        new_group = &group;
+    }
     if (new_group && add_group_mode == WorkspaceBrowserAddGroupMode::WITH_BODY)
         new_group->m_body.emplace();
     finish_add_group(new_group);
