@@ -9,8 +9,10 @@
 #include "document/group/group_polar_array.hpp"
 #include "document/group/group_loft.hpp"
 #include "document/group/group_mirror.hpp"
+#include "document/group/group_solid_model_operation.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include "widgets/select_groups_dialog.hpp"
+#include "widgets/select_group_dialog.hpp"
 #include "core/core.hpp"
 #include "core/tool_id.hpp"
 #include "util/gtk_util.hpp"
@@ -290,6 +292,119 @@ private:
     GroupLoft &get_group()
     {
         return m_core.get_current_document().get_group<GroupLoft>(m_group_uu);
+    }
+};
+
+namespace {
+
+class GroupButton : public Gtk::Button, public Changeable {
+public:
+    GroupButton(const Document &doc, const UUID &current_group) : m_doc(doc), m_current_group(current_group)
+    {
+        m_label = Gtk::make_managed<Gtk::Label>();
+        m_label->set_ellipsize(Pango::EllipsizeMode::END);
+        m_label->set_xalign(0);
+        set_child(*m_label);
+        signal_clicked().connect(sigc::mem_fun(*this, &GroupButton::select_group));
+    }
+
+    const auto &get_group() const
+    {
+        return m_group;
+    }
+
+    void set_group(const UUID &group)
+    {
+        m_group = group;
+        update_label();
+    }
+
+private:
+    const Document &m_doc;
+    Gtk::Label *m_label = nullptr;
+    UUID m_group;
+    const UUID m_current_group;
+
+    void update_label()
+    {
+        if (m_group)
+            m_label->set_text(m_doc.get_group(m_group).m_name);
+        else
+            m_label->set_text("(None)");
+    }
+
+    void select_group()
+    {
+        auto dia = new SelectGroupDialog(m_doc, m_current_group, m_group);
+        dia->set_transient_for(dynamic_cast<Gtk::Window &>(*get_ancestor(GTK_TYPE_WINDOW)));
+        dia->present();
+        dia->signal_changed().connect([this, dia] {
+            auto group = dia->get_selected_group();
+            m_group = group;
+            update_label();
+            m_signal_changed.emit();
+        });
+    }
+};
+
+} // namespace
+
+class GroupEditorSolidModelOperation : public GroupEditorSolidModel {
+public:
+    GroupEditorSolidModelOperation(Core &core, const UUID &group_uu) : GroupEditorSolidModel(core, group_uu)
+    {
+        add_operation_combo();
+
+        m_argument_button = Gtk::make_managed<GroupButton>(m_core.get_current_document(), group_uu);
+        m_tool_button = Gtk::make_managed<GroupButton>(m_core.get_current_document(), group_uu);
+
+        grid_attach_label_and_widget(*this, "Argument", *m_argument_button, m_top);
+        grid_attach_label_and_widget(*this, "Tool", *m_tool_button, m_top);
+
+        auto &group = get_group();
+
+        m_argument_button->set_group(group.m_source_group_argument);
+        m_tool_button->set_group(group.m_source_group_tool);
+
+        m_argument_button->signal_changed().connect(sigc::mem_fun(*this, &GroupEditorSolidModelOperation::changed));
+        m_tool_button->signal_changed().connect(sigc::mem_fun(*this, &GroupEditorSolidModelOperation::changed));
+
+        auto swap_button = Gtk::make_managed<Gtk::Button>("Swap Argument & Tool");
+        attach(*swap_button, 1, m_top++, 1, 1);
+        swap_button->signal_clicked().connect([this] {
+            auto &group = get_group();
+            std::swap(group.m_source_group_argument, group.m_source_group_tool);
+            m_argument_button->set_group(group.m_source_group_argument);
+            m_tool_button->set_group(group.m_source_group_tool);
+            m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
+        });
+    }
+
+private:
+    GroupButton *m_argument_button = nullptr;
+    GroupButton *m_tool_button = nullptr;
+
+    void do_reload() override
+    {
+        GroupEditorSolidModel::do_reload();
+        auto &group = get_group();
+        m_argument_button->set_group(group.m_source_group_argument);
+        m_tool_button->set_group(group.m_source_group_tool);
+    }
+
+    void changed()
+    {
+        auto &group = get_group();
+        group.m_source_group_argument = m_argument_button->get_group();
+        group.m_source_group_tool = m_tool_button->get_group();
+        m_core.get_current_document().set_group_update_solid_model_pending(group.m_uuid);
+        m_signal_changed.emit(CommitMode::IMMEDIATE);
+    }
+
+    GroupSolidModelOperation &get_group()
+    {
+        return m_core.get_current_document().get_group<GroupSolidModelOperation>(m_group_uu);
     }
 };
 
@@ -674,6 +789,8 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
         return Gtk::make_managed<GroupEditorMirror>(core, group_uu);
     case Group::Type::EXPLODED_CLUSTER:
         return Gtk::make_managed<GroupEditorExplodedCluster>(core, group_uu);
+    case Group::Type::SOLID_MODEL_OPERATION:
+        return Gtk::make_managed<GroupEditorSolidModelOperation>(core, group_uu);
     default:
         return Gtk::make_managed<GroupEditor>(core, group_uu);
     }

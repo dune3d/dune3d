@@ -833,6 +833,8 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
                 actions->add_action("polar_array", [this] { emit_add_group(Group::Type::POLAR_ARRAY); });
                 actions->add_action("mirror_horizontal", [this] { emit_add_group(Group::Type::MIRROR_HORIZONTAL); });
                 actions->add_action("mirror_vertical", [this] { emit_add_group(Group::Type::MIRROR_VERTICAL); });
+                actions->add_action("solid_model_operation",
+                                    [this] { emit_add_group(Group::Type::SOLID_MODEL_OPERATION); });
                 top->append_item(Gio::MenuItem::create("Sketch", "groups.sketch"));
                 top->append_item(Gio::MenuItem::create("Sketch in new Body", "groups.sketch_in_new_body"));
                 top->append_item(Gio::MenuItem::create("Extrude", "groups.extrude"));
@@ -845,6 +847,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
                 top->append_item(Gio::MenuItem::create("Chamfer", "groups.chamfer"));
                 top->append_item(Gio::MenuItem::create("Mirror horizontally", "groups.mirror_horizontal"));
                 top->append_item(Gio::MenuItem::create("Mirror vertically", "groups.mirror_vertical"));
+                top->append_item(Gio::MenuItem::create("Solid model operation", "groups.solid_model_operation"));
 
 
                 insert_action_group("groups", actions);
