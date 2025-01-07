@@ -96,18 +96,14 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupM
     }
 
     auto &wrkpl = doc.get_entity<EntityWorkplane>(group.m_active_wrkpl);
-    glm::dvec3 vn;
-    if (group.get_type() == Group::Type::MIRROR_HORIZONTAL)
-        vn = glm::rotate(wrkpl.m_normal, glm::dvec3(0, 1, 0));
-    else
-        vn = glm::rotate(wrkpl.m_normal, glm::dvec3(1, 0, 0));
+    glm::dvec3 vn = glm::rotate(wrkpl.m_normal, group.get_n_vector());
 
     auto nn = glm::rotate(wrkpl.m_normal, glm::dvec3(0, 0, 1));
 
     auto ax = gp_Ax2(gp_Pnt(wrkpl.m_origin.x, wrkpl.m_origin.y, wrkpl.m_origin.z), gp_Dir(vn.x, vn.y, vn.z),
                      gp_Dir(nn.x, nn.y, nn.z));
 
-    auto make_trsf = [&group, &ax](unsigned int instance) {
+    auto make_trsf = [&ax](unsigned int instance) {
         gp_Trsf trsf;
         if (instance == 0)
             trsf.SetMirror(ax);
