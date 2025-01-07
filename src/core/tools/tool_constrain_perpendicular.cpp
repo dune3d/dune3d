@@ -38,6 +38,10 @@ static std::optional<std::pair<UUID, UUID>> two_lines_from_selection(const Docum
     return {};
 }
 
+bool ToolConstrainPerpendicular::can_preview_constrain()
+{
+    return m_tool_id == ToolID::CONSTRAIN_PERPENDICULAR;
+}
 
 ToolBase::CanBegin ToolConstrainPerpendicular::can_begin()
 {

@@ -11,6 +11,7 @@
 #include "system/system.hpp"
 #include "util/fs_util.hpp"
 #include "logger/log_util.hpp"
+#include "tools/tool_common_constrain.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -298,9 +299,14 @@ Core::CanBeginInfo Core::tool_can_begin(ToolID tool_id, const std::set<Selectabl
         return {ToolBase::CanBegin::NO, false};
     auto t = create_tool(tool_id);
     t->m_selection = sel;
-    auto r = t->can_begin();
-    auto s = t->is_specific();
-    return {r, s};
+    bool can_preview = false;
+    if (auto tool_constrain = dynamic_cast<ToolCommonConstrain *>(t.get()))
+        can_preview = tool_constrain->can_preview_constrain();
+    return {
+            .can_begin = t->can_begin(),
+            .is_specific = t->is_specific(),
+            .can_preview = can_preview,
+    };
 }
 
 ToolID Core::get_tool_id() const
@@ -623,6 +629,31 @@ std::optional<ToolArgs> Core::get_pending_tool_args()
     auto r = std::move(m_pending_tool_args.front());
     m_pending_tool_args.pop_front();
     return r;
+}
+
+void Core::apply_preview(ToolID tool_id, const std::set<SelectableRef> &sel)
+{
+    auto tool = create_tool(tool_id, ToolBase::Flags::PREVIEW);
+    tool->m_selection = sel;
+
+    if (tool->can_begin() == ToolBase::CanBegin::NO)
+        return;
+
+    if (auto constrain = dynamic_cast<ToolCommonConstrain *>(tool.get())) {
+        if (!constrain->can_preview_constrain())
+            return;
+    }
+    else {
+        return;
+    }
+    if (tool->begin({}).result == ToolResponse::Result::COMMIT) {
+        get_current_document().update_pending(get_current_group());
+    }
+}
+
+void Core::reset_preview()
+{
+    get_current_document_info().revert();
 }
 
 } // namespace dune3d

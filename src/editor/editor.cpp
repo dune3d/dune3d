@@ -496,6 +496,45 @@ void Editor::update_selection_mode_label()
     }
 }
 
+namespace {
+class ContextMenuButton : public Gtk::Button {
+public:
+    typedef sigc::signal<void(bool)> type_signal_show_preview;
+    type_signal_show_preview signal_show_preview()
+    {
+        return m_signal_show_preview;
+    }
+
+    ContextMenuButton()
+    {
+        auto ctrl = Gtk::EventControllerMotion::create();
+        ctrl->signal_leave().connect([this] {
+            if (m_preview)
+                m_signal_show_preview.emit(false);
+            m_preview = false;
+            m_timeout_connection.disconnect();
+        });
+        ctrl->signal_motion().connect([this](double, double) {
+            m_timeout_connection.disconnect();
+            m_timeout_connection = Glib::signal_timeout().connect(
+                    [this] {
+                        if (!m_preview)
+                            m_signal_show_preview.emit(true);
+                        m_preview = true;
+                        return false;
+                    },
+                    200);
+        });
+        add_controller(ctrl);
+    };
+
+private:
+    sigc::connection m_timeout_connection;
+    type_signal_show_preview m_signal_show_preview;
+    bool m_preview = false;
+};
+} // namespace
+
 void Editor::open_context_menu()
 {
     Gdk::Rectangle rect;
@@ -513,7 +552,11 @@ void Editor::open_context_menu()
         sel = {*hover_sel};
     m_context_menu_selection = sel;
     update_action_sensitivity(sel);
-    std::vector<ActionToolID> ids;
+    struct ActionInfo {
+        ActionToolID id;
+        bool can_preview;
+    };
+    std::vector<ActionInfo> ids;
 
     std::list<Glib::RefPtr<Gio::MenuItem>> meas_items;
     for (const auto &[action_group, action_group_name] : action_group_catalog) {
@@ -522,7 +565,7 @@ void Editor::open_context_menu()
                 if (auto tool = std::get_if<ToolID>(&id)) {
                     auto r = m_core.tool_can_begin(*tool, sel);
                     if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
-                        ids.push_back(id);
+                        ids.emplace_back(id, r.can_preview);
                         auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
                         if (it_cat.group == ActionGroup::MEASURE) {
                             meas_items.push_back(item);
@@ -536,7 +579,7 @@ void Editor::open_context_menu()
                 }
                 else if (auto act = std::get_if<ActionID>(&id)) {
                     if (get_action_sensitive(*act) && (it_cat.flags & ActionCatalogItem::FLAGS_SPECIFIC)) {
-                        ids.push_back(id);
+                        ids.emplace_back(id, false);
                         auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
                         item->set_attribute_value("custom",
                                                   Glib::Variant<Glib::ustring>::create(action_tool_id_to_string(id)));
@@ -584,13 +627,26 @@ void Editor::open_context_menu()
     }
     if (menu->get_n_items() != 0) {
         m_context_menu->set_menu_model(menu);
-        for (const auto id : ids) {
-            auto button = Gtk::make_managed<Gtk::Button>();
+        for (const auto [id, can_preview] : ids) {
+            auto button = Gtk::make_managed<ContextMenuButton>();
             button->signal_clicked().connect([this, id] {
                 m_context_menu->popdown();
                 get_canvas().set_selection(m_context_menu_selection, false);
                 trigger_action(id);
             });
+            if (m_preferences.editor.preview_constraints && can_preview) {
+                button->signal_show_preview().connect([this, id](bool preview) {
+                    m_context_menu->set_opacity(preview ? .25 : 1);
+                    if (preview) {
+                        m_core.apply_preview(std::get<ToolID>(id), m_context_menu_selection);
+                        canvas_update_keep_selection();
+                    }
+                    else {
+                        m_core.reset_preview();
+                        canvas_update_keep_selection();
+                    }
+                });
+            }
             button->add_css_class("context-menu-button");
             auto label = Gtk::make_managed<Gtk::Label>(action_catalog.at(id).name);
             label->set_xalign(0);

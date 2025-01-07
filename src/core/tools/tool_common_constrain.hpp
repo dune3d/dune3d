@@ -10,6 +10,8 @@ public:
 
     ToolResponse update(const ToolArgs &args) override;
 
+    virtual bool can_preview_constrain();
+
 protected:
     ToolResponse commit();
 

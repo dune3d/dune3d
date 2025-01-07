@@ -64,6 +64,7 @@ public:
         }
         ToolBase::CanBegin can_begin;
         bool is_specific;
+        bool can_preview;
     };
 
     CanBeginInfo tool_can_begin(ToolID tool_id, const std::set<SelectableRef> &sel);
@@ -146,6 +147,8 @@ public:
 
     void solve_current(const DraggedList &dragged) override;
 
+    void apply_preview(ToolID tool, const std::set<SelectableRef> &sel);
+    void reset_preview();
 
 private:
     EditorInterface &m_intf;

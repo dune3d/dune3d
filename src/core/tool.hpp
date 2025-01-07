@@ -85,7 +85,7 @@ private:
  */
 class ToolBase {
 public:
-    enum class Flags { DEFAULT = 0, TRANSIENT = (1 << 0) };
+    enum class Flags { DEFAULT = 0, TRANSIENT = (1 << 0), PREVIEW = (1 << 1) };
 
     ToolBase(ToolID tool_id, ICore &core, EditorInterface &intf, Flags flags);
 
@@ -175,6 +175,7 @@ protected:
     ICore &m_core;
     EditorInterface &m_intf;
     const bool m_is_transient;
+    const bool m_is_preview;
 };
 
 

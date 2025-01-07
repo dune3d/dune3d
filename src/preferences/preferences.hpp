@@ -36,6 +36,15 @@ public:
     json serialize_colors() const;
 };
 
+
+class EditorPreferences {
+public:
+    bool preview_constraints = true;
+
+    void load_from_json(const json &j);
+    json serialize() const;
+};
+
 class KeySequencesPreferences {
 public:
     std::map<ActionToolID, std::vector<KeySequence>> keys;
@@ -91,6 +100,7 @@ public:
     InToolKeySequencesPreferences in_tool_key_sequences;
     ToolBarPreferences tool_bar;
     CanvasPreferences canvas;
+    EditorPreferences editor;
 
 private:
     fs::path filename;

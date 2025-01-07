@@ -10,6 +10,10 @@ public:
 
     ToolResponse begin(const ToolArgs &args) override;
     CanBegin can_begin() override;
+    bool can_preview_constrain() override
+    {
+        return true;
+    }
 
 private:
     EntityType get_curve_type() const;
