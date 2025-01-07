@@ -25,7 +25,7 @@ template <typename T> void get_widget(T *&widget, const Glib::RefPtr<Gtk::Builde
         get_widget(m_##n, x, #n);                                                                                      \
     } while (0)
 
-
+namespace {
 class SelectGroupItem : public Glib::Object {
 public:
     static Glib::RefPtr<SelectGroupItem> create()
@@ -41,6 +41,7 @@ private:
     {
     }
 };
+} // namespace
 
 class SelectGroupsDialog::Filter : public Gtk::Filter {
 public:
