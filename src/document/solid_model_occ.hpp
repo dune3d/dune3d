@@ -18,6 +18,8 @@ public:
     bool update_acc_finish(const Document &doc, const Group &group);
     void finish(const Document &doc, const Group &group);
 
+    static TopoDS_Shape calc(IGroupSolidModel::Operation op, TopoDS_Shape argument, TopoDS_Shape tool);
+
 private:
     void update_acc(IGroupSolidModel::Operation op, const TopoDS_Shape &last);
     void update_acc(IGroupSolidModel::Operation op, const SolidModelOcc *last);

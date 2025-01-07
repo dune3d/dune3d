@@ -596,19 +596,23 @@ void SolidModelOcc::find_edges()
     }
 }
 
-void SolidModelOcc::update_acc(IGroupSolidModel::Operation op, const TopoDS_Shape &last)
+TopoDS_Shape SolidModelOcc::calc(IGroupSolidModel::Operation op, TopoDS_Shape argument, TopoDS_Shape tool)
 {
     switch (op) {
     case IGroupSolidModel::Operation::DIFFERENCE:
-        m_shape_acc = BRepAlgoAPI_Cut(last, m_shape);
-        break;
+        return BRepAlgoAPI_Cut(argument, tool);
+
     case IGroupSolidModel::Operation::UNION:
-        m_shape_acc = BRepAlgoAPI_Fuse(last, m_shape);
-        break;
+        return BRepAlgoAPI_Fuse(argument, tool);
+
     case IGroupSolidModel::Operation::INTERSECTION:
-        m_shape_acc = BRepAlgoAPI_Common(last, m_shape);
-        break;
+        return BRepAlgoAPI_Common(argument, tool);
     }
+}
+
+void SolidModelOcc::update_acc(IGroupSolidModel::Operation op, const TopoDS_Shape &last)
+{
+    m_shape_acc = calc(op, last, m_shape);
 }
 
 void SolidModelOcc::update_acc(IGroupSolidModel::Operation op, const SolidModelOcc *last)
