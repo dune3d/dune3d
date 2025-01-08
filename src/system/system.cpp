@@ -2040,6 +2040,14 @@ System::EntityRef System::get_entity_ref_for_parallel(const UUID &uu) const
         idx = 2;
         break;
 
+    case Entity::Type::CIRCLE_3D:
+        idx = 3;
+        break;
+
+    case Entity::Type::ARC_3D:
+        idx = 4;
+        break;
+
     default:
         idx = 0;
     }
