@@ -502,21 +502,22 @@ void Editor::update_selection_mode_label()
     }
 }
 
-void Editor::open_context_menu()
+void Editor::open_context_menu(ContextMenuMode mode)
 {
     Gdk::Rectangle rect;
     rect.set_x(m_last_x);
     rect.set_y(m_last_y);
-
     m_context_menu->set_pointing_to(rect);
     get_canvas().end_pan();
     auto menu = Gio::Menu::create();
     auto sel = get_canvas().get_selection();
-    auto hover_sel = get_canvas().get_hover_selection();
-    if (!hover_sel)
-        return;
-    if (!sel.contains(*hover_sel))
-        sel = {*hover_sel};
+    if (mode != ContextMenuMode::CONSTRAIN) {
+        auto hover_sel = get_canvas().get_hover_selection();
+        if (!hover_sel)
+            return;
+        if (!sel.contains(*hover_sel))
+            sel = {*hover_sel};
+    }
     m_context_menu_selection = sel;
     update_action_sensitivity(sel);
     struct ActionInfo {
@@ -527,6 +528,8 @@ void Editor::open_context_menu()
 
     std::list<Glib::RefPtr<Gio::MenuItem>> meas_items;
     for (const auto &[action_group, action_group_name] : action_group_catalog) {
+        if (mode == ContextMenuMode::CONSTRAIN && action_group != ActionGroup::CONSTRAIN)
+            continue;
         for (const auto &[id, it_cat] : action_catalog) {
             if (it_cat.group == action_group && !(it_cat.flags & ActionCatalogItem::FLAGS_NO_MENU)) {
                 if (auto tool = std::get_if<ToolID>(&id)) {
@@ -556,6 +559,15 @@ void Editor::open_context_menu()
             }
         }
     }
+    if (mode == ContextMenuMode::CONSTRAIN && ids.size() == 1) {
+        get_canvas().set_selection(m_context_menu_selection, false);
+        trigger_action(ids.front().id);
+        return;
+    }
+    else if (mode == ContextMenuMode::CONSTRAIN && ids.size() == 0) {
+        auto item = Gio::MenuItem::create("No applicable constraints", "menu.invalid");
+        menu->append_item(item);
+    }
     if (meas_items.size() > 1) {
         auto measurement_submenu = Gio::Menu::create();
         for (auto it : meas_items) {
@@ -568,7 +580,7 @@ void Editor::open_context_menu()
         menu->append_item(meas_items.front());
     }
 
-    if (m_core.has_documents()) {
+    if (m_core.has_documents() && mode != ContextMenuMode::CONSTRAIN) {
         auto &doc = m_core.get_current_document();
         if (auto enp = point_from_selection(doc, m_context_menu_selection)) {
             auto &en = doc.get_entity(enp->entity);
@@ -651,6 +663,9 @@ void Editor::open_context_menu()
             button->set_has_frame(false);
             m_context_menu->add_child(*button, action_tool_id_to_string(id));
         }
+        m_context_menu->popup();
+    }
+    else if (mode == ContextMenuMode::CONSTRAIN) {
         m_context_menu->popup();
     }
 }

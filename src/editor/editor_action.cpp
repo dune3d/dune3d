@@ -258,6 +258,9 @@ void Editor::init_actions()
             set_buffer(std::move(buf));
     });
 
+    connect_action(ActionID::CONSTRAIN_MENU,
+                   [this](const auto &conn) { open_context_menu(ContextMenuMode::CONSTRAIN); });
+
     m_core.signal_rebuilt().connect([this] { update_action_sensitivity(); });
     m_core.signal_rebuilt().connect([this] {
         if (!m_current_workspace_view)

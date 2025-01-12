@@ -1199,5 +1199,16 @@
                 }
             ]
         ]
+    },
+    {
+        "action": "CONSTRAIN_MENU",
+        "keys": [
+            [
+                {
+                    "key": "z",
+                    "mod": 0
+                }
+            ]
+        ]
     }
 ]

@@ -123,7 +123,8 @@ private:
     double m_rmb_last_x = NAN;
     double m_rmb_last_y = NAN;
     std::set<SelectableRef> m_context_menu_selection;
-    void open_context_menu();
+    enum class ContextMenuMode { ALL, CONSTRAIN };
+    void open_context_menu(ContextMenuMode mode = ContextMenuMode::ALL);
     sigc::connection m_context_menu_hover_timeout;
 
     void set_current_group(const UUID &group);

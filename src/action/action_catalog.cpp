@@ -203,6 +203,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::CONSTRAIN_LINE_POINTS_PERPENDICULAR,
          {"Constrain line/points perpendicular", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::TEXT_TO_CLUSTER, {"Convert to Cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::CONSTRAIN_MENU, {"Constrain", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_NO_MENU}},
 };
 
 
@@ -280,6 +281,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(UNEXPLODE_CLUSTER),
         ACTION_LUT_ITEM(TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES),
         ACTION_LUT_ITEM(COPY),
+        ACTION_LUT_ITEM(CONSTRAIN_MENU),
 };
 
 #define TOOL_LUT_ITEM(x) {#x, ToolID::x}
