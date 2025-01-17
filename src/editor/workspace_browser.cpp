@@ -775,6 +775,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
         overlay->set_child(*sc);
 
         m_toast_label = Gtk::make_managed<Gtk::Label>();
+        m_toast_label->set_wrap(true);
         m_toast_revealer = Gtk::make_managed<Gtk::Revealer>();
         m_toast_revealer->set_child(*m_toast_label);
         m_toast_revealer->set_visible(false);
@@ -783,7 +784,9 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
         m_toast_revealer->set_transition_type(Gtk::RevealerTransitionType::CROSSFADE);
         m_toast_revealer->add_css_class("osd");
         m_toast_revealer->add_css_class("workspace-browser-toast");
-        m_toast_revealer->set_margin_bottom(20);
+        m_toast_revealer->set_margin(20);
+        m_toast_revealer->property_child_revealed().signal_changed().connect(
+                [this] { m_toast_revealer->set_visible(m_toast_revealer->get_child_revealed()); });
         overlay->add_overlay(*m_toast_revealer);
 
         append(*overlay);
