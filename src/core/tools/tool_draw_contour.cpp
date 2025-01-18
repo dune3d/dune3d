@@ -432,6 +432,10 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
                     update_tip();
                     return ToolResponse();
                 }
+                else if (m_state == State::BEZIER_C2) {
+                    m_constrain_tangent = false;
+                    update_tip();
+                }
             }
             AutoReset autoreset{m_state, State::NORMAL};
 
