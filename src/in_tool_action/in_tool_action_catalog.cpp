@@ -35,7 +35,6 @@ const std::map<InToolActionID, InToolActionCatalogItem> in_tool_action_catalog =
 
 const LutEnumStr<InToolActionID> in_tool_action_lut = {
         LUT_ITEM(LMB),
-        LUT_ITEM(LMB_RELEASE),
         LUT_ITEM(RMB),
         LUT_ITEM(ARC_MODE),
         LUT_ITEM(FLIP_ARC),

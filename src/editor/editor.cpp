@@ -354,21 +354,27 @@ void Editor::init_canvas()
 
         controller->signal_released().connect([this, controller](int n_press, double x, double y) {
             m_drag_tool = ToolID::NONE;
-            if (controller->get_current_button() == 1 && n_press == 1) {
+            const auto button = controller->get_current_button();
+            if (button == 1 && n_press == 1) {
                 if (m_core.tool_is_active()) {
                     ToolArgs args;
                     args.type = ToolEventType::ACTION;
-                    args.action = InToolActionID::LMB_RELEASE;
+                    args.action = InToolActionID::LMB;
                     ToolResponse r = m_core.tool_update(args);
                     tool_process(r);
                 }
             }
-            else if (controller->get_current_button() == 3 && n_press == 1) {
+            else if (button == 3 && n_press == 1) {
                 const auto dist = glm::length(glm::vec2(x, y) - glm::vec2(m_rmb_last_x, m_rmb_last_y));
                 if (dist > 16)
                     return;
-                if (m_core.tool_is_active())
-                    handle_click(3, 1);
+                if (m_core.tool_is_active()) {
+                    ToolArgs args;
+                    args.type = ToolEventType::ACTION;
+                    args.action = InToolActionID::RMB;
+                    ToolResponse r = m_core.tool_update(args);
+                    tool_process(r);
+                }
                 else
                     open_context_menu();
             }
@@ -1066,7 +1072,6 @@ void Editor::apply_preferences()
     m_in_tool_key_sequeces_preferences = m_preferences.in_tool_key_sequences;
     m_in_tool_key_sequeces_preferences.keys.erase(InToolActionID::LMB);
     m_in_tool_key_sequeces_preferences.keys.erase(InToolActionID::RMB);
-    m_in_tool_key_sequeces_preferences.keys.erase(InToolActionID::LMB_RELEASE);
 
     {
         const auto mod0 = static_cast<Gdk::ModifierType>(0);
@@ -1256,16 +1261,7 @@ void Editor::handle_click(unsigned int button, unsigned int n)
     const bool is_doubleclick = n == 2;
 
     if (m_core.tool_is_active()) {
-        ToolArgs args;
-        args.type = ToolEventType::ACTION;
-        if (button == 1) {
-            args.action = InToolActionID::LMB;
-        }
-        else {
-            args.action = InToolActionID::RMB;
-        }
-        ToolResponse r = m_core.tool_update(args);
-        tool_process(r);
+        // nop
     }
     else if (is_doubleclick && button == 1) {
         auto sel = get_canvas().get_hover_selection();

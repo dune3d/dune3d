@@ -6,7 +6,6 @@ enum class InToolActionID {
     NONE,
     // common
     LMB,
-    LMB_RELEASE,
     RMB,
     TOGGLE_CONSTRUCTION,
     TOGGLE_COINCIDENT_CONSTRAINT,

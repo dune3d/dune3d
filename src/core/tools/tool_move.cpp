@@ -144,13 +144,7 @@ ToolResponse ToolMove::update(const ToolArgs &args)
     else if (args.type == ToolEventType::ACTION) {
         switch (args.action) {
         case InToolActionID::LMB:
-
             return ToolResponse::commit();
-            break;
-
-        case InToolActionID::LMB_RELEASE:
-            if (m_is_transient)
-                return ToolResponse::commit();
             break;
 
         case InToolActionID::RMB:
