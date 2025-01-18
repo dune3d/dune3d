@@ -91,49 +91,49 @@ ToolResponse ToolDrawRectangle::update(const ToolArgs &args)
                 if (m_constrain) {
                     constrain_point(m_wrkpl->m_uuid, {m_lines.at(2)->m_uuid, 1});
                 }
-                if (m_first_constraint) {
-                    if (m_mode == Mode::CORNER) {
+                if (m_mode == Mode::CORNER) {
+                    if (m_first_constraint)
                         constrain_point(m_first_constraint.value(), m_wrkpl->m_uuid, m_first_enp,
                                         {m_lines.at(0)->m_uuid, 1});
+                }
+                else {
+                    auto &diagonal = add_entity<EntityLine2D>();
+                    diagonal.m_wrkpl = m_wrkpl->m_uuid;
+                    diagonal.m_construction = true;
+                    diagonal.m_p1 = m_lines.at(0)->m_p1;
+                    diagonal.m_p2 = m_lines.at(1)->m_p2;
+                    {
+                        auto &constraint = add_constraint<ConstraintPointsCoincident>();
+                        constraint.m_entity1 = {diagonal.m_uuid, 1};
+                        constraint.m_entity2 = {m_lines.at(0)->m_uuid, 1};
+                        constraint.m_wrkpl = m_wrkpl->m_uuid;
+                    }
+                    {
+                        auto &constraint = add_constraint<ConstraintPointsCoincident>();
+                        constraint.m_entity1 = {diagonal.m_uuid, 2};
+                        constraint.m_entity2 = {m_lines.at(1)->m_uuid, 2};
+                        constraint.m_wrkpl = m_wrkpl->m_uuid;
+                    }
+                    if (m_first_constraint && *m_first_constraint == Constraint::Type::POINTS_COINCIDENT) {
+                        auto &constraint = add_constraint<ConstraintMidpoint>();
+                        constraint.m_line = diagonal.m_uuid;
+                        constraint.m_point = m_first_enp;
+                        constraint.m_wrkpl = m_wrkpl->m_uuid;
                     }
                     else {
-                        auto &diagonal = add_entity<EntityLine2D>();
-                        diagonal.m_wrkpl = m_wrkpl->m_uuid;
-                        diagonal.m_construction = true;
-                        diagonal.m_p1 = m_lines.at(0)->m_p1;
-                        diagonal.m_p2 = m_lines.at(1)->m_p2;
+                        auto &midpt = add_entity<EntityPoint2D>();
+                        midpt.m_wrkpl = m_wrkpl->m_uuid;
+                        midpt.m_construction = true;
+                        midpt.m_p = (diagonal.m_p1 + diagonal.m_p2) / 2.;
                         {
-                            auto &constraint = add_constraint<ConstraintPointsCoincident>();
-                            constraint.m_entity1 = {diagonal.m_uuid, 1};
-                            constraint.m_entity2 = {m_lines.at(0)->m_uuid, 1};
-                            constraint.m_wrkpl = m_wrkpl->m_uuid;
-                        }
-                        {
-                            auto &constraint = add_constraint<ConstraintPointsCoincident>();
-                            constraint.m_entity1 = {diagonal.m_uuid, 2};
-                            constraint.m_entity2 = {m_lines.at(1)->m_uuid, 2};
-                            constraint.m_wrkpl = m_wrkpl->m_uuid;
-                        }
-                        if (*m_first_constraint == Constraint::Type::POINTS_COINCIDENT) {
                             auto &constraint = add_constraint<ConstraintMidpoint>();
                             constraint.m_line = diagonal.m_uuid;
-                            constraint.m_point = m_first_enp;
+                            constraint.m_point = {midpt.m_uuid, 0};
                             constraint.m_wrkpl = m_wrkpl->m_uuid;
                         }
-                        else {
-                            auto &midpt = add_entity<EntityPoint2D>();
-                            midpt.m_wrkpl = m_wrkpl->m_uuid;
-                            midpt.m_construction = true;
-                            midpt.m_p = (diagonal.m_p1 + diagonal.m_p2) / 2.;
-                            {
-                                auto &constraint = add_constraint<ConstraintMidpoint>();
-                                constraint.m_line = diagonal.m_uuid;
-                                constraint.m_point = {midpt.m_uuid, 0};
-                                constraint.m_wrkpl = m_wrkpl->m_uuid;
-                            }
+                        if (m_first_constraint)
                             constrain_point(m_first_constraint.value(), m_wrkpl->m_uuid, m_first_enp,
                                             {midpt.m_uuid, 0});
-                        }
                     }
                 }
                 return ToolResponse::commit();
