@@ -777,6 +777,20 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
         m_toast_label = Gtk::make_managed<Gtk::Label>();
         m_toast_label->set_wrap(true);
         m_toast_revealer = Gtk::make_managed<Gtk::Revealer>();
+        {
+            auto ctrl = Gtk::EventControllerMotion::create();
+            ctrl->signal_enter().connect([this](double, double) { m_toast_connection.disconnect(); });
+            ctrl->signal_leave().connect([this] {
+                m_toast_connection.disconnect();
+                m_toast_connection = Glib::signal_timeout().connect(
+                        [this] {
+                            m_toast_revealer->set_reveal_child(false);
+                            return false;
+                        },
+                        3000);
+            });
+            m_toast_revealer->add_controller(ctrl);
+        }
         m_toast_revealer->set_child(*m_toast_label);
         m_toast_revealer->set_visible(false);
         m_toast_revealer->set_halign(Gtk::Align::CENTER);
