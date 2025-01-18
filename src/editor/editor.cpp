@@ -1288,14 +1288,14 @@ void Editor::handle_click(unsigned int button, unsigned int n)
             return;
 
         auto sel = get_canvas().get_selection();
-        if (sel.contains(hover_sel.value())) {
-            m_drag_tool = get_tool_for_drag_move(false, sel);
-            if (m_drag_tool != ToolID::NONE) {
-                get_canvas().inhibit_drag_selection();
-                m_cursor_pos_win_drag_begin = get_canvas().get_cursor_pos_win();
-                // cursor_pos_grid_drag_begin = get_canvas().get_cursor_pos();
-                m_selection_for_drag = sel;
-            }
+        if (!sel.contains(hover_sel.value()))
+            sel = {*hover_sel};
+
+        m_drag_tool = get_tool_for_drag_move(false, sel);
+        if (m_drag_tool != ToolID::NONE && m_core.tool_can_begin(m_drag_tool, sel).get_can_begin()) {
+            get_canvas().inhibit_drag_selection();
+            m_cursor_pos_win_drag_begin = get_canvas().get_cursor_pos_win();
+            m_selection_for_drag = sel;
         }
     }
 }
