@@ -274,11 +274,15 @@ void Editor::on_move_group(Document::MoveGroup op)
     auto group = m_core.get_current_group();
 
     UUID group_after = doc.get_group_after(group, op);
-    if (!group_after)
+    if (!group_after) {
+        m_workspace_browser->show_toast("Couldn't move group");
         return;
+    }
 
-    if (!doc.reorder_group(group, group_after))
+    if (!doc.reorder_group(group, group_after)) {
+        m_workspace_browser->show_toast("Couldn't move group");
         return;
+    }
     m_core.set_needs_save();
     m_core.rebuild("reorder_group");
     canvas_update_keep_selection();
