@@ -377,7 +377,6 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
     else if (args.type == ToolEventType::ACTION) {
         switch (args.action) {
         case InToolActionID::LMB: {
-        case InToolActionID::LMB_DOUBLE:
             if (m_temp_arc && !is_placing_center() && !(m_constrain_tangent && m_last_tangent_point)) {
                 if (m_constrain) {
                     if (constrain_point_and_add_head_tangent_constraint(m_wrkpl->m_uuid,

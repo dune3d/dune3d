@@ -1256,22 +1256,16 @@ void Editor::handle_click(unsigned int button, unsigned int n)
     const bool is_doubleclick = n == 2;
 
     if (m_core.tool_is_active()) {
-        const bool tool_supports_doubleclick = m_core.get_tool_actions().count(InToolActionID::LMB_DOUBLE);
-        if (tool_supports_doubleclick || !is_doubleclick) {
-            ToolArgs args;
-            args.type = ToolEventType::ACTION;
-            if (button == 1) {
-                if (is_doubleclick)
-                    args.action = InToolActionID::LMB_DOUBLE;
-                else
-                    args.action = InToolActionID::LMB;
-            }
-            else {
-                args.action = InToolActionID::RMB;
-            }
-            ToolResponse r = m_core.tool_update(args);
-            tool_process(r);
+        ToolArgs args;
+        args.type = ToolEventType::ACTION;
+        if (button == 1) {
+            args.action = InToolActionID::LMB;
         }
+        else {
+            args.action = InToolActionID::RMB;
+        }
+        ToolResponse r = m_core.tool_update(args);
+        tool_process(r);
     }
     else if (is_doubleclick && button == 1) {
         auto sel = get_canvas().get_hover_selection();

@@ -15,7 +15,7 @@ public:
     {
         using I = InToolActionID;
         return {
-                I::LMB, I::LMB_DOUBLE, I::CANCEL, I::RMB, I::TOGGLE_CONSTRUCTION, I::TOGGLE_COINCIDENT_CONSTRAINT,
+                I::LMB, I::CANCEL, I::RMB, I::TOGGLE_CONSTRUCTION, I::TOGGLE_COINCIDENT_CONSTRAINT,
         };
     }
 

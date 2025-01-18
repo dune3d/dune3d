@@ -80,8 +80,7 @@ ToolResponse ToolDrawLine3D::update(const ToolArgs &args)
     }
     else if (args.type == ToolEventType::ACTION) {
         switch (args.action) {
-        case InToolActionID::LMB:
-        case InToolActionID::LMB_DOUBLE: {
+        case InToolActionID::LMB: {
             if (m_constrain && m_temp_line) {
                 if (constrain_point(get_workplane_uuid(), {m_temp_line->m_uuid, 2})) {
                     return ToolResponse::commit();

@@ -16,7 +16,6 @@ public:
     {
         using I = InToolActionID;
         return {I::LMB,
-                I::LMB_DOUBLE,
                 I::CANCEL,
                 I::RMB,
                 I::TOGGLE_CONSTRUCTION,
