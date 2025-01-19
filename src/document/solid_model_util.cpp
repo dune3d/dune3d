@@ -177,7 +177,7 @@ static Clipper2Lib::PathD path_to_clipper(const Path &path, unsigned int path_in
         auto &[node, edge] = path.at(iv);
         if (auto circle = dynamic_cast<const EntityCircle2D *>(&edge.entity)) {
             {
-                const unsigned int segments = 8;
+                const unsigned int segments = 64;
 
                 float dphi = 2 * M_PI;
                 dphi /= segments;
