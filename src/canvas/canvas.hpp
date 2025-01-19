@@ -224,6 +224,18 @@ public:
         m_selection_menu_creator = &creator;
     }
 
+    bool get_is_long_click() const
+    {
+        return m_is_long_click;
+    }
+
+    typedef sigc::signal<void(SelectableRef)> type_signal_select_from_menu;
+    type_signal_select_from_menu signal_select_from_menu()
+    {
+        return m_signal_select_from_menu;
+    }
+
+
 private:
     BackgroundRenderer m_background_renderer;
     FaceRenderer m_face_renderer;
@@ -535,6 +547,10 @@ private:
 
     glm::vec2 m_drag_selection_start;
     SelectionMode m_last_selection_mode = SelectionMode::NONE;
+    sigc::connection m_long_click_connection;
+    bool m_is_long_click = false;
+    glm::vec2 m_long_click_start;
+
     bool m_dragging = false;
     void update_drag_selection(glm::vec2 pos);
     bool m_inhibit_drag_selection = false;
@@ -577,9 +593,7 @@ private:
 
     Gtk::Popover *m_selection_menu = nullptr;
     ISelectionMenuCreator *m_selection_menu_creator = nullptr;
-
-    std::optional<SelectableRef> m_selection_peeling_candidate;
-    unsigned int m_selection_peeling_candidate_counter = 0;
+    type_signal_select_from_menu m_signal_select_from_menu;
 };
 
 } // namespace dune3d
