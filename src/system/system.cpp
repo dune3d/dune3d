@@ -1991,7 +1991,7 @@ void System::visit(const ConstraintPointDistanceAligned &constraint)
 
         if (m_doc.get_entity(constraint.m_align_entity).of_type(Entity::Type::WORKPLANE)) {
             auto en_align = SK.GetEntity({get_entity_ref({constraint.m_align_entity, 2})}); // normal
-            align_vec = en_align->NormalExprsN();
+            align_vec = en_align->NormalExprsN().ScaledBy(Expr::From(-1));
         }
         else {
             auto en_align = SK.GetEntity({get_entity_ref({constraint.m_align_entity, 0})}); // line
