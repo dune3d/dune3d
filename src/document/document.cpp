@@ -2,6 +2,7 @@
 #include "nlohmann/json.hpp"
 #include "entity/entity.hpp"
 #include "constraint/constraint.hpp"
+#include "constraint/constraint_point_distance_aligned.hpp"
 #include "constraint/iconstraint_datum.hpp"
 #include "group/group.hpp"
 #include "util/util.hpp"
@@ -51,7 +52,7 @@ json Document::serialize() const
     return j;
 }
 
-static const unsigned int app_version = 26;
+static const unsigned int app_version = 27;
 
 unsigned int Document::get_app_version()
 {
@@ -103,8 +104,32 @@ Document::Document(const json &j, const std::filesystem::path &containing_dir) :
     if (m_groups.size())
         set_group_generate_pending(get_groups_sorted().front()->m_uuid);
     update_pending();
-
     erase_invalid();
+
+    if (apply_version_upgrades()) {
+        if (m_groups.size())
+            set_group_generate_pending(get_groups_sorted().front()->m_uuid);
+        update_pending();
+    }
+}
+
+bool Document::apply_version_upgrades()
+{
+    bool did_upgrade = false;
+    if (m_version.get_file() < 27) {
+        // need to flip aligned distance constraints that use a workplane for direction
+        for (auto &[uu, constraint] : m_constraints) {
+            if (auto c = dynamic_cast<ConstraintPointDistanceAligned *>(constraint.get())) {
+                auto &align_entity = get_entity(c->m_align_entity);
+                if (c->m_wrkpl == UUID{} && align_entity.of_type(Entity::Type::WORKPLANE)) {
+                    c->m_distance *= -1;
+                    did_upgrade = true;
+                }
+            }
+        }
+    }
+
+    return did_upgrade;
 }
 
 void Document::erase_invalid()

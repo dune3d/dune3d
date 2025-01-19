@@ -26,3 +26,4 @@ versions:
     24: add h/v mirror groups
     25: add solid model operation group
     26: support constraining workplanes/step to circles
+    27: fix direction for aligned distance with workplanes

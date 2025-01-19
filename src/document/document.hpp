@@ -221,5 +221,6 @@ private:
     void update_group_if_less(UUID &uu, const UUID &new_group);
 
     void insert_group(std::unique_ptr<Group> group, const UUID &after);
+    bool apply_version_upgrades();
 };
 } // namespace dune3d
