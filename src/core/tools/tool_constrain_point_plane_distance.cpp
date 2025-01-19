@@ -20,6 +20,11 @@ ToolBase::CanBegin ToolConstrainPointPlaneDistance::can_begin()
     return !has_constraint_of_type(enps, Constraint::Type::POINT_PLANE_DISTANCE);
 }
 
+bool ToolConstrainPointPlaneDistance::can_preview_constrain()
+{
+    return m_tool_id == ToolID::CONSTRAIN_POINT_PLANE_DISTANCE;
+}
+
 ToolResponse ToolConstrainPointPlaneDistance::begin(const ToolArgs &args)
 {
     auto lps = lines_and_point_from_selection(get_doc(), m_selection);
