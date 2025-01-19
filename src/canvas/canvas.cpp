@@ -220,9 +220,26 @@ void Canvas::setup_controllers()
                 m_dragging = true;
             }
             m_last_selection_mode = m_selection_mode;
+            m_is_long_click = false;
+            m_long_click_start = {x, y};
+
+            if (m_hover_selection.has_value()) {
+                m_long_click_connection = Glib::signal_timeout().connect(
+                        [this] {
+                            m_selection_peeling = true;
+                            m_is_long_click = true;
+                            queue_draw();
+                            return false;
+                        },
+                        500);
+            }
         });
         controller->signal_released().connect([this](int n_press, double x, double y) { handle_click_release(); });
-        controller->signal_cancel().connect([this](auto seq) { handle_click_release(); });
+        controller->signal_cancel().connect([this](auto seq) {
+            m_long_click_connection.disconnect();
+            m_dragging = false;
+            m_inhibit_drag_selection = false;
+        });
         add_controller(controller);
     }
 
@@ -258,7 +275,13 @@ void Canvas::setup_controllers()
 
     auto controller = Gtk::EventControllerMotion::create();
     controller->signal_motion().connect([this](double x, double y) {
+        if (glm::length(m_long_click_start - glm::vec2(x, y)) > 16)
+            m_long_click_connection.disconnect();
+
         grab_focus();
+        const bool moved = m_last_x != x || m_last_y != y;
+        if (!moved)
+            return;
         m_last_x = x;
         m_last_y = y;
         m_cursor_pos.x = (x / m_width) * 2. - 1.;
@@ -334,6 +357,7 @@ glm::vec3 Canvas::project_arcball(const glm::vec2 &v) const
 
 void Canvas::handle_click_release()
 {
+    m_long_click_connection.disconnect();
     m_dragging = false;
     m_inhibit_drag_selection = false;
     if (m_last_selection_mode == SelectionMode::NONE || m_last_selection_mode == SelectionMode::HOVER_ONLY)
@@ -356,44 +380,19 @@ void Canvas::handle_click_release()
             const auto state = get_display()->get_default_seat()->get_keyboard()->get_modifier_state();
             if ((state & Gdk::ModifierType::SHIFT_MASK) == Gdk::ModifierType::SHIFT_MASK) {
                 m_selection_peeling = true;
-                m_selection_peeling_candidate_counter = 0;
-                m_selection_peeling_candidate.reset();
                 queue_draw();
                 return;
             }
             auto sel = get_selection();
             if (sel.contains(m_hover_selection.value())) {
-                if (m_selection_peeling_candidate == m_hover_selection) {
-                    m_selection_peeling_candidate_counter++;
-                }
-                else {
-                    m_selection_peeling_candidate = m_hover_selection;
-                    m_selection_peeling_candidate_counter = 0;
-                }
                 sel.erase(m_hover_selection.value());
             }
             else {
-                if (m_selection_peeling_candidate == m_hover_selection) {
-                    m_selection_peeling_candidate_counter++;
-                    if (m_selection_peeling_candidate_counter >= 2) {
-                        m_selection_peeling = true;
-                        m_selection_peeling_candidate_counter = 0;
-                        m_selection_peeling_candidate.reset();
-                        queue_draw();
-                        return;
-                    }
-                }
-                else {
-                    m_selection_peeling_candidate = m_hover_selection;
-                    m_selection_peeling_candidate_counter = 0;
-                }
                 sel.insert(m_hover_selection.value());
             }
             set_selection(sel, true);
         }
         else {
-            m_selection_peeling_candidate.reset();
-            m_selection_peeling_candidate_counter = 0;
             set_selection({}, true);
         }
     }
@@ -1193,22 +1192,33 @@ void Canvas::peel_selection()
         Gdk::Rectangle rect;
         rect.set_x(m_last_x);
         rect.set_y(m_last_y);
+        const bool is_hover_only = m_selection_mode == SelectionMode::HOVER_ONLY;
         if (m_selection_menu_creator) {
             auto buttons = m_selection_menu_creator->create(*m_selection_menu, srv_list);
             auto sel = get_selection();
             for (auto button : buttons) {
-                button->set_active(sel.contains(button->m_selectable));
-                button->signal_toggled().connect([this, button] {
-                    auto sel2 = get_selection();
-                    if (button->get_active())
-                        sel2.insert(button->m_selectable);
-                    else
-                        sel2.erase(button->m_selectable);
-                    set_selection(sel2, true);
-                    const auto state = button->get_display()->get_default_seat()->get_keyboard()->get_modifier_state();
-                    if ((state & Gdk::ModifierType::SHIFT_MASK) != Gdk::ModifierType::SHIFT_MASK)
+                if (is_hover_only) {
+                    button->signal_toggled().connect([this, button] {
                         m_selection_menu->popdown();
-                });
+                        m_hover_selection = button->m_selectable;
+                        m_signal_select_from_menu.emit(button->m_selectable);
+                    });
+                }
+                else {
+                    button->set_active(sel.contains(button->m_selectable));
+                    button->signal_toggled().connect([this, button] {
+                        auto sel2 = get_selection();
+                        if (button->get_active())
+                            sel2.insert(button->m_selectable);
+                        else
+                            sel2.erase(button->m_selectable);
+                        set_selection(sel2, true);
+                        const auto state =
+                                button->get_display()->get_default_seat()->get_keyboard()->get_modifier_state();
+                        if ((state & Gdk::ModifierType::SHIFT_MASK) != Gdk::ModifierType::SHIFT_MASK)
+                            m_selection_menu->popdown();
+                    });
+                }
                 auto controller = Gtk::EventControllerMotion::create();
                 controller->signal_leave().connect([this] { set_highlight({}); });
                 controller->signal_enter().connect(
@@ -1639,8 +1649,6 @@ void Canvas::set_selection_mode(SelectionMode mode)
             set_selection({m_hover_selection.value()}, true);
         else
             set_selection({}, true);
-        m_selection_peeling_candidate.reset();
-        m_selection_peeling_candidate_counter = 0;
     }
     else if (m_selection_mode == SelectionMode::NONE) {
         clear_flags(VertexFlags::SELECTED | VertexFlags::HOVER);

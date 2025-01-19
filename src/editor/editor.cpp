@@ -393,6 +393,15 @@ void Editor::init_canvas()
         get_canvas().add_controller(controller);
     }
     get_canvas().signal_cursor_moved().connect(sigc::mem_fun(*this, &Editor::handle_cursor_move));
+    get_canvas().signal_select_from_menu().connect([this](const auto &sel) {
+        if (m_core.tool_is_active()) {
+            ToolArgs args;
+            args.type = ToolEventType::ACTION;
+            args.action = InToolActionID::LMB;
+            ToolResponse r = m_core.tool_update(args);
+            tool_process(r);
+        }
+    });
 
     m_context_menu = Gtk::make_managed<Gtk::PopoverMenu>();
 #if GTK_CHECK_VERSION(4, 14, 0)
@@ -1239,6 +1248,8 @@ void Editor::handle_cursor_move()
         if (m_drag_tool == ToolID::NONE)
             return;
         if (m_selection_for_drag.size() == 0)
+            return;
+        if (get_canvas().get_is_long_click())
             return;
         auto pos = get_canvas().get_cursor_pos_win();
         auto delta = pos - m_cursor_pos_win_drag_begin;
