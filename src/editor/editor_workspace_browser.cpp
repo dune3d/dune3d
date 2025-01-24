@@ -21,8 +21,10 @@ using json = nlohmann::json;
 void Editor::init_workspace_browser()
 {
     m_workspace_browser = Gtk::make_managed<WorkspaceBrowser>(m_core);
-    m_workspace_browser->signal_close_document().connect(
-            [this](const UUID &doc_uu) { close_document(doc_uu, nullptr, nullptr); });
+    m_workspace_browser->signal_close_document().connect([this](const UUID &doc_uu) {
+        get_canvas().grab_focus();
+        close_document(doc_uu, nullptr, nullptr);
+    });
 
     m_workspace_browser->signal_group_selected().connect(
             sigc::mem_fun(*this, &Editor::on_workspace_browser_group_selected));
