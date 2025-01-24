@@ -16,6 +16,8 @@ eigen = dependency('eigen3')
 glm = dependency('glm')
 harfbuzz = dependency('harfbuzz')
 freetype = dependency('freetype2')
+libpython = dependency('python3', required: false, disabler:true)
+pybind11 = dependency('pybind11', required: false, disabler:true)
 
 opencascade = dependency('OpenCASCADE', method : 'cmake')
 if target_machine.system() == 'darwin'
@@ -41,35 +43,7 @@ if not spnav.found()
     spnav = cxx.find_library('spnav', required: false)
 endif
 
-src = files(
-  'src/main.cpp',
-  'src/dune3d_application.cpp',
-  'src/dune3d_appwindow.cpp',
-  'src/editor/editor.cpp',
-  'src/editor/editor_workspace_browser.cpp',
-  'src/editor/editor_export.cpp',
-  'src/editor/editor_workspace_view.cpp',
-  'src/editor/editor_action.cpp',
-  'src/editor/editor_delete_items_popup.cpp',
-  'src/editor/editor_tool.cpp',
-  'src/canvas/canvas.cpp',
-  'src/canvas/gl_util.cpp',
-  'src/canvas/base_renderer.cpp',
-  'src/canvas/background_renderer.cpp',
-  'src/canvas/face_renderer.cpp',
-  'src/canvas/line_renderer.cpp',
-  'src/canvas/glyph_renderer.cpp',
-  'src/canvas/glyph_3d_renderer.cpp',
-  'src/canvas/box_selection.cpp',
-  'src/canvas/bitmap_font_util.cpp',
-  'src/canvas/bitmap_font/bitmap_font_desc.c',
-  'src/canvas/bitmap_font/bitmap_font_img.c',
-  'src/canvas/icon_renderer.cpp',
-  'src/canvas/selection_texture_renderer.cpp',
-  'src/canvas/appearance.cpp',
-  'src/canvas/selectable_ref.cpp',
-  'src/import_step/step_importer.cpp',
-  'src/import_step/step_import_manager.cpp',
+src_common = files(
   'src/util/uuid.cpp',
   'src/document/document.cpp',
   'src/document/entity/entity.cpp',
@@ -152,15 +126,55 @@ src = files(
   'src/document/group/group_solid_model_operation.cpp',
   'src/document/export_paths.cpp',
   'src/system/system.cpp',
-  'src/logger/logger.cpp',
-  'src/logger/log_dispatcher.cpp',
-  'src/render/renderer.cpp',
+  'src/util/file_version.cpp',
   'src/util/util.cpp',
   'src/util/fs_util.cpp',
   'src/util/json_util.cpp',
   'src/util/glm_util.cpp',
+  'src/logger/logger.cpp',
+  'src/util/arc_util.cpp',
+  'src/import_step/step_importer.cpp',
+  'src/import_step/step_import_manager.cpp',
+  'src/util/cluster_content.cpp',
+  'src/preferences/preferences.cpp',
+  'src/action/action.cpp',
+  'src/action/action_catalog.cpp',
+  'src/in_tool_action/in_tool_action_catalog.cpp',
+  'src/canvas/appearance.cpp',
+  'src/util/str_util.cpp',
+  'src/util/lut.cpp',
+  'src/util/text_render.cpp',
+)
+
+src_gui = files(
+  'src/main.cpp',
+  'src/dune3d_application.cpp',
+  'src/dune3d_appwindow.cpp',
+  'src/editor/editor.cpp',
+  'src/editor/editor_workspace_browser.cpp',
+  'src/editor/editor_export.cpp',
+  'src/editor/editor_workspace_view.cpp',
+  'src/editor/editor_action.cpp',
+  'src/editor/editor_delete_items_popup.cpp',
+  'src/editor/editor_tool.cpp',
+  'src/canvas/canvas.cpp',
+  'src/canvas/gl_util.cpp',
+  'src/canvas/base_renderer.cpp',
+  'src/canvas/background_renderer.cpp',
+  'src/canvas/face_renderer.cpp',
+  'src/canvas/line_renderer.cpp',
+  'src/canvas/glyph_renderer.cpp',
+  'src/canvas/glyph_3d_renderer.cpp',
+  'src/canvas/box_selection.cpp',
+  'src/canvas/bitmap_font_util.cpp',
+  'src/canvas/bitmap_font/bitmap_font_desc.c',
+  'src/canvas/bitmap_font/bitmap_font_img.c',
+  'src/canvas/icon_renderer.cpp',
+  'src/canvas/selection_texture_renderer.cpp',
+  'src/canvas/selectable_ref.cpp',
+  'src/logger/log_dispatcher.cpp',
+  'src/render/renderer.cpp',
   'src/util/selection_util.cpp',
-  'src/util/file_version.cpp',
   'src/core/core.cpp',
   'src/core/tool.cpp',
   'src/core/create_tool.cpp',
@@ -220,12 +234,6 @@ src = files(
   'src/core/tools/tool_text_to_cluster.cpp',
   'src/core/tools/tool_draw_text.cpp',
   'src/util/history_manager.cpp',
-  'src/action/action.cpp',
-  'src/action/action_catalog.cpp',
-  'src/in_tool_action/in_tool_action_catalog.cpp',
-  'src/util/str_util.cpp',
-  'src/util/lut.cpp',
-  'src/preferences/preferences.cpp',
   'src/util/action_label.cpp',
   'src/editor/tool_popover.cpp',
   'src/editor/workspace_browser.cpp',
@@ -268,11 +276,12 @@ src = files(
   'src/widgets/select_groups_dialog.cpp',
   'src/widgets/select_group_dialog.cpp',
   'src/import_dxf/dxf_importer.cpp',
-  'src/util/cluster_content.cpp',
   'src/editor/changeable_commit_mode.cpp',
-  'src/util/text_render.cpp',
   'src/editor/buffer.cpp',
-  'src/util/arc_util.cpp',
+)
+
+src_python =  files(
+  'src/python_module/dune3d_py.cpp'
 )
 
 prog_python = find_program('python3')
@@ -310,7 +319,7 @@ version_gen_cpp = custom_target(
     depend_files: version_deps,
     command : [prog_python, '@INPUT@', '@OUTPUT@', '@SOURCE_ROOT@', meson.project_version()],
 )
-src += version_gen_cpp
+src_common += version_gen_cpp
 
 gnome = import('gnome')
 resources = gnome.compile_resources(
@@ -345,7 +354,7 @@ if not is_windows
 	build_dependencies += uuid
 else
 	build_dependencies += [cxx.find_library('rpcrt4')]
-	src += 'src/util/uuid_win32.cpp'
+	src_common += 'src/util/uuid_win32.cpp'
 	cpp_args += '-DWIN32_UUID'
 endif
 
@@ -354,6 +363,8 @@ if target_machine.system() != 'darwin'
   libm = cxx.find_library('m')
   build_dependencies += libm
 endif
+
+build_dependencies_py = build_dependencies + [libpython, pybind11]
 
 include_directories = [
   include_directories('src'),
@@ -390,13 +401,21 @@ install_data('src/icons/scalable/apps/dune3d.svg', install_dir: icondir /  'scal
 
 
 dune3d = executable('dune3d',
-    [src,resources,icon_texture, color_presets, rc_compiled],
+    [src_common, src_gui, resources,icon_texture, color_presets, rc_compiled],
     dependencies: [build_dependencies],
-    link_with: [solvespace, clipper, dxflib],
+    link_with: [solvespace_nopic, clipper_nopic, dxflib_nopic],
     cpp_args: cpp_args,
     include_directories: include_directories,
     gui_app: true,
     install: true
 )
 
-
+dune3d_py = shared_module('dune3d_py',
+    [src_common, src_python],
+    dependencies: build_dependencies_py,
+    link_with: [solvespace_pic, clipper_pic, dxflib_pic],
+    cpp_args: cpp_args,
+    include_directories: include_directories,
+    build_by_default: false,
+    name_prefix: ''
+)
