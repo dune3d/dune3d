@@ -1430,7 +1430,6 @@ void Editor::open_file(const std::filesystem::path &path)
         }
 
         DocumentView *new_dv = nullptr;
-        UUID wsv;
         UUID current_wsv;
         if (loaded_workspace_views.size()) {
             for (const auto &[uu, wv] : loaded_workspace_views) {
@@ -1447,10 +1446,10 @@ void Editor::open_file(const std::filesystem::path &path)
             }
         }
         else {
-            wsv = create_workspace_view();
-            m_workspace_views.at(wsv).m_current_document = doc_uu;
-            set_current_workspace_view(wsv);
-            auto &dv = m_workspace_views.at(wsv).m_documents[doc_uu];
+            current_wsv = create_workspace_view();
+            m_workspace_views.at(current_wsv).m_current_document = doc_uu;
+            set_current_workspace_view(current_wsv);
+            auto &dv = m_workspace_views.at(current_wsv).m_documents[doc_uu];
             dv.m_document_is_visible = true;
             new_dv = &dv;
         }
