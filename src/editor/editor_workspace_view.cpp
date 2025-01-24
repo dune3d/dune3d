@@ -14,6 +14,9 @@ UUID Editor::create_workspace_view()
 {
     auto uu = UUID::random();
     auto &wv = m_workspace_views[uu];
+    for (auto doc : m_core.get_documents()) {
+        wv.m_documents[doc->get_uuid()];
+    }
     append_workspace_view_page(wv.m_name, uu);
     return uu;
 }
