@@ -716,7 +716,8 @@ void Editor::init_properties_notebook()
 
     m_constraints_box = Gtk::make_managed<ConstraintsBox>(m_core);
     m_properties_notebook->append_page(*m_constraints_box, "Constraints");
-    m_core.signal_rebuilt().connect([this] { m_constraints_box->update(); });
+    m_core.signal_rebuilt().connect(
+            [this] { Glib::signal_idle().connect_once([this] { m_constraints_box->update(); }); });
     m_core.signal_documents_changed().connect([this] { m_constraints_box->update(); });
     m_constraints_box->signal_constraint_selected().connect([this](const UUID &uu) {
         SelectableRef sr{.type = SelectableRef::Type::CONSTRAINT, .item = uu};
