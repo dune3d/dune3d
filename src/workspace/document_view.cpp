@@ -23,6 +23,13 @@ bool DocumentView::body_is_visible(const UUID &uu) const
     return true;
 }
 
+bool DocumentView::body_is_expanded(const UUID &uu) const
+{
+    if (m_body_views.contains(uu))
+        return m_body_views.at(uu).m_expanded;
+    return true;
+}
+
 bool DocumentView::body_solid_model_is_visible(const UUID &uu) const
 {
     if (m_body_views.contains(uu))
@@ -70,13 +77,14 @@ json DocumentView::GroupView::serialize() const
 
 DocumentView::BodyView::BodyView() = default;
 DocumentView::BodyView::BodyView(const json &j)
-    : m_visible(j.at("visible").get<bool>()), m_solid_model_visible(j.at("solid_model_visible").get<bool>())
+    : m_visible(j.at("visible").get<bool>()), m_solid_model_visible(j.at("solid_model_visible").get<bool>()),
+      m_expanded(j.value("expanded", true))
 {
 }
 
 json DocumentView::BodyView::serialize() const
 {
-    return {{"visible", m_visible}, {"solid_model_visible", m_solid_model_visible}};
+    return {{"visible", m_visible}, {"solid_model_visible", m_solid_model_visible}, {"expanded", m_expanded}};
 }
 
 json DocumentView::serialize() const

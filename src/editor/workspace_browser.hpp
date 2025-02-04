@@ -96,6 +96,12 @@ public:
         return m_signal_activate_link;
     }
 
+    using type_signal_item_expanded = sigc::signal<bool(UUID, bool)>;
+    type_signal_item_expanded signal_body_expanded()
+    {
+        return m_signal_body_expanded;
+    }
+
 
     void group_prev_next(int dir);
     void select_group(const UUID &uu);
@@ -140,7 +146,10 @@ private:
     type_signal_group_selected m_signal_set_body_color;
     type_signal_group_selected m_signal_reset_body_color;
 
+    type_signal_item_expanded m_signal_body_expanded;
+
     void emit_add_group(GroupType type, AddGroupMode add_group_mode = AddGroupMode::WITHOUT_BODY);
+    bool emit_body_expanded(const UUID &body_uu, bool expanded);
 
     void block_signals();
     void unblock_signals();

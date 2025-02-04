@@ -46,6 +46,18 @@ void Editor::init_workspace_browser()
             sigc::mem_fun(*this, &Editor::on_workspace_browser_reset_body_color));
     m_workspace_browser->signal_set_body_color().connect(
             sigc::mem_fun(*this, &Editor::on_workspace_browser_set_body_color));
+    m_workspace_browser->signal_body_expanded().connect([this](const UUID &body_uu, bool expanded) {
+        if (m_core.get_current_document()
+                            .get_group(m_core.get_current_group())
+                            .find_body(m_core.get_current_document())
+                            .group.m_uuid
+                    == body_uu
+            && expanded == false) {
+            return false;
+        }
+        get_current_document_view().m_body_views[body_uu].m_expanded = expanded;
+        return true;
+    });
 
     m_workspace_browser->set_sensitive(m_core.has_documents());
 

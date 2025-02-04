@@ -32,6 +32,7 @@ public:
         BodyView(const json &j);
         bool m_visible = true;
         bool m_solid_model_visible = true;
+        bool m_expanded = true;
         json serialize() const;
     };
     std::map<UUID, BodyView> m_body_views;
@@ -39,6 +40,7 @@ public:
     std::map<UUID, std::unique_ptr<EntityView>> m_entity_views;
 
     bool body_is_visible(const UUID &uu) const override;
+    bool body_is_expanded(const UUID &uu) const;
     bool body_solid_model_is_visible(const UUID &uu) const override;
     bool group_is_visible(const UUID &uu) const override;
 

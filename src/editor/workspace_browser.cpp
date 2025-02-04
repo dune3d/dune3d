@@ -66,6 +66,7 @@ public:
     UUID m_uuid;
     UUID m_doc;
     Glib::Property<bool> m_check_active;
+    Glib::Property<bool> m_expanded;
     Glib::Property<bool> m_check_sensitive;
     Glib::Property<bool> m_solid_model_active;
     Glib::Property<bool> m_has_color;
@@ -87,8 +88,9 @@ public:
 private:
     BodyItem()
         : Glib::ObjectBase("BodyItem"), m_name(*this, "name"), m_check_active(*this, "check_active", false),
-          m_check_sensitive(*this, "check_sensitive", true), m_solid_model_active(*this, "m_solid_model_active", true),
-          m_has_color(*this, "has_color", false), m_color(*this, "color")
+          m_expanded(*this, "expanded", true), m_check_sensitive(*this, "check_sensitive", true),
+          m_solid_model_active(*this, "m_solid_model_active", true), m_has_color(*this, "has_color", false),
+          m_color(*this, "color")
     {
         m_group_store = Gio::ListStore<GroupItem>::create();
     }
@@ -195,6 +197,7 @@ void WorkspaceBrowser::block_signals()
     m_signal_body_checked.block();
     m_signal_group_selected.block();
     m_signal_body_solid_model_checked.block();
+    m_signal_body_expanded.block();
 }
 
 void WorkspaceBrowser::unblock_signals()
@@ -204,6 +207,7 @@ void WorkspaceBrowser::unblock_signals()
     m_signal_body_checked.unblock();
     m_signal_group_selected.unblock();
     m_signal_body_solid_model_checked.unblock();
+    m_signal_body_expanded.unblock();
 }
 
 static std::string icon_name_from_status(GroupStatusMessage::Status st)
@@ -258,14 +262,15 @@ void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &
         bool after_active = false;
         for (size_t i_body = 0; i_body < it_doc.m_body_store->get_n_items(); i_body++) {
             auto &it_body = *it_doc.m_body_store->get_item(i_body);
-
+            const bool is_current_body = body_uu == it_body.m_uuid && is_current_doc;
             it_body.m_check_sensitive = (body_uu != it_body.m_uuid) || !is_current_doc;
-            if (body_uu == it_body.m_uuid && is_current_doc)
+            if (is_current_body)
                 it_body.m_check_active = true;
             else
                 it_body.m_check_active = doc_view.body_is_visible(it_body.m_uuid);
 
             it_body.m_solid_model_active = doc_view.body_solid_model_is_visible(it_body.m_uuid);
+            it_body.m_expanded = doc_view.body_is_expanded(it_body.m_uuid) | is_current_body;
 
 
             for (size_t i_group = 0; i_group < it_body.m_group_store->get_n_items(); i_group++) {
@@ -544,6 +549,8 @@ public:
         m_connections.push_back(
                 it.m_active.get_proxy().signal_changed().connect([this, &it] { update_label_attrs(it); }));
 
+        set_hide_expander(true);
+
         m_browser.unblock_signals();
     }
     void bind(BodyItem &it)
@@ -569,6 +576,9 @@ public:
         m_bindings.push_back(Glib::Binding::bind_property_value(it.m_solid_model_active.get_proxy(),
                                                                 m_solid_toggle->property_active(),
                                                                 Glib::Binding::Flags::SYNC_CREATE));
+        get_list_row()->set_expanded(it.m_expanded);
+        m_connections.push_back(it.m_expanded.get_proxy().signal_changed().connect(
+                [this, &it] { get_list_row()->set_expanded(it.m_expanded); }));
         const bool has_color = it.m_has_color.get_value();
         if (has_color)
             m_solid_toggle->set_body_color(it.m_color.get_value());
@@ -579,6 +589,15 @@ public:
                 it.m_color.get_proxy().signal_changed().connect([this, &it] { update_solid_color(it); }));
         m_connections.push_back(
                 it.m_has_color.get_proxy().signal_changed().connect([this, &it] { update_solid_color(it); }));
+
+        const auto body_uu = it.m_uuid;
+        m_connections.push_back(get_list_row()->property_expanded().signal_changed().connect([this, body_uu, &it] {
+            const auto expanded = get_list_row()->get_expanded();
+            if (m_browser.emit_body_expanded(body_uu, expanded))
+                it.m_expanded = expanded;
+            else
+                it.m_expanded = true;
+        }));
 
         m_browser.unblock_signals();
     }
@@ -629,6 +648,7 @@ public:
         m_group = nullptr;
         m_body = nullptr;
         m_doc = nullptr;
+        set_hide_expander(false);
     }
 
 private:
@@ -937,6 +957,11 @@ void WorkspaceBrowser::emit_add_group(GroupType type, AddGroupMode add_group_mod
     m_signal_add_group.emit(type, add_group_mode);
 }
 
+bool WorkspaceBrowser::emit_body_expanded(const UUID &body_uu, bool expanded)
+{
+    return m_signal_body_expanded.emit(body_uu, expanded);
+}
+
 Glib::RefPtr<Gio::ListModel> WorkspaceBrowser::create_model(const Glib::RefPtr<Glib::ObjectBase> &item)
 {
     // The items in a StringList are StringObjects.
@@ -971,6 +996,24 @@ void WorkspaceBrowser::group_prev_next(int dir)
 
 void WorkspaceBrowser::select_group(const UUID &uu)
 {
+    {
+        const auto n = m_selection_model->get_n_items();
+
+        const auto body_group =
+                m_core.get_current_document().get_group(uu).find_body(m_core.get_current_document()).group.m_uuid;
+        {
+            for (size_t i = 0; i < n; i++) {
+                auto row = std::dynamic_pointer_cast<Gtk::TreeListRow>(m_selection_model->get_object(i));
+                if (!row)
+                    continue;
+                auto it = std::dynamic_pointer_cast<BodyItem>(row->get_item());
+                if (!it)
+                    continue;
+                if (it->m_uuid == body_group)
+                    row->set_expanded(true);
+            }
+        }
+    }
     const auto n = m_selection_model->get_n_items();
 
     for (size_t i = 0; i < n; i++) {
