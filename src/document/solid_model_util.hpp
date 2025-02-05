@@ -68,6 +68,12 @@ public:
     {
         return m_wires;
     }
+
+    bool has_hole() const
+    {
+        return m_has_hole;
+    }
+
     unsigned int get_n_faces() const;
 
 private:
@@ -86,7 +92,7 @@ private:
     TopoDS_Builder m_builder;
     std::list<TopoDS_Wire> m_wires;
     unsigned int m_n_faces = 0;
-
+    bool m_has_hole = false;
     TopoDS_Wire path_to_wire(const Clipper2Lib::PathD &path, bool hole);
 };
 } // namespace solid_model_util

@@ -21,6 +21,12 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupL
         for (auto &src : group.m_sources) {
             auto face_builder = FaceBuilder::from_document(doc, src.wrkpl, src.group, {0, 0, 0});
             auto &wires = face_builder.get_wires();
+            if (face_builder.has_hole()) {
+                auto &group_name = doc.get_group(src.group).m_name;
+                group.m_loft_messages.emplace_back(GroupStatusMessage::Status::ERR,
+                                                   std::format("Source group {} has holes", group_name));
+                return nullptr;
+            }
             if (wires.size() == 1) {
                 mkTS.AddWire(wires.front());
             }

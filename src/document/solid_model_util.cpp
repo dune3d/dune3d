@@ -291,6 +291,7 @@ void FaceBuilder::visit_poly_path(const Clipper2Lib::PolyPathD &path)
         auto &hole_contour = hole.Polygon();
         if (check_path(hole_contour)) {
             auto hole_wire = path_to_wire(hole_contour, true);
+            m_has_hole = true;
             make_face.Add(hole_wire);
         }
         for (auto &child2 : hole) {
