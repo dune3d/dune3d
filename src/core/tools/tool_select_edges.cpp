@@ -36,6 +36,9 @@ ToolResponse ToolSelectEdges::begin(const ToolArgs &args)
         m_intf.tool_bar_set_actions(actions);
     }
 
+    m_intf.set_no_canvas_update(true);
+    m_intf.canvas_update_from_tool();
+
     return ToolResponse();
 }
 
