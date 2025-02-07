@@ -1358,6 +1358,37 @@ void Canvas::clear()
     queue_draw();
 }
 
+void Canvas::clear_chunks(unsigned int first_chunk)
+{
+    unsigned int chunk_id = 0;
+    for (auto &chunk : m_chunks) {
+        if (chunk_id >= first_chunk)
+            chunk.clear();
+        chunk_id++;
+    }
+
+    for (auto it = m_vertex_to_selectable_map.cbegin(); it != m_vertex_to_selectable_map.cend() /* not hoisted */;
+         /* no increment */) {
+        if (it->first.chunk >= first_chunk) {
+            m_selectable_to_vertex_map.erase(it->second);
+            it = m_vertex_to_selectable_map.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    
+    for (auto it = m_vertex_type_picks.cbegin(); it != m_vertex_type_picks.cend() /* not hoisted */;
+         /* no increment */) {
+        if (it->first.second >= first_chunk) {
+            it = m_vertex_type_picks.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+}
+
 ICanvas::VertexRef Canvas::draw_point(glm::vec3 p)
 {
     return draw_point(p, IconTexture::IconTextureID::POINT_BOX);

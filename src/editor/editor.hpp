@@ -286,5 +286,6 @@ private:
     void update_error_overlay();
 
     void update_title();
+    UUID m_update_groups_after;
 };
 } // namespace dune3d

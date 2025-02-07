@@ -32,8 +32,10 @@ public:
     bool m_solid_model_edge_select_mode = false;
     float m_curvature_comb_scale = 0;
     bool m_connect_curvature_comb = true;
+    UUID m_first_group;
 
     void add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints);
+    static unsigned int get_chunk_from_group(const Group &group);
 
 private:
     void render(const Entity &en);
@@ -125,6 +127,8 @@ private:
 
     void save(Badge<AutoSaveRestore>);
     void restore(Badge<AutoSaveRestore>);
+
+    void set_chunk_from_group(const Group &group);
 };
 
 } // namespace dune3d
