@@ -41,6 +41,8 @@ ToolResponse ToolConstrainWorkplaneNormal::begin(const ToolArgs &args)
     m_constraint = &add_constraint<ConstraintWorkplaneNormal>();
     m_constraint->m_wrkpl = m_wrkpl;
     update_tip();
+    m_intf.set_no_canvas_update(true);
+    m_intf.canvas_update_from_tool();
 
     return ToolResponse();
 }
