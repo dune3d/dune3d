@@ -69,6 +69,8 @@ public:
 
     void set_buffer(std::unique_ptr<const Buffer> buffer) override;
     const Buffer *get_buffer() const override;
+    void set_update_groups_after(const UUID &group) override;
+
 
     void open_file(const std::filesystem::path &path);
     bool has_file(const std::filesystem::path &path);

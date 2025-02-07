@@ -138,7 +138,7 @@ ToolResponse ToolMove::update(const ToolArgs &args)
             }
         }
 
-
+        m_intf.set_update_groups_after(m_first_group);
         return ToolResponse();
     }
     else if (args.type == ToolEventType::ACTION) {

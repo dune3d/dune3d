@@ -1583,4 +1583,8 @@ const Buffer *Editor::get_buffer() const
     return m_win.get_app().m_buffer.get();
 }
 
+void Editor::set_update_groups_after(const UUID &group)
+{
+}
+
 } // namespace dune3d
