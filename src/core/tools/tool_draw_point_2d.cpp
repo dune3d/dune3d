@@ -39,6 +39,8 @@ ToolResponse ToolDrawPoint2D::update(const ToolArgs &args)
         if (m_temp_point) {
             m_temp_point->m_p = get_cursor_pos_in_plane();
         }
+
+        set_first_update_group_current();
         update_tip();
         return ToolResponse();
     }

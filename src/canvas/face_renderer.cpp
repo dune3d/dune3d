@@ -189,17 +189,4 @@ void FaceRenderer::render()
     }
 }
 
-
-size_t FaceRenderer::get_vertex_count() const
-{
-    return 0; /*
-     size_t n = 0;
-     for (const auto &chunk : m_ca.m_chunks) {
-         n += chunk.m_face_groups.size();
-     }
-     return n;
-     */
-}
-
-
 } // namespace dune3d

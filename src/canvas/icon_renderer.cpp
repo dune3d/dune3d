@@ -192,10 +192,4 @@ void IconRenderer::render()
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
-
-size_t IconRenderer::get_vertex_count() const
-{
-    return m_ca.m_n_icons;
-}
-
 } // namespace dune3d

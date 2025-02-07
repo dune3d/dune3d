@@ -36,6 +36,7 @@ ToolResponse ToolDrawCircle2D::update(const ToolArgs &args)
             m_temp_circle->m_radius = glm::length(get_cursor_pos_in_plane() - m_temp_circle->m_center);
         }
         update_tip();
+        set_first_update_group_current();
         return ToolResponse();
     }
     else if (args.type == ToolEventType::ACTION) {

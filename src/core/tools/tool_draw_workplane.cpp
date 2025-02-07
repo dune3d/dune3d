@@ -53,6 +53,10 @@ ToolResponse ToolDrawWorkplane::update(const ToolArgs &args)
 {
     if (args.type == ToolEventType::MOVE) {
         m_wrkpl->m_origin = m_intf.get_cursor_pos();
+
+        set_first_update_group_current();
+        update_tip();
+        return ToolResponse();
     }
     else if (args.type == ToolEventType::ACTION) {
         switch (args.action) {

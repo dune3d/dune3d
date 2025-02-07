@@ -51,6 +51,7 @@ ToolResponse ToolRotate::update(const ToolArgs &args)
                     m_entity_normal->set_normal(d->value);
                     get_doc().set_group_solve_pending(m_entity->m_group);
                     m_core.solve_current();
+                    m_intf.set_first_update_group(m_entity->m_group);
                 }
             }
             else if (data->event == ToolDataWindow::Event::OK) {

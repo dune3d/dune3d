@@ -60,4 +60,9 @@ bool ToolCommon::current_group_has_redundant_constraints()
     return result.result != SolveResult::OKAY;
 }
 
+void ToolCommon::set_first_update_group_current()
+{
+    m_intf.set_first_update_group(m_core.get_current_group());
+}
+
 } // namespace dune3d

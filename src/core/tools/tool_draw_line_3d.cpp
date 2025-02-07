@@ -77,6 +77,10 @@ ToolResponse ToolDrawLine3D::update(const ToolArgs &args)
         if (m_temp_line) {
             m_temp_line->m_p2 = m_intf.get_cursor_pos();
         }
+
+        set_first_update_group_current();
+        update_tip();
+        return ToolResponse();
     }
     else if (args.type == ToolEventType::ACTION) {
         switch (args.action) {

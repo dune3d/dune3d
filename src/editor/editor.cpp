@@ -1591,7 +1591,7 @@ const Buffer *Editor::get_buffer() const
     return m_win.get_app().m_buffer.get();
 }
 
-void Editor::set_update_groups_after(const UUID &group)
+void Editor::set_first_update_group(const UUID &group)
 {
     m_update_groups_after = group;
 }

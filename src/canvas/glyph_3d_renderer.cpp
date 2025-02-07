@@ -132,10 +132,4 @@ void Glyph3DRenderer::render()
     glDrawArrays(GL_POINTS, 0, m_ca.m_n_glyphs_3d);
 }
 
-size_t Glyph3DRenderer::get_vertex_count() const
-{
-    return m_ca.m_n_glyphs_3d;
-}
-
-
 } // namespace dune3d

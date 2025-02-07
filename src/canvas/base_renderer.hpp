@@ -9,7 +9,6 @@ public:
     void set_peeled_picks(const std::vector<unsigned int> &peeled_picks);
 
 protected:
-    virtual size_t get_vertex_count() const = 0;
     void realize_base();
 
     Canvas &m_ca;

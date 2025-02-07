@@ -59,6 +59,7 @@ ToolResponse ToolDrawRectangle::update(const ToolArgs &args)
             m_lines.at(3)->m_p2 = p1;
         }
         update_tip();
+        m_intf.set_first_update_group(m_core.get_current_group());
         return ToolResponse();
     }
     else if (args.type == ToolEventType::ACTION) {

@@ -74,8 +74,10 @@ ToolResponse ToolEnterDatum::update(const ToolArgs &args)
             if (data->event == ToolDataWindow::Event::UPDATE) {
                 if (auto d = dynamic_cast<const ToolDataEnterDatumWindow *>(args.data.get())) {
                     m_constraint->set_datum(d->value);
+                    // can only edit contraints in current group
                     set_current_group_solve_pending();
                     m_core.solve_current();
+                    set_first_update_group_current();
                 }
             }
             else if (data->event == ToolDataWindow::Event::OK) {

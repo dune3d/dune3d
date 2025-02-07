@@ -10,8 +10,6 @@ public:
     void push();
 
 private:
-    size_t get_vertex_count() const override;
-
     GLuint m_vao;
     GLuint m_vbo;
     GLuint m_screen_scale_loc;

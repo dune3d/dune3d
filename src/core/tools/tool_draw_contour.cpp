@@ -372,6 +372,7 @@ ToolResponse ToolDrawContour::update(const ToolArgs &args)
             }
         }
         update_tip();
+        set_first_update_group_current();
         return ToolResponse();
     }
     else if (args.type == ToolEventType::ACTION) {
