@@ -3,6 +3,7 @@
 namespace dune3d {
 
 class IEntityNormal;
+class Entity;
 
 class ToolRotate : public ToolCommon {
 public:
@@ -18,6 +19,7 @@ public:
     CanBegin can_begin() override;
 
 private:
-    IEntityNormal *m_entity = nullptr;
+    IEntityNormal *m_entity_normal = nullptr;
+    Entity *m_entity = nullptr;
 };
 } // namespace dune3d
