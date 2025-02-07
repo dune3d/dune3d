@@ -31,12 +31,13 @@ ToolResponse ToolRotate::begin(const ToolArgs &args)
 
     {
         auto &en = get_entity(enp.value().entity);
-        m_entity = dynamic_cast<IEntityNormal *>(&en);
+        m_entity_normal = dynamic_cast<IEntityNormal *>(&en);
+        m_entity = &en;
     }
-    if (!m_entity)
+    if (!m_entity_normal)
         return ToolResponse::end();
 
-    m_intf.get_dialogs().show_rotate_window("Enter angle", m_entity->get_normal());
+    m_intf.get_dialogs().show_rotate_window("Enter angle", m_entity_normal->get_normal());
 
     return ToolResponse();
 }
@@ -47,8 +48,8 @@ ToolResponse ToolRotate::update(const ToolArgs &args)
         if (auto data = dynamic_cast<const ToolDataWindow *>(args.data.get())) {
             if (data->event == ToolDataWindow::Event::UPDATE) {
                 if (auto d = dynamic_cast<const ToolDataRotateWindow *>(args.data.get())) {
-                    m_entity->set_normal(d->value);
-                    set_current_group_solve_pending();
+                    m_entity_normal->set_normal(d->value);
+                    get_doc().set_group_solve_pending(m_entity->m_group);
                     m_core.solve_current();
                 }
             }
