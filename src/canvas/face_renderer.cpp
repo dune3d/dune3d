@@ -116,6 +116,15 @@ void FaceRenderer::push()
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
+
+    m_type_pick_base = m_ca.m_pick_base;
+    for (const auto chunk_id : chunk_ids) {
+        const auto &chunk = m_ca.m_chunks.at(chunk_id);
+
+        m_ca.m_vertex_type_picks[{Canvas::VertexType::FACE_GROUP, chunk_id}] = {.offset = m_ca.m_pick_base,
+                                                                                .count = chunk.m_face_groups.size()};
+        m_ca.m_pick_base += chunk.m_face_groups.size();
+    }
 }
 
 static int get_clipping_op(const ClippingPlanes::Plane &plane)
@@ -157,7 +166,7 @@ void FaceRenderer::render()
         const auto &chunk = m_ca.m_chunks.at(chunk_id);
 
         for (const auto &group : chunk.m_face_groups) {
-            glUniform1ui(m_pick_base_loc, m_ca.m_pick_base + group_idx);
+            glUniform1ui(m_pick_base_loc, m_type_pick_base + group_idx);
             glUniform1ui(m_flags_loc, static_cast<uint32_t>(group.flags));
             glUniform3fv(m_origin_loc, 1, glm::value_ptr(group.origin));
             if (group.color == ICanvas::FaceColor::AS_IS) {
@@ -177,23 +186,19 @@ void FaceRenderer::render()
                                      chunk.m_face_offset);
             group_idx++;
         }
-
-        m_ca.m_vertex_type_picks[{Canvas::VertexType::FACE_GROUP, chunk_id}] = {.offset = m_ca.m_pick_base,
-                                                                                .count = chunk.m_face_groups.size()};
-        m_ca.m_pick_base += chunk.m_face_groups.size();
     }
 }
 
 
 size_t FaceRenderer::get_vertex_count() const
 {
-    return 0;/*
-    size_t n = 0;
-    for (const auto &chunk : m_ca.m_chunks) {
-        n += chunk.m_face_groups.size();
-    }
-    return n;
-    */
+    return 0; /*
+     size_t n = 0;
+     for (const auto &chunk : m_ca.m_chunks) {
+         n += chunk.m_face_groups.size();
+     }
+     return n;
+     */
 }
 
 

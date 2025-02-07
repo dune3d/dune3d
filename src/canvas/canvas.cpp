@@ -1055,9 +1055,9 @@ void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
     m_background_renderer.render();
     glEnable(GL_DEPTH_TEST);
 
-    m_pick_base = 1;
 
     if (m_push_flags != PF_NONE) {
+        m_pick_base = 1;
         m_face_renderer.push();
         m_line_renderer.push();
         m_glyph_renderer.push();
