@@ -158,6 +158,7 @@ src_gui = files(
   'src/editor/editor_delete_items_popup.cpp',
   'src/editor/editor_tool.cpp',
   'src/canvas/canvas.cpp',
+  'src/canvas/chunk.cpp',
   'src/canvas/gl_util.cpp',
   'src/canvas/base_renderer.cpp',
   'src/canvas/background_renderer.cpp',

@@ -10,7 +10,6 @@
 #include "selection_texture_renderer.hpp"
 #include "icanvas.hpp"
 #include "selection_mode.hpp"
-#include "bitmask_operators.hpp"
 #include "selectable_ref.hpp"
 #include "face.hpp"
 #include "appearance.hpp"
@@ -18,6 +17,8 @@
 #include "clipping_planes.hpp"
 #include "rotation_scheme.hpp"
 #include "projection.hpp"
+#include "vertex_flags.hpp"
+#include "chunk.hpp"
 #include <glm/glm.hpp>
 #include <filesystem>
 
@@ -235,6 +236,7 @@ public:
         return m_signal_select_from_menu;
     }
 
+    void set_chunk(unsigned int chunk) override;
 
 private:
     BackgroundRenderer m_background_renderer;
@@ -261,27 +263,6 @@ private:
     void on_resize(int width, int height) override;
     void resize_buffers();
 
-    class FaceVertex {
-    public:
-        FaceVertex(float ix, float iy, float iz, float inx, float iny, float inz, uint8_t ir, uint8_t ig, uint8_t ib)
-            : x(ix), y(iy), z(iz), nx(inx), ny(iny), nz(inz), r(ir), g(ig), b(ib), _pad(0)
-        {
-        }
-        float x;
-        float y;
-        float z;
-        float nx;
-        float ny;
-        float nz;
-
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t _pad;
-    } __attribute__((packed));
-
-    std::vector<FaceVertex> m_face_vertex_buffer;  // vertices of all models, sequentially
-    std::vector<unsigned int> m_face_index_buffer; // indexes face_vertex_buffer to form triangles
 
     glm::mat4 m_viewmat;
     glm::mat4 m_projmat;
@@ -393,122 +374,26 @@ private:
     glm::vec3 get_center_shift(const glm::vec2 &shift) const;
     float get_magic_number() const;
 
-    enum class VertexFlags : uint32_t {
-        DEFAULT = 0,
-        SELECTED = (1 << 0),
-        HOVER = (1 << 1),
-        INACTIVE = (1 << 2),
-        CONSTRAINT = (1 << 3),
-        CONSTRUCTION = (1 << 4),
-        HIGHLIGHT = (1 << 5),
-        SCREEN = (1 << 6),
-        LINE_THIN = (1 << 7),
-        COLOR_MASK = SELECTED | HOVER | INACTIVE | CONSTRAINT | CONSTRUCTION | HIGHLIGHT,
-    };
 
-    class LineVertex {
-    public:
-        LineVertex(double ax1, double ay1, double az1, double ax2, double ay2, double az2)
-            : x1(ax1), y1(ay1), z1(az1), x2(ax2), y2(ay2), z2(az2)
-        {
-        }
-        LineVertex(glm::vec3 a1, glm::vec3 a2) : x1(a1.x), y1(a1.y), z1(a1.z), x2(a2.x), y2(a2.y), z2(a2.z)
-        {
-        }
-        float x1;
-        float y1;
-        float z1;
-        float x2;
-        float y2;
-        float z2;
-
-        VertexFlags flags = VertexFlags::DEFAULT;
-    };
-
-    std::vector<LineVertex> m_lines;
-    std::vector<LineVertex> m_lines_selection_invisible;
     size_t m_n_lines = 0;
     size_t m_n_lines_selection_invisible = 0;
-
-    class GlyphVertex {
-    public:
-        float x0;
-        float y0;
-        float z0;
-
-        float xs;
-        float ys;
-
-        float scale;
-        uint32_t bits;
-
-        VertexFlags flags = VertexFlags::DEFAULT;
-    };
-
-    std::vector<GlyphVertex> m_glyphs;
     size_t m_n_glyphs = 0;
-
-    class Glyph3DVertex {
-    public:
-        float x0;
-        float y0;
-        float z0;
-
-        float xr;
-        float yr;
-        float zr;
-
-        float xu;
-        float yu;
-        float zu;
-
-        uint32_t bits;
-
-        VertexFlags flags = VertexFlags::DEFAULT;
-    };
-
-    std::vector<Glyph3DVertex> m_glyphs_3d;
     size_t m_n_glyphs_3d = 0;
-
-    class IconVertex {
-    public:
-        float x0;
-        float y0;
-        float z0;
-
-        float xs;
-        float ys;
-
-        float vx;
-        float vy;
-        float vz;
-
-        uint16_t icon_x;
-        uint16_t icon_y;
-
-        VertexFlags flags = VertexFlags::DEFAULT;
-    };
-
-    std::vector<IconVertex> m_icons;
-    std::vector<IconVertex> m_icons_selection_invisible;
     size_t m_n_icons = 0;
     size_t m_n_icons_selection_invisible = 0;
+
+    std::vector<CanvasChunk> m_chunks;
+    std::vector<unsigned int> get_chunk_ids() const;
+    CanvasChunk *m_current_chunk = nullptr;
+    unsigned int m_current_chunk_id = 0;
+
+
+    using VertexFlags = CanvasVertexFlags;
 
     void clear_flags(VertexFlags flags);
 
     void add_faces(const face::Faces &faces);
-    class FaceGroup {
-    public:
-        size_t offset;
-        size_t length;
-        glm::vec3 origin;
-        glm::quat normal;
-        FaceColor color;
 
-        VertexFlags flags = VertexFlags::DEFAULT;
-    };
-
-    std::vector<FaceGroup> m_face_groups;
 
     std::map<VertexRef, SelectableRef> m_vertex_to_selectable_map;
     std::map<SelectableRef, std::vector<VertexRef>> m_selectable_to_vertex_map;
@@ -521,7 +406,7 @@ private:
         size_t count;
     };
 
-    std::map<VertexType, PickInfo> m_vertex_type_picks;
+    std::map<std::pair<VertexType, unsigned int>, PickInfo> m_vertex_type_picks; // key vertex type, chunk
     VertexRef get_vertex_ref_for_pick(unsigned int pick) const;
     std::optional<SelectableRef> get_selectable_ref_for_vertex_ref(const VertexRef &vref) const;
     std::optional<SelectableRef> get_selectable_ref_for_pick(unsigned int pick) const;
@@ -597,8 +482,3 @@ private:
 };
 
 } // namespace dune3d
-
-
-template <> struct enable_bitmask_operators<dune3d::Canvas::VertexFlags> {
-    static constexpr bool enable = true;
-};

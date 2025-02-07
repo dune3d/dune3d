@@ -96,9 +96,10 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
         return;
     }
 
-    for (auto group : doc.get_groups_sorted() | std::views::reverse) {
+    for (auto &[uu, group] : doc.get_groups()) {
         if (!group_is_visible(group->m_uuid))
             continue;
+        m_ca.set_chunk(group->get_index());
         for (const auto &[uu, el] : doc.m_entities) {
             if (el->m_group == group->m_uuid)
                 render(*el);
@@ -111,12 +112,15 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
         if (!m_doc_view->body_solid_model_is_visible(body_groups.get_group().m_uuid))
             continue;
         const SolidModel *last_solid_model = nullptr;
+        const Group *last_solid_model_group = nullptr;
         for (auto group : body_groups.groups) {
             if (!group_is_visible(group->m_uuid))
                 continue;
             if (auto gr = dynamic_cast<const IGroupSolidModel *>(group)) {
-                if (gr->get_solid_model())
+                if (gr->get_solid_model()) {
                     last_solid_model = gr->get_solid_model();
+                    last_solid_model_group = group;
+                }
                 if (group->m_uuid == current_group)
                     break;
             }
@@ -128,6 +132,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
             auto color = is_current ? ICanvas::FaceColor::SOLID_MODEL : ICanvas::FaceColor::OTHER_BODY_SOLID_MODEL;
             if (body_groups.body.m_color.has_value())
                 color = ICanvas::FaceColor::AS_IS;
+            m_ca.set_chunk(last_solid_model_group->get_index());
             const auto vref = m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0},
                                                   glm::quat_identity<float, glm::defaultp>(), color);
             if (sr)
@@ -143,6 +148,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
                 continue;
             el->accept(*this);
         }
+        m_ca.set_chunk(m_current_group->get_index());
         draw_constraints();
     }
 

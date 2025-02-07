@@ -106,9 +106,9 @@ void BaseRenderer::load_uniforms()
 
     glUniformMatrix4fv(m_view_loc, 1, GL_FALSE, glm::value_ptr(m_ca.m_viewmat));
     glUniformMatrix4fv(m_proj_loc, 1, GL_FALSE, glm::value_ptr(m_ca.m_projmat));
-    glUniform1ui(m_pick_base_loc, m_ca.m_pick_base);
-    m_ca.m_vertex_type_picks[m_vertex_type] = {.offset = m_ca.m_pick_base, .count = get_vertex_count()};
-    m_ca.m_pick_base += get_vertex_count();
+    glUniform1ui(m_pick_base_loc, m_type_pick_base);
+    //m_ca.m_vertex_type_picks[m_vertex_type] = {.offset = m_ca.m_pick_base, .count = get_vertex_count()};
+    //m_ca.m_pick_base += get_vertex_count();
 
     {
         UBOBuffer buf;

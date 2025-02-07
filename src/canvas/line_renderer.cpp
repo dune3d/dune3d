@@ -29,7 +29,7 @@ GLuint LineRenderer::create_vao(GLuint program, GLuint &vbo_out)
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-    Canvas::LineVertex vertices[] = {
+    CanvasChunk::LineVertex vertices[] = {
             //   Position
             {0, 0, 0, 0, 0, 10},
     };
@@ -37,13 +37,13 @@ GLuint LineRenderer::create_vao(GLuint program, GLuint &vbo_out)
 
     /* enable and set the position attribute */
     glEnableVertexAttribArray(p1_index);
-    glVertexAttribPointer(p1_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::LineVertex), 0);
+    glVertexAttribPointer(p1_index, 3, GL_FLOAT, GL_FALSE, sizeof(CanvasChunk::LineVertex), 0);
     glEnableVertexAttribArray(p2_index);
-    glVertexAttribPointer(p2_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::LineVertex),
-                          (void *)offsetof(Canvas::LineVertex, x2));
+    glVertexAttribPointer(p2_index, 3, GL_FLOAT, GL_FALSE, sizeof(CanvasChunk::LineVertex),
+                          (void *)offsetof(CanvasChunk::LineVertex, x2));
     glEnableVertexAttribArray(flags_index);
-    glVertexAttribIPointer(flags_index, 1, GL_UNSIGNED_INT, sizeof(Canvas::LineVertex),
-                           (void *)offsetof(Canvas::LineVertex, flags));
+    glVertexAttribIPointer(flags_index, 1, GL_UNSIGNED_INT, sizeof(CanvasChunk::LineVertex),
+                           (void *)offsetof(CanvasChunk::LineVertex, flags));
 
     /* enable and set the color attribute */
     /* reset the state; we will re-enable the VAO when needed */
@@ -71,15 +71,42 @@ void LineRenderer::realize()
 
 void LineRenderer::push()
 {
-    m_ca.m_n_lines = m_ca.m_lines.size();
-    m_ca.m_n_lines_selection_invisible = m_ca.m_lines_selection_invisible.size();
+    m_ca.m_n_lines = 0;
+    m_ca.m_n_lines_selection_invisible = 0;
+    for (const auto &chunk : m_ca.m_chunks) {
+        m_ca.m_n_lines += chunk.m_lines.size();
+        m_ca.m_n_lines_selection_invisible += chunk.m_lines_selection_invisible.size();
+    }
+
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Canvas::LineVertex) * (m_ca.m_n_lines + m_ca.m_n_lines_selection_invisible),
-                 nullptr, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Canvas::LineVertex) * m_ca.m_n_lines, m_ca.m_lines.data());
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(Canvas::LineVertex) * m_ca.m_n_lines,
-                    sizeof(Canvas::LineVertex) * m_ca.m_n_lines_selection_invisible,
-                    m_ca.m_lines_selection_invisible.data());
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(CanvasChunk::LineVertex) * (m_ca.m_n_lines + m_ca.m_n_lines_selection_invisible), nullptr,
+                 GL_STATIC_DRAW);
+
+    // first buffer selection-visible vertices of all chunks, then selection-invisble ones
+
+    auto chunk_ids = m_ca.get_chunk_ids();
+    size_t offset = 0;
+
+    m_type_pick_base = m_ca.m_pick_base;
+    for (const auto chunk_id : chunk_ids) {
+        auto &chunk = m_ca.m_chunks.at(chunk_id);
+        glBufferSubData(GL_ARRAY_BUFFER, sizeof(CanvasChunk::LineVertex) * offset,
+                        sizeof(CanvasChunk::LineVertex) * chunk.m_lines.size(), chunk.m_lines.data());
+
+        m_ca.m_vertex_type_picks[{m_vertex_type, chunk_id}] = {.offset = m_ca.m_pick_base,
+                                                               .count = chunk.m_lines.size()};
+        m_ca.m_pick_base += chunk.m_lines.size();
+        offset += chunk.m_lines.size();
+    }
+    for (const auto chunk_id : chunk_ids) {
+        auto &chunk = m_ca.m_chunks.at(chunk_id);
+        glBufferSubData(GL_ARRAY_BUFFER, sizeof(CanvasChunk::LineVertex) * offset,
+                        sizeof(CanvasChunk::LineVertex) * chunk.m_lines_selection_invisible.size(),
+                        chunk.m_lines_selection_invisible.data());
+
+        offset += chunk.m_lines_selection_invisible.size();
+    }
 }
 
 void LineRenderer::render()

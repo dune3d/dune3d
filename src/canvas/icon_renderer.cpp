@@ -30,33 +30,33 @@ GLuint IconRenderer::create_vao(GLuint program, GLuint &vbo_out)
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-    Canvas::IconVertex vertices[] = {{0, 0, 0, 0, 0, 0, 1}};
+    CanvasChunk::IconVertex vertices[] = {{0, 0, 0, 0, 0, 0, 1}};
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     /* enable and set the position attribute */
     glEnableVertexAttribArray(origin_index);
-    glVertexAttribPointer(origin_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::IconVertex), 0);
+    glVertexAttribPointer(origin_index, 3, GL_FLOAT, GL_FALSE, sizeof(CanvasChunk::IconVertex), 0);
     GL_CHECK_ERROR
     glEnableVertexAttribArray(vec_index);
-    glVertexAttribPointer(vec_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::IconVertex),
-                          (void *)offsetof(Canvas::IconVertex, vx));
+    glVertexAttribPointer(vec_index, 3, GL_FLOAT, GL_FALSE, sizeof(CanvasChunk::IconVertex),
+                          (void *)offsetof(CanvasChunk::IconVertex, vx));
     GL_CHECK_ERROR
     glEnableVertexAttribArray(shift_index);
-    glVertexAttribPointer(shift_index, 2, GL_FLOAT, GL_FALSE, sizeof(Canvas::IconVertex),
-                          (void *)offsetof(Canvas::IconVertex, xs));
+    glVertexAttribPointer(shift_index, 2, GL_FLOAT, GL_FALSE, sizeof(CanvasChunk::IconVertex),
+                          (void *)offsetof(CanvasChunk::IconVertex, xs));
     GL_CHECK_ERROR
     glEnableVertexAttribArray(icon_x_index);
-    glVertexAttribIPointer(icon_x_index, 1, GL_UNSIGNED_SHORT, sizeof(Canvas::IconVertex),
-                           (void *)offsetof(Canvas::IconVertex, icon_x));
+    glVertexAttribIPointer(icon_x_index, 1, GL_UNSIGNED_SHORT, sizeof(CanvasChunk::IconVertex),
+                           (void *)offsetof(CanvasChunk::IconVertex, icon_x));
     GL_CHECK_ERROR
     glEnableVertexAttribArray(icon_y_index);
-    glVertexAttribIPointer(icon_y_index, 1, GL_UNSIGNED_SHORT, sizeof(Canvas::IconVertex),
-                           (void *)offsetof(Canvas::IconVertex, icon_y));
+    glVertexAttribIPointer(icon_y_index, 1, GL_UNSIGNED_SHORT, sizeof(CanvasChunk::IconVertex),
+                           (void *)offsetof(CanvasChunk::IconVertex, icon_y));
     GL_CHECK_ERROR
 
     glEnableVertexAttribArray(flags_index);
-    glVertexAttribIPointer(flags_index, 1, GL_UNSIGNED_INT, sizeof(Canvas::IconVertex),
-                           (void *)offsetof(Canvas::IconVertex, flags));
+    glVertexAttribIPointer(flags_index, 1, GL_UNSIGNED_INT, sizeof(CanvasChunk::IconVertex),
+                           (void *)offsetof(CanvasChunk::IconVertex, flags));
     GL_CHECK_ERROR
 
     /* enable and set the color attribute */
@@ -130,16 +130,42 @@ void IconRenderer::realize()
 
 void IconRenderer::push()
 {
-    m_ca.m_n_icons = m_ca.m_icons.size();
-    m_ca.m_n_icons_selection_invisible = m_ca.m_icons_selection_invisible.size();
+    m_ca.m_n_icons = 0;
+    m_ca.m_n_icons_selection_invisible = 0;
+    for (const auto &chunk : m_ca.m_chunks) {
+        m_ca.m_n_icons += chunk.m_icons.size();
+        m_ca.m_n_icons_selection_invisible += chunk.m_icons_selection_invisible.size();
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Canvas::IconVertex) * (m_ca.m_n_icons + m_ca.m_n_icons_selection_invisible),
-                 nullptr, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Canvas::IconVertex) * m_ca.m_n_icons, m_ca.m_icons.data());
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(Canvas::IconVertex) * m_ca.m_n_icons,
-                    sizeof(Canvas::IconVertex) * m_ca.m_n_icons_selection_invisible,
-                    m_ca.m_icons_selection_invisible.data());
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(CanvasChunk::IconVertex) * (m_ca.m_n_icons + m_ca.m_n_icons_selection_invisible), nullptr,
+                 GL_STATIC_DRAW);
+
+    // first buffer selection-visible vertices of all groups, then selection-invisble ones
+
+    auto chunk_ids = m_ca.get_chunk_ids();
+    size_t offset = 0;
+
+    m_type_pick_base = m_ca.m_pick_base;
+    for (const auto chunk_id : chunk_ids) {
+        auto &chunk = m_ca.m_chunks.at(chunk_id);
+        glBufferSubData(GL_ARRAY_BUFFER, sizeof(CanvasChunk::IconVertex) * offset,
+                        sizeof(CanvasChunk::IconVertex) * chunk.m_icons.size(), chunk.m_icons.data());
+
+        m_ca.m_vertex_type_picks[{m_vertex_type, chunk_id}] = {.offset = m_ca.m_pick_base,
+                                                               .count = chunk.m_icons.size()};
+        m_ca.m_pick_base += chunk.m_icons.size();
+        offset += chunk.m_icons.size();
+    }
+    for (const auto chunk_id : chunk_ids) {
+        auto &chunk = m_ca.m_chunks.at(chunk_id);
+        glBufferSubData(GL_ARRAY_BUFFER, sizeof(CanvasChunk::IconVertex) * offset,
+                        sizeof(CanvasChunk::IconVertex) * chunk.m_icons_selection_invisible.size(),
+                        chunk.m_icons_selection_invisible.data());
+
+        offset += chunk.m_icons_selection_invisible.size();
+    }
 }
 
 void IconRenderer::render()

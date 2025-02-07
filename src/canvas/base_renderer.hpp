@@ -24,5 +24,7 @@ protected:
     GLuint m_view_loc;
     GLuint m_proj_loc;
     GLuint m_pick_base_loc;
+
+    unsigned int m_type_pick_base = 1;
 };
 } // namespace dune3d

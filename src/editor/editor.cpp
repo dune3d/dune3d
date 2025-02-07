@@ -1186,6 +1186,7 @@ void Editor::canvas_update()
     auto docs = m_core.get_documents();
     auto hover_sel = get_canvas().get_hover_selection();
     get_canvas().clear();
+    get_canvas().set_chunk(0);
 
     if (m_core.has_documents())
         render_document(m_core.get_current_idocument_info());

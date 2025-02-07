@@ -659,9 +659,9 @@ void Canvas::animate_to_center_abs(const glm::vec3 &center)
 
 Canvas::VertexRef Canvas::get_vertex_ref_for_pick(unsigned int pick) const
 {
-    for (const auto &[ty, it] : m_vertex_type_picks) {
+    for (const auto &[key, it] : m_vertex_type_picks) {
         if ((pick >= it.offset) && ((pick - it.offset) < it.count))
-            return {ty, pick - it.offset};
+            return {key.first, pick - it.offset, key.second};
     }
     throw std::runtime_error(std::format("pick {} not found", pick));
 }
@@ -689,20 +689,8 @@ std::optional<SelectableRef> Canvas::get_selectable_ref_for_pick(unsigned int pi
 
 void Canvas::clear_flags(VertexFlags mask)
 {
-    for (auto &x : m_lines) {
-        x.flags &= ~mask;
-    }
-    for (auto &x : m_glyphs) {
-        x.flags &= ~mask;
-    }
-    for (auto &x : m_glyphs_3d) {
-        x.flags &= ~mask;
-    }
-    for (auto &x : m_face_groups) {
-        x.flags &= ~mask;
-    }
-    for (auto &x : m_icons) {
-        x.flags &= ~mask;
+    for (auto &chunk : m_chunks) {
+        chunk.clear_flags(mask);
     }
 }
 
@@ -947,13 +935,32 @@ void Canvas::resize_buffers()
     GL_CHECK_ERROR
 }
 
+
+void Canvas::set_chunk(unsigned int chunk)
+{
+    if (m_chunks.size() < chunk + 1)
+        m_chunks.resize(chunk + 1);
+    m_current_chunk_id = chunk;
+    m_current_chunk = &m_chunks.at(chunk);
+}
+
+std::vector<unsigned int> Canvas::get_chunk_ids() const
+{
+    std::vector<unsigned int> chunk_ids;
+    chunk_ids.reserve(m_chunks.size());
+    for (unsigned int i = 0; i < m_chunks.size(); i++) {
+        chunk_ids.push_back(m_chunks.size() - 1 - i);
+    }
+    return chunk_ids;
+}
+
 ICanvas::VertexRef Canvas::add_face_group(const face::Faces &faces, glm::vec3 origin, glm::quat normal,
                                           FaceColor face_color)
 {
-    auto offset = m_face_index_buffer.size();
+    auto offset = m_current_chunk->m_face_index_buffer.size();
     add_faces(faces);
-    auto length = m_face_index_buffer.size() - offset;
-    m_face_groups.push_back(FaceGroup{
+    auto length = m_current_chunk->m_face_index_buffer.size() - offset;
+    m_current_chunk->m_face_groups.push_back(CanvasChunk::FaceGroup{
             .offset = offset,
             .length = length,
             .origin = origin,
@@ -961,28 +968,28 @@ ICanvas::VertexRef Canvas::add_face_group(const face::Faces &faces, glm::vec3 or
             .color = face_color,
     });
 
-    return {VertexType::FACE_GROUP, m_face_groups.size() - 1};
+    return {VertexType::FACE_GROUP, m_current_chunk->m_face_groups.size() - 1, m_current_chunk_id};
 }
 
 void Canvas::add_faces(const face::Faces &faces)
 {
-    size_t vertex_offset = m_face_vertex_buffer.size();
+    size_t vertex_offset = m_current_chunk->m_face_vertex_buffer.size();
     for (const auto &face : faces) {
         for (size_t i = 0; i < face.vertices.size(); i++) {
             const auto &v = face.vertices.at(i);
             const auto &n = face.normals.at(i);
             auto vt = transform_point({v.x, v.y, v.z});
             auto nt = transform_point_rel({n.x, n.y, n.z});
-            m_face_vertex_buffer.emplace_back(vt.x, vt.y, vt.z, nt.x, nt.y, nt.z, face.color.r * 255,
-                                              face.color.g * 255, face.color.b * 255);
+            m_current_chunk->m_face_vertex_buffer.emplace_back(vt.x, vt.y, vt.z, nt.x, nt.y, nt.z, face.color.r * 255,
+                                                               face.color.g * 255, face.color.b * 255);
         }
 
         for (const auto &tri : face.triangle_indices) {
             size_t a, b, c;
             std::tie(a, b, c) = tri;
-            m_face_index_buffer.push_back(a + vertex_offset);
-            m_face_index_buffer.push_back(b + vertex_offset);
-            m_face_index_buffer.push_back(c + vertex_offset);
+            m_current_chunk->m_face_index_buffer.push_back(a + vertex_offset);
+            m_current_chunk->m_face_index_buffer.push_back(b + vertex_offset);
+            m_current_chunk->m_face_index_buffer.push_back(c + vertex_offset);
         }
         vertex_offset += face.vertices.size();
     }
@@ -1048,23 +1055,19 @@ void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
     m_background_renderer.render();
     glEnable(GL_DEPTH_TEST);
 
+    m_pick_base = 1;
 
-    if (m_push_flags & PF_FACES)
+    if (m_push_flags != PF_NONE) {
         m_face_renderer.push();
-    if (m_push_flags & PF_LINES)
         m_line_renderer.push();
-    if (m_push_flags & PF_GLYPHS)
         m_glyph_renderer.push();
-    if (m_push_flags & PF_GLYPHS_3D)
         m_glyph_3d_renderer.push();
-    if (m_push_flags & PF_ICONS)
         m_icon_renderer.push();
-
+    }
     m_push_flags = PF_NONE;
 
     update_mats();
 
-    m_pick_base = 1;
     m_face_renderer.render();
     GL_CHECK_ERROR
     // glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -1345,15 +1348,9 @@ void Canvas::queue_pick(const std::filesystem::path &pick_path)
 
 void Canvas::clear()
 {
-    m_face_index_buffer.clear();
-    m_face_vertex_buffer.clear();
-    m_face_groups.clear();
-    m_lines.clear();
-    m_lines_selection_invisible.clear();
-    m_glyphs.clear();
-    m_glyphs_3d.clear();
-    m_icons.clear();
-    m_icons_selection_invisible.clear();
+    for (auto &chunk : m_chunks) {
+        chunk.clear();
+    }
     m_selectable_to_vertex_map.clear();
     m_vertex_to_selectable_map.clear();
     m_vertex_type_picks.clear();
@@ -1368,19 +1365,19 @@ ICanvas::VertexRef Canvas::draw_point(glm::vec3 p)
 
 ICanvas::VertexRef Canvas::draw_line(glm::vec3 a, glm::vec3 b)
 {
-    auto &lines = m_state.selection_invisible ? m_lines_selection_invisible : m_lines;
+    auto &lines = m_state.selection_invisible ? m_current_chunk->m_lines_selection_invisible : m_current_chunk->m_lines;
     auto &li = lines.emplace_back(transform_point(a), transform_point(b));
     apply_flags(li.flags);
     apply_line_flags(li.flags);
 
     if (m_state.selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
-    return {VertexType::LINE, m_lines.size() - 1};
+    return {VertexType::LINE, m_current_chunk->m_lines.size() - 1, m_current_chunk_id};
 }
 
 ICanvas::VertexRef Canvas::draw_screen_line(glm::vec3 a, glm::vec3 b)
 {
-    auto &lines = m_state.selection_invisible ? m_lines_selection_invisible : m_lines;
+    auto &lines = m_state.selection_invisible ? m_current_chunk->m_lines_selection_invisible : m_current_chunk->m_lines;
 
     auto &li = lines.emplace_back(transform_point(a), transform_point_rel(b));
     li.flags |= VertexFlags::SCREEN;
@@ -1388,7 +1385,7 @@ ICanvas::VertexRef Canvas::draw_screen_line(glm::vec3 a, glm::vec3 b)
     apply_line_flags(li.flags);
     if (m_state.selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
-    return {VertexType::LINE, m_lines.size() - 1};
+    return {VertexType::LINE, m_current_chunk->m_lines.size() - 1, m_current_chunk_id};
 }
 
 void Canvas::apply_flags(VertexFlags &flags)
@@ -1438,11 +1435,11 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text(glm::vec3 p, float size
 
             auto ps = point + shift * sc;
 
-            auto &gl = m_glyphs.emplace_back(p.x, p.y, p.z, ps.x, ps.y, sc, bits);
+            auto &gl = m_current_chunk->m_glyphs.emplace_back(p.x, p.y, p.z, ps.x, ps.y, sc, bits);
             apply_flags(gl.flags);
 
 
-            vrefs.push_back({VertexType::GLYPH, m_glyphs.size() - 1});
+            vrefs.push_back({VertexType::GLYPH, m_current_chunk->m_glyphs.size() - 1, m_current_chunk_id});
 
             point += v * (info.advance * char_space * sc);
         }
@@ -1485,10 +1482,10 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(glm::vec3 p, const g
             const auto pt = p + glm::rotate(norm, ps);
             const auto r = right * (float)info.get_w() * sc;
             const auto u = up * (float)info.get_h() * sc;
-            auto &gl = m_glyphs_3d.emplace_back(pt.x, pt.y, pt.z, r.x, r.y, r.z, u.x, u.y, u.z, bits);
+            auto &gl = m_current_chunk->m_glyphs_3d.emplace_back(pt.x, pt.y, pt.z, r.x, r.y, r.z, u.x, u.y, u.z, bits);
             apply_flags(gl.flags);
 
-            vrefs.push_back({VertexType::GLYPH_3D, m_glyphs_3d.size() - 1});
+            vrefs.push_back({VertexType::GLYPH_3D, m_current_chunk->m_glyphs_3d.size() - 1, m_current_chunk_id});
 
             point += v * (info.advance * char_space * sc);
         }
@@ -1504,14 +1501,14 @@ std::vector<ICanvas::VertexRef> Canvas::draw_bitmap_text_3d(glm::vec3 p, const g
 ICanvas::VertexRef Canvas::draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift, glm::vec3 v)
 {
     origin = transform_point(origin);
-    auto &icons = m_state.selection_invisible ? m_icons_selection_invisible : m_icons;
+    auto &icons = m_state.selection_invisible ? m_current_chunk->m_icons_selection_invisible : m_current_chunk->m_icons;
     auto icon_pos = IconTexture::icon_texture_map.at(id);
     auto &icon =
             icons.emplace_back(origin.x, origin.y, origin.z, shift.x, shift.y, v.x, v.y, v.z, icon_pos.x, icon_pos.y);
     apply_flags(icon.flags);
     if (m_state.selection_invisible)
         return {VertexType::SELECTION_INVISIBLE, 0};
-    return {VertexType::ICON, m_icons.size() - 1};
+    return {VertexType::ICON, m_current_chunk->m_icons.size() - 1, m_current_chunk_id};
 }
 
 
@@ -1537,25 +1534,7 @@ void Canvas::add_selectable(const VertexRef &vref, const SelectableRef &sref)
 
 Canvas::VertexFlags &Canvas::get_vertex_flags(const VertexRef &vref)
 {
-    switch (vref.type) {
-    case VertexType::LINE:
-        return m_lines.at(vref.index).flags;
-
-    case VertexType::GLYPH:
-        return m_glyphs.at(vref.index).flags;
-
-    case VertexType::GLYPH_3D:
-        return m_glyphs_3d.at(vref.index).flags;
-
-    case VertexType::FACE_GROUP:
-        return m_face_groups.at(vref.index).flags;
-
-    case VertexType::ICON:
-        return m_icons.at(vref.index).flags;
-
-    default:
-        throw std::runtime_error("unknown vertex type");
-    }
+    return m_chunks.at(vref.chunk).get_vertex_flags(vref);
 }
 
 void Canvas::set_selection(const std::set<SelectableRef> &sel, bool emit)
@@ -1603,40 +1582,44 @@ void Canvas::set_hover_selection(const std::optional<SelectableRef> &sr)
 std::set<SelectableRef> Canvas::get_selection() const
 {
     std::set<SelectableRef> r;
-    for (size_t i = 0; i < m_lines.size(); i++) {
-        if ((m_lines.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
-            const VertexRef vref{.type = VertexType::LINE, .index = i};
-            if (m_vertex_to_selectable_map.count(vref))
-                r.insert(m_vertex_to_selectable_map.at(vref));
+    unsigned int chunk_id = 0;
+    for (auto &chunk : m_chunks) {
+        for (size_t i = 0; i < chunk.m_lines.size(); i++) {
+            if ((chunk.m_lines.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
+                const VertexRef vref{.type = VertexType::LINE, .index = i, .chunk = chunk_id};
+                if (m_vertex_to_selectable_map.count(vref))
+                    r.insert(m_vertex_to_selectable_map.at(vref));
+            }
         }
-    }
-    for (size_t i = 0; i < m_glyphs.size(); i++) {
-        if ((m_glyphs.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
-            const VertexRef vref{.type = VertexType::GLYPH, .index = i};
-            if (m_vertex_to_selectable_map.count(vref))
-                r.insert(m_vertex_to_selectable_map.at(vref));
+        for (size_t i = 0; i < chunk.m_glyphs.size(); i++) {
+            if ((chunk.m_glyphs.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
+                const VertexRef vref{.type = VertexType::GLYPH, .index = i, .chunk = chunk_id};
+                if (m_vertex_to_selectable_map.count(vref))
+                    r.insert(m_vertex_to_selectable_map.at(vref));
+            }
         }
-    }
-    for (size_t i = 0; i < m_glyphs_3d.size(); i++) {
-        if ((m_glyphs_3d.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
-            const VertexRef vref{.type = VertexType::GLYPH_3D, .index = i};
-            if (m_vertex_to_selectable_map.count(vref))
-                r.insert(m_vertex_to_selectable_map.at(vref));
+        for (size_t i = 0; i < chunk.m_glyphs_3d.size(); i++) {
+            if ((chunk.m_glyphs_3d.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
+                const VertexRef vref{.type = VertexType::GLYPH_3D, .index = i, .chunk = chunk_id};
+                if (m_vertex_to_selectable_map.count(vref))
+                    r.insert(m_vertex_to_selectable_map.at(vref));
+            }
         }
-    }
-    for (size_t i = 0; i < m_face_groups.size(); i++) {
-        if ((m_face_groups.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
-            const VertexRef vref{.type = VertexType::FACE_GROUP, .index = i};
-            if (m_vertex_to_selectable_map.count(vref))
-                r.insert(m_vertex_to_selectable_map.at(vref));
+        for (size_t i = 0; i < chunk.m_face_groups.size(); i++) {
+            if ((chunk.m_face_groups.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
+                const VertexRef vref{.type = VertexType::FACE_GROUP, .index = i, .chunk = chunk_id};
+                if (m_vertex_to_selectable_map.count(vref))
+                    r.insert(m_vertex_to_selectable_map.at(vref));
+            }
         }
-    }
-    for (size_t i = 0; i < m_icons.size(); i++) {
-        if ((m_icons.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
-            const VertexRef vref{.type = VertexType::ICON, .index = i};
-            if (m_vertex_to_selectable_map.count(vref))
-                r.insert(m_vertex_to_selectable_map.at(vref));
+        for (size_t i = 0; i < chunk.m_icons.size(); i++) {
+            if ((chunk.m_icons.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
+                const VertexRef vref{.type = VertexType::ICON, .index = i, .chunk = chunk_id};
+                if (m_vertex_to_selectable_map.count(vref))
+                    r.insert(m_vertex_to_selectable_map.at(vref));
+            }
         }
+        chunk_id++;
     }
     return r;
 }
@@ -1750,20 +1733,22 @@ void Canvas::start_anim()
 void Canvas::update_bbox()
 {
     MinMaxAccumulator<float> acc_x, acc_y, acc_z;
-    for (const auto &li : m_lines) {
-        if ((li.flags & VertexFlags::SCREEN) != VertexFlags::DEFAULT)
-            continue;
-        acc_x.accumulate(li.x1);
-        acc_x.accumulate(li.x2);
-        acc_y.accumulate(li.y1);
-        acc_y.accumulate(li.y2);
-        acc_z.accumulate(li.z1);
-        acc_z.accumulate(li.z2);
-    }
-    for (const auto &fv : m_face_vertex_buffer) {
-        acc_x.accumulate(fv.x);
-        acc_y.accumulate(fv.y);
-        acc_z.accumulate(fv.z);
+    for (const auto &chunk : m_chunks) {
+        for (const auto &li : chunk.m_lines) {
+            if ((li.flags & VertexFlags::SCREEN) != VertexFlags::DEFAULT)
+                continue;
+            acc_x.accumulate(li.x1);
+            acc_x.accumulate(li.x2);
+            acc_y.accumulate(li.y1);
+            acc_y.accumulate(li.y2);
+            acc_z.accumulate(li.z1);
+            acc_z.accumulate(li.z2);
+        }
+        for (const auto &fv : chunk.m_face_vertex_buffer) {
+            acc_x.accumulate(fv.x);
+            acc_y.accumulate(fv.y);
+            acc_z.accumulate(fv.z);
+        }
     }
     m_bbox.first = {acc_x.get_min(), acc_y.get_min(), acc_z.get_min()};
     m_bbox.second = {acc_x.get_max(), acc_y.get_max(), acc_z.get_max()};
