@@ -968,6 +968,8 @@ void WorkspaceBrowser::emit_add_group(GroupType type, AddGroupMode add_group_mod
 
 bool WorkspaceBrowser::emit_body_expanded(const UUID &body_uu, bool expanded)
 {
+    if (m_blocked_count)
+        return true;
     return m_signal_body_expanded.emit(body_uu, expanded);
 }
 
