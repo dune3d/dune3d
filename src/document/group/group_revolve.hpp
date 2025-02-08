@@ -33,7 +33,7 @@ public:
 
     void update_solid_model(const Document &doc) override;
 
-    void generate(Document &doc) const override;
+    void generate(Document &doc) override;
 
     json serialize() const override;
     std::unique_ptr<Group> clone() const override;

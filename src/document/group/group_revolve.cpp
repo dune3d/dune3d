@@ -65,7 +65,7 @@ UUID GroupRevolve::get_entity_uuid(Side side, const UUID &uu) const
     return hash_uuids("e47e6775-3fe4-473a-84f8-c2c5578a10af", {m_uuid, m_wrkpl, uu, get_side_uuid(side)});
 }
 
-void GroupRevolve::generate(Document &doc) const
+void GroupRevolve::generate(Document &doc)
 {
     generate(doc, Side::TOP);
     if (has_side(Side::BOTTOM))

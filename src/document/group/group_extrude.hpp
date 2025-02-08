@@ -34,7 +34,7 @@ public:
     Mode m_mode = Mode::SINGLE;
     double m_offset_mul = -1;
 
-    void generate(Document &doc) const override;
+    void generate(Document &doc) override;
 
     json serialize() const override;
     std::unique_ptr<Group> clone() const override;

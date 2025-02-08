@@ -83,7 +83,7 @@ UUID GroupExtrude::get_extrusion_line_uuid(Side side, const UUID &uu, unsigned i
                       {reinterpret_cast<const uint8_t *>(&pt), sizeof(pt)});
 }
 
-void GroupExtrude::generate(Document &doc) const
+void GroupExtrude::generate(Document &doc)
 {
     generate(doc, Side::TOP);
     if (has_side(Side::BOTTOM))

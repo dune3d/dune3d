@@ -50,7 +50,7 @@ UUID GroupReference::get_workplane_zx_uuid() const
     return hash_uuids("8fdb3da1-0536-4338-8a07-aa1f697ccc65", {m_uuid});
 }
 
-void GroupReference::generate(Document &doc) const
+void GroupReference::generate(Document &doc)
 {
     const auto ax = glm::dvec3(1, 0, 0);
     const auto ay = glm::dvec3(0, 1, 0);

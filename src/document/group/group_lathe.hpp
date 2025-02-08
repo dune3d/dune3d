@@ -22,7 +22,7 @@ public:
 
     UUID get_lathe_circle_uuid(const UUID &uu, unsigned int pt) const;
 
-    void generate(Document &doc) const override;
+    void generate(Document &doc) override;
 
     std::unique_ptr<Group> clone() const override;
 

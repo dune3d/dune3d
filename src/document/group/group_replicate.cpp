@@ -44,7 +44,7 @@ UUID GroupReplicate::get_entity_uuid(const UUID &uu, unsigned int instance) cons
                       {reinterpret_cast<const uint8_t *>(&instance), sizeof(instance)});
 }
 
-void GroupReplicate::generate(Document &doc) const
+void GroupReplicate::generate(Document &doc)
 {
     for (const auto &[uu, it] : doc.m_entities) {
         if (it->m_group != m_source_group)

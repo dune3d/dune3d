@@ -34,7 +34,7 @@ void GroupLathe::pre_solve(Document &doc) const
     generate_or_solve(doc, GenerateOrSolve::SOLVE);
 }
 
-void GroupLathe::generate(Document &doc) const
+void GroupLathe::generate(Document &doc)
 {
     generate_or_solve(doc, GenerateOrSolve::GENERATE);
 }

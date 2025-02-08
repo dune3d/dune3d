@@ -19,7 +19,7 @@ public:
     json serialize(const Document &doc) const override;
     std::unique_ptr<Group> clone() const override;
 
-    virtual void generate(Document &doc) const override;
+    virtual void generate(Document &doc) override;
 
     bool m_show_xy = true;
     bool m_show_yz = true;

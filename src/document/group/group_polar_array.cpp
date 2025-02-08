@@ -34,7 +34,7 @@ UUID GroupPolarArray::get_center_point_uuid() const
     return hash_uuids("f4a51b25-ddad-402d-ad67-fbaeeac4507e", {m_uuid});
 }
 
-void GroupPolarArray::generate(Document &doc) const
+void GroupPolarArray::generate(Document &doc)
 {
     GroupArray::generate(doc);
     if (m_active_wrkpl) {

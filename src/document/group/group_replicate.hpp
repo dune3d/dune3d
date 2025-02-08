@@ -42,7 +42,7 @@ public:
     std::list<GroupStatusMessage> m_array_messages;
     std::list<GroupStatusMessage> get_messages() const override;
 
-    void generate(Document &doc) const override;
+    void generate(Document &doc) override;
 
     json serialize() const override;
 

@@ -27,7 +27,7 @@ public:
 
     UUID get_center_point_uuid() const;
 
-    void generate(Document &doc) const override;
+    void generate(Document &doc) override;
 
     json serialize() const override;
     std::unique_ptr<Group> clone() const override;
