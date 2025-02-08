@@ -62,6 +62,8 @@ ToolResponse ToolEnterDatum::begin(const ToolArgs &args)
 
     auto rng = m_constraint->get_datum_range();
     win->set_range(rng.first, rng.second);
+    m_intf.set_no_canvas_update(true);
+    m_intf.canvas_update_from_tool();
 
 
     return ToolResponse();
@@ -78,6 +80,7 @@ ToolResponse ToolEnterDatum::update(const ToolArgs &args)
                     set_current_group_solve_pending();
                     m_core.solve_current();
                     set_first_update_group_current();
+                    m_intf.canvas_update_from_tool();
                 }
             }
             else if (data->event == ToolDataWindow::Event::OK) {

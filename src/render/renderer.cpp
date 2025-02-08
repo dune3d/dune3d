@@ -177,9 +177,6 @@ void Renderer::render(const Entity &entity)
         return;
 
     AutoSaveRestore asr{*this};
-
-    std::cout << "render entity from group " << m_doc->get_group(entity.m_group).m_name << std::endl;
-
     m_ca.set_vertex_inactive(entity.m_group != m_current_group->m_uuid);
     m_ca.set_selection_invisible(entity.m_selection_invisible);
     m_ca.set_vertex_construction(entity.m_construction);
