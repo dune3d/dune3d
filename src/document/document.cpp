@@ -224,11 +224,12 @@ void Document::update_pending(const UUID &last_group_to_update_i, const std::vec
                 }
                 last_group = group;
             }
+
+            erase_invalid();
         }
         if (!last_group_to_update)
             m_first_group_generate = UUID();
 
-        erase_invalid();
 
         last_group = nullptr;
         for (auto group : groups_sorted) {
