@@ -153,6 +153,7 @@ private:
 
     void block_signals();
     void unblock_signals();
+    unsigned int m_blocked_count = 0;
 
     static void update_name(DocumentItem &it, IDocumentInfo &doci);
 
