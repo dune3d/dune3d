@@ -100,9 +100,9 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     }
 
     for (auto &[uu, group] : doc.get_groups()) {
-        if (!group_is_visible(group->m_uuid))
-            continue;
         if (group->get_index() < first_group_index)
+            continue;
+        if (!group_is_visible(group->m_uuid))
             continue;
         set_chunk_from_group(*group);
         for (const auto &[uu, el] : doc.m_entities) {
