@@ -1289,6 +1289,7 @@ void Editor::handle_click(unsigned int button, unsigned int n)
         if (sel) {
             if (auto action = get_doubleclick_action(*sel)) {
                 get_canvas().set_selection({*sel}, false);
+                get_canvas().inhibit_drag_selection();
                 trigger_action(*action);
             }
         }
