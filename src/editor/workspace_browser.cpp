@@ -192,6 +192,8 @@ void WorkspaceBrowser::update_documents(const std::map<UUID, DocumentView> &doc_
 
 void WorkspaceBrowser::block_signals()
 {
+    m_blocked_count++;
+
     m_signal_group_checked.block();
     m_signal_document_checked.block();
     m_signal_body_checked.block();
@@ -202,6 +204,12 @@ void WorkspaceBrowser::block_signals()
 
 void WorkspaceBrowser::unblock_signals()
 {
+    if (m_blocked_count > 0)
+        m_blocked_count--;
+
+    if (m_blocked_count != 0)
+        return;
+
     m_signal_group_checked.unblock();
     m_signal_document_checked.unblock();
     m_signal_body_checked.unblock();
@@ -264,6 +272,7 @@ void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &
             auto &it_body = *it_doc.m_body_store->get_item(i_body);
             const bool is_current_body = body_uu == it_body.m_uuid && is_current_doc;
             it_body.m_check_sensitive = (body_uu != it_body.m_uuid) || !is_current_doc;
+
             if (is_current_body)
                 it_body.m_check_active = true;
             else
@@ -959,6 +968,8 @@ void WorkspaceBrowser::emit_add_group(GroupType type, AddGroupMode add_group_mod
 
 bool WorkspaceBrowser::emit_body_expanded(const UUID &body_uu, bool expanded)
 {
+    if (m_blocked_count)
+        return true;
     return m_signal_body_expanded.emit(body_uu, expanded);
 }
 
