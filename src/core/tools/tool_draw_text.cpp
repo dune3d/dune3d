@@ -55,7 +55,7 @@ ToolResponse ToolDrawText::update(const ToolArgs &args)
             m_entity->m_origin = m_wrkpl->project(get_cursor_pos_for_workplane(*m_wrkpl));
             update_tip();
         }
-        
+
         set_first_update_group_current();
         return ToolResponse();
     }

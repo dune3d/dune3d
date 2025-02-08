@@ -1186,7 +1186,6 @@ void Editor::canvas_update()
 {
     auto docs = m_core.get_documents();
     auto hover_sel = get_canvas().get_hover_selection();
-    std::cout << "update groups after " << (std::string) m_update_groups_after << std::endl;
     if (m_update_groups_after == UUID()) {
         get_canvas().clear();
 
@@ -1197,9 +1196,10 @@ void Editor::canvas_update()
         }
     }
     else {
-        get_canvas().clear_chunks(Renderer::get_chunk_from_group(m_core.get_current_document().get_group(m_update_groups_after)));
+        get_canvas().clear_chunks(
+                Renderer::get_chunk_from_group(m_core.get_current_document().get_group(m_update_groups_after)));
     }
-    
+
     if (m_core.has_documents())
         render_document(m_core.get_current_idocument_info());
 
@@ -1597,4 +1597,3 @@ void Editor::set_first_update_group(const UUID &group)
 }
 
 } // namespace dune3d
-

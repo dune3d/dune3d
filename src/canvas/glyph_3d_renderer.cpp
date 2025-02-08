@@ -109,7 +109,8 @@ void Glyph3DRenderer::push()
         auto &chunk = m_ca.m_chunks.at(chunk_id);
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(CanvasChunk::Glyph3DVertex) * offset,
                         sizeof(CanvasChunk::Glyph3DVertex) * chunk.m_glyphs_3d.size(), chunk.m_glyphs_3d.data());
-        m_ca.m_vertex_type_picks[{m_vertex_type, chunk_id}] = {.offset = m_ca.m_pick_base, .count = chunk.m_glyphs_3d.size()};
+        m_ca.m_vertex_type_picks[{m_vertex_type, chunk_id}] = {.offset = m_ca.m_pick_base,
+                                                               .count = chunk.m_glyphs_3d.size()};
         m_ca.m_pick_base += chunk.m_glyphs_3d.size();
         offset += chunk.m_glyphs_3d.size();
     }

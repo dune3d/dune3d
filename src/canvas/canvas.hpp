@@ -45,7 +45,7 @@ public:
     void queue_pick(const std::filesystem::path &pick_path);
 
     void clear() override;
-    void clear_chunks(unsigned int first_chunk  );
+    void clear_chunks(unsigned int first_chunk);
     VertexRef draw_point(glm::vec3 p) override;
     VertexRef draw_line(glm::vec3 from, glm::vec3 to) override;
     VertexRef draw_screen_line(glm::vec3 origin, glm::vec3 direction) override;

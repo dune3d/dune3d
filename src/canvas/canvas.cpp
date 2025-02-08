@@ -1377,7 +1377,7 @@ void Canvas::clear_chunks(unsigned int first_chunk)
             ++it;
         }
     }
-    
+
     for (auto it = m_vertex_type_picks.cbegin(); it != m_vertex_type_picks.cend() /* not hoisted */;
          /* no increment */) {
         if (it->first.second >= first_chunk) {
