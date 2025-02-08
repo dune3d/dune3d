@@ -49,6 +49,7 @@ enum class GroupType {
     MIRROR_HORIZONTAL,
     MIRROR_VERTICAL,
     SOLID_MODEL_OPERATION,
+    CLONE,
 };
 
 class Group {

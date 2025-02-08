@@ -124,6 +124,7 @@ src_common = files(
   'src/document/group/group_loft.cpp',
   'src/document/group/group_exploded_cluster.cpp',
   'src/document/group/group_solid_model_operation.cpp',
+  'src/document/group/group_clone.cpp',
   'src/document/export_paths.cpp',
   'src/system/system.cpp',
   'src/util/file_version.cpp',

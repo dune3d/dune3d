@@ -218,6 +218,16 @@ void Editor::on_add_group(Group::Type group_type, WorkspaceBrowserAddGroupMode a
         auto &group = doc.insert_group<GroupSolidModelOperation>(UUID::random(), current_group.m_uuid);
         new_group = &group;
     }
+    else if (group_type == Group::Type::CLONE) {
+        if (!current_group.m_active_wrkpl) {
+            m_workspace_browser->show_toast(toast_prefix + "Current group needs an active workplane");
+            return;
+        }
+        GroupClone &group = doc.insert_group<GroupClone>(UUID::random(), current_group.m_uuid);
+        new_group = &group;
+        group.m_source_group = current_group.m_uuid;
+        group.m_source_wrkpl = current_group.m_active_wrkpl;
+    }
     if (new_group && add_group_mode == WorkspaceBrowserAddGroupMode::WITH_BODY)
         new_group->m_body.emplace();
     finish_add_group(new_group);

@@ -20,4 +20,5 @@ class GroupMirrorVertical;
 class GroupLoft;
 class GroupExplodedCluster;
 class GroupSolidModelOperation;
+class GroupClone;
 } // namespace dune3d

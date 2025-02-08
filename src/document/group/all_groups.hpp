@@ -13,3 +13,4 @@
 #include "group_exploded_cluster.hpp"
 #include "group_mirror_hv.hpp"
 #include "group_solid_model_operation.hpp"
+#include "group_clone.hpp"
