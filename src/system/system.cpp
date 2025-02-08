@@ -50,50 +50,82 @@ static std::mutex s_sys_mutex;
 System::System(Document &doc, const UUID &grp, const UUID &constraint_exclude)
     : m_sys(std::make_unique<SolveSpace::System>()), m_doc(doc), m_solve_group(grp), m_lock(s_sys_mutex)
 {
+    auto &solve_group = doc.get_group(m_solve_group);
     for (auto &[uu, constraint] : m_doc.m_constraints) {
         if (constraint->m_group == m_solve_group)
             if (auto ps = dynamic_cast<const IConstraintPreSolve *>(constraint.get()))
                 ps->pre_solve(m_doc);
     }
-    if (auto ps = dynamic_cast<const IGroupPreSolve *>(&doc.get_group(m_solve_group))) {
+    if (auto ps = dynamic_cast<const IGroupPreSolve *>(&solve_group)) {
         ps->pre_solve(m_doc);
     }
 
+    std::set<Entity *> entities;
+    std::set<Constraint *> constraints;
     for (const auto &[uu, entity] : m_doc.m_entities) {
-        entity->accept(*this);
+        if (entity->m_group == m_solve_group) {
+            entities.insert(entity.get());
+            auto referenced_entities = entity->get_referenced_entities();
+            for (const auto &uu : referenced_entities) {
+                entities.insert(&doc.get_entity(uu));
+            }
+        }
     }
     for (const auto &[uu, constraint] : m_doc.m_constraints) {
         if (constraint->m_group != m_solve_group)
             continue;
         if (uu == constraint_exclude)
             continue;
+        constraints.insert(constraint.get());
+        auto referenced_entities = constraint->get_referenced_entities();
+        for (const auto &uu : referenced_entities) {
+            entities.insert(&doc.get_entity(uu));
+        }
+    }
+    {
+        auto referenced_entities = solve_group.get_referenced_entities(doc);
+        for (const auto &uu : referenced_entities) {
+            entities.insert(&doc.get_entity(uu));
+        }
+    }
+    {
+        std::set<Entity *> other_entities;
+        for (auto entity : entities) {
+            auto referenced_entities = entity->get_referenced_entities();
+            for (const auto &uu : referenced_entities) {
+                other_entities.insert(&doc.get_entity(uu));
+            }
+        }
+        entities.insert(other_entities.begin(), other_entities.end());
+    }
+    for (auto entity : entities) {
+        entity->accept(*this);
+    }
+    for (auto constraint : constraints) {
         constraint->accept(*this);
     }
-    for (const auto &[uu, group] : m_doc.get_groups()) {
-        if (uu != m_solve_group)
-            continue;
-        switch (group->get_type()) {
-        case Group::Type::EXTRUDE:
-            add(dynamic_cast<const GroupExtrude &>(*group));
-            break;
-        case Group::Type::LATHE:
-            add(dynamic_cast<const GroupLathe &>(*group));
-            break;
-        case Group::Type::REVOLVE:
-            add(dynamic_cast<const GroupRevolve &>(*group));
-            break;
-        case Group::Type::LINEAR_ARRAY:
-            add(dynamic_cast<const GroupLinearArray &>(*group));
-            break;
-        case Group::Type::POLAR_ARRAY:
-            add(dynamic_cast<const GroupPolarArray &>(*group));
-            break;
-        case Group::Type::MIRROR_HORIZONTAL:
-        case Group::Type::MIRROR_VERTICAL:
-            add(dynamic_cast<const GroupMirrorHV &>(*group));
-            break;
-        default:;
-        }
+
+    switch (solve_group.get_type()) {
+    case Group::Type::EXTRUDE:
+        add(dynamic_cast<const GroupExtrude &>(solve_group));
+        break;
+    case Group::Type::LATHE:
+        add(dynamic_cast<const GroupLathe &>(solve_group));
+        break;
+    case Group::Type::REVOLVE:
+        add(dynamic_cast<const GroupRevolve &>(solve_group));
+        break;
+    case Group::Type::LINEAR_ARRAY:
+        add(dynamic_cast<const GroupLinearArray &>(solve_group));
+        break;
+    case Group::Type::POLAR_ARRAY:
+        add(dynamic_cast<const GroupPolarArray &>(solve_group));
+        break;
+    case Group::Type::MIRROR_HORIZONTAL:
+    case Group::Type::MIRROR_VERTICAL:
+        add(dynamic_cast<const GroupMirrorHV &>(solve_group));
+        break;
+    default:;
     }
 }
 
