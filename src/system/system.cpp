@@ -62,14 +62,48 @@ System::System(Document &doc, const UUID &grp, const UUID &constraint_exclude)
         ps->pre_solve(m_doc);
     }
 
+    std::set<Entity *> entities;
+    std::set<Constraint *> constraints;
     for (const auto &[uu, entity] : m_doc.m_entities) {
-        entity->accept(*this);
+        if (entity->m_group != m_solve_group)
+            continue;
+        entities.insert(entity.get());
+        auto referenced_entities = entity->get_referenced_entities();
+        for (const auto &uu : referenced_entities) {
+            entities.insert(&doc.get_entity(uu));
+        }
     }
     for (const auto &[uu, constraint] : m_doc.m_constraints) {
         if (constraint->m_group != m_solve_group)
             continue;
         if (uu == constraint_exclude)
             continue;
+        constraints.insert(constraint.get());
+        auto referenced_entities = constraint->get_referenced_entities();
+        for (const auto &uu : referenced_entities) {
+            entities.insert(&doc.get_entity(uu));
+        }
+    }
+    {
+        auto referenced_entities = solve_group.get_referenced_entities(doc);
+        for (const auto &uu : referenced_entities) {
+            entities.insert(&doc.get_entity(uu));
+        }
+    }
+    {
+        std::set<Entity *> other_entities;
+        for (auto entity : entities) {
+            auto referenced_entities = entity->get_referenced_entities();
+            for (const auto &uu : referenced_entities) {
+                other_entities.insert(&doc.get_entity(uu));
+            }
+        }
+        entities.insert(other_entities.begin(), other_entities.end());
+    }
+    for (auto entity : entities) {
+        entity->accept(*this);
+    }
+    for (auto constraint : constraints) {
         constraint->accept(*this);
     }
 
