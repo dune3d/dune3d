@@ -34,7 +34,7 @@ public:
     std::list<GroupStatusMessage> m_clone_messages;
     std::list<GroupStatusMessage> get_messages() const override;
 
-    void generate(Document &doc) const override;
+    void generate(Document &doc) override;
 
     json serialize() const override;
     std::unique_ptr<Group> clone() const override;

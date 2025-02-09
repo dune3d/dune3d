@@ -10,6 +10,7 @@
 #include "document/group/group_loft.hpp"
 #include "document/group/group_mirror.hpp"
 #include "document/group/group_solid_model_operation.hpp"
+#include "document/group/group_clone.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include "widgets/select_groups_dialog.hpp"
 #include "widgets/select_group_dialog.hpp"
@@ -635,6 +636,22 @@ public:
     }
 };
 
+class GroupEditorClone : public GroupEditor {
+public:
+    GroupEditorClone(Core &core, const UUID &group_uu) : GroupEditor(core, group_uu)
+    {
+        auto source_group_name = m_core.get_current_document().get_group(get_group().m_source_group).m_name;
+        auto source_label = Gtk::make_managed<Gtk::Label>(source_group_name);
+        source_label->set_xalign(0);
+        grid_attach_label_and_widget(*this, "Source group", *source_label, m_top);
+    }
+
+private:
+    GroupClone &get_group()
+    {
+        return m_core.get_current_document().get_group<GroupClone>(m_group_uu);
+    }
+};
 
 void GroupEditor::update_name()
 {
@@ -791,6 +808,8 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
         return Gtk::make_managed<GroupEditorExplodedCluster>(core, group_uu);
     case Group::Type::SOLID_MODEL_OPERATION:
         return Gtk::make_managed<GroupEditorSolidModelOperation>(core, group_uu);
+    case Group::Type::CLONE:
+        return Gtk::make_managed<GroupEditorClone>(core, group_uu);
     default:
         return Gtk::make_managed<GroupEditor>(core, group_uu);
     }

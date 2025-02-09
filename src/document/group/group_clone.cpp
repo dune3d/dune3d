@@ -4,15 +4,10 @@
 #include "util/glm_util.hpp"
 #include "util/util.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_line2d.hpp"
 #include "document/entity/entity_circle2d.hpp"
 #include "document/entity/entity_arc2d.hpp"
-#include "document/entity/entity_line3d.hpp"
-#include "document/entity/entity_circle3d.hpp"
-#include "document/entity/entity_arc3d.hpp"
 #include "document/entity/entity_bezier2d.hpp"
-#include "document/entity/entity_bezier3d.hpp"
 #include "document/solid_model.hpp"
 
 namespace dune3d {
@@ -39,10 +34,13 @@ UUID GroupClone::get_entity_uuid(const UUID &uu) const
     return hash_uuids("35875a02-f865-4617-ae24-4f5ecdf44975", {m_uuid, uu});
 }
 
-void GroupClone::generate(Document &doc) const
+void GroupClone::generate(Document &doc)
 {
-    if (!m_active_wrkpl)
+    m_clone_messages.clear();
+    if (!m_active_wrkpl) {
+        m_clone_messages.emplace_back(GroupStatusMessage::Status::ERR, "Group needs workplane");
         return;
+    }
 
     for (const auto &[uu, it] : doc.m_entities) {
         if (it->m_group != m_source_group)
