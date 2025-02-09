@@ -57,14 +57,14 @@ ToolResponse ToolDrawWorkplane::update(const ToolArgs &args)
     else if (args.type == ToolEventType::ACTION) {
         switch (args.action) {
         case InToolActionID::LMB: {
+            auto &group = get_group();
+            if (!group.m_active_wrkpl)
+                group.m_active_wrkpl = m_wrkpl->m_uuid;
+
             if (m_constrain) {
                 const EntityAndPoint origin{m_wrkpl->m_uuid, 1};
                 constrain_point({}, origin);
             }
-
-            auto &group = get_group();
-            if (!group.m_active_wrkpl)
-                group.m_active_wrkpl = m_wrkpl->m_uuid;
 
             return ToolResponse::commit();
 
