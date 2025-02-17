@@ -144,6 +144,7 @@ void Editor::init_actions()
     connect_action(ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE, sigc::mem_fun(*this, &Editor::on_align_to_workplane));
     connect_action(ActionID::CENTER_VIEW_TO_WORKPLANE, sigc::mem_fun(*this, &Editor::on_center_to_workplane));
     connect_action(ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE, sigc::mem_fun(*this, &Editor::on_center_to_workplane));
+    connect_action(ActionID::LOOK_HERE, sigc::mem_fun(*this, &Editor::on_look_here));
     connect_action(ActionID::ALIGN_AND_CENTER_VIEW_TO_WORKPLANE, [this](const auto &a) {
         trigger_action(ActionID::ALIGN_VIEW_TO_WORKPLANE);
         trigger_action(ActionID::CENTER_VIEW_TO_WORKPLANE);
@@ -360,6 +361,23 @@ void Editor::on_center_to_workplane(const ActionConnection &conn)
     get_canvas().animate_to_center_abs(wrkpl.m_origin);
 }
 
+void Editor::on_look_here(const ActionConnection &conn)
+{
+    if (!m_core.has_documents())
+        return;
+    auto enp = point_from_selection(m_core.get_current_document(), get_canvas().get_selection());
+    if (!enp)
+        return;
+
+    auto &doc = m_core.get_current_document();
+    if (!doc.is_valid_point(*enp))
+        return;
+
+    auto pt = doc.get_point(*enp);
+
+    get_canvas().animate_to_center_abs(pt);
+}
+
 
 void Editor::update_action_sensitivity()
 {
@@ -421,11 +439,16 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         {
             auto enp = point_from_selection(m_core.get_current_document(), sel);
             bool can_select_path = false;
+            bool can_look_here = false;
+
             if (enp) {
                 auto &en = m_core.get_current_document().get_entity(enp->entity);
                 can_select_path = en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::BEZIER_2D);
+
+                can_look_here = m_core.get_current_document().is_valid_point(*enp);
             }
             m_action_sensitivity[ActionID::SELECT_PATH] = can_select_path;
+            m_action_sensitivity[ActionID::LOOK_HERE] = can_look_here;
         }
 
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
@@ -452,6 +475,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::ALIGN_VIEW_TO_CURRENT_WORKPLANE] = false;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_WORKPLANE] = false;
         m_action_sensitivity[ActionID::CENTER_VIEW_TO_CURRENT_WORKPLANE] = false;
+        m_action_sensitivity[ActionID::LOOK_HERE] = false;
         m_action_sensitivity[ActionID::SELECT_PATH] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = false;

@@ -68,5 +68,6 @@ enum class ActionID {
     TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES,
     COPY,
     CONSTRAIN_MENU,
+    LOOK_HERE,
 };
 }
