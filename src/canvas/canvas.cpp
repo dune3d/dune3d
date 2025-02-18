@@ -1205,14 +1205,21 @@ void Canvas::peel_selection()
                     });
                 }
                 else {
-                    button->set_active(sel.contains(button->m_selectable));
+                    if (m_selection_mode != SelectionMode::HOVER)
+                        button->set_active(sel.contains(button->m_selectable));
                     button->signal_toggled().connect([this, button] {
-                        auto sel2 = get_selection();
+                        std::set<SelectableRef> sel2;
+
+                        if (m_selection_mode != SelectionMode::HOVER)
+                            sel2 = get_selection();
+
                         if (button->get_active())
                             sel2.insert(button->m_selectable);
                         else
                             sel2.erase(button->m_selectable);
+
                         set_selection(sel2, true);
+                        set_selection_mode(SelectionMode::NORMAL);
                         const auto state =
                                 button->get_display()->get_default_seat()->get_keyboard()->get_modifier_state();
                         if ((state & Gdk::ModifierType::SHIFT_MASK) != Gdk::ModifierType::SHIFT_MASK)
