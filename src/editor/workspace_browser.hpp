@@ -155,6 +155,9 @@ private:
     void unblock_signals();
     unsigned int m_blocked_count = 0;
 
+    void select_group(const UUID &doc_uu, const UUID &uu);
+
+
     static void update_name(DocumentItem &it, IDocumentInfo &doci);
 
     sigc::connection m_toast_connection;

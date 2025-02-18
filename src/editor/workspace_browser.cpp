@@ -317,7 +317,7 @@ void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &
                     after_active = true;
             }
         }
-        select_group(doci.get_current_group());
+        select_group(doci.get_uuid(), doci.get_current_group());
     }
     if (m_core.has_documents()) {
         auto &current_group = m_core.get_current_document().get_group(m_core.get_current_group());
@@ -1007,11 +1007,16 @@ void WorkspaceBrowser::group_prev_next(int dir)
 
 void WorkspaceBrowser::select_group(const UUID &uu)
 {
+    select_group(m_core.get_current_idocument_info().get_uuid(), uu);
+}
+
+void WorkspaceBrowser::select_group(const UUID &doc_uu, const UUID &uu)
+{
     {
         const auto n = m_selection_model->get_n_items();
 
-        const auto body_group =
-                m_core.get_current_document().get_group(uu).find_body(m_core.get_current_document()).group.m_uuid;
+        auto &doc = m_core.get_idocument_info(doc_uu).get_document();
+        const auto body_group = doc.get_group(uu).find_body(doc).group.m_uuid;
         {
             for (size_t i = 0; i < n; i++) {
                 auto row = std::dynamic_pointer_cast<Gtk::TreeListRow>(m_selection_model->get_object(i));
@@ -1020,7 +1025,7 @@ void WorkspaceBrowser::select_group(const UUID &uu)
                 auto it = std::dynamic_pointer_cast<BodyItem>(row->get_item());
                 if (!it)
                     continue;
-                if (it->m_uuid == body_group)
+                if (it->m_doc == doc_uu && it->m_uuid == body_group)
                     row->set_expanded(true);
             }
         }
