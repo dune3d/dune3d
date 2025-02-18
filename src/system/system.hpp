@@ -110,6 +110,7 @@ private:
     void add(const GroupMirrorHV &group);
     void add(const GroupLathe &group);
     void add(const GroupRevolve &group);
+    void add(const GroupClone &group);
     using CreateEq = std::function<void(const SolveSpace::ExprVector &exorig, const SolveSpace::ExprVector &exnew,
                                         unsigned int instance)>;
     using CreateEqN = std::function<void(const SolveSpace::ExprQuaternion &exorig,

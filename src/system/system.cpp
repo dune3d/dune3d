@@ -25,6 +25,7 @@
 #include "document/group/group_linear_array.hpp"
 #include "document/group/group_polar_array.hpp"
 #include "document/group/group_mirror_hv.hpp"
+#include "document/group/group_clone.hpp"
 #include <array>
 #include <set>
 #include <iostream>
@@ -91,6 +92,9 @@ System::System(Document &doc, const UUID &grp, const UUID &constraint_exclude)
         case Group::Type::MIRROR_HORIZONTAL:
         case Group::Type::MIRROR_VERTICAL:
             add(dynamic_cast<const GroupMirrorHV &>(*group));
+            break;
+        case Group::Type::CLONE:
+            add(dynamic_cast<const GroupClone &>(*group));
             break;
         default:;
         }
@@ -1546,6 +1550,103 @@ void System::add(const GroupMirrorHV &group)
 
     add_replicate(group, create_eq2, create_eq3, create_eq_n, eqi);
 }
+
+
+void System::add(const GroupClone &group)
+{
+    if (!group.m_active_wrkpl)
+        return;
+
+    auto hg = hGroup{(uint32_t)group.get_index() + 1};
+    unsigned int eqi = 0;
+
+    auto source_wrkpl = hEntity{get_entity_ref(EntityRef{group.m_source_wrkpl, 0})};
+    auto dest_wrkpl = hEntity{get_entity_ref(EntityRef{group.m_active_wrkpl, 0})};
+
+    for (const auto &[uu, it] : m_doc.m_entities) {
+        if (it->m_group != group.m_source_group)
+            continue;
+        if (it->get_type() == Entity::Type::LINE_2D) {
+            const auto &li = dynamic_cast<const EntityLine2D &>(*it);
+            if (li.m_wrkpl != group.m_source_wrkpl)
+                continue;
+            auto new_line_uu = group.get_entity_uuid(uu);
+
+
+            for (unsigned int pt = 1; pt <= 2; pt++) {
+                auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                auto en_new_p = get_entity_ref(EntityRef{new_line_uu, pt});
+                EntityBase *eorig = SK.GetEntity({en_orig_p});
+                EntityBase *enew = SK.GetEntity({en_new_p});
+                ExprVector exorig = eorig->PointGetExprsInWorkplane(source_wrkpl);
+                ExprVector exnew = enew->PointGetExprsInWorkplane(dest_wrkpl);
+                AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x), eqi++);
+                AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y), eqi++);
+            }
+        }
+        else if (it->get_type() == Entity::Type::BEZIER_2D) {
+            const auto &bez = dynamic_cast<const EntityBezier2D &>(*it);
+            if (bez.m_wrkpl != group.m_source_wrkpl)
+                continue;
+            auto new_bez_uu = group.get_entity_uuid(uu);
+
+            for (unsigned int pt = 1; pt <= 4; pt++) {
+                auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                auto en_new_p = get_entity_ref(EntityRef{new_bez_uu, pt});
+                EntityBase *eorig = SK.GetEntity({en_orig_p});
+                EntityBase *enew = SK.GetEntity({en_new_p});
+                ExprVector exorig = eorig->PointGetExprsInWorkplane(source_wrkpl);
+                ExprVector exnew = enew->PointGetExprsInWorkplane(dest_wrkpl);
+                AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x), eqi++);
+                AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y), eqi++);
+            }
+        }
+        else if (it->get_type() == Entity::Type::ARC_2D) {
+            const auto &arc = dynamic_cast<const EntityArc2D &>(*it);
+            if (arc.m_wrkpl != group.m_source_wrkpl)
+                continue;
+            auto new_arc_uu = group.get_entity_uuid(uu);
+
+            for (unsigned int pt = 1; pt <= 3; pt++) {
+                auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                auto en_new_p = get_entity_ref(EntityRef{new_arc_uu, pt});
+                EntityBase *eorig = SK.GetEntity({en_orig_p});
+                EntityBase *enew = SK.GetEntity({en_new_p});
+                ExprVector exorig = eorig->PointGetExprsInWorkplane(source_wrkpl);
+                ExprVector exnew = enew->PointGetExprsInWorkplane(dest_wrkpl);
+                AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x), eqi++);
+                AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y), eqi++);
+            }
+        }
+        else if (it->get_type() == Entity::Type::CIRCLE_2D) {
+            const auto &circle = dynamic_cast<const EntityCircle2D &>(*it);
+            if (circle.m_wrkpl != group.m_source_wrkpl)
+                continue;
+            auto new_circle_uu = group.get_entity_uuid(uu);
+
+            {
+                unsigned int pt = 1;
+                auto en_orig_p = get_entity_ref(EntityRef{uu, pt});
+                auto en_new_p = get_entity_ref(EntityRef{new_circle_uu, pt});
+                EntityBase *eorig = SK.GetEntity({en_orig_p});
+                EntityBase *enew = SK.GetEntity({en_new_p});
+                ExprVector exorig = eorig->PointGetExprsInWorkplane(source_wrkpl);
+                ExprVector exnew = enew->PointGetExprsInWorkplane(dest_wrkpl);
+                AddEq(hg, &m_sys->eq, exnew.x->Minus(exorig.x), eqi++);
+                AddEq(hg, &m_sys->eq, exnew.y->Minus(exorig.y), eqi++);
+            }
+
+            {
+                auto en_orig_p = get_entity_ref(EntityRef{uu, 0});
+                auto en_new_p = get_entity_ref(EntityRef{new_circle_uu, 0});
+                EntityBase *eorig = SK.GetEntity({en_orig_p});
+                EntityBase *enew = SK.GetEntity({en_new_p});
+                AddEq(hg, &m_sys->eq, eorig->CircleGetRadiusExpr()->Minus(enew->CircleGetRadiusExpr()), eqi++);
+            }
+        }
+    }
+}
+
 
 void System::update_document()
 {
