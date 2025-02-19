@@ -228,6 +228,16 @@ void Editor::on_add_group(Group::Type group_type, WorkspaceBrowserAddGroupMode a
         group.m_source_group = current_group.m_uuid;
         group.m_source_wrkpl = current_group.m_active_wrkpl;
     }
+    else if (group_type == Group::Type::PIPE) {
+        if (!current_group.m_active_wrkpl) {
+            m_workspace_browser->show_toast(toast_prefix + "Current group needs an active workplane");
+            return;
+        }
+        auto &group = doc.insert_group<GroupPipe>(UUID::random(), current_group.m_uuid);
+        new_group = &group;
+        group.m_wrkpl = current_group.m_active_wrkpl;
+        group.m_source_group = current_group.m_uuid;
+    }
     if (new_group && add_group_mode == WorkspaceBrowserAddGroupMode::WITH_BODY)
         new_group->m_body.emplace();
     finish_add_group(new_group);
@@ -248,6 +258,9 @@ void Editor::finish_add_group(Group *new_group)
     m_workspace_browser->select_group(new_group->m_uuid);
     if (any_of(group_type, Group::Type::FILLET, Group::Type::CHAMFER)) {
         trigger_action(ToolID::SELECT_EDGES);
+    }
+    else if (group_type == Group::Type::PIPE) {
+        trigger_action(ToolID::SELECT_SPINE_ENTITIES);
     }
 }
 

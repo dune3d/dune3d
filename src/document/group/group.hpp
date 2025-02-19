@@ -50,6 +50,7 @@ enum class GroupType {
     MIRROR_VERTICAL,
     SOLID_MODEL_OPERATION,
     CLONE,
+    PIPE,
 };
 
 class Group {

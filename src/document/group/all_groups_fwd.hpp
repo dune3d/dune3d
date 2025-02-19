@@ -21,4 +21,5 @@ class GroupLoft;
 class GroupExplodedCluster;
 class GroupSolidModelOperation;
 class GroupClone;
+class GroupPipe;
 } // namespace dune3d

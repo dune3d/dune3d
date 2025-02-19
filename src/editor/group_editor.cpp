@@ -11,6 +11,8 @@
 #include "document/group/group_mirror.hpp"
 #include "document/group/group_solid_model_operation.hpp"
 #include "document/group/group_clone.hpp"
+#include "document/group/group_pipe.hpp"
+#include "document/entity/entity.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include "widgets/select_groups_dialog.hpp"
 #include "widgets/select_group_dialog.hpp"
@@ -18,7 +20,7 @@
 #include "core/tool_id.hpp"
 #include "util/gtk_util.hpp"
 #include "action/action_id.hpp"
-#include <iostream>
+#include <format>
 
 namespace dune3d {
 
@@ -653,6 +655,47 @@ private:
     }
 };
 
+class GroupEditorPipe : public GroupEditorSweep {
+public:
+    GroupEditorPipe(Core &core, const UUID &group_uu) : GroupEditorSweep(core, group_uu)
+    {
+        add_operation_combo();
+        m_spine_label = Gtk::make_managed<Gtk::Label>("No entities");
+        m_spine_label->set_xalign(0);
+        auto button = Gtk::make_managed<Gtk::Button>();
+        button->set_child(*m_spine_label);
+        button->signal_clicked().connect([this] { m_signal_trigger_action.emit(ToolID::SELECT_SPINE_ENTITIES); });
+        grid_attach_label_and_widget(*this, "Spine", *button, m_top);
+        update_label();
+    }
+
+    void do_reload() override
+    {
+        GroupEditorSweep::do_reload();
+        update_label();
+    }
+
+private:
+    void update_label()
+    {
+        auto &group = get_group();
+        auto sz = group.m_spine_entities.size();
+        std::string label;
+        if (sz == 0)
+            label = "No entities";
+        else
+            label = std::format("{} {}", sz, Entity::get_type_name_for_n(EntityType::INVALID, sz));
+        m_spine_label->set_label(label);
+    }
+
+    GroupPipe &get_group()
+    {
+        return m_core.get_current_document().get_group<GroupPipe>(m_group_uu);
+    }
+
+    Gtk::Label *m_spine_label = nullptr;
+};
+
 void GroupEditor::update_name()
 {
     auto &group = m_core.get_current_document().get_group(m_group_uu);
@@ -810,6 +853,8 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
         return Gtk::make_managed<GroupEditorSolidModelOperation>(core, group_uu);
     case Group::Type::CLONE:
         return Gtk::make_managed<GroupEditorClone>(core, group_uu);
+    case Group::Type::PIPE:
+        return Gtk::make_managed<GroupEditorPipe>(core, group_uu);
     default:
         return Gtk::make_managed<GroupEditor>(core, group_uu);
     }

@@ -20,6 +20,8 @@ const std::map<InToolActionID, InToolActionCatalogItem> in_tool_action_catalog =
         {InToolActionID::TOGGLE_TANGENT_CONSTRAINT,
          {"toggle tangent constraint", ToolID::DRAW_CONTOUR, InToolActionCatalogItem::FLAGS_DEFAULT}},
         {InToolActionID::CLEAR_EDGES, {"clear edges", ToolID::SELECT_EDGES, InToolActionCatalogItem::FLAGS_DEFAULT}},
+        {InToolActionID::CLEAR_SPINE_ENTITIES,
+         {"clear spine entities", ToolID::SELECT_SPINE_ENTITIES, InToolActionCatalogItem::FLAGS_DEFAULT}},
         {InToolActionID::N_SIDES_INC,
          {"increase sides", ToolID::DRAW_REGULAR_POLYGON, InToolActionCatalogItem::FLAGS_DEFAULT}},
         {InToolActionID::N_SIDES_DEC,
@@ -49,6 +51,7 @@ const LutEnumStr<InToolActionID> in_tool_action_lut = {
         LUT_ITEM(N_SIDES_DEC),
         LUT_ITEM(ENTER_N_SIDES),
         LUT_ITEM(TOGGLE_RECTANGLE_MODE),
+        LUT_ITEM(CLEAR_SPINE_ENTITIES),
 };
 
 

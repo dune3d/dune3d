@@ -78,6 +78,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Group::Type, {
                                                   {Group::Type::MIRROR_VERTICAL, "mirror_vertical"},
                                                   {Group::Type::SOLID_MODEL_OPERATION, "solid_model_operation"},
                                                   {Group::Type::CLONE, "clone"},
+                                                  {Group::Type::PIPE, "pipe"},
                                           })
 
 json Group::serialize() const
@@ -124,6 +125,8 @@ std::string Group::get_type_name(Type type)
         return "Solid model operation";
     case Type::CLONE:
         return "Clone";
+    case Type::PIPE:
+        return "Pipe";
     default:
         return "Group";
     }
@@ -168,6 +171,8 @@ std::unique_ptr<Group> Group::new_from_json(const UUID &uu, const json &j)
         return std::make_unique<GroupSolidModelOperation>(uu, j);
     case Type::CLONE:
         return std::make_unique<GroupClone>(uu, j);
+    case Type::PIPE:
+        return std::make_unique<GroupPipe>(uu, j);
     case Type::INVALID:
         throw std::runtime_error("unknown group type " + j.at("type").get<std::string>());
     }

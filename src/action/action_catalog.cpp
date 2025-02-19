@@ -204,6 +204,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Constrain line/points perpendicular", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::TEXT_TO_CLUSTER, {"Convert to Cluster", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::CONSTRAIN_MENU, {"Constrain", ActionGroup::CONSTRAIN, ActionCatalogItem::FLAGS_NO_MENU}},
+        {ToolID::SELECT_SPINE_ENTITIES,
+         {"Select spine entities", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::LOOK_HERE, {"Look here", ActionGroup::VIEW, ActionCatalogItem::FLAGS_SPECIFIC}},
 };
 
@@ -368,6 +370,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_CURVE_CURVE_TANGENT),
         TOOL_LUT_ITEM(CONSTRAIN_LINE_POINTS_PERPENDICULAR),
         TOOL_LUT_ITEM(TEXT_TO_CLUSTER),
+        TOOL_LUT_ITEM(SELECT_SPINE_ENTITIES),
 };
 
 

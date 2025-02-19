@@ -882,6 +882,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
                 actions->add_action("clone", [this] { emit_add_group(Group::Type::CLONE); });
                 actions->add_action("solid_model_operation",
                                     [this] { emit_add_group(Group::Type::SOLID_MODEL_OPERATION); });
+                actions->add_action("pipe", [this] { emit_add_group(Group::Type::PIPE); });
                 top->append_item(Gio::MenuItem::create("Sketch", "groups.sketch"));
                 top->append_item(Gio::MenuItem::create("Sketch in new Body", "groups.sketch_in_new_body"));
                 top->append_item(Gio::MenuItem::create("Extrude", "groups.extrude"));
@@ -896,6 +897,7 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
                 top->append_item(Gio::MenuItem::create("Mirror vertically", "groups.mirror_vertical"));
                 top->append_item(Gio::MenuItem::create("Clone", "groups.clone"));
                 top->append_item(Gio::MenuItem::create("Solid model operation", "groups.solid_model_operation"));
+                top->append_item(Gio::MenuItem::create("Pipe", "groups.pipe"));
 
 
                 insert_action_group("groups", actions);
