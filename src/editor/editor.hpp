@@ -258,6 +258,7 @@ private:
     void show_save_dialog(const std::string &doc_name, std::function<void()> save_cb, std::function<void()> no_save_cb);
     std::function<void()> m_after_save_cb;
     void close_document(const UUID &uu, std::function<void()> save_cb, std::function<void()> no_save_cb);
+    void do_close_document(const UUID &uu);
 
     std::optional<ActionToolID> get_doubleclick_action(const SelectableRef &sr);
     ToolID get_tool_for_drag_move(bool ctrl, const std::set<SelectableRef> &sel);

@@ -978,24 +978,29 @@ void Editor::close_document(const UUID &doc_uu, std::function<void()> save_cb, s
                 doci.get_basename(),
                 [this, doc_uu, save_cb, no_save_cb] {
                     m_after_save_cb = [this, doc_uu, save_cb] {
-                        m_core.close_document(doc_uu);
-                        auto_close_workspace_views();
+                        do_close_document(doc_uu);
                         if (save_cb)
                             save_cb();
                     };
                     trigger_action(ActionID::SAVE);
                 },
                 [this, doc_uu, no_save_cb] {
-                    m_core.close_document(doc_uu);
-                    auto_close_workspace_views();
+                    do_close_document(doc_uu);
                     if (no_save_cb)
                         no_save_cb();
                 });
     }
     else {
-        m_core.close_document(doc_uu);
-        auto_close_workspace_views();
+        do_close_document(doc_uu);
     }
+}
+
+void Editor::do_close_document(const UUID &doc_uu)
+{
+    if (m_core.get_current_idocument_info().get_uuid() == doc_uu)
+        force_end_tool();
+    m_core.close_document(doc_uu);
+    auto_close_workspace_views();
 }
 
 void Editor::update_group_editor()
