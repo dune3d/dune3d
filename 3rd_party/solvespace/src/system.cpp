@@ -617,6 +617,9 @@ SolveResult System::Solve(Group *g, int *rank, int *dof, List<hConstraint> *bad,
         if(p->tag != 0)
             continue; // let rank test catch inconsistency
 
+        if(alone >= VAR_SUBSTITUTED)
+            return SolveResult::TOO_MANY_UNKNOWNS;
+
         e.tag  = alone;
         p->tag = alone;
 
