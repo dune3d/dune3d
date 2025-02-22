@@ -4,6 +4,7 @@
 #include "ientity_movable2d.hpp"
 #include "ientity_bounding_box2d.hpp"
 #include "ientity_cluster_content_update.hpp"
+#include "ientity_delete_point.hpp"
 #include "util/cluster_content.hpp"
 #include <glm/glm.hpp>
 
@@ -12,7 +13,8 @@ class EntityCluster : public EntityT<EntityCluster>,
                       public IEntityInWorkplaneSet,
                       public IEntityMovable2D,
                       public IEntityBoundingBox2D,
-                      public IEntityClusterContentUpdate {
+                      public IEntityClusterContentUpdate,
+                      public IEntityDeletePoint {
 public:
     explicit EntityCluster(const UUID &uu);
     explicit EntityCluster(const UUID &uu, const json &j);
@@ -49,6 +51,8 @@ public:
     void remove_anchor(unsigned int i);
     void add_available_anchors();
     glm::dvec2 get_anchor_point(const EntityAndPoint &enp) const;
+
+    bool delete_point(unsigned int point) override;
 
     glm::dvec2 transform(const glm::dvec2 &p) const;
 

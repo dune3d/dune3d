@@ -152,6 +152,15 @@ void EntityCluster::remove_anchor(unsigned int i)
     m_anchors_transformed.erase(i);
 }
 
+bool EntityCluster::delete_point(unsigned int point)
+{
+    if (m_anchors.contains(point)) {
+        remove_anchor(point);
+        return true;
+    }
+    return false;
+}
+
 glm::dvec2 EntityCluster::get_anchor_point(const EntityAndPoint &enp) const
 {
     return dynamic_cast<const IEntityInWorkplane &>(*m_content->m_entities.at(enp.entity))

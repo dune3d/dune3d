@@ -3,11 +3,15 @@
 #include <glm/glm.hpp>
 #include "ientity_normal.hpp"
 #include "ientity_movable3d.hpp"
+#include "ientity_delete_point.hpp"
 #include <filesystem>
 #include "import_step/imported_step.hpp"
 
 namespace dune3d {
-class EntitySTEP : public EntityT<EntitySTEP>, public IEntityNormal, public IEntityMovable3D {
+class EntitySTEP : public EntityT<EntitySTEP>,
+                   public IEntityNormal,
+                   public IEntityMovable3D,
+                   public IEntityDeletePoint {
 public:
     explicit EntitySTEP(const UUID &uu);
     explicit EntitySTEP(const UUID &uu, const json &j, const std::filesystem::path &containing_dir);
@@ -35,6 +39,8 @@ public:
     void add_anchor(unsigned int i, const glm::dvec3 &pt);
     void update_anchor(unsigned int i, const glm::dvec3 &pt);
     void remove_anchor(unsigned int i);
+
+    bool delete_point(unsigned int point) override;
 
     static constexpr unsigned int s_imported_point_offset = 1000;
     bool m_show_points = false;

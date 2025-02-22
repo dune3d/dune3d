@@ -1,7 +1,7 @@
 #include "tool_delete.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_step.hpp"
-#include "document/entity/entity_cluster.hpp"
+#include "document/entity/entity.hpp"
+#include "document/entity/ientity_delete_point.hpp"
 #include "document/constraint/constraint.hpp"
 #include "document/group/group.hpp"
 #include "tool_common_impl.hpp"
@@ -43,21 +43,10 @@ ToolResponse ToolDelete::begin(const ToolArgs &args)
             auto &en = doc.get_entity(sr.item);
             if (!en.can_delete(doc))
                 continue;
-            if (auto en_step = dynamic_cast<EntitySTEP *>(&en)) {
-                if (en_step->m_anchors.contains(sr.point)) {
-                    en_step->remove_anchor(sr.point);
+            if (auto en_del = dynamic_cast<IEntityDeletePoint *>(&en)) {
+                if (en_del->delete_point(sr.point)) {
                     deleted_anchors.insert(sr.get_entity_and_point());
-                    doc.accumulate_first_group(first_anchor_group, en_step->m_group);
-                }
-                else {
-                    items_to_delete.entities.insert(sr.item);
-                }
-            }
-            else if (auto en_cluster = dynamic_cast<EntityCluster *>(&en)) {
-                if (en_cluster->m_anchors.contains(sr.point)) {
-                    en_cluster->remove_anchor(sr.point);
-                    deleted_anchors.insert(sr.get_entity_and_point());
-                    doc.accumulate_first_group(first_anchor_group, en_cluster->m_group);
+                    doc.accumulate_first_group(first_anchor_group, en.m_group);
                 }
                 else {
                     items_to_delete.entities.insert(sr.item);

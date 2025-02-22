@@ -133,6 +133,15 @@ void EntitySTEP::remove_anchor(unsigned int i)
     m_anchors_transformed.erase(i);
 }
 
+bool EntitySTEP::delete_point(unsigned int point)
+{
+    if (m_anchors.contains(point)) {
+        remove_anchor(point);
+        return true;
+    }
+    return false;
+}
+
 void EntitySTEP::move(const Entity &last, const glm::dvec3 &delta, unsigned int point)
 {
     auto &en_last = dynamic_cast<const EntitySTEP &>(last);
