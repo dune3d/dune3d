@@ -53,16 +53,14 @@ struct PngRead : Png {
 };
 
 struct FileWrapper {
-    FileWrapper(const char *filename, const char *modes)
+    FileWrapper(const std::filesystem::path &filename, const char *modes)
     {
 #ifdef G_OS_WIN32
-        auto wfilename = reinterpret_cast<wchar_t *>(g_utf8_to_utf16(filename, -1, NULL, NULL, NULL));
         auto wmodes = reinterpret_cast<wchar_t *>(g_utf8_to_utf16(modes, -1, NULL, NULL, NULL));
-        fp = _wfopen(wfilename, wmodes);
-        g_free(wfilename);
+        fp = _wfopen(filename.c_str(), wmodes);
         g_free(wmodes);
 #else
-        fp = fopen(filename, modes);
+        fp = fopen(filename.c_str(), modes);
 #endif
         if (!fp) {
             throw std::runtime_error("fopen error");
@@ -116,9 +114,9 @@ template <bool use_alpha> static void convert_bytes_to_data(png_structp png, png
     }
 }
 
-static std::shared_ptr<PictureData> read_png(const std::string &filename, const UUID &uu)
+static std::shared_ptr<PictureData> read_png(const std::filesystem::path &filename, const UUID &uu)
 {
-    FileWrapper fp{filename.c_str(), "rb"};
+    FileWrapper fp{filename, "rb"};
 
     int status = 0;
     PngRead png;
@@ -209,14 +207,14 @@ void pictures_load(Document &doc, const std::filesystem::path &dir)
     }
 }
 
-static void write_png_to_file(const std::string &filename, const PictureData &data)
+static void write_png_to_file(const std::filesystem::path &filename, const PictureData &data)
 {
     /* PNG complains about "Image width or height is zero in IHDR" */
     if (data.m_width == 0 || data.m_height == 0) {
         throw std::runtime_error("image must not have zero width or height");
     }
 
-    FileWrapper fp{filename.c_str(), "wb"};
+    FileWrapper fp{filename, "wb"};
     PngWrite png;
 
     int status = 0;
