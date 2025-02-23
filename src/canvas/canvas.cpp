@@ -1660,6 +1660,7 @@ void Canvas::set_selection_mode(SelectionMode mode)
     else if (m_selection_mode == SelectionMode::NONE) {
         clear_flags(VertexFlags::SELECTED | VertexFlags::HOVER);
         m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS);
+        m_hover_selection = {};
         queue_draw();
     }
     m_signal_selection_mode_changed.emit();
