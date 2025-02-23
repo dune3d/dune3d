@@ -23,6 +23,8 @@
     <file>canvas/shaders/ubo.glsl</file>
     <file>canvas/shaders/selection-vertex.glsl</file>
     <file>canvas/shaders/selection-fragment.glsl</file>
+    <file>canvas/shaders/picture-vertex.glsl</file>
+    <file>canvas/shaders/picture-fragment.glsl</file>
     <file>preferences/key_sequences.ui</file>
     <file>preferences/keys_default.json</file>
     <file>preferences/in_tool_keys_default.json</file>

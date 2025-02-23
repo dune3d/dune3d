@@ -677,6 +677,31 @@ void Renderer::visit(const EntityText &text)
     }
 }
 
+void Renderer::visit(const EntityPicture &pic)
+{
+    auto &wrkpl = dynamic_cast<const EntityWorkplane &>(*m_doc->m_entities.at(pic.m_wrkpl));
+    const auto p = wrkpl.transform(pic.m_origin);
+    m_ca.add_selectable(m_ca.draw_point(p, IconID::POINT_DIAMOND),
+                        SelectableRef{SelectableRef::Type::ENTITY, pic.m_uuid, 1});
+    if (pic.m_data) {
+        std::array<glm::vec3, 4> corners;
+        for (size_t i = 0; i < corners.size(); i++) {
+            corners.at(i) = pic.get_point(10 + i, *m_doc);
+        }
+        m_ca.add_selectable(m_ca.draw_picture(corners, pic.m_data),
+                            SelectableRef{SelectableRef::Type::ENTITY, pic.m_uuid, 0});
+    }
+    else {
+        add_selectables(SelectableRef{SelectableRef::Type::ENTITY, pic.m_uuid, 0},
+                        m_ca.draw_bitmap_text(p, 1, "picture data not loaded: " + (std::string)pic.m_data_uuid));
+    }
+
+    for (const auto &[i, p] : pic.m_anchors) {
+        m_ca.add_selectable(m_ca.draw_point(wrkpl.transform(pic.transform(p)), IconID::POINT_TRIANGLE_DOWN),
+                            SelectableRef{SelectableRef::Type::ENTITY, pic.m_uuid, i});
+    }
+}
+
 static glm::vec3 project_point_onto_plane(const glm::vec3 &plane_origin, const glm::vec3 &plane_normal,
                                           const glm::vec3 &point)
 {

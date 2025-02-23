@@ -52,6 +52,9 @@
 #include "tools/tool_constrain_line_points_perpendicular.hpp"
 #include "tools/tool_text_to_cluster.hpp"
 #include "tools/tool_select_spine_entities.hpp"
+#include "tools/tool_import_picture.hpp"
+#include "tools/tool_add_picture_anchor.hpp"
+#include "tools/tool_move_picture_anchor.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -243,6 +246,15 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::SELECT_SPINE_ENTITIES:
         return std::make_unique<ToolSelectSpineEntities>(tool_id, *this, m_intf, flags);
+
+    case ToolID::IMPORT_PICTURE:
+        return std::make_unique<ToolImportPicture>(tool_id, *this, m_intf, flags);
+
+    case ToolID::ADD_PICTURE_ANCHOR:
+        return std::make_unique<ToolAddPictureAnchor>(tool_id, *this, m_intf, flags);
+
+    case ToolID::MOVE_PICTURE_ANCHOR:
+        return std::make_unique<ToolMovePictureAnchor>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

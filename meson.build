@@ -16,6 +16,7 @@ eigen = dependency('eigen3')
 glm = dependency('glm')
 harfbuzz = dependency('harfbuzz')
 freetype = dependency('freetype2')
+png = dependency('libpng')
 libpython = dependency('python3', required: false, disabler:true)
 pybind11 = dependency('pybind11', required: false, disabler:true)
 
@@ -62,6 +63,7 @@ src_common = files(
   'src/document/entity/entity_bezier3d.cpp',
   'src/document/entity/entity_cluster.cpp',
   'src/document/entity/entity_text.cpp',
+  'src/document/entity/entity_picture.cpp',
   'src/document/constraint/constraint.cpp',
   'src/document/constraint/constraint_util.cpp',
   'src/document/constraint/constraint_points_coincident.cpp',
@@ -147,6 +149,9 @@ src_common = files(
   'src/util/str_util.cpp',
   'src/util/lut.cpp',
   'src/util/text_render.cpp',
+  'src/util/picture_data.cpp',
+  'src/util/picture_load.cpp',
+  'src/util/picture_util.cpp',
 )
 
 src_gui = files(
@@ -173,6 +178,7 @@ src_gui = files(
   'src/canvas/bitmap_font/bitmap_font_desc.c',
   'src/canvas/bitmap_font/bitmap_font_img.c',
   'src/canvas/icon_renderer.cpp',
+  'src/canvas/picture_renderer.cpp',
   'src/canvas/selection_texture_renderer.cpp',
   'src/canvas/selectable_ref.cpp',
   'src/logger/log_dispatcher.cpp',
@@ -237,6 +243,9 @@ src_gui = files(
   'src/core/tools/tool_text_to_cluster.cpp',
   'src/core/tools/tool_draw_text.cpp',
   'src/core/tools/tool_select_spine_entities.cpp',
+  'src/core/tools/tool_add_picture_anchor.cpp',
+  'src/core/tools/tool_move_picture_anchor.cpp',
+  'src/core/tools/tool_import_picture.cpp',
   'src/util/history_manager.cpp',
   'src/util/action_label.cpp',
   'src/editor/tool_popover.cpp',
@@ -352,7 +361,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs', required:false)
 endif
 
-build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype, png]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid

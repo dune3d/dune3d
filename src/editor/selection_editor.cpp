@@ -7,6 +7,7 @@
 #include "document/entity/entity_document.hpp"
 #include "document/entity/entity_cluster.hpp"
 #include "document/entity/entity_text.hpp"
+#include "document/entity/entity_picture.hpp"
 #include "document/constraint/constraint.hpp"
 #include "util/selection_util.hpp"
 #include "util/gtk_util.hpp"
@@ -431,6 +432,51 @@ private:
     Gtk::ToggleButton *m_lock_aspect_ratio_button = nullptr;
 };
 
+class PictureEditor : public Gtk::Grid, public ChangeableCommitMode {
+public:
+    PictureEditor(Document &doc, const UUID &cluster) : m_picture(doc.get_entity<EntityPicture>(cluster))
+    {
+        set_row_spacing(5);
+        set_column_spacing(5);
+        int top = 0;
+
+
+        m_angle_sp = Gtk::make_managed<SpinButtonAngle>();
+        m_angle_sp->set_hexpand(true);
+        m_angle_sp->set_value(m_picture.m_angle);
+        connect_spinbutton(*m_angle_sp,
+                           [this] { return update_if_changed(m_picture.m_angle, m_angle_sp->get_value()); });
+        grid_attach_label_and_widget(*this, "Angle", *m_angle_sp, top);
+
+        m_lock_angle_button = Gtk::make_managed<Gtk::ToggleButton>();
+        m_lock_angle_button->set_tooltip_text("Lock angle");
+        m_lock_angle_button->set_icon_name("system-lock-screen-symbolic");
+        m_lock_angle_button->set_active(m_picture.m_lock_angle);
+        m_lock_angle_button->signal_toggled().connect([this] {
+            m_picture.m_lock_angle = m_lock_angle_button->get_active();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
+        });
+        attach(*m_lock_angle_button, 2, top - 1);
+        top++;
+
+        m_lock_aspect_ratio_button = Gtk::make_managed<Gtk::CheckButton>("Lock aspect ratio");
+        attach(*m_lock_aspect_ratio_button, 0, top, 2);
+        m_lock_aspect_ratio_button->set_active(m_picture.m_lock_aspect_ratio);
+        m_lock_aspect_ratio_button->signal_toggled().connect([this] {
+            m_picture.m_lock_aspect_ratio = m_lock_aspect_ratio_button->get_active();
+            m_signal_changed.emit(CommitMode::IMMEDIATE);
+        });
+    }
+
+private:
+    EntityPicture &m_picture;
+
+    SpinButtonAngle *m_angle_sp = nullptr;
+
+    Gtk::ToggleButton *m_lock_angle_button = nullptr;
+    Gtk::CheckButton *m_lock_aspect_ratio_button = nullptr;
+};
+
 class TextEditor : public Gtk::Grid, public ChangeableCommitMode {
 public:
     TextEditor(Document &doc, const UUID &text) : m_text(doc.get_entity<EntityText>(text)), m_doc(doc)
@@ -564,6 +610,17 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
             auto ed = Gtk::make_managed<ClusterEditor>(m_core.get_current_document(), cluster->entity);
             m_editor = ed;
             auto group = m_core.get_current_document().get_entity(cluster->entity).m_group;
+            ed->signal_changed().connect([this, group](auto mode) {
+                m_core.get_current_document().set_group_solve_pending(group);
+                m_signal_changed.emit(mode);
+            });
+        }
+        else if (auto picture = point_from_selection(m_core.get_current_document(), sel, Entity::Type::PICTURE)) {
+            m_title->set_label("Picture");
+            m_title->set_tooltip_text((std::string)picture->entity);
+            auto ed = Gtk::make_managed<PictureEditor>(m_core.get_current_document(), picture->entity);
+            m_editor = ed;
+            auto group = m_core.get_current_document().get_entity(picture->entity).m_group;
             ed->signal_changed().connect([this, group](auto mode) {
                 m_core.get_current_document().set_group_solve_pending(group);
                 m_signal_changed.emit(mode);

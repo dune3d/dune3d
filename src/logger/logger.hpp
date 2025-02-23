@@ -18,6 +18,7 @@ public:
         CANVAS,
         IMPORT,
         VERSION,
+        PICTURE,
     };
 
     Logger();

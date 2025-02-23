@@ -5,6 +5,7 @@
 #include "bitmap_font_util.hpp"
 #include "icon_texture_map.hpp"
 #include "util/min_max_accumulator.hpp"
+#include "util/template_util.hpp"
 #include "logger/logger.hpp"
 #include "iselection_filter.hpp"
 #include <iostream>
@@ -39,13 +40,15 @@ static const MSD::Params msd_params_slow{
 
 Canvas::Canvas()
     : m_background_renderer(*this), m_face_renderer(*this), m_line_renderer(*this), m_glyph_renderer(*this),
-      m_glyph_3d_renderer(*this), m_icon_renderer(*this), m_box_selection(*this), m_selection_texture_renderer(*this)
+      m_glyph_3d_renderer(*this), m_icon_renderer(*this), m_picture_renderer(*this), m_box_selection(*this),
+      m_selection_texture_renderer(*this)
 {
     m_all_renderers.push_back(&m_face_renderer);
     m_all_renderers.push_back(&m_line_renderer);
     m_all_renderers.push_back(&m_glyph_renderer);
     m_all_renderers.push_back(&m_glyph_3d_renderer);
     m_all_renderers.push_back(&m_icon_renderer);
+    m_all_renderers.push_back(&m_picture_renderer);
     set_can_focus(true);
     set_focusable(true);
 
@@ -704,12 +707,15 @@ void Canvas::clear_flags(VertexFlags mask)
     for (auto &x : m_icons) {
         x.flags &= ~mask;
     }
+    for (auto &x : m_pictures) {
+        x.flags &= ~mask;
+    }
 }
 
 unsigned int Canvas::get_hover_pick(const std::vector<pick_buf_t> &pick_buf) const
 {
     auto pick = read_pick_buf(pick_buf, m_last_x, m_last_y);
-    if (!pick || get_vertex_ref_for_pick(pick).type == VertexType::FACE_GROUP) {
+    if (!pick || any_of(get_vertex_ref_for_pick(pick).type, VertexType::FACE_GROUP, VertexType::PICTURE)) {
         int box_size = 10;
         float best_distance = glm::vec2(box_size, box_size).length();
         unsigned int best_pick = pick;
@@ -719,7 +725,7 @@ unsigned int Canvas::get_hover_pick(const std::vector<pick_buf_t> &pick_buf) con
                 int py = m_last_y + dy;
                 if (px >= 0 && px < m_dev_width && py >= 0 && py < m_dev_height) {
                     if (auto p = read_pick_buf(pick_buf, px, py)) {
-                        if (get_vertex_ref_for_pick(p).type == VertexType::FACE_GROUP)
+                        if (any_of(get_vertex_ref_for_pick(p).type, VertexType::FACE_GROUP, VertexType::PICTURE))
                             continue;
                         const auto d = glm::vec2(dx, dy).length();
                         if (d <= best_distance) {
@@ -766,7 +772,8 @@ void Canvas::update_hover_selection()
                     flags |= mask;
                 }
             }
-            m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS);
+            m_push_flags =
+                    static_cast<PushFlags>(m_push_flags | PF_LINES | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS | PF_PICTURES);
             queue_draw();
             m_signal_hover_selection_changed.emit();
         }
@@ -837,6 +844,7 @@ void Canvas::on_realize()
     m_glyph_renderer.realize();
     m_glyph_3d_renderer.realize();
     m_icon_renderer.realize();
+    m_picture_renderer.realize();
     m_box_selection.realize();
     m_selection_texture_renderer.realize();
     GL_CHECK_ERROR
@@ -1059,6 +1067,8 @@ void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
         m_glyph_3d_renderer.push();
     if (m_push_flags & PF_ICONS)
         m_icon_renderer.push();
+    if (m_push_flags & PF_PICTURES)
+        m_picture_renderer.push();
 
     m_push_flags = PF_NONE;
 
@@ -1075,6 +1085,8 @@ void Canvas::render_all(std::vector<pick_buf_t> &pick_buf)
 
     m_glyph_renderer.render();
     m_glyph_3d_renderer.render();
+
+    m_picture_renderer.render();
 
     glDisable(GL_DEPTH_TEST);
     m_box_selection.render();
@@ -1360,6 +1372,7 @@ void Canvas::clear()
     m_glyphs.clear();
     m_glyphs_3d.clear();
     m_icons.clear();
+    m_pictures.clear();
     m_icons_selection_invisible.clear();
     m_selectable_to_vertex_map.clear();
     m_vertex_to_selectable_map.clear();
@@ -1530,6 +1543,18 @@ ICanvas::VertexRef Canvas::draw_point(glm::vec3 p, IconTexture::IconTextureID id
     return draw_icon(id, p, {0, 0}, {NAN, NAN, NAN});
 }
 
+ICanvas::VertexRef Canvas::draw_picture(const std::array<glm::vec3, 4> &corners,
+                                        std::shared_ptr<const PictureData> data)
+{
+    m_pictures.push_back(Picture{
+            .corners = corners,
+            .selection_invisible = m_state.selection_invisible,
+            .data = data,
+    });
+
+    return {VertexType::PICTURE, m_pictures.size() - 1};
+}
+
 
 void Canvas::add_selectable(const VertexRef &vref, const SelectableRef &sref)
 {
@@ -1556,6 +1581,9 @@ Canvas::VertexFlags &Canvas::get_vertex_flags(const VertexRef &vref)
 
     case VertexType::FACE_GROUP:
         return m_face_groups.at(vref.index).flags;
+
+    case VertexType::PICTURE:
+        return m_pictures.at(vref.index).flags;
 
     case VertexType::ICON:
         return m_icons.at(vref.index).flags;
@@ -1590,7 +1618,7 @@ void Canvas::set_flag_for_selectables(const std::set<SelectableRef> &sel, Vertex
         }
         // auto &flags = get_vertex_flags()
     }
-    m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS);
+    m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS | PF_PICTURES);
     queue_draw();
 }
 
@@ -1645,6 +1673,13 @@ std::set<SelectableRef> Canvas::get_selection() const
                 r.insert(m_vertex_to_selectable_map.at(vref));
         }
     }
+    for (size_t i = 0; i < m_pictures.size(); i++) {
+        if ((m_pictures.at(i).flags & VertexFlags::SELECTED) != VertexFlags::DEFAULT) {
+            const VertexRef vref{.type = VertexType::PICTURE, .index = i};
+            if (m_vertex_to_selectable_map.count(vref))
+                r.insert(m_vertex_to_selectable_map.at(vref));
+        }
+    }
     return r;
 }
 
@@ -1659,8 +1694,8 @@ void Canvas::set_selection_mode(SelectionMode mode)
     }
     else if (m_selection_mode == SelectionMode::NONE) {
         clear_flags(VertexFlags::SELECTED | VertexFlags::HOVER);
-        m_push_flags = static_cast<PushFlags>(m_push_flags | PF_LINES | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS);
-        m_hover_selection = {};
+        m_push_flags =
+                static_cast<PushFlags>(m_push_flags | PF_LINES | PF_GLYPHS | PF_GLYPHS_3D | PF_ICONS | PF_PICTURES);
         queue_draw();
     }
     m_signal_selection_mode_changed.emit();

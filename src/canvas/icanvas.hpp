@@ -3,10 +3,12 @@
 #include <tuple>
 #include "face.hpp"
 #include <glm/gtx/quaternion.hpp>
+#include <memory>
 
 namespace dune3d {
 
 class SelectableRef;
+class PictureData;
 
 namespace IconTexture {
 enum class IconTextureID;
@@ -14,7 +16,7 @@ enum class IconTextureID;
 
 class ICanvas {
 public:
-    enum class VertexType { LINE, GLYPH, GLYPH_3D, ICON, FACE_GROUP, SELECTION_INVISIBLE };
+    enum class VertexType { LINE, GLYPH, GLYPH_3D, ICON, FACE_GROUP, PICTURE, SELECTION_INVISIBLE };
     struct VertexRef {
         VertexType type;
         size_t index;
@@ -43,6 +45,8 @@ public:
     virtual VertexRef draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift,
                                 glm::vec3 v = {NAN, NAN, NAN}) = 0;
     virtual VertexRef draw_point(glm::vec3 origin, IconTexture::IconTextureID id) = 0;
+    virtual VertexRef draw_picture(const std::array<glm::vec3, 4> &corners,
+                                   std::shared_ptr<const PictureData> data) = 0;
 
     virtual void add_selectable(const VertexRef &vref, const SelectableRef &sref) = 0;
     virtual void set_selection_invisible(bool selection_invisible) = 0;

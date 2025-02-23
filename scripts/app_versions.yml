@@ -29,3 +29,4 @@ versions:
     27: fix direction for aligned distance with workplanes
     28: add clone group
     29: add pipe group
+    30: add picture entities

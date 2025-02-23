@@ -10,6 +10,7 @@
 #include "document/entity/entity_document.hpp"
 #include "system/system.hpp"
 #include "util/fs_util.hpp"
+#include "util/picture_load.hpp"
 #include "logger/log_util.hpp"
 #include "tools/itool_constrain.hpp"
 #include <iostream>
@@ -145,9 +146,18 @@ Core::DocumentInfo::DocumentInfo(const UUID &uu) : m_uuid(uu)
     m_current_group = m_doc->get_groups_sorted().back()->m_uuid;
 }
 
+static std::filesystem::path get_picture_dir_from_document_filename(const std::filesystem::path &path)
+{
+    const auto dn = path.parent_path();
+    auto fn = path_to_string(path.filename());
+    auto wsn = fn.substr(0, fn.size() - 3);
+    return dn / path_from_string(wsn + "pic");
+}
+
 Core::DocumentInfo::DocumentInfo(const UUID &uu, const std::filesystem::path &path)
     : m_uuid(uu), m_path(path), m_doc(Document::new_from_file(path))
 {
+    pictures_load(*m_doc, get_picture_dir_from_document_filename(m_path));
     history_push("init");
     m_current_group = m_doc->get_groups_sorted().back()->m_uuid;
 }
@@ -203,6 +213,7 @@ bool Core::DocumentInfo::redo()
     return true;
 }
 
+
 void Core::DocumentInfo::save()
 {
     if (is_read_only())
@@ -210,6 +221,7 @@ void Core::DocumentInfo::save()
     if (has_path()) {
         m_doc->m_version.update_file_from_app();
         save_json_to_file(m_path, m_doc->serialize());
+        pictures_save(*m_doc, get_picture_dir_from_document_filename(m_path));
         m_needs_save = false;
     }
 }

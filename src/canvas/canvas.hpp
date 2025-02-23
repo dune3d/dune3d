@@ -6,6 +6,7 @@
 #include "glyph_renderer.hpp"
 #include "glyph_3d_renderer.hpp"
 #include "icon_renderer.hpp"
+#include "picture_renderer.hpp"
 #include "box_selection.hpp"
 #include "selection_texture_renderer.hpp"
 #include "icanvas.hpp"
@@ -34,6 +35,7 @@ public:
     friend GlyphRenderer;
     friend Glyph3DRenderer;
     friend IconRenderer;
+    friend PictureRenderer;
     friend BaseRenderer;
     friend struct UBOBuffer;
     friend BoxSelection;
@@ -80,6 +82,7 @@ public:
 
     VertexRef draw_icon(IconTexture::IconTextureID id, glm::vec3 origin, glm::vec2 shift, glm::vec3 v) override;
     VertexRef draw_point(glm::vec3 point, IconTexture::IconTextureID id) override;
+    VertexRef draw_picture(const std::array<glm::vec3, 4> &corners, std::shared_ptr<const PictureData> data) override;
 
     glm::dvec3 get_cursor_pos() const;
     glm::dvec3 get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const;
@@ -243,6 +246,7 @@ private:
     GlyphRenderer m_glyph_renderer;
     Glyph3DRenderer m_glyph_3d_renderer;
     IconRenderer m_icon_renderer;
+    PictureRenderer m_picture_renderer;
     BoxSelection m_box_selection;
     SelectionTextureRenderer m_selection_texture_renderer;
     std::vector<BaseRenderer *> m_all_renderers;
@@ -320,6 +324,7 @@ private:
         PF_GLYPHS = (1 << 3),
         PF_GLYPHS_3D = (1 << 4),
         PF_ICONS = (1 << 5),
+        PF_PICTURES = (1 << 6),
         PF_ALL = 0xff,
     };
     PushFlags m_push_flags = PF_ALL;
@@ -509,6 +514,16 @@ private:
     };
 
     std::vector<FaceGroup> m_face_groups;
+
+    class Picture {
+    public:
+        std::array<glm::vec3, 4> corners;
+        bool selection_invisible = false;
+        std::shared_ptr<const PictureData> data;
+        VertexFlags flags = VertexFlags::DEFAULT;
+    };
+
+    std::vector<Picture> m_pictures;
 
     std::map<VertexRef, SelectableRef> m_vertex_to_selectable_map;
     std::map<SelectableRef, std::vector<VertexRef>> m_selectable_to_vertex_map;

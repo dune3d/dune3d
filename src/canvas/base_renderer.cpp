@@ -61,6 +61,7 @@ struct UBOBuffer {
 
         case T::SELECTION_INVISIBLE:
         case T::FACE_GROUP:;
+        case T::PICTURE:;
         }
 
         for (const auto f : {F::CONSTRAINT, F::CONSTRUCTION, F::INACTIVE, F::DEFAULT, F::CONSTRUCTION | F::INACTIVE}) {

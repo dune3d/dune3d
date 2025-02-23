@@ -71,6 +71,8 @@ std::string Logger::domain_to_string(Logger::Domain dom)
         return "Editor";
     case Logger::Domain::DOCUMENT:
         return "Document";
+    case Logger::Domain::PICTURE:
+        return "Picture";
     default:
         return "Unspecified";
     }

@@ -207,6 +207,9 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::SELECT_SPINE_ENTITIES,
          {"Select spine entities", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::LOOK_HERE, {"Look here", ActionGroup::VIEW, ActionCatalogItem::FLAGS_SPECIFIC}},
+        {ToolID::IMPORT_PICTURE, {"Import Picture", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::ADD_PICTURE_ANCHOR, {"Add anchor", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::MOVE_PICTURE_ANCHOR, {"Move anchor", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -371,6 +374,9 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONSTRAIN_LINE_POINTS_PERPENDICULAR),
         TOOL_LUT_ITEM(TEXT_TO_CLUSTER),
         TOOL_LUT_ITEM(SELECT_SPINE_ENTITIES),
+        TOOL_LUT_ITEM(IMPORT_PICTURE),
+        TOOL_LUT_ITEM(ADD_PICTURE_ANCHOR),
+        TOOL_LUT_ITEM(MOVE_PICTURE_ANCHOR),
 };
 
 
