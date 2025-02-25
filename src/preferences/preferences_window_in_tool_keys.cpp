@@ -63,7 +63,7 @@ InToolKeySequencesPreferencesEditor::InToolKeySequencesPreferencesEditor(BaseObj
         if (tool_id == ToolID::NONE)
             mi->m_name = "Common";
         else
-            mi->m_name = action_catalog.at(tool_id).name;
+            mi->m_name = action_catalog.at(tool_id).name.full;
         mi->m_id = InToolActionID::NONE;
         mi->m_tool_id = tool_id;
 

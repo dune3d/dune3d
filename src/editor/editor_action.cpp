@@ -497,7 +497,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
 Gtk::Button *Editor::create_action_button(ActionToolID action)
 {
     auto &catitem = action_catalog.at(action);
-    auto button = Gtk::manage(new Gtk::Button(catitem.name));
+    auto button = Gtk::manage(new Gtk::Button(catitem.name.full));
     attach_action_button(*button, action);
     return button;
 }
@@ -719,7 +719,7 @@ bool Editor::handle_action_key(Glib::RefPtr<Gtk::EventControllerKey> controller,
                 if (res == KeyMatchResult::COMPLETE) {
                     have_conflict = true;
                 }
-                conflicts.emplace_back(action_catalog.at(conn->id).name, seq);
+                conflicts.emplace_back(action_catalog.at(conn->id).name.full, seq);
             }
             (void)have_conflict;
             /* for (const auto &[act, it] : in_tool_actions_matched) {

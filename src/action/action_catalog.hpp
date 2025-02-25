@@ -15,10 +15,22 @@ public:
         FLAGS_NO_PREFERENCES = (1 << 5),
     };
 
-    ActionCatalogItem(const std::string &n, ActionGroup gr, int fl = FLAGS_DEFAULT)
+    struct Name {
+        Name(const char *s) : full(s), menu(s)
+        {
+        }
+
+        Name(const char *f, const char *m) : full(f), menu(m)
+        {
+        }
+        const std::string full;
+        const std::string menu;
+    };
+
+    ActionCatalogItem(const Name &n, ActionGroup gr, int fl = FLAGS_DEFAULT)
         : name(n), group(gr), flags(static_cast<Flags>(fl)) {};
 
-    const std::string name;
+    const Name name;
     const ActionGroup group;
     const Flags flags;
 };

@@ -259,7 +259,7 @@ Gtk::Button &Editor::create_action_bar_button(ActionToolID action)
             {ToolID::DRAW_TEXT, "action-draw-text-symbolic"},
     };
     auto bu = Gtk::make_managed<Gtk::Button>();
-    bu->set_tooltip_text(action_catalog.at(action).name);
+    bu->set_tooltip_text(action_catalog.at(action).name.full);
     auto img = Gtk::make_managed<Gtk::Image>();
     if (action_icons.count(action))
         img->set_from_icon_name(action_icons.at(action));
@@ -551,7 +551,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
                     auto r = m_core.tool_can_begin(*tool, sel);
                     if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
                         ids.emplace_back(id, r.can_preview);
-                        auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
+                        auto item = Gio::MenuItem::create(it_cat.name.menu, "menu." + action_tool_id_to_string(id));
                         if (it_cat.group == ActionGroup::MEASURE) {
                             meas_items.push_back(item);
                         }
@@ -565,7 +565,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 else if (auto act = std::get_if<ActionID>(&id)) {
                     if (get_action_sensitive(*act) && (it_cat.flags & ActionCatalogItem::FLAGS_SPECIFIC)) {
                         ids.emplace_back(id, false);
-                        auto item = Gio::MenuItem::create(it_cat.name, "menu." + action_tool_id_to_string(id));
+                        auto item = Gio::MenuItem::create(it_cat.name.menu, "menu." + action_tool_id_to_string(id));
                         item->set_attribute_value("custom",
                                                   Glib::Variant<Glib::ustring>::create(action_tool_id_to_string(id)));
                         menu->append_item(item);
@@ -664,7 +664,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 button->add_controller(ctrl);
             }
             button->add_css_class("context-menu-button");
-            auto label = Gtk::make_managed<Gtk::Label>(action_catalog.at(id).name);
+            auto label = Gtk::make_managed<Gtk::Label>(action_catalog.at(id).name.menu);
             label->set_xalign(0);
             label->set_hexpand(true);
             auto label2 =

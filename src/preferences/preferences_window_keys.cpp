@@ -61,7 +61,7 @@ KeySequencesPreferencesEditor::KeySequencesPreferencesEditor(BaseObjectType *cob
                 continue;
             auto ai = ActionItemKeys::create();
             ai->m_id = id;
-            ai->m_name = it.name;
+            ai->m_name = it.name.full;
             mi->m_store->append(ai);
         }
         m_store->append(mi);
@@ -126,7 +126,7 @@ void KeySequencesPreferencesEditor::update_action_editors(const ActionItem &it_b
             if (it.flags & ActionCatalogItem::FLAGS_NO_PREFERENCES)
                 continue;
             {
-                auto ed = Gtk::make_managed<ActionEditorKeys>(it.name, m_preferences, id);
+                auto ed = Gtk::make_managed<ActionEditorKeys>(it.name.full, m_preferences, id);
                 m_action_editors->append(*ed);
                 ed->signal_changed().connect(sigc::mem_fun(*this, &KeySequencesPreferencesEditorBase::update_keys));
             }
@@ -138,7 +138,7 @@ void KeySequencesPreferencesEditor::update_action_editors(const ActionItem &it_b
 
     const auto &cat = action_catalog.at(action);
     {
-        auto ed = Gtk::make_managed<ActionEditorKeys>(cat.name, m_preferences, action);
+        auto ed = Gtk::make_managed<ActionEditorKeys>(cat.name.full, m_preferences, action);
         m_action_editors->append(*ed);
         ed->signal_changed().connect(sigc::mem_fun(*this, &KeySequencesPreferencesEditor::update_keys));
     }

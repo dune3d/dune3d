@@ -114,7 +114,7 @@ void Editor::handle_tool_change()
     // canvas->set_selection_allowed(id == ToolID::NONE);
     // main_window->tool_bar_set_use_actions(core->get_tool_actions().size());
     if (tool_id != ToolID::NONE) {
-        m_win.tool_bar_set_tool_name(action_catalog.at(tool_id).name);
+        m_win.tool_bar_set_tool_name(action_catalog.at(tool_id).name.full);
         tool_bar_set_tool_tip("");
     }
     m_win.tool_bar_set_visible(tool_id != ToolID::NONE);

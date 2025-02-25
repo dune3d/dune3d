@@ -205,7 +205,7 @@ ToolPopover::ToolPopover() : Gtk::Popover()
         if (!(it.flags & ActionCatalogItem::FLAGS_NO_POPOVER)) {
             auto mi = ActionItem::create();
             mi->m_id = id;
-            mi->m_name = it.name;
+            mi->m_name = it.name.menu;
             m_store->append(mi);
         }
     }
