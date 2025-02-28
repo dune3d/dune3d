@@ -144,13 +144,14 @@ ToolResponse ToolDrawRegularPolygon::update(const ToolArgs &args)
         } break;
 
         case InToolActionID::N_SIDES_DEC: {
-            if (m_sides.size() > 3) {
+            if (m_sides.size() > 3 && !m_win)
                 set_n_sides(m_sides.size() - 1);
-            }
+
         } break;
 
         case InToolActionID::N_SIDES_INC: {
-            set_n_sides(m_sides.size() + 1);
+            if (!m_win)
+                set_n_sides(m_sides.size() + 1);
         } break;
 
         case InToolActionID::ENTER_N_SIDES: {
@@ -178,11 +179,13 @@ ToolResponse ToolDrawRegularPolygon::update(const ToolArgs &args)
             else if (data->event == ToolDataWindow::Event::OK) {
                 m_win->close();
                 m_win = nullptr;
+                update_tip();
             }
             else if (data->event == ToolDataWindow::Event::CLOSE) {
                 if (m_win)
                     set_n_sides(m_last_sides);
                 m_win = nullptr;
+                update_tip();
             }
         }
     }
@@ -209,7 +212,8 @@ void ToolDrawRegularPolygon::update_tip()
 
     if (m_temp_circle) {
         actions.emplace_back(InToolActionID::ENTER_N_SIDES);
-        actions.emplace_back(InToolActionID::N_SIDES_INC, InToolActionID::N_SIDES_DEC, "sides");
+        if (!m_win)
+            actions.emplace_back(InToolActionID::N_SIDES_INC, InToolActionID::N_SIDES_DEC, "sides");
     }
     std::vector<ConstraintType> constraint_icons;
     glm::vec3 v = {NAN, NAN, NAN};
