@@ -12,17 +12,6 @@
 
 namespace dune3d {
 
-static double dxf_round(double x_mm)
-{
-    // 1um precision
-    int64_t x_um = round(x_mm * 1e3);
-    return x_um / 1e3;
-}
-
-static glm::dvec2 dxf_round(const glm::dvec2 &x_mm)
-{
-    return {dxf_round(x_mm.x), dxf_round(x_mm.y)};
-}
 
 class DXFAdapter : public DL_CreationAdapter {
 public:
@@ -46,14 +35,9 @@ private:
 
     void addLine(const DL_LineData &d) override
     {
-        const auto p1 = dxf_round({d.x1, d.y1});
-        const auto p2 = dxf_round({d.x2, d.y2});
-        if (glm::length(p2 - p1) < 1e-3)
-            return;
-
         auto &line = add_entity<EntityLine2D>();
-        line.m_p1 = p1;
-        line.m_p2 = p1;
+        line.m_p1 = {d.x1, d.y1};
+        line.m_p2 = {d.x2, d.y2};
     }
 
     void addSpline(const DL_SplineData &d) override
@@ -70,7 +54,7 @@ private:
     {
         if (!m_bezier)
             return;
-        glm::dvec2 p = dxf_round({d.x, d.y});
+        glm::dvec2 p{d.x, d.y};
         switch (m_bezier_point) {
         case 0:
             m_bezier->m_p1 = p;
@@ -109,22 +93,18 @@ private:
             m_poly_vertex--;
         else
             return;
-        glm::dvec2 p = dxf_round({d.x, d.y});
+        glm::dvec2 p{d.x, d.y};
         if (m_poly_vertex + 1 == m_poly_vertices)
             m_first_vertex = p;
         if (!isnan(m_last_vertex.x)) {
-            if (glm::length(m_last_vertex - p) >= 1e-3) {
-                auto &line = add_entity<EntityLine2D>();
-                line.m_p1 = m_last_vertex;
-                line.m_p2 = p;
-            }
+            auto &line = add_entity<EntityLine2D>();
+            line.m_p1 = m_last_vertex;
+            line.m_p2 = p;
         }
         if (m_poly_vertex == 0 && m_poly_is_closed) {
-            if (glm::length(m_last_vertex - p) >= 1e-3) {
-                auto &line = add_entity<EntityLine2D>();
-                line.m_p1 = p;
-                line.m_p2 = m_first_vertex;
-            }
+            auto &line = add_entity<EntityLine2D>();
+            line.m_p1 = p;
+            line.m_p2 = m_first_vertex;
         }
 
         m_last_vertex = p;
@@ -133,18 +113,18 @@ private:
     void addArc(const DL_ArcData &d) override
     {
         auto &arc = add_entity<EntityArc2D>();
-        arc.m_center = dxf_round({d.cx, d.cy});
+        arc.m_center = {d.cx, d.cy};
         auto phi1 = glm::radians(d.angle1);
         auto phi2 = glm::radians(d.angle2);
-        arc.m_from = dxf_round(glm::dvec2(d.cx + d.radius * cos(phi1), d.cy + d.radius * sin(phi1)));
-        arc.m_to = dxf_round(glm::dvec2(d.cx + d.radius * cos(phi2), d.cy + d.radius * sin(phi2)));
+        arc.m_from = glm::dvec2(d.cx + d.radius * cos(phi1), d.cy + d.radius * sin(phi1));
+        arc.m_to = glm::dvec2(d.cx + d.radius * cos(phi2), d.cy + d.radius * sin(phi2));
     }
 
     void addCircle(const DL_CircleData &d) override
     {
         auto &circle = add_entity<EntityCircle2D>();
-        circle.m_center = dxf_round({d.cx, d.cy});
-        circle.m_radius = dxf_round(d.radius);
+        circle.m_center = {d.cx, d.cy};
+        circle.m_radius = {d.radius};
     }
 };
 
