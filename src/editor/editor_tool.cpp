@@ -79,6 +79,11 @@ void Editor::canvas_update_from_tool()
 
 void Editor::tool_process_one()
 {
+    if (!m_core.tool_is_active())
+        m_no_canvas_update = false;
+    if (!m_no_canvas_update)
+        canvas_update();
+    get_canvas().set_selection(m_core.get_tool_selection(), false);
     if (!m_core.tool_is_active()) {
         m_dialogs.close_nonmodal();
         // imp_interface->dialogs.close_nonmodal();
@@ -92,9 +97,7 @@ void Editor::tool_process_one()
         update_selection_editor();
         update_action_bar_buttons_sensitivity(); // due to workplane change
     }
-    if (!m_no_canvas_update)
-        canvas_update();
-    get_canvas().set_selection(m_core.get_tool_selection(), false);
+
     if (!m_core.tool_is_active())
         get_canvas().set_selection_mode(m_last_selection_mode);
 
