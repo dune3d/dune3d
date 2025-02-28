@@ -28,6 +28,10 @@ enum class InToolActionID {
 
     TOGGLE_RECTANGLE_MODE,
 
+    TOLERANCE_INC,
+    TOLERANCE_DEC,
+    ENTER_TOLERANCE,
+
     CANCEL,
     COMMIT
 };

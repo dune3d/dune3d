@@ -213,6 +213,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::ADD_PICTURE_ANCHOR,
          {{"Add Picture anchor", "Add anchor"}, ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::MOVE_PICTURE_ANCHOR, {"Move anchor", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CREATE_COINCIDENT_CONSTRAINTS,
+         {"Create coincident constraints", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -380,6 +382,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(IMPORT_PICTURE),
         TOOL_LUT_ITEM(ADD_PICTURE_ANCHOR),
         TOOL_LUT_ITEM(MOVE_PICTURE_ANCHOR),
+        TOOL_LUT_ITEM(CREATE_COINCIDENT_CONSTRAINTS),
 };
 
 

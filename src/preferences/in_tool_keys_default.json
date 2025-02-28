@@ -116,5 +116,35 @@
                 "mod": 0
             }
         ]
+    ],
+    "TOLERANCE_DEC": [
+        [
+            {
+                "key": "minus",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOLERANCE_INC": [
+        [
+            {
+                "key": "plus",
+                "mod": 0
+            }
+        ],
+        [
+            {
+                "key": "equal",
+                "mod": 0
+            }
+        ]
+    ],
+    "ENTER_TOLERANCE": [
+        [
+            {
+                "key": "Return",
+                "mod": 0
+            }
+        ]
     ]
 }
