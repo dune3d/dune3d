@@ -259,7 +259,6 @@ Gtk::Button &Editor::create_action_bar_button(ActionToolID action)
             {ToolID::DRAW_TEXT, "action-draw-text-symbolic"},
     };
     auto bu = Gtk::make_managed<Gtk::Button>();
-    bu->set_tooltip_text(action_catalog.at(action).name.full);
     auto img = Gtk::make_managed<Gtk::Image>();
     if (action_icons.count(action))
         img->set_from_icon_name(action_icons.at(action));
@@ -1097,8 +1096,14 @@ void Editor::apply_preferences()
     }
 
     for (const auto &[id, it] : m_action_connections) {
+        std::string tip = action_catalog.at(id).name.full;
         if (it.key_sequences.size()) {
             m_tool_popover->set_key_sequences(id, it.key_sequences);
+            tip += " (" + key_sequences_to_string(it.key_sequences) + ")";
+        }
+        if (m_action_bar_buttons.contains(id)) {
+            auto &button = *m_action_bar_buttons.at(id);
+            button.set_tooltip_text(tip);
         }
     }
 
