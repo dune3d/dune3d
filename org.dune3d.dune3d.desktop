@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Dune 3D
 Comment=Parametric 3D CAD
-Categories=Development;Engineering;
+Categories=Graphics;3DGraphics;Engineering;
 Type=Application
 Terminal=false
 Icon=org.dune3d.dune3d
