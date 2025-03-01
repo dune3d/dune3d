@@ -15,6 +15,7 @@ namespace dune3d {
 
 static Glib::RefPtr<Gio::File>
 get_export_initial_filename(const Dune3DApplication::UserConfig &cfg, const IDocumentInfo &doc_info,
+                            const std::string &suffix,
                             std::string Dune3DApplication::UserConfig::ExportPaths::*export_type)
 {
     if (!doc_info.has_path())
@@ -30,6 +31,16 @@ get_export_initial_filename(const Dune3DApplication::UserConfig &cfg, const IDoc
         if (it->m_uuid == current_group && filename.size())
             break;
     }
+    if (!filename.size()) {
+        static const char *d3ddoc_suffix = ".d3ddoc";
+        // fallback to document
+        auto doc_fn = path_to_string(doc_info.get_path());
+        if (doc_fn.size() && doc_fn.ends_with(d3ddoc_suffix)) {
+            auto wsn = doc_fn.substr(0, doc_fn.size() - strlen(d3ddoc_suffix));
+            filename = wsn + suffix;
+        }
+    }
+
     if (filename.size())
         return Gio::File::create_for_path(filename);
     else
@@ -75,7 +86,7 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
     filters->append(filter_any);
 
     if (auto initial_file = get_export_initial_filename(m_win.get_app().m_user_config,
-                                                        m_core.get_current_idocument_info(), export_type)) {
+                                                        m_core.get_current_idocument_info(), suffix, export_type)) {
         dialog->set_initial_file(initial_file);
     }
 
@@ -115,7 +126,7 @@ void Editor::on_export_paths(const ActionConnection &conn)
     auto dialog = Gtk::FileDialog::create();
 
     if (auto initial_file =
-                get_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
+                get_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(), ".svg",
                                             &Dune3DApplication::UserConfig::ExportPaths::paths)) {
         dialog->set_initial_file(initial_file);
     }
@@ -169,7 +180,7 @@ void Editor::on_export_projection(const ActionConnection &conn)
     auto dialog = Gtk::FileDialog::create();
 
     if (auto initial_file =
-                get_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
+                get_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(), ".svg",
                                             &Dune3DApplication::UserConfig::ExportPaths::projection)) {
         dialog->set_initial_file(initial_file);
     }
