@@ -79,8 +79,11 @@ void Editor::canvas_update_from_tool()
 
 void Editor::tool_process_one()
 {
-    if (!m_core.tool_is_active())
+    if (!m_core.tool_is_active()) {
         m_no_canvas_update = false;
+        m_constraint_tip_icons.clear();
+        m_solid_model_edge_select_mode = false;
+    }
     if (!m_no_canvas_update)
         canvas_update();
     get_canvas().set_selection(m_core.get_tool_selection(), false);
@@ -90,9 +93,6 @@ void Editor::tool_process_one()
         // reset_tool_hint_label();
         // canvas->set_cursor_external(false);
         // canvas->snap_filter.clear();
-        m_no_canvas_update = false;
-        m_solid_model_edge_select_mode = false;
-        m_constraint_tip_icons.clear();
         update_workplane_label();
         update_selection_editor();
         update_action_bar_buttons_sensitivity(); // due to workplane change
