@@ -1,3 +1,56 @@
+# Version 1.2.90
+
+as of [f397d23](https://github.com/dune3d/dune3d/commit/f397d23b1d1d350edb48725ca4981fc22ffa7d7b)
+
+## New Features
+
+ - Bitmap picture import ([0c3a0bd](https://github.com/dune3d/dune3d/commit/0c3a0bd84493484b5f552ebea04c3920e2edf89f))
+ - Pipe groups ([4cce3ca](https://github.com/dune3d/dune3d/commit/4cce3cafd5e16c9873db5123f3dd54182b7e500c))
+ - Clone groups ([1821909](https://github.com/dune3d/dune3d/commit/18219099be0f480c39442fc6cdaf9b5b1a024b50))
+ - Solid model operation group ([9d95d64](https://github.com/dune3d/dune3d/commit/9d95d6486b1a32fa4d2c4c0a35e6ca953fbadd4a))
+ - Horizontal/Vertical mirror groups ([e1c4ebb](https://github.com/dune3d/dune3d/commit/e1c4ebbf59432a147bae069e46b9d553826a9e12))
+ - Curvature combs for visualizing curvature ([e244c3a](https://github.com/dune3d/dune3d/commit/e244c3a03d51e339f74a7266d0f7bb1023ee9e57))
+ - preview constraints on hover in context menu ([2e37a8c](https://github.com/dune3d/dune3d/commit/2e37a8c5f066012bd34ec33123b708be9fca9ac9))
+ - context menu for constraining ([175ed27](https://github.com/dune3d/dune3d/commit/175ed27848d3f94da13e24cceff0f637192d5f5e))
+ - Create coincident constraints tool ([2a5398e](https://github.com/dune3d/dune3d/commit/2a5398e9114ea6cf7486c0c7d53155b691092508))
+
+## Enhancements
+
+ - open selection menu on long click so that it also works in tools ([6e7e391](https://github.com/dune3d/dune3d/commit/6e7e39108e8c9f972a79f66f29704023cdaece08))
+ - don't forget collapsed state of bodies in workspace browser ([95a2cd7](https://github.com/dune3d/dune3d/commit/95a2cd7e50d082d49d24d017ea4fa86776cf0469))
+ - show keyboard shortcuts in action bar buttons tooltip ([8bcf0c9](https://github.com/dune3d/dune3d/commit/8bcf0c9b8b0917937c9d7c2411383246e595513f))
+ - show keyboard shortcuts in context menu ([0cfb6b4](https://github.com/dune3d/dune3d/commit/0cfb6b474d019e4da0ed48ad02dde7f25718e73c))
+ - draw rectangle tool: always add center point in center mode ([a75b1aa](https://github.com/dune3d/dune3d/commit/a75b1aa3193c11676183afb9f9c2dd43ef82413d))
+ - show popup when a group can't be moved ([ffbb83e](https://github.com/dune3d/dune3d/commit/ffbb83ee3822d0fe02fc933c381dd270d815cccb))
+ - drag items even if not selected ([60816ba](https://github.com/dune3d/dune3d/commit/60816ba332f4a83f168b020d3967a66ba2e8fe5b))
+ - support constraining workplanes/STEP entities to 3D circles/arcs ([007f5ee](https://github.com/dune3d/dune3d/commit/007f5ee18aa6849a158d47b3339d421e28015182))
+ - use nested context menu ([299ea18](https://github.com/dune3d/dune3d/commit/299ea187ab5b1f9a4130ea22bf84029962635d1d))
+ - speed up document update when deleting measurements ([20542eb](https://github.com/dune3d/dune3d/commit/20542eb48cf8968c14b8b1b53edfb62db9bbd73d))
+ - make it easier to create new bodies ([7b1dd70](https://github.com/dune3d/dune3d/commit/7b1dd707120e609479acdfb5edf09d0b565b33f0))
+ - constrain workplane normal tool: don't create invalid normal ([681612a](https://github.com/dune3d/dune3d/commit/681612ad16d72776851d885ca5e2deed0788b0fc))
+ - look here action ([d02eed3](https://github.com/dune3d/dune3d/commit/d02eed373615ab9facf232f4aaea5154fe85b282))
+ - default export filename to document filename if it hasn't been exported before ([e493dd8](https://github.com/dune3d/dune3d/commit/e493dd8d06a3ed44ed2419805e94c40afa7b6166))
+
+## Bugfixes
+
+ - properly update selection editor after tools ([3adf525](https://github.com/dune3d/dune3d/commit/3adf525c710aa6f03d45171a2b96eab69f13aaf9))
+ - don't crash on too many unknowns ([d74b1b8](https://github.com/dune3d/dune3d/commit/d74b1b8174a9d9bd610be07d1bd5e585039c9373))
+ - don't crash when closing the current document while a tool is active ([369d3d0](https://github.com/dune3d/dune3d/commit/369d3d0dda6d2a79b177fdfd17f384cb1c398c69))
+ - rotate tool: start solving at the correct group ([a8f1d8b](https://github.com/dune3d/dune3d/commit/a8f1d8b538bc14a3bd8d8c24093ba6d2ad6eccc4))
+ - Loft Group: error out on holes ([90513bb](https://github.com/dune3d/dune3d/commit/90513bb8de89c20eda9260a434141415a792b703))
+ - don't crash when switching to the constraints tab if an entry in selection or group editor had focus ([50965e4](https://github.com/dune3d/dune3d/commit/50965e4c738a8791b7e6af66935e1f03c2c02871))
+ - don't throw exception when opening three documents ([2552876](https://github.com/dune3d/dune3d/commit/2552876df87ee6ee833dc2d89f5c3bbcc9c7c665))
+ - properly switch workspace views when opening more than one document ([f5e4610](https://github.com/dune3d/dune3d/commit/f5e4610b5a0213da592f8d0749939c39eec037ad))
+ - use correct orientation for aligned distance constraint when using workplane for direction ([6527950](https://github.com/dune3d/dune3d/commit/6527950ef79a622e0d9b6bae3d992d01b986b9d2))
+ - properly generate faces for geometry close to circles ([d24e748](https://github.com/dune3d/dune3d/commit/d24e7488ae24bd80e940fa3d737a291a4cf30622))
+ - wrap message popup in workspace browser and actually hide it ([ab20dfc](https://github.com/dune3d/dune3d/commit/ab20dfce4673a6bf73614eca46c81050b92ea13f))
+ - fix pasting clusters with anchors ([524ef58](https://github.com/dune3d/dune3d/commit/524ef58becfea5a67dd9d24dd1b2c8fe62bf75e8))
+ - prevent NaNs in view matrix resulting in everything disappearing ([9e13c6e](https://github.com/dune3d/dune3d/commit/9e13c6e6d06aac4eb0d2adade5a7be9ae80a9619))
+ - don't crash when exporting STL for a group that has no solid model ([24dbc34](https://github.com/dune3d/dune3d/commit/24dbc34a7fbc9bd52f93506ffa7dc9185d265d67))
+ - only update canvas once after operations ([d3e8152](https://github.com/dune3d/dune3d/commit/d3e81526a847e200fc8b7f7cddd9afacbb7d0021))
+ - enable distance measurements even if entities are from previous groups ([f397d23](https://github.com/dune3d/dune3d/commit/f397d23b1d1d350edb48725ca4981fc22ffa7d7b))
+
+
 # Version 1.2.0
 
 ## New Features

@@ -48,6 +48,19 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="1.2.90" date="2025-03-07">
+      <url>https://github.com/dune3d/dune3d/releases/tag/v1.2.90</url>
+      <description>
+        <p>What's new</p>
+        <ul>
+          <li>Bitmap picture import</li>
+          <li>Pipe groups</li>
+          <li>Mirror groups</li>
+          <li>Curvature combs</li>
+          <li>Constraint preview</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.2.0" date="2024-10-22">
       <url>https://github.com/dune3d/dune3d/releases/tag/v1.2.0</url>
       <description>
