@@ -17,6 +17,9 @@ ToolBase::CanBegin ToolConstrainDistanceAligned::can_begin()
     if (!tp)
         return false;
 
+    if (m_tool_id == ToolID::MEASURE_DISTANCE_ALIGNED)
+        return true;
+
     if (!any_entity_from_current_group(tp->get_enps_as_tuple()))
         return false;
 

@@ -12,6 +12,9 @@ ToolBase::CanBegin ToolConstrainPointLineDistance::can_begin()
     if (!lp)
         return false;
 
+    if (m_tool_id == ToolID::MEASURE_POINT_LINE_DISTANCE)
+        return true;
+
     if (!any_entity_from_current_group(lp->get_enps_as_tuple()))
         return false;
 

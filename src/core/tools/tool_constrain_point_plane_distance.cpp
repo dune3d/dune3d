@@ -13,6 +13,9 @@ ToolBase::CanBegin ToolConstrainPointPlaneDistance::can_begin()
     if (!lps)
         return false;
 
+    if (m_tool_id == ToolID::MEASURE_POINT_PLANE_DISTANCE)
+        return true;
+
     const auto enps = lps->get_enps();
     if (!any_entity_from_current_group(enps))
         return false;
