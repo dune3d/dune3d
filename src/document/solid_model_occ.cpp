@@ -607,6 +607,9 @@ TopoDS_Shape SolidModelOcc::calc(IGroupSolidModel::Operation op, TopoDS_Shape ar
 
     case IGroupSolidModel::Operation::INTERSECTION:
         return BRepAlgoAPI_Common(argument, tool);
+
+    default:
+        throw std::runtime_error("unsuppored solid model operation");
     }
 }
 
