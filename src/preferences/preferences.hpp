@@ -24,7 +24,7 @@ public:
     bool dark_theme = false;
     bool zoom_to_cursor = true;
     bool connect_curvature_combs = true;
-    RotationScheme rotation_scheme = RotationScheme::DEFAULT;
+    RotationScheme rotation_scheme = RotationScheme::ARCBALL;
     std::string theme = "Default";
     enum class ThemeVariant { AUTO, DARK, LIGHT };
     ThemeVariant theme_variant = ThemeVariant::AUTO;
