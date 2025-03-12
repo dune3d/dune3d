@@ -343,11 +343,18 @@ void Editor::init_canvas()
                 m_rmb_last_x = x;
                 m_rmb_last_y = y;
             }
+#ifdef G_OS_WIN32
+            static const int button_next = 4;
+            static const int button_prev = 5;
+#else
+            static const int button_next = 8;
+            static const int button_prev = 9;
+#endif
             if (button == 1 /*|| button == 3*/)
                 handle_click(button, n_press);
-            else if (button == 8)
+            else if (button == button_next)
                 trigger_action(ActionID::NEXT_GROUP);
-            else if (button == 9)
+            else if (button == button_prev)
                 trigger_action(ActionID::PREVIOUS_GROUP);
         });
 
