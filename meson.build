@@ -1,5 +1,5 @@
 project('dune3d', ['cpp', 'c'],
-  version: '1.2.90',
+  version: '1.2.91',
   meson_version: '>=0.53',
   default_options: ['cpp_std=c++20', 'warning_level=1'],
 )

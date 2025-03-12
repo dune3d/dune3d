@@ -1,6 +1,6 @@
-# Version 1.2.90
+# Version 1.2.91
 
-as of [f397d23](https://github.com/dune3d/dune3d/commit/f397d23b1d1d350edb48725ca4981fc22ffa7d7b)
+as of [b9fe4e9](https://github.com/dune3d/dune3d/commit/b9fe4e94828454f2e9e249891023b9e841d76adc)
 
 ## New Features
 
@@ -49,8 +49,9 @@ as of [f397d23](https://github.com/dune3d/dune3d/commit/f397d23b1d1d350edb48725c
  - don't crash when exporting STL for a group that has no solid model ([24dbc34](https://github.com/dune3d/dune3d/commit/24dbc34a7fbc9bd52f93506ffa7dc9185d265d67))
  - only update canvas once after operations ([d3e8152](https://github.com/dune3d/dune3d/commit/d3e81526a847e200fc8b7f7cddd9afacbb7d0021))
  - enable distance measurements even if entities are from previous groups ([f397d23](https://github.com/dune3d/dune3d/commit/f397d23b1d1d350edb48725ca4981fc22ffa7d7b))
-
-
+ - default to trackball rotation for new installations ([d2724e1](https://github.com/dune3d/dune3d/commit/d2724e1d80a1797b80007fbd8a458e3574a85c5c))
+ - make navigations buttons work for switching groups on Windows ([b9fe4e9](https://github.com/dune3d/dune3d/commit/b9fe4e94828454f2e9e249891023b9e841d76adc))
+ 
 # Version 1.2.0
 
 ## New Features
