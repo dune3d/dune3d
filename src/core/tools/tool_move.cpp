@@ -42,6 +42,7 @@ ToolResponse ToolMove::begin(const ToolArgs &args)
         }
     }
     const Group *first_group = nullptr;
+    const Group *first_group_render = nullptr;
     for (const auto &sr : m_selection) {
         if (sr.type == SelectableRef::Type::ENTITY) {
             auto entity = &get_entity(sr.item);
@@ -62,11 +63,17 @@ ToolResponse ToolMove::begin(const ToolArgs &args)
                             sr.item, m_intf.get_cursor_pos_for_plane(constraint->get_origin(get_doc()), vecs.n));
                 }
             }
+            get_doc().accumulate_first_group(first_group_render, get_doc().get_constraint(sr.item).m_group);
         }
         // we don't care about constraints since dragging them is pureley cosmetic
     }
-    if (first_group)
+
+    if (first_group) {
+        get_doc().accumulate_first_group(first_group_render, first_group->m_uuid);
         m_first_group = first_group->m_uuid;
+    }
+    if (first_group_render)
+        m_first_group_render = first_group_render->m_uuid;
 
 
     for (auto [entity, point] : m_entities) {
@@ -138,7 +145,7 @@ ToolResponse ToolMove::update(const ToolArgs &args)
             }
         }
 
-
+        m_intf.set_first_update_group(m_first_group_render);
         return ToolResponse();
     }
     else if (args.type == ToolEventType::ACTION) {

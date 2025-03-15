@@ -10,7 +10,6 @@ public:
     void push();
 
 private:
-    size_t get_vertex_count() const override;
     void create_vao();
 
     GLuint m_vao;

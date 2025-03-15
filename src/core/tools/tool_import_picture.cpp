@@ -96,6 +96,7 @@ ToolResponse ToolImportPicture::update(const ToolArgs &args)
     }
     else if (args.type == ToolEventType::MOVE && m_pic) {
         m_pic->m_origin = m_wrkpl->project(get_cursor_pos_for_workplane(*m_wrkpl));
+        set_first_update_group_current();
     }
     else if (args.type == ToolEventType::ACTION && m_pic) {
         switch (args.action) {

@@ -30,7 +30,7 @@ GLuint Glyph3DRenderer::create_vao(GLuint program, GLuint &vbo_out)
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-    Canvas::Glyph3DVertex vertices[] = {
+    CanvasChunk::Glyph3DVertex vertices[] = {
             //   Position
             {
                     0,
@@ -40,23 +40,23 @@ GLuint Glyph3DRenderer::create_vao(GLuint program, GLuint &vbo_out)
 
     /* enable and set the position attribute */
     glEnableVertexAttribArray(origin_index);
-    glVertexAttribPointer(origin_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::Glyph3DVertex), 0);
+    glVertexAttribPointer(origin_index, 3, GL_FLOAT, GL_FALSE, sizeof(CanvasChunk::Glyph3DVertex), 0);
     GL_CHECK_ERROR
     glEnableVertexAttribArray(right_index);
-    glVertexAttribPointer(right_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::Glyph3DVertex),
-                          (void *)offsetof(Canvas::Glyph3DVertex, xr));
+    glVertexAttribPointer(right_index, 3, GL_FLOAT, GL_FALSE, sizeof(CanvasChunk::Glyph3DVertex),
+                          (void *)offsetof(CanvasChunk::Glyph3DVertex, xr));
     GL_CHECK_ERROR
     glEnableVertexAttribArray(up_index);
-    glVertexAttribPointer(up_index, 3, GL_FLOAT, GL_FALSE, sizeof(Canvas::Glyph3DVertex),
-                          (void *)offsetof(Canvas::Glyph3DVertex, xu));
+    glVertexAttribPointer(up_index, 3, GL_FLOAT, GL_FALSE, sizeof(CanvasChunk::Glyph3DVertex),
+                          (void *)offsetof(CanvasChunk::Glyph3DVertex, xu));
     GL_CHECK_ERROR
     glEnableVertexAttribArray(bits_index);
-    glVertexAttribIPointer(bits_index, 1, GL_UNSIGNED_INT, sizeof(Canvas::Glyph3DVertex),
-                           (void *)offsetof(Canvas::Glyph3DVertex, bits));
+    glVertexAttribIPointer(bits_index, 1, GL_UNSIGNED_INT, sizeof(CanvasChunk::Glyph3DVertex),
+                           (void *)offsetof(CanvasChunk::Glyph3DVertex, bits));
     GL_CHECK_ERROR
     glEnableVertexAttribArray(flags_index);
-    glVertexAttribIPointer(flags_index, 1, GL_UNSIGNED_INT, sizeof(Canvas::Glyph3DVertex),
-                           (void *)offsetof(Canvas::Glyph3DVertex, flags));
+    glVertexAttribIPointer(flags_index, 1, GL_UNSIGNED_INT, sizeof(CanvasChunk::Glyph3DVertex),
+                           (void *)offsetof(CanvasChunk::Glyph3DVertex, flags));
     GL_CHECK_ERROR
     /* enable and set the color attribute */
     /* reset the state; we will re-enable the VAO when needed */
@@ -94,11 +94,26 @@ void Glyph3DRenderer::realize()
 
 void Glyph3DRenderer::push()
 {
-    m_ca.m_n_glyphs_3d = m_ca.m_glyphs_3d.size();
+    m_ca.m_n_glyphs_3d = 0; //
+    for (const auto &chunk : m_ca.m_chunks) {
+        m_ca.m_n_glyphs_3d += chunk.m_glyphs_3d.size();
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Canvas::Glyph3DVertex) * m_ca.m_n_glyphs_3d, m_ca.m_glyphs_3d.data(),
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(CanvasChunk::Glyph3DVertex) * m_ca.m_n_glyphs_3d, nullptr, GL_STATIC_DRAW);
+
+    auto chunk_ids = m_ca.get_chunk_ids();
+    size_t offset = 0;
+    m_type_pick_base = m_ca.m_pick_base;
+    for (const auto chunk_id : chunk_ids) {
+        auto &chunk = m_ca.m_chunks.at(chunk_id);
+        glBufferSubData(GL_ARRAY_BUFFER, sizeof(CanvasChunk::Glyph3DVertex) * offset,
+                        sizeof(CanvasChunk::Glyph3DVertex) * chunk.m_glyphs_3d.size(), chunk.m_glyphs_3d.data());
+        m_ca.m_vertex_type_picks[{m_vertex_type, chunk_id}] = {.offset = m_ca.m_pick_base,
+                                                               .count = chunk.m_glyphs_3d.size()};
+        m_ca.m_pick_base += chunk.m_glyphs_3d.size();
+        offset += chunk.m_glyphs_3d.size();
+    }
 }
 
 void Glyph3DRenderer::render()
@@ -117,11 +132,5 @@ void Glyph3DRenderer::render()
 
     glDrawArrays(GL_POINTS, 0, m_ca.m_n_glyphs_3d);
 }
-
-size_t Glyph3DRenderer::get_vertex_count() const
-{
-    return m_ca.m_n_glyphs_3d;
-}
-
 
 } // namespace dune3d

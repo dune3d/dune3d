@@ -28,8 +28,6 @@ private:
     void cache_picture(std::shared_ptr<const PictureData> d);
     void uncache_picture(const UUID &uu);
 
-    size_t get_vertex_count() const override;
-
     class PictureWithDepth;
 };
 } // namespace dune3d

@@ -38,7 +38,8 @@ void PictureRenderer::realize()
 
 class PictureRenderer::PictureWithDepth {
 public:
-    const Canvas::Picture &pic;
+    const CanvasChunk::Picture &pic;
+    unsigned int chunk;
     size_t index;
     double depth;
 };
@@ -57,21 +58,26 @@ void PictureRenderer::render()
 
     std::list<PictureWithDepth> pictures_sorted;
     {
-        size_t pic_idx = 0;
-        for (const auto &it : m_ca.m_pictures) {
-            const auto org =
-                    std::accumulate(it.corners.begin(), it.corners.end(), glm::vec3{0.}) / (float)it.corners.size();
-            auto org_t = (m_ca.m_projmat * m_ca.m_viewmat) * glm::vec4(org, 1.f);
-            org_t /= org_t.w;
-            pictures_sorted.emplace_back(it, pic_idx++, org_t.z);
+        const auto chunk_ids = m_ca.get_chunk_ids();
+        for (const auto chunk_id : chunk_ids) {
+            const auto &chunk = m_ca.m_chunks.at(chunk_id);
+            size_t pic_idx = 0;
+            for (const auto &it : chunk.m_pictures) {
+                const auto org =
+                        std::accumulate(it.corners.begin(), it.corners.end(), glm::vec3{0.}) / (float)it.corners.size();
+                auto org_t = (m_ca.m_projmat * m_ca.m_viewmat) * glm::vec4(org, 1.f);
+                org_t /= org_t.w;
+                pictures_sorted.emplace_back(it, chunk_id, pic_idx++, org_t.z);
+            }
         }
     }
     pictures_sorted.sort([](const auto &a, const auto &b) { return a.depth > b.depth; });
 
-    for (const auto &[pic, idx, depth] : pictures_sorted) {
+    for (const auto &[pic, chunk_id, idx, depth] : pictures_sorted) {
         const auto &tex = m_textures.at(pic.data->m_uuid);
         glBindTexture(GL_TEXTURE_2D, tex.second);
-        glUniform1ui(m_pick_base_loc, m_ca.m_pick_base + idx);
+        glUniform1ui(m_pick_base_loc,
+                     m_ca.m_vertex_type_picks.at({Canvas::VertexType::PICTURE, chunk_id}).offset + idx);
         glUniform1ui(m_flags_loc, static_cast<uint32_t>(pic.flags));
         glUniform3fv(m_corners_loc, pic.corners.size(), glm::value_ptr(pic.corners.front()));
 
@@ -81,9 +87,6 @@ void PictureRenderer::render()
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
     glDepthMask(true);
-    m_ca.m_vertex_type_picks[Canvas::VertexType::PICTURE] = {.offset = m_ca.m_pick_base,
-                                                             .count = m_ca.m_pictures.size()};
-    m_ca.m_pick_base += m_ca.m_pictures.size();
     GL_CHECK_ERROR
 
     glBindVertexArray(0);
@@ -117,10 +120,12 @@ void PictureRenderer::uncache_picture(const UUID &uu)
 void PictureRenderer::push()
 {
     std::set<UUID> pics_to_evict, pics_needed;
-    for (const auto &it : m_ca.m_pictures) {
-        if (!m_textures.count(it.data->m_uuid))
-            cache_picture(it.data);
-        pics_needed.insert(it.data->m_uuid);
+    for (auto &chunk : m_ca.m_chunks) {
+        for (const auto &it : chunk.m_pictures) {
+            if (!m_textures.count(it.data->m_uuid))
+                cache_picture(it.data);
+            pics_needed.insert(it.data->m_uuid);
+        }
     }
     for (const auto &[uu, it] : m_textures) {
         if (!pics_needed.count(uu))
@@ -129,13 +134,17 @@ void PictureRenderer::push()
     for (const auto &it : pics_to_evict) {
         uncache_picture(it);
     }
+
+    const auto chunk_ids = m_ca.get_chunk_ids();
+
+    m_type_pick_base = m_ca.m_pick_base;
+    for (const auto chunk_id : chunk_ids) {
+        const auto &chunk = m_ca.m_chunks.at(chunk_id);
+
+        m_ca.m_vertex_type_picks[{Canvas::VertexType::PICTURE, chunk_id}] = {.offset = m_ca.m_pick_base,
+                                                                             .count = chunk.m_pictures.size()};
+        m_ca.m_pick_base += chunk.m_pictures.size();
+    }
 }
-
-
-size_t PictureRenderer::get_vertex_count() const
-{
-    return m_ca.m_pictures.size();
-}
-
 
 } // namespace dune3d

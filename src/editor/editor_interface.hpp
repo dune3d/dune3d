@@ -48,5 +48,7 @@ public:
 
     virtual void set_buffer(std::unique_ptr<const Buffer> buffer) = 0;
     virtual const Buffer *get_buffer() const = 0;
+
+    virtual void set_first_update_group(const UUID &group) = 0;
 };
 } // namespace dune3d

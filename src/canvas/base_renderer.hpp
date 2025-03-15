@@ -9,7 +9,6 @@ public:
     void set_peeled_picks(const std::vector<unsigned int> &peeled_picks);
 
 protected:
-    virtual size_t get_vertex_count() const = 0;
     void realize_base();
 
     Canvas &m_ca;
@@ -24,5 +23,7 @@ protected:
     GLuint m_view_loc;
     GLuint m_proj_loc;
     GLuint m_pick_base_loc;
+
+    unsigned int m_type_pick_base = 1;
 };
 } // namespace dune3d

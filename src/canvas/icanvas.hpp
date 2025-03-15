@@ -20,6 +20,7 @@ public:
     struct VertexRef {
         VertexType type;
         size_t index;
+        unsigned int chunk;
 
         friend auto operator<=>(const VertexRef &, const VertexRef &) = default;
         friend bool operator==(const VertexRef &, const VertexRef &) = default;
@@ -29,6 +30,8 @@ public:
         DEFAULT = 0,
         THIN = (1 << 0),
     };
+
+    virtual void set_chunk(unsigned int chunk) = 0;
 
     virtual void clear() = 0;
     virtual VertexRef draw_point(glm::vec3 p) = 0;

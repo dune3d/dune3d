@@ -1192,6 +1192,7 @@ void Editor::render_document(const IDocumentInfo &doc)
     renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
     renderer.m_curvature_comb_scale = m_workspace_views.at(m_current_workspace_view).m_curvature_comb_scale;
     renderer.m_connect_curvature_comb = m_preferences.canvas.connect_curvature_combs;
+    renderer.m_first_group = m_update_groups_after;
 
     if (doc.get_uuid() == m_core.get_current_idocument_info().get_uuid())
         renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
@@ -1202,19 +1203,27 @@ void Editor::canvas_update()
 {
     auto docs = m_core.get_documents();
     auto hover_sel = get_canvas().get_hover_selection();
-    get_canvas().clear();
+    if (m_update_groups_after == UUID()) {
+        get_canvas().clear();
+
+        get_canvas().set_chunk(0);
+        for (const auto doc : docs) {
+            if (doc->get_uuid() != m_core.get_current_idocument_info().get_uuid())
+                render_document(*doc);
+        }
+    }
+    else {
+        get_canvas().clear_chunks(
+                Renderer::get_chunk_from_group(m_core.get_current_document().get_group(m_update_groups_after)));
+    }
 
     if (m_core.has_documents())
         render_document(m_core.get_current_idocument_info());
 
-    for (const auto doc : docs) {
-        if (doc->get_uuid() != m_core.get_current_idocument_info().get_uuid())
-            render_document(*doc);
-    }
-
     get_canvas().set_hover_selection(hover_sel);
     update_error_overlay();
     get_canvas().request_push();
+    m_update_groups_after = UUID();
 }
 
 void Editor::canvas_update_keep_selection()
@@ -1598,6 +1607,11 @@ void Editor::set_buffer(std::unique_ptr<const Buffer> buffer)
 const Buffer *Editor::get_buffer() const
 {
     return m_win.get_app().m_buffer.get();
+}
+
+void Editor::set_first_update_group(const UUID &group)
+{
+    m_update_groups_after = group;
 }
 
 } // namespace dune3d

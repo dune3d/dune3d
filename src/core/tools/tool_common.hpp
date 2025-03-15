@@ -38,6 +38,8 @@ protected:
     void set_current_group_update_solid_model_pending();
     bool current_group_has_redundant_constraints();
 
+    void set_first_update_group_current();
+
     UUID get_workplane_uuid();
     EntityWorkplane *get_workplane();
     glm::dvec3 get_cursor_pos_for_workplane(const EntityWorkplane &wrkpl) const;

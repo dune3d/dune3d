@@ -72,6 +72,9 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     m_current_body_group = &m_current_group->find_body(doc).group;
     m_is_current_document = !sr.has_value();
     m_containing_dir = containing_dir;
+    unsigned int first_group_index = 0;
+    if (m_first_group)
+        first_group_index = doc.get_group(m_first_group).get_index();
 
     if (sr)
         m_ca.set_override_selectable(*sr);
@@ -96,9 +99,12 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
         return;
     }
 
-    for (auto group : doc.get_groups_sorted() | std::views::reverse) {
+    for (auto &[uu, group] : doc.get_groups()) {
+        if (group->get_index() < first_group_index)
+            continue;
         if (!group_is_visible(group->m_uuid))
             continue;
+        set_chunk_from_group(*group);
         for (const auto &[uu, el] : doc.m_entities) {
             if (el->m_group == group->m_uuid)
                 render(*el);
@@ -111,23 +117,27 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
         if (!m_doc_view->body_solid_model_is_visible(body_groups.get_group().m_uuid))
             continue;
         const SolidModel *last_solid_model = nullptr;
+        const Group *last_solid_model_group = nullptr;
         for (auto group : body_groups.groups) {
             if (!group_is_visible(group->m_uuid))
                 continue;
             if (auto gr = dynamic_cast<const IGroupSolidModel *>(group)) {
-                if (gr->get_solid_model())
+                if (gr->get_solid_model()) {
                     last_solid_model = gr->get_solid_model();
+                    last_solid_model_group = group;
+                }
                 if (group->m_uuid == current_group)
                     break;
             }
         }
 
-        if (last_solid_model) {
+        if (last_solid_model && last_solid_model_group->get_index() >= first_group_index) {
             const auto is_current = std::ranges::any_of(
                     body_groups.groups, [current_group](auto group) { return group->m_uuid == current_group; });
             auto color = is_current ? ICanvas::FaceColor::SOLID_MODEL : ICanvas::FaceColor::OTHER_BODY_SOLID_MODEL;
             if (body_groups.body.m_color.has_value())
                 color = ICanvas::FaceColor::AS_IS;
+            set_chunk_from_group(*last_solid_model_group);
             const auto vref = m_ca.add_face_group(last_solid_model->m_faces, {0, 0, 0},
                                                   glm::quat_identity<float, glm::defaultp>(), color);
             if (sr)
@@ -137,6 +147,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
 
 
     if (!sr) {
+        set_chunk_from_group(*m_current_group);
         for (const auto &[uu, el] : doc.m_constraints) {
 
             if (m_current_group->m_uuid != el->m_group)
@@ -166,7 +177,6 @@ void Renderer::render(const Entity &entity)
         return;
 
     AutoSaveRestore asr{*this};
-
     m_ca.set_vertex_inactive(entity.m_group != m_current_group->m_uuid);
     m_ca.set_selection_invisible(entity.m_selection_invisible);
     m_ca.set_vertex_construction(entity.m_construction);
@@ -1311,6 +1321,17 @@ void Renderer::restore(Badge<AutoSaveRestore>)
     m_state = m_states.back();
     m_states.pop_back();
     m_ca.restore();
+}
+
+unsigned int Renderer::get_chunk_from_group(const Group &group)
+{
+    return group.get_index() + 1;
+}
+
+void Renderer::set_chunk_from_group(const Group &group)
+{
+    if (m_is_current_document)
+        m_ca.set_chunk(get_chunk_from_group(group));
 }
 
 } // namespace dune3d

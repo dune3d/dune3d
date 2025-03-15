@@ -75,6 +75,8 @@ ToolResponse ToolDrawRegularPolygon::update(const ToolArgs &args)
             m_temp_circle->m_radius = glm::length(get_cursor_pos_in_plane() - m_temp_circle->m_center);
             update_sides(get_cursor_pos_in_plane());
         }
+
+        set_first_update_group_current();
         update_tip();
         return ToolResponse();
     }
