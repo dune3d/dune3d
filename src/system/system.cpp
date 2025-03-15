@@ -52,12 +52,13 @@ static std::mutex s_sys_mutex;
 System::System(Document &doc, const UUID &grp, const UUID &constraint_exclude)
     : m_sys(std::make_unique<SolveSpace::System>()), m_doc(doc), m_solve_group(grp), m_lock(s_sys_mutex)
 {
+    auto &solve_group = doc.get_group(m_solve_group);
     for (auto &[uu, constraint] : m_doc.m_constraints) {
         if (constraint->m_group == m_solve_group)
             if (auto ps = dynamic_cast<const IConstraintPreSolve *>(constraint.get()))
                 ps->pre_solve(m_doc);
     }
-    if (auto ps = dynamic_cast<const IGroupPreSolve *>(&doc.get_group(m_solve_group))) {
+    if (auto ps = dynamic_cast<const IGroupPreSolve *>(&solve_group)) {
         ps->pre_solve(m_doc);
     }
 
@@ -71,34 +72,31 @@ System::System(Document &doc, const UUID &grp, const UUID &constraint_exclude)
             continue;
         constraint->accept(*this);
     }
-    for (const auto &[uu, group] : m_doc.get_groups()) {
-        if (uu != m_solve_group)
-            continue;
-        switch (group->get_type()) {
-        case Group::Type::EXTRUDE:
-            add(dynamic_cast<const GroupExtrude &>(*group));
-            break;
-        case Group::Type::LATHE:
-            add(dynamic_cast<const GroupLathe &>(*group));
-            break;
-        case Group::Type::REVOLVE:
-            add(dynamic_cast<const GroupRevolve &>(*group));
-            break;
-        case Group::Type::LINEAR_ARRAY:
-            add(dynamic_cast<const GroupLinearArray &>(*group));
-            break;
-        case Group::Type::POLAR_ARRAY:
-            add(dynamic_cast<const GroupPolarArray &>(*group));
-            break;
-        case Group::Type::MIRROR_HORIZONTAL:
-        case Group::Type::MIRROR_VERTICAL:
-            add(dynamic_cast<const GroupMirrorHV &>(*group));
-            break;
-        case Group::Type::CLONE:
-            add(dynamic_cast<const GroupClone &>(*group));
-            break;
-        default:;
-        }
+
+    switch (solve_group.get_type()) {
+    case Group::Type::EXTRUDE:
+        add(dynamic_cast<const GroupExtrude &>(solve_group));
+        break;
+    case Group::Type::LATHE:
+        add(dynamic_cast<const GroupLathe &>(solve_group));
+        break;
+    case Group::Type::REVOLVE:
+        add(dynamic_cast<const GroupRevolve &>(solve_group));
+        break;
+    case Group::Type::LINEAR_ARRAY:
+        add(dynamic_cast<const GroupLinearArray &>(solve_group));
+        break;
+    case Group::Type::POLAR_ARRAY:
+        add(dynamic_cast<const GroupPolarArray &>(solve_group));
+        break;
+    case Group::Type::MIRROR_HORIZONTAL:
+    case Group::Type::MIRROR_VERTICAL:
+        add(dynamic_cast<const GroupMirrorHV &>(solve_group));
+        break;
+    case Group::Type::CLONE:
+        add(dynamic_cast<const GroupClone &>(solve_group));
+        break;
+    default:;
     }
 }
 
