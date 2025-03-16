@@ -7,13 +7,16 @@ GroupSketch::GroupSketch(const UUID &uu) : Group(uu)
 {
 }
 
-GroupSketch::GroupSketch(const UUID &uu, const json &j) : Group(uu, j)
+GroupSketch::GroupSketch(const UUID &uu, const json &j)
+    : Group(uu, j), m_operation(j.value("operation", Operation::UNION))
 {
 }
 
 json GroupSketch::serialize() const
 {
-    return Group::serialize();
+    auto j = Group::serialize();
+    j["operation"] = m_operation;
+    return j;
 }
 
 std::unique_ptr<Group> GroupSketch::clone() const
