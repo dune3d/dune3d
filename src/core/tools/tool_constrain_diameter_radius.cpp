@@ -66,6 +66,7 @@ ToolResponse ToolConstrainDiameterRadius::begin(const ToolArgs &args)
     constraint->measure(get_doc());
     constraint->m_measurement = any_of(m_tool_id, ToolID::MEASURE_DIAMETER, ToolID::MEASURE_RADIUS);
 
-    return commit();
+    return prepare_interactive(*constraint);
 }
+
 } // namespace dune3d

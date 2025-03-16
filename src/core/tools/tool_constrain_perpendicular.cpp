@@ -92,7 +92,11 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
     constraint->m_entity1 = tl->first;
     constraint->m_entity2 = tl->second;
 
-    return commit();
+    if (m_tool_id == ToolID::CONSTRAIN_PERPENDICULAR)
+        return commit();
+
+    m_core.solve_current();
+    return prepare_interactive(*constraint);
 }
 
 

@@ -1,11 +1,11 @@
-#include "tool_common_constrain.hpp"
+#include "tool_common_constrain_datum.hpp"
 #include "util/selection_util.hpp"
 
 namespace dune3d {
 
-class ToolConstrainDistanceAligned : public ToolCommonConstrain {
+class ToolConstrainDistanceAligned : public ToolCommonConstrainDatum {
 public:
-    using ToolCommonConstrain::ToolCommonConstrain;
+    using ToolCommonConstrainDatum::ToolCommonConstrainDatum;
 
     ToolResponse begin(const ToolArgs &args) override;
     ToolResponse update(const ToolArgs &args) override;
@@ -13,5 +13,6 @@ public:
 
 private:
     TwoPoints m_tp;
+    bool m_done = false;
 };
 } // namespace dune3d

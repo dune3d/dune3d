@@ -29,7 +29,7 @@ public:
     virtual void tool_bar_flash_replace(const std::string &s) = 0;
 
     virtual void tool_update_data(std::unique_ptr<ToolData> data) = 0;
-    virtual void enable_hover_selection() = 0;
+    virtual void enable_hover_selection(bool enable = true) = 0;
     virtual std::optional<SelectableRef> get_hover_selection() const = 0;
     virtual void set_no_canvas_update(bool v) = 0;
     virtual void set_canvas_selection_mode(SelectionMode mode) = 0;

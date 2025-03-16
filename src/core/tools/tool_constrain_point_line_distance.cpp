@@ -41,7 +41,10 @@ ToolResponse ToolConstrainPointLineDistance::begin(const ToolArgs &args)
     constraint.m_modify_to_satisfy = true;
     constraint.m_measurement = m_tool_id == ToolID::MEASURE_POINT_LINE_DISTANCE;
 
-    return commit();
+    if (!m_is_preview)
+        m_core.solve_current();
+
+    return prepare_interactive(constraint);
 }
 
 } // namespace dune3d

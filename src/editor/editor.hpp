@@ -46,7 +46,7 @@ public:
     glm::vec3 get_cam_normal() const override;
     glm::dvec3 get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const override;
     void tool_update_data(std::unique_ptr<ToolData> data) override;
-    void enable_hover_selection() override;
+    void enable_hover_selection(bool enable) override;
     std::optional<SelectableRef> get_hover_selection() const override;
     void set_no_canvas_update(bool v) override
     {

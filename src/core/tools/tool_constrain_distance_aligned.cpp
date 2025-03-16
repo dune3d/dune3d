@@ -47,6 +47,9 @@ ToolResponse ToolConstrainDistanceAligned::begin(const ToolArgs &args)
 
 ToolResponse ToolConstrainDistanceAligned::update(const ToolArgs &args)
 {
+    if (m_done)
+        return ToolCommonConstrainDatum::update(args);
+
     if (args.type == ToolEventType::ACTION) {
         switch (args.action) {
         case InToolActionID::LMB: {
@@ -85,7 +88,10 @@ ToolResponse ToolConstrainDistanceAligned::update(const ToolArgs &args)
             constraint.m_distance = constraint.measure_distance(get_doc());
             constraint.m_measurement = m_tool_id == ToolID::MEASURE_DISTANCE_ALIGNED;
 
-            return commit();
+            m_done = true;
+            m_intf.set_no_canvas_update(false);
+            m_intf.enable_hover_selection(false);
+            return prepare_interactive(constraint);
         } break;
 
         case InToolActionID::RMB:

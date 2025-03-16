@@ -1,10 +1,10 @@
-#include "tool_common_constrain.hpp"
+#include "tool_common_constrain_datum.hpp"
 
 namespace dune3d {
 
-class ToolConstrainDiameterRadius : public ToolCommonConstrain {
+class ToolConstrainDiameterRadius : public ToolCommonConstrainDatum {
 public:
-    using ToolCommonConstrain::ToolCommonConstrain;
+    using ToolCommonConstrainDatum::ToolCommonConstrainDatum;
 
     ToolResponse begin(const ToolArgs &args) override;
     CanBegin can_begin() override;

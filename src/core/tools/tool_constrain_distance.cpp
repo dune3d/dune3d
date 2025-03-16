@@ -93,6 +93,6 @@ ToolResponse ToolConstrainDistance::begin(const ToolArgs &args)
         constraint->flip();
     constraint->m_distance = std::abs(dist);
 
-    return commit();
+    return prepare_interactive(*constraint);
 }
 } // namespace dune3d

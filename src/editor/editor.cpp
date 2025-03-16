@@ -1233,9 +1233,9 @@ void Editor::canvas_update_keep_selection()
     get_canvas().set_selection(sel, false);
 }
 
-void Editor::enable_hover_selection()
+void Editor::enable_hover_selection(bool enable)
 {
-    get_canvas().set_selection_mode(SelectionMode::HOVER_ONLY);
+    get_canvas().set_selection_mode(enable ? SelectionMode::HOVER_ONLY : SelectionMode::NONE);
 }
 
 std::optional<SelectableRef> Editor::get_hover_selection() const
