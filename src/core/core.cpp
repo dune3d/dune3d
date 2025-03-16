@@ -13,6 +13,7 @@
 #include "util/picture_load.hpp"
 #include "logger/log_util.hpp"
 #include "tools/itool_constrain.hpp"
+#include "action/action_catalog.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -414,8 +415,7 @@ ToolResponse Core::tool_begin(ToolID tool_id, const ToolArgs &args, bool transie
         }
     }
     catch (const std::exception &e) {
-        Logger::log_critical("exception thrown in tool constructor of "
-                             /* + action_catalog.at({ActionID::TOOL, tool_id}).name*/,
+        Logger::log_critical("exception thrown in tool constructor of " + action_catalog.at(tool_id).name.full,
                              Logger::Domain::CORE, e.what());
         m_tool.reset();
         return ToolResponse::end();
@@ -444,10 +444,10 @@ ToolResponse Core::do_begin(const ToolArgs &args)
         r = m_tool->begin(args);
     }
     catch (const std::exception &e) {
+        const auto tool_id = m_tool->get_id();
         m_tool.reset();
         m_signal_tool_changed.emit();
-        Logger::log_critical("exception thrown in tool_begin of "
-                             /*+ action_catalog.at({ActionID::TOOL, tool_id}).name*/,
+        Logger::log_critical("exception thrown in tool_begin of " + action_catalog.at(tool_id).name.full,
                              Logger::Domain::CORE, e.what());
         // history_load(history_manager.get_current());
         rebuild_internal(true, "undo");
@@ -585,9 +585,11 @@ ToolResponse Core::tool_update(ToolArgs &args)
             r = m_tool->update(args);
         }
         catch (const std::exception &e) {
+            const auto tool_id = m_tool->get_id();
             m_tool.reset();
             m_signal_tool_changed.emit();
-            Logger::log_critical("exception thrown in tool_update", Logger::Domain::CORE, e.what());
+            Logger::log_critical("exception thrown in tool_update of " + action_catalog.at(tool_id).name.full,
+                                 Logger::Domain::CORE, e.what());
             get_current_document_info().revert();
             rebuild_internal(true, "undo");
             return ToolResponse::end();
