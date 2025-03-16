@@ -8,7 +8,7 @@
 #include "editor/editor_interface.hpp"
 #include "dialogs/dialogs.hpp"
 #include "dialogs/enter_datum_window.hpp"
-
+#include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
