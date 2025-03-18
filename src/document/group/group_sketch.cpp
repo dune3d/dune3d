@@ -1,6 +1,7 @@
 #include "group_sketch.hpp"
 #include "nlohmann/json.hpp"
 #include "document/solid_model.hpp"
+#include "igroup_solid_model_json.hpp"
 
 namespace dune3d {
 GroupSketch::GroupSketch(const UUID &uu) : Group(uu)
