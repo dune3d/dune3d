@@ -1393,15 +1393,9 @@ void Canvas::clear_chunks(unsigned int first_chunk)
         }
     }
 
-    for (auto it = m_vertex_type_picks.cbegin(); it != m_vertex_type_picks.cend() /* not hoisted */;
-         /* no increment */) {
-        if (it->first.second >= first_chunk) {
-            it = m_vertex_type_picks.erase(it);
-        }
-        else {
-            ++it;
-        }
-    }
+    m_vertex_type_picks.clear();
+    m_push_flags = PF_ALL;
+    queue_draw();
 }
 
 ICanvas::VertexRef Canvas::draw_point(glm::vec3 p)
