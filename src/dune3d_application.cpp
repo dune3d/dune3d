@@ -104,7 +104,8 @@ void Dune3DApplication::on_startup()
     m_log_dispatcher.set_handler([this](const auto &it) { m_log_window->get_view().push_log(it); });
     Logger::get().set_log_handler([this](const Logger::Item &it) { m_log_dispatcher.log(it); });
     property_active_window().signal_changed().connect([this] {
-        if (auto win = get_active_window())
+        auto win = get_active_window();
+        if (win && win != m_log_window->get_transient_for())
             m_log_window->set_transient_for(*win);
     });
 
