@@ -22,17 +22,21 @@
 
 namespace dune3d {
 
-static const std::set<ActionID> create_group_actions = {
-        ActionID::CREATE_GROUP_CHAMFER,      ActionID::CREATE_GROUP_FILLET, ActionID::CREATE_GROUP_SKETCH,
-        ActionID::CREATE_GROUP_EXTRUDE,      ActionID::CREATE_GROUP_LATHE,  ActionID::CREATE_GROUP_REVOLVE,
-        ActionID::CREATE_GROUP_LINEAR_ARRAY,
+static const std::map<ActionID, Group::Type> create_group_action_map = {
+        {ActionID::CREATE_GROUP_CHAMFER, Group::Type::CHAMFER},
+        {ActionID::CREATE_GROUP_FILLET, Group::Type::FILLET},
+        {ActionID::CREATE_GROUP_EXTRUDE, Group::Type::EXTRUDE},
+        {ActionID::CREATE_GROUP_LATHE, Group::Type::LATHE},
+        {ActionID::CREATE_GROUP_REVOLVE, Group::Type::REVOLVE},
+        {ActionID::CREATE_GROUP_SKETCH, Group::Type::SKETCH},
+        {ActionID::CREATE_GROUP_LINEAR_ARRAY, Group::Type::LINEAR_ARRAY},
 };
 
-static const std::set<ActionID> move_group_actions = {
-        ActionID::MOVE_GROUP_UP,
-        ActionID::MOVE_GROUP_DOWN,
-        ActionID::MOVE_GROUP_TO_END_OF_BODY,
-        ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT,
+static const std::map<ActionID, Document::MoveGroup> move_group_action_map = {
+        {ActionID::MOVE_GROUP_UP, Document::MoveGroup::UP},
+        {ActionID::MOVE_GROUP_DOWN, Document::MoveGroup::DOWN},
+        {ActionID::MOVE_GROUP_TO_END_OF_BODY, Document::MoveGroup::END_OF_BODY},
+        {ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT, Document::MoveGroup::END_OF_DOCUMENT},
 };
 
 void Editor::init_actions()
@@ -174,10 +178,10 @@ void Editor::init_actions()
 
     connect_action(ActionID::DELETE_CURRENT_GROUP, [this](auto &a) { on_delete_current_group(); });
 
-    for (const auto act : create_group_actions) {
+    for (const auto [act, group_type] : create_group_action_map) {
         connect_action(act, sigc::mem_fun(*this, &Editor::on_create_group_action));
     }
-    for (const auto act : move_group_actions) {
+    for (const auto [act, move] : move_group_action_map) {
         connect_action(act, sigc::mem_fun(*this, &Editor::on_move_group_action));
     }
     connect_action(ActionID::TOGGLE_WORKPLANE, [this](auto &a) {
@@ -293,28 +297,12 @@ void Editor::set_show_previous_construction_entities(bool show)
 
 void Editor::on_create_group_action(const ActionConnection &conn)
 {
-    static const std::map<ActionID, Group::Type> group_types = {
-            {ActionID::CREATE_GROUP_CHAMFER, Group::Type::CHAMFER},
-            {ActionID::CREATE_GROUP_FILLET, Group::Type::FILLET},
-            {ActionID::CREATE_GROUP_EXTRUDE, Group::Type::EXTRUDE},
-            {ActionID::CREATE_GROUP_LATHE, Group::Type::LATHE},
-            {ActionID::CREATE_GROUP_REVOLVE, Group::Type::REVOLVE},
-            {ActionID::CREATE_GROUP_SKETCH, Group::Type::SKETCH},
-            {ActionID::CREATE_GROUP_LINEAR_ARRAY, Group::Type::LINEAR_ARRAY},
-    };
-    on_add_group(group_types.at(std::get<ActionID>(conn.id)), WorkspaceBrowserAddGroupMode::WITHOUT_BODY);
+    on_add_group(create_group_action_map.at(std::get<ActionID>(conn.id)), WorkspaceBrowserAddGroupMode::WITHOUT_BODY);
 }
-
-static const std::map<ActionID, Document::MoveGroup> move_types = {
-        {ActionID::MOVE_GROUP_UP, Document::MoveGroup::UP},
-        {ActionID::MOVE_GROUP_DOWN, Document::MoveGroup::DOWN},
-        {ActionID::MOVE_GROUP_TO_END_OF_BODY, Document::MoveGroup::END_OF_BODY},
-        {ActionID::MOVE_GROUP_TO_END_OF_DOCUMENT, Document::MoveGroup::END_OF_DOCUMENT},
-};
 
 void Editor::on_move_group_action(const ActionConnection &conn)
 {
-    on_move_group(move_types.at(std::get<ActionID>(conn.id)));
+    on_move_group(move_group_action_map.at(std::get<ActionID>(conn.id)));
 }
 
 void Editor::on_align_to_workplane(const ActionConnection &conn)
@@ -402,11 +390,11 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES] = m_core.has_documents();
     bool has_solid_model = false;
 
-    for (const auto act : create_group_actions) {
+    for (const auto [act, group_type] : create_group_action_map) {
         m_action_sensitivity[act] = m_core.has_documents();
     }
 
-    for (const auto act : move_group_actions) {
+    for (const auto [act, move] : move_group_action_map) {
         m_action_sensitivity[act] = m_core.has_documents();
     }
     if (m_core.has_documents()) {
@@ -425,7 +413,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         const auto has_current_wrkpl = current_group.m_active_wrkpl != UUID();
         m_action_sensitivity[ActionID::CREATE_GROUP_EXTRUDE] = has_current_wrkpl;
         m_action_sensitivity[ActionID::CREATE_GROUP_LATHE] = has_current_wrkpl;
-        for (const auto &[act, mg] : move_types) {
+        for (const auto &[act, mg] : move_group_action_map) {
             m_action_sensitivity[act] =
                     m_core.get_current_document().get_group_after(current_group.m_uuid, mg) != UUID();
         }
