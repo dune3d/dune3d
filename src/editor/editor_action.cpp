@@ -30,6 +30,12 @@ static const std::map<ActionID, Group::Type> create_group_action_map = {
         {ActionID::CREATE_GROUP_REVOLVE, Group::Type::REVOLVE},
         {ActionID::CREATE_GROUP_SKETCH, Group::Type::SKETCH},
         {ActionID::CREATE_GROUP_LINEAR_ARRAY, Group::Type::LINEAR_ARRAY},
+        {ActionID::CREATE_GROUP_POLAR_ARRAY, Group::Type::POLAR_ARRAY},
+        {ActionID::CREATE_GROUP_MIRROR_HORIZONTAL, Group::Type::MIRROR_HORIZONTAL},
+        {ActionID::CREATE_GROUP_MIRROR_VERTICAL, Group::Type::MIRROR_VERTICAL},
+        {ActionID::CREATE_GROUP_SOLID_MODEL_OPERATION, Group::Type::SOLID_MODEL_OPERATION},
+        {ActionID::CREATE_GROUP_CLONE, Group::Type::CLONE},
+        {ActionID::CREATE_GROUP_PIPE, Group::Type::PIPE},
 };
 
 static const std::map<ActionID, Document::MoveGroup> move_group_action_map = {
