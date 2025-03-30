@@ -14,7 +14,14 @@ on:
 
 jobs:
   build-macos:
-    runs-on: macos-13
+    strategy:
+      matrix:
+        include:
+          - os: macos-13
+            arch: mac-intel
+          - os: macos-14
+            arch: mac-arm64
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Check tag
       if: startsWith(github.ref, 'refs/tags/')
@@ -46,3 +53,17 @@ jobs:
           python@3
     - name: Build
       run: bash scripts/build_macos.sh && otool -L build/dune3d
+    - name: Install dependencies for bundling
+      run: brew install dylibbundler
+    - name: Set artifact name
+      run: echo "artifact_name=dune3d-${{ matrix.arch }}-$(date +%Y-%m-%d-%H%M)-$(echo ${{ github.ref_name }} | tr / -)" >> $GITHUB_ENV
+    - name: Bundle app
+      timeout-minutes: 10
+      run: |
+        bash scripts/bundle_macos.sh
+        ditto -c -k --keepParent dist/Dune\ 3D.app dist/Dune3D-${{ matrix.arch }}.zip
+    - name: Upload bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.artifact_name }}
+        path: "dist/Dune3D-${{ matrix.arch }}.zip"
