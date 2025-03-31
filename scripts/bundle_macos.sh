@@ -8,7 +8,7 @@ res_dir="$app_dir/Contents/Resources"
 lib_dir="$res_dir/lib"
 brew_prefix="$(brew --prefix)"
 
-mkdir -p "$bin_dir" "$lib_dir" "$res_dir/share/icons"
+mkdir -p "$bin_dir" "$lib_dir" "$res_dir/share/icons" "$res_dir/share/glib-2.0"
 cp build/dune3d "$bin_dir/dune3d-bin"
 cp Info.plist "$app_dir/Contents"
 cp macos-launcher.sh "$bin_dir/dune3d"
@@ -18,6 +18,7 @@ cp src/icons/dune3d.icns "$res_dir"
 echo "APPL????" > "$app_dir/Contents/PkgInfo"
 
 cp -r $brew_prefix/share/icons/Adwaita "$res_dir/share/icons"
+cp -r $brew_prefix/share/glib-2.0/schemas "$res_dir/share/glib-2.0"
 
 loaders_dir="$lib_dir/gdk-pixbuf-2.0/2.10.0/loaders"
 rm -rf "$loaders_dir" "$loaders_dir.cache"
