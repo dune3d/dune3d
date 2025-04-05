@@ -907,8 +907,9 @@ GLint Canvas::get_samples() const
 #ifndef __APPLE__
     return m_appearance.msaa;
 #else
-    // samples above 1 does not seem to work on macOS
-    return 1;
+    // multisampling does not seem to work on macOS
+    // setting the sampling factor to 0 will fall back to the non-multisampled behavior
+    return 0;
 #endif
 }
 
