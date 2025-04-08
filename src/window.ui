@@ -291,6 +291,7 @@ welcome-box</property>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="halign">start</property>
+                                        <property name="hexpand">True</property>
                                         <property name="justify">fill</property>
                                         <property name="label">Press space anywhere in the 3D viewport to open the searchable global menu.</property>
                                         <property name="max-width-chars">0</property>
