@@ -238,11 +238,7 @@ void Canvas::setup_controllers()
             }
         });
         controller->signal_released().connect([this](int n_press, double x, double y) { handle_click_release(); });
-        controller->signal_cancel().connect([this](auto seq) {
-            m_long_click_connection.disconnect();
-            m_dragging = false;
-            m_inhibit_drag_selection = false;
-        });
+        controller->signal_cancel().connect([this](auto seq) { handle_click_release(); });
         add_controller(controller);
     }
 
