@@ -28,17 +28,18 @@ get_export_initial_filename(const Dune3DApplication::UserConfig &cfg, const IDoc
         if (cfg.export_paths.contains(k))
             filename = cfg.export_paths.at(k).*export_type;
 
-        if (it->m_uuid == current_group && filename.size())
+        if (it->m_uuid == current_group && filename.size()) {
+            if (filename.ends_with(suffix))
+                filename = filename.substr(0, filename.size() - suffix.length());
             break;
+        }
     }
     if (!filename.size()) {
         static const char *d3ddoc_suffix = ".d3ddoc";
         // fallback to document
         auto doc_fn = path_to_string(doc_info.get_path());
-        if (doc_fn.size() && doc_fn.ends_with(d3ddoc_suffix)) {
-            auto wsn = doc_fn.substr(0, doc_fn.size() - strlen(d3ddoc_suffix));
-            filename = wsn + suffix;
-        }
+        if (doc_fn.size() && doc_fn.ends_with(d3ddoc_suffix))
+            filename = doc_fn.substr(0, doc_fn.size() - strlen(d3ddoc_suffix));
     }
 
     if (filename.size())
