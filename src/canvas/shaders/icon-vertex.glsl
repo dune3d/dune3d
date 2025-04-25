@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 in vec3 origin;
 in vec2 shift;
 in uint icon_x;

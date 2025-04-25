@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 in vec2 position;
 out vec3 color_to_fragment;

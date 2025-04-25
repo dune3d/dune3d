@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 uniform mat3 screenmat;
 out vec2 x;
 flat out vec2 dim;

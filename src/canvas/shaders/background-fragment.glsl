@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 layout(location = 0) out vec4 outputColor;
 layout(location = 1) out int pick;
 layout(location = 2) out vec4 select;

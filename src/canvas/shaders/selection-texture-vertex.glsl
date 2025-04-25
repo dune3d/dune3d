@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 in vec2 position;
 out vec2 pos_to_frag;

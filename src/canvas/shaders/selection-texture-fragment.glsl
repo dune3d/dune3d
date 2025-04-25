@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 layout(location = 0) out vec4 outputColor;
 
 uniform sampler2DMS tex;
