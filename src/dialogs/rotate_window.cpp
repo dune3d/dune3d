@@ -109,18 +109,18 @@ void RotateWindow::update_entries()
         q = glm::inverse(m_initial) * m_normal;
     else
         q = m_normal;
-    auto angles = glm::degrees(glm::eulerAngles(q));
+    auto angles = glm::degrees(glm::eulerAngles(q)); // pitch, yaw, roll
 
-    m_sp_roll->set_value(wrap_angle(angles.x));
-    m_sp_pitch->set_value(wrap_angle(angles.y));
-    m_sp_yaw->set_value(wrap_angle(angles.z));
+    m_sp_pitch->set_value(wrap_angle(angles.x));
+    m_sp_yaw->set_value(wrap_angle(angles.y));
+    m_sp_roll->set_value(wrap_angle(angles.z));
 
     m_updating = false;
 }
 
 glm::dquat RotateWindow::get_value() const
 {
-    auto v = glm::radians(glm::dvec3(m_sp_roll->get_value(), m_sp_pitch->get_value(), m_sp_yaw->get_value()));
+    auto v = glm::radians(glm::dvec3(m_sp_pitch->get_value(), m_sp_yaw->get_value(), m_sp_roll->get_value()));
     auto q = glm::dquat(v);
     if (m_button_abs->get_active())
         return q;
