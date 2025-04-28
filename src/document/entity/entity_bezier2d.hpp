@@ -2,6 +2,7 @@
 #include "entityt.hpp"
 #include "ientity_in_workplane_set.hpp"
 #include "ientity_tangent.hpp"
+#include "ientity_tangent_projected.hpp"
 #include "ientity_movable2d.hpp"
 #include "ientity_bounding_box2d.hpp"
 #include <glm/glm.hpp>
@@ -10,6 +11,7 @@ namespace dune3d {
 class EntityBezier2D : public EntityT<EntityBezier2D>,
                        public IEntityInWorkplaneSet,
                        public IEntityTangent,
+                       public IEntityTangentProjected,
                        public IEntityMovable2D,
                        public IEntityBoundingBox2D {
 public:
@@ -27,6 +29,8 @@ public:
 
     glm::dvec2 get_tangent_at_point(unsigned int point) const override;
     bool is_valid_tangent_point(unsigned int point) const override;
+
+    glm::dvec2 get_tangent_in_workplane(double t, const EntityWorkplane &wrkpl) const override;
 
     glm::dvec2 m_p1;
     glm::dvec2 m_p2;

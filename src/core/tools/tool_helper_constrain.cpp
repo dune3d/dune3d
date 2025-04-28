@@ -101,7 +101,7 @@ std::optional<Constraint::Type> ToolHelperConstrain::get_constraint_type()
                 else if (entity.of_type(ET::ARC_2D, ET::CIRCLE_2D, ET::ARC_3D, ET::CIRCLE_3D)) {
                     return Constraint::Type::POINT_ON_CIRCLE;
                 }
-                else if (entity.of_type(ET::BEZIER_2D)) {
+                else if (entity.of_type(ET::BEZIER_2D, ET::BEZIER_3D)) {
                     if (get_workplane_uuid())
                         return Constraint::Type::POINT_ON_BEZIER;
                 }

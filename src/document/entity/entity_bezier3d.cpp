@@ -4,6 +4,7 @@
 #include "util/json_util.hpp"
 #include "document/document.hpp"
 #include "entityt_impl.hpp"
+#include "entity_workplane.hpp"
 
 namespace dune3d {
 EntityBezier3D::EntityBezier3D(const UUID &uu) : Base(uu)
@@ -75,6 +76,11 @@ std::string EntityBezier3D::get_point_name(unsigned int point) const
     }
 }
 
+glm::dvec2 EntityBezier3D::get_tangent_in_workplane(double t, const EntityWorkplane &wrkpl) const
+{
+    return wrkpl.project(get_tangent(t));
+}
+
 glm::dvec3 EntityBezier3D::get_point(unsigned int point, const Document &doc) const
 {
     if (point == 1)
@@ -92,6 +98,12 @@ glm::dvec3 EntityBezier3D::get_point(unsigned int point, const Document &doc) co
 glm::dvec3 EntityBezier3D::get_interpolated(double t) const
 {
     return m_p1 * pow(1 - t, 3) + 3. * m_c1 * pow(1 - t, 2) * t + 3. * m_c2 * (1 - t) * pow(t, 2) + m_p2 * pow(t, 3);
+}
+
+glm::dvec3 EntityBezier3D::get_tangent(double t) const
+{
+    return m_p1 * (-3 * pow(1 - t, 2)) + m_c1 * (3 * pow(1 - t, 2) - 6 * t * (1 - t))
+           + m_c2 * (-3 * pow(t, 2) + 6 * t * (1 - t)) + m_p2 * 3. * pow(t, 2);
 }
 
 bool EntityBezier3D::is_valid_point(unsigned int point) const
