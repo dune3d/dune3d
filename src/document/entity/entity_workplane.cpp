@@ -5,7 +5,8 @@
 
 namespace dune3d {
 EntityWorkplane::EntityWorkplane(const UUID &uu)
-    : Base(uu), m_normal(glm::quat_identity<double, glm::defaultp>()), m_size(10, 10)
+    : Base(uu), m_normal(glm::quat_identity<double, glm::defaultp>()),
+      m_size(EntityWorkplane::s_default_size, EntityWorkplane::s_default_size)
 {
 }
 

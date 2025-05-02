@@ -10,6 +10,7 @@ public:
     explicit EntityWorkplane(const UUID &uu);
     explicit EntityWorkplane(const UUID &uu, const json &j);
     static constexpr Type s_type = Type::WORKPLANE;
+    static constexpr double s_default_size = 100.0;
     json serialize() const override;
 
     virtual bool has_name() const override
