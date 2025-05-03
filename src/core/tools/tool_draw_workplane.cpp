@@ -11,6 +11,11 @@
 
 namespace dune3d {
 
+ToolBase::CanBegin ToolDrawWorkplane::can_begin()
+{
+    return can_create_entity();
+}
+
 ToolResponse ToolDrawWorkplane::begin(const ToolArgs &args)
 {
     m_intf.enable_hover_selection();

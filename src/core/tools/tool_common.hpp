@@ -44,6 +44,9 @@ protected:
     EntityWorkplane *get_workplane();
     glm::dvec3 get_cursor_pos_for_workplane(const EntityWorkplane &wrkpl) const;
 
+    bool can_create_entity();
+    bool can_create_constraint();
+
     Document &get_doc();
     Group &get_group();
 };
