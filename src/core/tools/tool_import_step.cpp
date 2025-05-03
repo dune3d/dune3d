@@ -11,6 +11,11 @@
 
 namespace dune3d {
 
+ToolBase::CanBegin ToolImportSTEP::can_begin()
+{
+    return can_create_entity();
+}
+
 ToolResponse ToolImportSTEP::begin(const ToolArgs &args)
 {
     auto dialog = Gtk::FileDialog::create();

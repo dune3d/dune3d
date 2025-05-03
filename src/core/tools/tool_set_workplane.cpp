@@ -16,6 +16,8 @@ bool ToolSetWorkplane::is_specific()
 ToolBase::CanBegin ToolSetWorkplane::can_begin()
 {
     if (m_tool_id == ToolID::SET_WORKPLANE) {
+        if (!get_group().can_have_active_workplane())
+            return false;
         auto wrkpl = point_from_selection(get_doc(), m_selection, Entity::Type::WORKPLANE);
         return wrkpl.has_value();
     }

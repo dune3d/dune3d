@@ -38,6 +38,21 @@ public:
         return false;
     }
 
+    bool can_create_entity() const override
+    {
+        return false;
+    }
+
+    bool can_create_constraint() const override
+    {
+        return false;
+    }
+
+    bool can_have_active_workplane() const override
+    {
+        return false;
+    }
+
 private:
     EntityWorkplane &add_workplane(Document &doc, const UUID &uu, const glm::dquat &normal,
                                    const glm::dvec2 &size) const;

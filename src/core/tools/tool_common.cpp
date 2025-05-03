@@ -65,4 +65,14 @@ void ToolCommon::set_first_update_group_current()
     m_intf.set_first_update_group(m_core.get_current_group());
 }
 
+bool ToolCommon::can_create_entity()
+{
+    return get_group().can_create_entity();
+}
+
+bool ToolCommon::can_create_constraint()
+{
+    return get_group().can_create_constraint();
+}
+
 } // namespace dune3d
