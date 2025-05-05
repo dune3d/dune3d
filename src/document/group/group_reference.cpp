@@ -3,7 +3,6 @@
 #include "util/util.hpp"
 #include "util/glm_util.hpp"
 #include "document/document.hpp"
-#include "document/entity/entity_workplane.hpp"
 
 namespace dune3d {
 GroupReference::GroupReference(const UUID &uu) : Group(uu)
@@ -12,8 +11,10 @@ GroupReference::GroupReference(const UUID &uu) : Group(uu)
 
 GroupReference::GroupReference(const UUID &uu, const json &j)
     : Group(uu, j), m_show_xy(j.value("show_xy", true)), m_show_yz(j.value("show_yz", true)),
-      m_show_zx(j.value("show_zx", true)), m_xy_size(j.value("xy_size", glm::dvec2(10, 10))),
-      m_yz_size(j.value("yz_size", glm::dvec2(10, 10))), m_zx_size(j.value("zx_size", glm::dvec2(10, 10)))
+      m_show_zx(j.value("show_zx", true)),
+      m_xy_size(j.value("xy_size", glm::dvec2(EntityWorkplane::s_default_size, EntityWorkplane::s_default_size))),
+      m_yz_size(j.value("yz_size", glm::dvec2(EntityWorkplane::s_default_size, EntityWorkplane::s_default_size))),
+      m_zx_size(j.value("zx_size", glm::dvec2(EntityWorkplane::s_default_size, EntityWorkplane::s_default_size)))
 {
 }
 

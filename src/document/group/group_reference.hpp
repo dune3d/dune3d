@@ -1,6 +1,7 @@
 #pragma once
 #include "group.hpp"
 #include "igroup_generate.hpp"
+#include "document/entity/entity_workplane.hpp"
 #include <glm/gtx/quaternion.hpp>
 
 namespace dune3d {
@@ -25,9 +26,9 @@ public:
     bool m_show_yz = true;
     bool m_show_zx = true;
 
-    glm::dvec2 m_xy_size = {10, 10};
-    glm::dvec2 m_yz_size = {10, 10};
-    glm::dvec2 m_zx_size = {10, 10};
+    glm::dvec2 m_xy_size = {EntityWorkplane::s_default_size, EntityWorkplane::s_default_size};
+    glm::dvec2 m_yz_size = {EntityWorkplane::s_default_size, EntityWorkplane::s_default_size};
+    glm::dvec2 m_zx_size = {EntityWorkplane::s_default_size, EntityWorkplane::s_default_size};
 
     UUID get_workplane_xy_uuid() const;
     UUID get_workplane_yz_uuid() const;

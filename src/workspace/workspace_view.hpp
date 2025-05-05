@@ -25,7 +25,7 @@ public:
     UUID m_current_document;
 
     glm::vec3 m_center = glm::vec3(0, 0, 0);
-    float m_cam_distance = 10;
+    float m_cam_distance = 100;
     CanvasProjection m_projection = CanvasProjection::ORTHO;
     glm::quat m_cam_quat = glm::quat_identity<float, glm::defaultp>();
     float m_curvature_comb_scale = 0;
