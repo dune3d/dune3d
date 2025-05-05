@@ -157,7 +157,8 @@ std::optional<LineAndPoint> circle_and_point_from_selection(const Document &doc,
 std::optional<LineAndPoint> bezier_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                                             LineAndPoint::AllowSameEntity allow_same_entity)
 {
-    return entity_and_point_from_selection(doc, sel, {Entity::Type::BEZIER_2D}, allow_same_entity);
+    return entity_and_point_from_selection(doc, sel, {Entity::Type::BEZIER_2D, Entity::Type::BEZIER_3D},
+                                           allow_same_entity);
 }
 
 std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel)

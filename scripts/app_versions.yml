@@ -31,3 +31,4 @@ versions:
     29: add pipe group
     30: add picture entities
     31: save solid model operation in sketch groups
+    32: support constraining points to 3D beziers

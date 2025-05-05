@@ -80,6 +80,11 @@ std::string EntityBezier2D::get_point_name(unsigned int point) const
     }
 }
 
+glm::dvec2 EntityBezier2D::get_tangent_in_workplane(double t, const EntityWorkplane &wrkpl) const
+{
+    return get_tangent(t);
+}
+
 glm::dvec2 EntityBezier2D::get_interpolated(double t) const
 {
     return m_p1 * pow(1 - t, 3) + 3. * m_c1 * pow(1 - t, 2) * t + 3. * m_c2 * (1 - t) * pow(t, 2) + m_p2 * pow(t, 3);

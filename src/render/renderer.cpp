@@ -1233,9 +1233,10 @@ void Renderer::visit(const ConstraintBezierLineTangent &constraint)
 void Renderer::visit(const ConstraintPointOnBezier &constraint)
 {
     const auto pt = m_doc->get_point(constraint.m_point);
+    const auto &bez = m_doc->get_entity<IEntityTangentProjected>(constraint.m_line);
     const auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constraint.m_wrkpl);
-    const auto v = m_doc->get_entity<EntityBezier2D>(constraint.m_line).get_tangent(constraint.m_val);
-    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_BEZIER, constraint.m_uuid, wrkpl.transform_relative(v));
+    const auto v = wrkpl.transform_relative(bez.get_tangent_in_workplane(constraint.m_val, wrkpl));
+    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_BEZIER, constraint.m_uuid, v);
 }
 
 void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)
