@@ -56,6 +56,7 @@
 #include "tools/tool_add_picture_anchor.hpp"
 #include "tools/tool_move_picture_anchor.hpp"
 #include "tools/tool_create_coincident_constraints.hpp"
+#include "tools/tool_hide_reference_workplane.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -259,6 +260,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CREATE_COINCIDENT_CONSTRAINTS:
         return std::make_unique<ToolCreateCoincidentConstraints>(tool_id, *this, m_intf, flags);
+
+    case ToolID::HIDE_REFERENCE_WORKPLANE:
+        return std::make_unique<ToolHideReferenceWorkplane>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }
