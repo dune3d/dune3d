@@ -1221,5 +1221,16 @@
                 }
             ]
         ]
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "Delete",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "HIDE_REFERENCE_WORKPLANE"
     }
 ]

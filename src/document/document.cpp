@@ -674,6 +674,11 @@ const GroupReference &Document::get_reference_group() const
     return dynamic_cast<const GroupReference &>(*get_groups_sorted().front());
 }
 
+GroupReference &Document::get_reference_group()
+{
+    return dynamic_cast<GroupReference &>(*get_groups_sorted().front());
+}
+
 Document::~Document() = default;
 
 } // namespace dune3d

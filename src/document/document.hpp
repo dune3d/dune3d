@@ -202,6 +202,7 @@ public:
     std::string find_next_group_name(GroupType type) const;
 
     const GroupReference &get_reference_group() const;
+    GroupReference &get_reference_group();
 
     json serialize() const;
 
