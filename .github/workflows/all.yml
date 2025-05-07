@@ -41,6 +41,9 @@ jobs:
           - container: ubuntu:noble
             cxx: g++-13
             cc: gcc
+          - container: ubuntu:plucky
+            cxx: g++-13
+            cc: gcc
         target:
           - all
           - dune3d_py.so
