@@ -134,11 +134,14 @@ jobs:
     needs: stylecheck
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@main
-    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - uses: nixbuild/nix-quick-install-action@master
+    - uses: nix-community/cache-nix-action@main
+      with:
+        primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+        restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}
     - name: Build
       run: nix build .
-  
+
   build-nix-macos:
     strategy:
       fail-fast: false
@@ -146,7 +149,10 @@ jobs:
     needs: stylecheck
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@main
-    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - uses: nixbuild/nix-quick-install-action@master
+    - uses: nix-community/cache-nix-action@main
+      with:
+        primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+        restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}
     - name: Build
       run: nix build .
