@@ -36,13 +36,13 @@ jobs:
       matrix:
         os:
           - container: debian:trixie
-            cxx: g++-13
+            cxx: g++
             cc: gcc
           - container: ubuntu:noble
-            cxx: g++-13
+            cxx: g++
             cc: gcc
           - container: ubuntu:plucky
-            cxx: g++-13
+            cxx: g++
             cc: gcc
         target:
           - all
