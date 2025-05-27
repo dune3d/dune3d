@@ -9,8 +9,10 @@
 namespace dune3d {
 
 static std::optional<std::pair<UUID, UUID>> two_lines_from_selection(const Document &doc,
-                                                                     const std::set<SelectableRef> &sel)
+                                                                     const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 2)
         return {};
     auto it = sel.begin();

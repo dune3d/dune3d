@@ -14,8 +14,10 @@ struct WorkplaneAndPoint {
 };
 
 std::optional<WorkplaneAndPoint> workplane_and_point_from_selection(const Document &doc,
-                                                                    const std::set<SelectableRef> &sel)
+                                                                    const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 2)
         return {};
     auto it = sel.begin();

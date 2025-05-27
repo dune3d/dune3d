@@ -14,6 +14,21 @@
 
 namespace dune3d {
 
+std::set<SelectableRef> filter_selection(const std::set<SelectableRef> &sel, SelectableRef::Type type)
+{
+    std::set<SelectableRef> out;
+    for (const auto &sr : sel) {
+        if (sr.type == type)
+            out.insert(sr);
+    }
+    return out;
+}
+
+std::set<SelectableRef> entities_from_selection(const std::set<SelectableRef> &sel)
+{
+    return filter_selection(sel, SelectableRef::Type::ENTITY);
+}
+
 std::set<EntityAndPoint> TwoPoints::get_enps() const
 {
     return {point1, point2};
@@ -45,8 +60,9 @@ std::tuple<EntityAndPoint, EntityAndPoint, EntityAndPoint> LinesAndPoint::get_en
 }
 
 
-std::optional<TwoPoints> two_points_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+std::optional<TwoPoints> two_points_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
     if (sel.size() == 1) {
         auto &sr = *sel.begin();
         if (sr.type != SelectableRef::Type::ENTITY)
@@ -102,10 +118,12 @@ std::optional<EntityAndPoint> entity_and_point_from_hover_selection(const Docume
     return {};
 }
 
-std::optional<LineAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+std::optional<LineAndPoint> entity_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all,
                                                             const std::set<Entity::Type> &types,
                                                             LineAndPoint::AllowSameEntity allow_same_entity)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 2)
         return {};
     auto it = sel.begin();
@@ -161,8 +179,10 @@ std::optional<LineAndPoint> bezier_and_point_from_selection(const Document &doc,
                                            allow_same_entity);
 }
 
-std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+std::optional<EntityAndPoint> point_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 1)
         return {};
     auto it = sel.begin();
@@ -190,8 +210,10 @@ std::optional<EntityAndPoint> point_from_selection(const Document &doc, const st
     return enp;
 }
 
-std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 3)
         return {};
     auto it = sel.begin();
@@ -235,8 +257,10 @@ std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc,
 }
 
 
-std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel)
+std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = filter_selection(sel_all, SelectableRef::Type::DOCUMENT);
+
     if (sel.size() != 1)
         return {};
     auto &it = *sel.begin();

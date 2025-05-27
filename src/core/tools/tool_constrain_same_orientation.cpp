@@ -7,8 +7,11 @@
 
 namespace dune3d {
 
-std::optional<std::pair<UUID, UUID>> two_wrkpl_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+std::optional<std::pair<UUID, UUID>> two_wrkpl_from_selection(const Document &doc,
+                                                              const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 2)
         return {};
     auto it = sel.begin();
