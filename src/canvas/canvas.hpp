@@ -444,6 +444,7 @@ private:
     bool m_dragging = false;
     void update_drag_selection(glm::vec2 pos);
     bool m_inhibit_drag_selection = false;
+    bool cancel_drag_selection();
 
     int m_scale_factor = 1;
 
