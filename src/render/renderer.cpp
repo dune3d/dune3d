@@ -72,7 +72,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     m_current_body_group = &m_current_group->find_body(doc).group;
     m_is_current_document = !sr.has_value();
     m_containing_dir = containing_dir;
-    unsigned int first_group_index = 0;
+    int first_group_index = 0;
     if (m_first_group)
         first_group_index = doc.get_group(m_first_group).get_index();
 
