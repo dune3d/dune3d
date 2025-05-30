@@ -10,12 +10,13 @@
 #include "core/tool_id.hpp"
 
 namespace dune3d {
-
+namespace {
 struct Curves {
     EntityAndPoint curve1;
     EntityAndPoint curve2;
     UUID coincident_constraint;
 };
+} // namespace
 
 static std::optional<Curves> curves_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
 {

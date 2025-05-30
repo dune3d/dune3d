@@ -12,11 +12,13 @@
 
 namespace dune3d {
 
+namespace {
 struct CurveAndLine {
     EntityAndPoint curve;
     EntityAndPoint line;
     UUID coincident_constraint;
 };
+} // namespace
 
 static std::optional<CurveAndLine>
 curve_and_line_from_selection(const Document &doc, const std::set<SelectableRef> &sel, Entity::Type curve_type)
