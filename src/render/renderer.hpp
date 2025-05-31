@@ -84,6 +84,7 @@ private:
     void visit(const ConstraintBezierLineTangent &constr) override;
     void visit(const ConstraintBezierBezierTangentSymmetric &constr) override;
     void visit(const ConstraintPointOnBezier &constr) override;
+    void visit(const ConstraintBezierBezierSameCurvature &constr) override;
 
     ICanvas &m_ca;
     IDocumentProvider &m_doc_prv;

@@ -33,4 +33,5 @@ class ConstraintPointDistanceAligned;
 class ConstraintBezierLineTangent;
 class ConstraintBezierBezierTangentSymmetric;
 class ConstraintPointOnBezier;
+class ConstraintBezierBezierSameCurvature;
 } // namespace dune3d

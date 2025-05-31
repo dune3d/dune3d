@@ -105,6 +105,7 @@ private:
     void visit(const ConstraintBezierLineTangent &constr) override;
     void visit(const ConstraintBezierBezierTangentSymmetric &constr) override;
     void visit(const ConstraintPointOnBezier &constr) override;
+    void visit(const ConstraintBezierBezierSameCurvature &constr) override;
     void add(const GroupExtrude &group);
     void add(const GroupLinearArray &group);
     void add(const GroupPolarArray &group);

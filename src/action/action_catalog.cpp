@@ -228,6 +228,10 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Create coincident constraints", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::HIDE_REFERENCE_WORKPLANE,
          {{"Hide reference workplane", "Hide"}, ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_BEZIER_BEZIER_SAME_CURVATURE,
+         {{"Constrain Bezier/Bezier same curvature", "Constrain same curvature"},
+          ActionGroup::CONSTRAIN,
+          ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -403,6 +407,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(MOVE_PICTURE_ANCHOR),
         TOOL_LUT_ITEM(CREATE_COINCIDENT_CONSTRAINTS),
         TOOL_LUT_ITEM(HIDE_REFERENCE_WORKPLANE),
+        TOOL_LUT_ITEM(CONSTRAIN_BEZIER_BEZIER_SAME_CURVATURE),
 };
 
 

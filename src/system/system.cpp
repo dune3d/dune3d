@@ -1825,6 +1825,10 @@ void System::update_document()
             const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
             c->m_val = val;
         }
+        else if (auto c = m_doc.get_constraint_ptr<ConstraintBezierBezierSameCurvature>(uu)) {
+            c->m_beta1 = SK.GetParam(hConstraint{idx}.param(0))->val;
+            c->m_beta2 = SK.GetParam(hConstraint{idx}.param(0x20000000))->val;
+        }
     }
     for (auto &[uu, group] : m_doc.get_groups()) {
         if (auto gp = dynamic_cast<GroupPolarArray *>(group.get()); gp && gp->m_active_wrkpl) {
@@ -2629,6 +2633,69 @@ void System::visit(const ConstraintPointOnBezier &constraint)
 
     AddEq(hConstraint{c}, &m_sys->eq, point.x->Minus(p_t.x), 0);
     AddEq(hConstraint{c}, &m_sys->eq, point.y->Minus(p_t.y), 1);
+}
+
+void System::visit(const ConstraintBezierBezierSameCurvature &constraint)
+{
+    const auto c = n_constraint++;
+    m_constraint_refs.emplace(c, constraint.m_uuid);
+
+    // points are p0,p1,p2,p3 p3,p4,p5,p6
+    // indices    1 ,3, 4, 2  1 ,3, 4, 2
+    // coincidence is at p3
+
+    auto en_p1 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, constraint.m_arc1.point == 2 ? 3u : 4u})});
+    auto en_p2 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, constraint.m_arc1.point == 2 ? 4u : 3u})});
+    auto en_p3 = SK.GetEntity({get_entity_ref(constraint.m_arc1)});
+    auto en_p4 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, constraint.m_arc2.point == 1 ? 3u : 4u})});
+    auto en_p5 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, constraint.m_arc2.point == 1 ? 4u : 3u})});
+
+    auto en_wrkpl = get_entity_ref(EntityRef{m_doc.get_entity<EntityBezier2D>(constraint.m_arc1.entity).m_wrkpl, 0});
+
+    Param pb1 = {};
+    pb1.h = hConstraint{c}.param(0);
+    pb1.val = constraint.m_beta1;
+    SK.param.Add(&pb1);
+
+    m_sys->param.Add(SK.GetParam(pb1.h));
+
+    Param pb2 = {};
+    pb2.h = hConstraint{c}.param(0x20000000);
+    pb2.val = constraint.m_beta2;
+    SK.param.Add(&pb2);
+
+    m_sys->param.Add(SK.GetParam(pb2.h));
+
+    auto b1 = Expr::From(pb1.h);
+    auto b2 = Expr::From(pb2.h);
+
+    auto p1 = en_p1->PointGetExprsInWorkplane({en_wrkpl});
+    auto p2 = en_p2->PointGetExprsInWorkplane({en_wrkpl});
+    auto p3 = en_p3->PointGetExprsInWorkplane({en_wrkpl});
+    auto p4 = en_p4->PointGetExprsInWorkplane({en_wrkpl});
+    auto p5 = en_p5->PointGetExprsInWorkplane({en_wrkpl});
+
+    // see https://en.wikipedia.org/wiki/Composite_B%C3%A9zier_curve#Smoothly_joining_cubic_B%C3%A9ziers
+    {
+        auto rhs = p3.Plus(p3.Minus(p2).ScaledBy(b1));
+        auto e = rhs.Minus(p4);
+        AddEq(hConstraint{c}, &m_sys->eq, e.x, 0);
+        AddEq(hConstraint{c}, &m_sys->eq, e.y, 1);
+    }
+    {
+        auto rhs = p3.Plus((p3.Minus(p2).ScaledBy(
+                                   b1->Times(Expr::From(2))->Plus(b1->Square())->Plus(b2->Times(Expr::From(.5))))))
+                           .Plus(p1.Minus(p2).ScaledBy(b1->Square()));
+
+        auto e = rhs.Minus(p5);
+
+        AddEq(hConstraint{c}, &m_sys->eq, e.x, 2);
+        AddEq(hConstraint{c}, &m_sys->eq, e.y, 3);
+    }
 }
 
 int System::get_group_index(const UUID &uu) const

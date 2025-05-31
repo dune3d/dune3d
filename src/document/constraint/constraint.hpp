@@ -48,6 +48,7 @@ enum class ConstraintType {
     BEZIER_LINE_TANGENT,
     BEZIER_BEZIER_TANGENT_SYMMETRIC,
     POINT_ON_BEZIER,
+    BEZIER_BEZIER_SAME_CURVATURE,
 };
 
 class Constraint {

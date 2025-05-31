@@ -1239,6 +1239,11 @@ void Renderer::visit(const ConstraintPointOnBezier &constraint)
     add_constraint(pt, IconID::CONSTRAINT_POINT_ON_BEZIER, constraint.m_uuid, v);
 }
 
+void Renderer::visit(const ConstraintBezierBezierSameCurvature &constraint)
+{
+    visit(constraint, IconID::CONSTRAINT_G2);
+}
+
 void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)
 {
     using CT = Constraint::Type;
