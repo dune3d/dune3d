@@ -2573,23 +2573,29 @@ void System::visit(const ConstraintBezierBezierTangentSymmetric &constraint)
 {
     const auto c = n_constraint++;
 
-    auto en_bez1 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, 0})});
-    auto en_bez2 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, 0})});
+    // points are p0,p1,p2,p3 p3,p4,p5,p6
+    // indices    1 ,3, 4, 2  1 ,3, 4, 2
+    // coincidence is at p3
 
-    ExprVector t1;
-    if (constraint.m_arc1.point == 1)
-        t1 = en_bez1->CubicGetStartTangentExprs();
-    else
-        t1 = en_bez1->CubicGetFinishTangentExprs();
+    auto en_wrkpl = get_entity_ref(EntityRef{m_doc.get_entity<EntityBezier2D>(constraint.m_arc1.entity).m_wrkpl, 0});
 
-    ExprVector t2;
-    if (constraint.m_arc2.point == 1)
-        t2 = en_bez2->CubicGetStartTangentExprs();
-    else
-        t2 = en_bez2->CubicGetFinishTangentExprs();
+    auto en_p2 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, constraint.m_arc1.point == 2 ? 4u : 3u})});
+    auto en_p3 = SK.GetEntity({get_entity_ref(constraint.m_arc1)});
+    auto en_p4 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, constraint.m_arc2.point == 1 ? 3u : 4u})});
 
-    AddEq(hConstraint{c}, &m_sys->eq, t1.x->Plus(t2.x), 0);
-    AddEq(hConstraint{c}, &m_sys->eq, t1.y->Plus(t2.y), 1);
+    auto p2 = en_p2->PointGetExprsInWorkplane({en_wrkpl});
+    auto p3 = en_p3->PointGetExprsInWorkplane({en_wrkpl});
+    auto p4 = en_p4->PointGetExprsInWorkplane({en_wrkpl});
+
+    auto v1 = p2.Minus(p3);
+    auto v2 = p3.Minus(p4);
+
+    auto e = v1.Minus(v2);
+
+    AddEq(hConstraint{c}, &m_sys->eq, e.x, 2);
+    AddEq(hConstraint{c}, &m_sys->eq, e.y, 3);
 }
 
 void System::visit(const ConstraintPointOnBezier &constraint)
