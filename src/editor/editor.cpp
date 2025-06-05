@@ -1197,7 +1197,12 @@ void Editor::render_document(const IDocumentInfo &doc)
     if (doc.get_uuid() == m_core.get_current_idocument_info().get_uuid())
         renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
 
-    renderer.render(doc.get_document(), doc.get_current_group(), doc_view, doc.get_dirname(), sr);
+    try {
+        renderer.render(doc.get_document(), doc.get_current_group(), doc_view, doc.get_dirname(), sr);
+    }
+    catch (const std::exception &ex) {
+        Logger::log_critical("exception rendering document " + doc.get_basename(), Logger::Domain::RENDERER, ex.what());
+    }
 }
 void Editor::canvas_update()
 {

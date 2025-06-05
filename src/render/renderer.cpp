@@ -16,7 +16,7 @@
 #include "util/fs_util.hpp"
 #include "util/arc_util.hpp"
 #include "util/template_util.hpp"
-#include <iostream>
+#include "logger/logger.hpp"
 #include <array>
 #include <format>
 #include <ranges>
@@ -149,10 +149,15 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     if (!sr) {
         set_chunk_from_group(*m_current_group);
         for (const auto &[uu, el] : doc.m_constraints) {
-
             if (m_current_group->m_uuid != el->m_group)
                 continue;
-            el->accept(*this);
+            try {
+                el->accept(*this);
+            }
+            catch (const std::exception &ex) {
+                Logger::log_critical("exception rendering constraint " + static_cast<std::string>(uu),
+                                     Logger::Domain::RENDERER, ex.what());
+            }
         }
         draw_constraints();
     }
@@ -180,7 +185,13 @@ void Renderer::render(const Entity &entity)
     m_ca.set_vertex_inactive(entity.m_group != m_current_group->m_uuid);
     m_ca.set_selection_invisible(entity.m_selection_invisible);
     m_ca.set_vertex_construction(entity.m_construction);
-    entity.accept(*this);
+    try {
+        entity.accept(*this);
+    }
+    catch (const std::exception &ex) {
+        Logger::log_critical("exception rendering entity " + static_cast<std::string>(entity.m_uuid),
+                             Logger::Domain::RENDERER, ex.what());
+    }
 }
 
 void Renderer::visit(const EntityLine3D &line)
