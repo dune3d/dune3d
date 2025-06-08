@@ -6,6 +6,7 @@
 #include <map>
 #include <glm/glm.hpp>
 #include "group/all_groups_fwd.hpp"
+#include <cairomm/cairomm.h>
 
 namespace dune3d {
 
@@ -33,8 +34,9 @@ public:
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupPipe &group);
     virtual void export_stl(const std::filesystem::path &path) const = 0;
     virtual void export_step(const std::filesystem::path &path) const = 0;
-    virtual void export_projection(const std::filesystem::path &path, const glm::dvec3 &origin,
-                                   const glm::dquat &normal) const = 0;
+
+    static void export_projections(const std::filesystem::path &path, std::vector<const SolidModel *> models,
+                                   const glm::dvec3 &origin, const glm::dquat &normal);
 
     virtual ~SolidModel();
 

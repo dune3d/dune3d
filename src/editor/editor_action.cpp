@@ -231,6 +231,7 @@ void Editor::init_actions()
     connect_action(ActionID::EXPORT_PATHS, sigc::mem_fun(*this, &Editor::on_export_paths));
     connect_action(ActionID::EXPORT_PATHS_IN_CURRENT_GROUP, sigc::mem_fun(*this, &Editor::on_export_paths));
     connect_action(ActionID::EXPORT_PROJECTION, sigc::mem_fun(*this, &Editor::on_export_projection));
+    connect_action(ActionID::EXPORT_PROJECTION_ALL, sigc::mem_fun(*this, &Editor::on_export_projection));
 
     connect_action(ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP, [this](auto &a) {
         auto &doc = m_core.get_current_document();
@@ -395,6 +396,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::SELECT_UNDERCONSTRAINED] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP] = m_core.has_documents();
     m_action_sensitivity[ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES] = m_core.has_documents();
+    m_action_sensitivity[ActionID::EXPORT_PROJECTION_ALL] = m_core.has_documents();
     bool has_solid_model = false;
 
     for (const auto [act, group_type] : create_group_action_map) {

@@ -1,6 +1,7 @@
 #include "solid_model.hpp"
 #include "group/igroup_solid_model.hpp"
 #include <TopoDS.hxx>
+#include <cairomm/cairomm.h>
 
 namespace dune3d {
 
@@ -12,8 +13,6 @@ public:
 
     void export_stl(const std::filesystem::path &path) const override;
     void export_step(const std::filesystem::path &path) const override;
-    void export_projection(const std::filesystem::path &path, const glm::dvec3 &origin,
-                           const glm::dquat &normal) const override;
 
     bool update_acc_finish(const Document &doc, const Group &group);
     void finish(const Document &doc, const Group &group);

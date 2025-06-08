@@ -177,6 +177,7 @@ void Editor::on_export_paths(const ActionConnection &conn)
 
 void Editor::on_export_projection(const ActionConnection &conn)
 {
+    const bool all_groups = std::get<ActionID>(conn.id) == ActionID::EXPORT_PROJECTION_ALL;
     auto dialog = Gtk::FileDialog::create();
 
     if (auto initial_file =
@@ -196,7 +197,7 @@ void Editor::on_export_projection(const ActionConnection &conn)
     dialog->set_filters(filters);
 
     // Show the dialog and wait for a user response:
-    dialog->save(m_win, [this, dialog](const Glib::RefPtr<Gio::AsyncResult> &result) {
+    dialog->save(m_win, [this, dialog, all_groups](const Glib::RefPtr<Gio::AsyncResult> &result) {
         try {
             auto file = dialog->save_finish(result);
             // open_file_view(file);
@@ -218,9 +219,45 @@ void Editor::on_export_projection(const ActionConnection &conn)
                     }
                 }
             }
-            auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
-            if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
-                gr->get_solid_model()->export_projection(path, origin, normal);
+            {
+                auto &doc = m_core.get_current_document();
+                auto &current_group = doc.get_group(m_core.get_current_group());
+
+                if (all_groups) {
+                    auto &current_body_group = current_group.find_body(doc).group;
+                    auto groups_by_body = doc.get_groups_by_body();
+                    std::vector<const SolidModel *> solids;
+                    for (auto body_groups : groups_by_body) {
+                        if (!get_current_document_view().body_solid_model_is_visible(body_groups.get_group().m_uuid))
+                            continue;
+                        if (current_body_group.m_uuid != body_groups.get_group().m_uuid
+                            && !get_current_document_view().body_is_visible(body_groups.get_group().m_uuid))
+                            continue;
+                        const SolidModel *last_solid_model = nullptr;
+                        for (auto group : body_groups.groups) {
+                            if (current_group.m_uuid != group->m_uuid
+                                && !get_current_document_view().group_is_visible(group->m_uuid))
+                                continue;
+                            if (auto gr = dynamic_cast<const IGroupSolidModel *>(group)) {
+                                if (gr->get_solid_model()) {
+                                    last_solid_model = gr->get_solid_model();
+                                }
+                                if (group->m_uuid == m_core.get_current_idocument_info().get_current_group())
+                                    break;
+                            }
+                        }
+                        if (last_solid_model) {
+                            solids.push_back(last_solid_model);
+                        }
+                    }
+                    SolidModel::export_projections(path, solids, origin, normal);
+                }
+                else {
+                    if (auto gr = dynamic_cast<const IGroupSolidModel *>(&current_group); gr && gr->get_solid_model()) {
+                        SolidModel::export_projections(path, {gr->get_solid_model()}, origin, normal);
+                    }
+                }
+
                 set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
                                             &Dune3DApplication::UserConfig::ExportPaths::projection,
                                             path_to_string(path));
