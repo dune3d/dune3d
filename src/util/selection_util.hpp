@@ -68,9 +68,8 @@ struct LinesAndPoint {
 std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
 std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel);
 
-const ConstraintPointsCoincident *constraint_points_coincident_from_selection(const Document &doc,
-                                                                              const std::set<SelectableRef> &sel,
-                                                                              const std::set<EntityType> &types);
+std::optional<TwoPoints> joint_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all,
+                                              const std::set<EntityType> &types);
 
 std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                         const std::set<EntityType> &types);

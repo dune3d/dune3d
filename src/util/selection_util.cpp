@@ -330,33 +330,123 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
     return label;
 }
 
-
-const ConstraintPointsCoincident *constraint_points_coincident_from_selection(const Document &doc,
-                                                                              const std::set<SelectableRef> &sel,
-                                                                              const std::set<Entity::Type> &types)
+static std::set<EntityAndPoint> coincident_enps_from_enp(const Document &doc, const EntityAndPoint &enp)
 {
-    auto pt = point_from_selection(doc, sel);
-    if (!pt)
-        return nullptr;
+    UUID wrkpl;
+    auto &en = doc.get_entity(enp.entity);
+    if (auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(&en))
+        wrkpl = en_wrkpl->get_workplane();
 
-    if (pt->point == 0)
-        return nullptr;
+    std::set<EntityAndPoint> enps;
+    enps.insert(enp);
+    std::set<const ConstraintPointsCoincident *> constraints;
 
-    auto &en = doc.get_entity(pt->entity);
+    bool done = false;
+    while (!done) {
+        const auto n_enps = enps.size();
+        for (const auto &[uu, el] : doc.m_constraints) {
+            if (auto cc = dynamic_cast<const ConstraintPointsCoincident *>(el.get())) {
+                if (cc->m_wrkpl != wrkpl)
+                    continue;
+                if (enps.contains(cc->m_entity1) || enps.contains(cc->m_entity2)) {
+                    auto &en1 = doc.get_entity(cc->m_entity1.entity);
+                    auto &en2 = doc.get_entity(cc->m_entity2.entity);
+                    if (auto en_wrkpl1 = dynamic_cast<const IEntityInWorkplane *>(&en1)) {
+                        if (en_wrkpl1->get_workplane() != wrkpl)
+                            continue;
+                    }
+                    if (auto en_wrkpl2 = dynamic_cast<const IEntityInWorkplane *>(&en2)) {
+                        if (en_wrkpl2->get_workplane() != wrkpl)
+                            continue;
+                    }
+                    enps.insert(cc->m_entity1);
+                    enps.insert(cc->m_entity2);
+                }
+            }
+        }
+        if (n_enps == enps.size())
+            done = true;
+    }
+    return enps;
+}
 
-    if (!types.contains(en.get_type()))
-        return nullptr;
 
-    auto constraints = en.get_constraints(doc);
-    for (const auto constraint : constraints) {
-        const auto refs = constraint->get_referenced_entities_and_points();
-        if (!refs.contains(*pt))
-            continue;
-        if (auto cc = dynamic_cast<const ConstraintPointsCoincident *>(constraint))
-            return cc;
+std::optional<TwoPoints> joint_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all,
+                                              const std::set<Entity::Type> &types)
+{
+    const auto sel = entities_from_selection(sel_all);
+    if (sel.size() == 1 && doc.is_valid_point(sel.begin()->get_entity_and_point())) {
+        const auto enp = sel.begin()->get_entity_and_point();
+        auto other_enps = coincident_enps_from_enp(doc, enp);
+        if (other_enps.size() != 2)
+            return {};
+        auto it = other_enps.begin();
+        auto enp1 = *it++;
+        auto enp2 = *it;
+        if (!types.contains(doc.get_entity(enp1.entity).get_type()))
+            return {};
+        if (!types.contains(doc.get_entity(enp2.entity).get_type()))
+            return {};
+        return {{enp1, enp2}};
+    }
+    else if (sel.size() == 3) {
+        auto it_sel = sel.begin();
+        auto enp1 = (it_sel++)->get_entity_and_point();
+        auto enp2 = (it_sel++)->get_entity_and_point();
+        auto enp3 = (it_sel++)->get_entity_and_point();
+
+        EntityAndPoint enp_joint;
+        UUID entity1;
+        UUID entity2;
+        if (doc.is_valid_point(enp1) && enp2.point == 0 && enp3.point == 0) {
+            enp_joint = enp1;
+            entity1 = enp2.entity;
+            entity2 = enp3.entity;
+        }
+        else if (doc.is_valid_point(enp2) && enp1.point == 0 && enp3.point == 0) {
+            enp_joint = enp2;
+            entity1 = enp1.entity;
+            entity2 = enp3.entity;
+        }
+        else if (doc.is_valid_point(enp3) && enp1.point == 0 && enp2.point == 0) {
+            enp_joint = enp3;
+            entity1 = enp1.entity;
+            entity2 = enp2.entity;
+        }
+        else {
+            return {};
+        }
+
+        if (!types.contains(doc.get_entity(entity1).get_type()))
+            return {};
+        if (!types.contains(doc.get_entity(entity2).get_type()))
+            return {};
+
+        const auto other_enps = coincident_enps_from_enp(doc, enp_joint);
+        const auto it1 = std::ranges::find_if(other_enps, [&entity1](auto &it) { return it.entity == entity1; });
+        const auto it2 = std::ranges::find_if(other_enps, [&entity2](auto &it) { return it.entity == entity2; });
+        if (it1 == other_enps.end() || it2 == other_enps.end())
+            return {};
+
+        return {{*it1, *it2}};
     }
 
-    return nullptr;
+    return {};
+}
+
+std::set<EntityAndPoint> coincident_enps_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
+                                                        const std::set<Entity::Type> &types)
+{
+    auto enp = point_from_selection(doc, sel);
+    if (!enp)
+        return {};
+    auto enps = coincident_enps_from_enp(doc, *enp);
+    decltype(enps) enps_filtered;
+    for (const auto &it : enps) {
+        if (types.contains(doc.get_entity(it.entity).get_type()))
+            enps_filtered.insert(it);
+    }
+    return enps_filtered;
 }
 
 std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
