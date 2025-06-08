@@ -1,7 +1,7 @@
 #include "solid_model.hpp"
 #include "solid_model_occ.hpp"
-#include "document.hpp"
-#include "group/group_solid_model_operation.hpp"
+#include "document/document.hpp"
+#include "document/group/group_solid_model_operation.hpp"
 
 #include <TopExp_Explorer.hxx>
 

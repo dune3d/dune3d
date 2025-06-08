@@ -1,8 +1,8 @@
 #include "solid_model.hpp"
 #include "solid_model_occ.hpp"
-#include "document.hpp"
-#include "group/group.hpp"
-#include "group/igroup_solid_model.hpp"
+#include "document/document.hpp"
+#include "document/group/group.hpp"
+#include "document/group/igroup_solid_model.hpp"
 
 namespace dune3d {
 

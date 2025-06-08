@@ -4,7 +4,7 @@
 #include "document/entity/all_entities.hpp"
 #include "document/group/group_extrude.hpp"
 #include "document/constraint/all_constraints.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include "canvas/selectable_ref.hpp"
 #include "workspace/idocument_view.hpp"
 #include "workspace/entity_view.hpp"

@@ -1,7 +1,7 @@
 #include "solid_model.hpp"
 #include "solid_model_util.hpp"
 #include "solid_model_occ.hpp"
-#include "group/group_extrude.hpp"
+#include "document/group/group_extrude.hpp"
 
 #include <BRepPrimAPI_MakePrism.hxx>
 

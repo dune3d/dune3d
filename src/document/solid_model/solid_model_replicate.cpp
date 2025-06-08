@@ -1,10 +1,10 @@
 #include "solid_model.hpp"
 #include "solid_model_occ.hpp"
-#include "document.hpp"
-#include "entity/entity_workplane.hpp"
-#include "group/group_linear_array.hpp"
-#include "group/group_polar_array.hpp"
-#include "group/group_mirror_hv.hpp"
+#include "document/document.hpp"
+#include "document/entity/entity_workplane.hpp"
+#include "document/group/group_linear_array.hpp"
+#include "document/group/group_polar_array.hpp"
+#include "document/group/group_mirror_hv.hpp"
 #include <BRepBuilderAPI_Transform.hxx>
 
 #include <BRepAlgoAPI_Fuse.hxx>

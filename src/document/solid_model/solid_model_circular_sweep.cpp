@@ -1,10 +1,10 @@
 #include "solid_model.hpp"
 #include "solid_model_util.hpp"
 #include "solid_model_occ.hpp"
-#include "document.hpp"
-#include "entity/entity.hpp"
-#include "group/group_lathe.hpp"
-#include "group/group_revolve.hpp"
+#include "document/document.hpp"
+#include "document/entity/entity.hpp"
+#include "document/group/group_lathe.hpp"
+#include "document/group/group_revolve.hpp"
 #include <BRepPrimAPI_MakeRevol.hxx>
 
 namespace dune3d {

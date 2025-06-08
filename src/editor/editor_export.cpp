@@ -4,7 +4,7 @@
 #include "util/fs_util.hpp"
 #include "document/group/igroup_solid_model.hpp"
 #include "document/entity/entity_workplane.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include "document/export_paths.hpp"
 #include "canvas/canvas.hpp"
 #include "dune3d_appwindow.hpp"

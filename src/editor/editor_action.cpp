@@ -16,7 +16,7 @@
 #include "document/entity/entity_cluster.hpp"
 #include "util/selection_util.hpp"
 #include "util/key_util.hpp"
-#include "document/solid_model_util.hpp"
+#include "document/solid_model/solid_model_util.hpp"
 #include "core/tool_id.hpp"
 #include "buffer.hpp"
 

@@ -17,7 +17,7 @@
 #include "util/template_util.hpp"
 #include "tool_common_impl.hpp"
 #include "core/tool_id.hpp"
-#include "document/solid_model_util.hpp"
+#include "document/solid_model/solid_model_util.hpp"
 
 
 namespace dune3d {

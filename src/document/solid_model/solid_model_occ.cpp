@@ -1,8 +1,8 @@
 #include "solid_model_occ.hpp"
 #include "preferences/preferences.hpp"
 #include "canvas/color_palette.hpp"
-#include "group/group.hpp"
-#include "group/igroup_solid_model.hpp"
+#include "document/group/group.hpp"
+#include "document/group/igroup_solid_model.hpp"
 #include "util/fs_util.hpp"
 
 #include <Quantity_Color.hxx>

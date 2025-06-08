@@ -1,8 +1,8 @@
 #include "solid_model.hpp"
 #include "solid_model_occ.hpp"
-#include "document.hpp"
-#include "group/group_fillet.hpp"
-#include "group/group_chamfer.hpp"
+#include "document/document.hpp"
+#include "document/group/group_fillet.hpp"
+#include "document/group/group_chamfer.hpp"
 
 #include <BRepFilletAPI_MakeFillet.hxx>
 #include <BRepFilletAPI_MakeChamfer.hxx>

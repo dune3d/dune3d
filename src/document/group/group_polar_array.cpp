@@ -6,7 +6,7 @@
 #include "document/document.hpp"
 #include "document/entity/entity_point2d.hpp"
 #include "document/entity/entity_workplane.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 
 namespace dune3d {

@@ -12,7 +12,7 @@
 #include "core/tool_id.hpp"
 #include "nlohmann/json.hpp"
 #include "action/action_id.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include "widgets/select_groups_dialog.hpp"
 
 namespace dune3d {

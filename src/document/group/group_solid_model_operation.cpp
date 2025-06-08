@@ -3,7 +3,7 @@
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
 #include "igroup_solid_model_json.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 
 namespace dune3d {
 GroupSolidModelOperation::GroupSolidModelOperation(const UUID &uu) : Group(uu)

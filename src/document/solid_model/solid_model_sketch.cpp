@@ -1,7 +1,7 @@
 #include "solid_model.hpp"
 #include "solid_model_util.hpp"
 #include "solid_model_occ.hpp"
-#include "group/group_sketch.hpp"
+#include "document/group/group_sketch.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity_step.hpp"
 #include "import_step/imported_step.hpp"

@@ -8,7 +8,6 @@
 #include "document/entity/entity_circle2d.hpp"
 #include "document/entity/entity_arc2d.hpp"
 #include "document/entity/entity_bezier2d.hpp"
-#include "document/solid_model.hpp"
 
 namespace dune3d {
 GroupClone::GroupClone(const UUID &uu) : Group(uu)

@@ -11,7 +11,7 @@
 #include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_circle3d.hpp"
 #include "document/entity/entity_arc3d.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 
 namespace dune3d {
 GroupLinearArray::GroupLinearArray(const UUID &uu) : GroupArray(uu)

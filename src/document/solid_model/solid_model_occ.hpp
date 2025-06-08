@@ -1,7 +1,6 @@
 #include "solid_model.hpp"
-#include "group/igroup_solid_model.hpp"
+#include "document/group/igroup_solid_model.hpp"
 #include <TopoDS.hxx>
-#include <cairomm/cairomm.h>
 
 namespace dune3d {
 

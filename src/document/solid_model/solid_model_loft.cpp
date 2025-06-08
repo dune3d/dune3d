@@ -1,9 +1,9 @@
 #include "solid_model.hpp"
 #include "solid_model_util.hpp"
 #include "solid_model_occ.hpp"
-#include "group/group_loft.hpp"
-#include "document.hpp"
-#include "group/group.hpp"
+#include "document/group/group_loft.hpp"
+#include "document/document.hpp"
+#include "document/group/group.hpp"
 #include <format>
 
 #include <BRepOffsetAPI_ThruSections.hxx>

@@ -1,6 +1,6 @@
 #include "group_sketch.hpp"
 #include "nlohmann/json.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include "igroup_solid_model_json.hpp"
 
 namespace dune3d {

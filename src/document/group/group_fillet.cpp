@@ -1,5 +1,5 @@
 #include "group_fillet.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 
 namespace dune3d {
 

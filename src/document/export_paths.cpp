@@ -6,7 +6,7 @@
 #include "entity/entity_arc2d.hpp"
 #include "entity/entity_bezier2d.hpp"
 #include "entity/entity_workplane.hpp"
-#include "solid_model_util.hpp"
+#include "solid_model/solid_model_util.hpp"
 #include "util/fs_util.hpp"
 #include <cairomm/cairomm.h>
 

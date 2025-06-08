@@ -4,7 +4,7 @@
 #include "document/entity/entity_text.hpp"
 #include "document/group/group.hpp"
 #include "document/group/igroup_solid_model.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include "preferences/preferences.hpp"
 #include "util/text_render.hpp"
 #include "util/fs_util.hpp"
