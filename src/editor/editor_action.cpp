@@ -61,6 +61,7 @@ void Editor::init_actions()
             update_version_info();
             if (m_after_save_cb)
                 m_after_save_cb();
+            m_after_save_cb = nullptr;
         }
         else {
             trigger_action(ActionID::SAVE_AS);

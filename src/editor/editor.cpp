@@ -899,6 +899,7 @@ void Editor::on_save_as(const ActionConnection &conn)
             update_title();
             if (m_after_save_cb)
                 m_after_save_cb();
+            m_after_save_cb = nullptr;
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
