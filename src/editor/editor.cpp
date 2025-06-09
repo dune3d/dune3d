@@ -868,9 +868,10 @@ void Editor::on_open_document(const ActionConnection &conn)
 void Editor::on_save_as(const ActionConnection &conn)
 {
     auto dialog = Gtk::FileDialog::create();
-    if (m_core.get_current_idocument_info().has_path()) {
-        dialog->set_initial_file(
-                Gio::File::create_for_path(path_to_string(m_core.get_current_idocument_info().get_path())));
+    auto &idoc = m_core.get_current_idocument_info();
+    if (idoc.has_path()) {
+        dialog->set_initial_folder(Gio::File::create_for_path(path_to_string(idoc.get_dirname())));
+        dialog->set_initial_name(idoc.get_stem());
     }
 
     // Add filters, so that only certain file types can be selected:
