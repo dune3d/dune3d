@@ -277,8 +277,14 @@ void Document::generate_group(Group &group)
 
 void Document::update_solid_model(Group &group)
 {
-    if (auto gr = dynamic_cast<IGroupSolidModel *>(&group))
+    if (auto gr = dynamic_cast<IGroupSolidModel *>(&group)) {
+        auto tbegin = clock();
         gr->update_solid_model(*this);
+        auto tend = clock();
+        std::cout << "Solid model update " << group.m_name << " took " << (double)(tend - tbegin) / CLOCKS_PER_SEC
+                  << std::endl
+                  << std::endl;
+    }
 }
 
 static std::string make_json_link(const std::string &label, const json &j)
