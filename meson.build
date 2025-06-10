@@ -389,11 +389,22 @@ include_directories = [
   include_directories('src'),
   include_directories('3rd_party'),
   include_directories('3rd_party/Clipper2Lib/include'),
+  include_directories('3rd_party/wayland-proxy'),
 ]
 
 subdir('3rd_party/solvespace')
 subdir('3rd_party/Clipper2Lib')
 subdir('3rd_party/dxflib')
+
+has_wayland = cxx.has_define('GDK_WINDOWING_WAYLAND', dependencies:[gtk4], prefix:'#include <gdk/gdk.h>')
+
+extra_libraries = []
+
+if has_wayland
+  subdir('3rd_party/wayland-proxy')
+  extra_libraries += wayland_proxy
+  cpp_args += '-DHAVE_WAYLAND_PROXY'
+endif
 
 if is_windows
 	windows = import('windows')
@@ -422,7 +433,7 @@ install_data('src/icons/scalable/apps/dune3d.svg', install_dir: icondir /  'scal
 dune3d = executable('dune3d',
     [src_common, src_gui, resources,icon_texture, color_presets, rc_compiled],
     dependencies: [build_dependencies],
-    link_with: [solvespace_nopic, clipper_nopic, dxflib_nopic],
+    link_with: [solvespace_nopic, clipper_nopic, dxflib_nopic] + extra_libraries,
     cpp_args: cpp_args,
     include_directories: include_directories,
     win_subsystem: 'windows',
