@@ -1,6 +1,6 @@
 project('dune3d', ['cpp', 'c'],
   version: '1.3.0',
-  meson_version: '>=0.53',
+  meson_version: '>=1.3.0',
   default_options: ['cpp_std=c++20', 'warning_level=1'],
 )
 
@@ -425,7 +425,7 @@ dune3d = executable('dune3d',
     link_with: [solvespace_nopic, clipper_nopic, dxflib_nopic],
     cpp_args: cpp_args,
     include_directories: include_directories,
-    gui_app: true,
+    win_subsystem: 'windows',
     install: true
 )
 
