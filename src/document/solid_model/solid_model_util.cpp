@@ -97,9 +97,7 @@ std::array<Edge *, 2> Node::get_edges()
         return {e2.first, e1.first};
 }
 
-FaceBuilder::FaceBuilder(const EntityWorkplane &wrkpl, const Paths &paths, Transform transform,
-                         Transform transform_normal)
-    : m_wrkpl(wrkpl), m_paths(paths), m_transform(transform), m_transform_normal(transform_normal)
+FaceBuilder::FaceBuilder()
 {
     m_builder.MakeCompound(m_compound);
 }
@@ -272,7 +270,7 @@ bool FaceBuilder::check_path(const Clipper2Lib::PathD &contour)
     return true;
 }
 
-void FaceBuilder::visit_poly_path(const Clipper2Lib::PolyPathD &path)
+void FaceBuilder::visit_poly_path(const Clipper2Lib::PolyPathD &path, const DocumentRef &docref)
 {
     assert(!path.IsHole());
 
@@ -280,7 +278,7 @@ void FaceBuilder::visit_poly_path(const Clipper2Lib::PolyPathD &path)
     if (!check_path(contour))
         return;
 
-    auto wire = path_to_wire(contour, false);
+    auto wire = path_to_wire(contour, false, docref);
     m_wires.push_back(wire);
     BRepBuilderAPI_MakeFace make_face(wire);
 
@@ -290,12 +288,12 @@ void FaceBuilder::visit_poly_path(const Clipper2Lib::PolyPathD &path)
 
         auto &hole_contour = hole.Polygon();
         if (check_path(hole_contour)) {
-            auto hole_wire = path_to_wire(hole_contour, true);
+            auto hole_wire = path_to_wire(hole_contour, true, docref);
             m_has_hole = true;
             make_face.Add(hole_wire);
         }
         for (auto &child2 : hole) {
-            visit_poly_path(*child2);
+            visit_poly_path(*child2, docref);
         }
     }
 
@@ -325,17 +323,17 @@ static std::pair<const Node &, const Edge &> get_node_and_edge(const Path &path,
     return {path.at(i).first, path.at(iprev).second};
 }
 
-TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
+TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole, const DocumentRef &docref)
 {
 
-    const Path &orig_path = m_paths.paths.at(VertexInfo::unpack(path.front().z).path_index);
+    const Path &orig_path = docref.paths.paths.at(VertexInfo::unpack(path.front().z).path_index);
     if (orig_path.size() == 1) {
         auto &orig_edge = orig_path.front().second;
         if (auto rad = dynamic_cast<const IEntityRadius *>(&orig_edge.entity)) {
             BRepBuilderAPI_MakeWire wire;
 
-            const auto center = m_transform(m_wrkpl.transform(orig_edge.transform(rad->get_center())));
-            auto normal = m_transform_normal(m_wrkpl.get_normal_vector());
+            const auto center = docref.transform(docref.wrkpl.transform(orig_edge.transform(rad->get_center())));
+            auto normal = docref.transform_normal(docref.wrkpl.get_normal_vector());
             if (hole)
                 normal *= -1;
 
@@ -383,15 +381,15 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
         const auto pa = get_pt(edge.entity, pt, edge.transform_fn);
         const auto pb = get_pt(edge.entity, next_pt, edge.transform_fn);
 
-        const auto pat = m_transform(m_wrkpl.transform(pa));
-        const auto pbt = m_transform(m_wrkpl.transform(pb));
+        const auto pat = docref.transform(docref.wrkpl.transform(pa));
+        const auto pbt = docref.transform(docref.wrkpl.transform(pb));
 
         if (auto arc = dynamic_cast<const EntityArc2D *>(&edge.entity)) {
-            auto normal = m_transform_normal(m_wrkpl.get_normal_vector());
+            auto normal = docref.transform_normal(docref.wrkpl.get_normal_vector());
 
             gp_Pnt sa(pat.x, pat.y, pat.z);
             gp_Pnt ea(pbt.x, pbt.y, pbt.z);
-            const auto center = m_transform(m_wrkpl.transform(edge.transform(arc->m_center)));
+            const auto center = docref.transform(docref.wrkpl.transform(edge.transform(arc->m_center)));
             const auto radius = arc->get_radius();
             if (pt == 2)
                 normal *= -1;
@@ -406,10 +404,10 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
             const auto control_pta = pt == 1 ? 3 : 4;
             const auto control_ptb = pt == 1 ? 4 : 3;
 
-            const auto cat =
-                    m_transform(m_wrkpl.transform(edge.transform(bezier->get_point_in_workplane(control_pta))));
-            const auto cbt =
-                    m_transform(m_wrkpl.transform(edge.transform(bezier->get_point_in_workplane(control_ptb))));
+            const auto cat = docref.transform(
+                    docref.wrkpl.transform(edge.transform(bezier->get_point_in_workplane(control_pta))));
+            const auto cbt = docref.transform(
+                    docref.wrkpl.transform(edge.transform(bezier->get_point_in_workplane(control_ptb))));
 
             poles(1) = gp_Pnt(pat.x, pat.y, pat.z);
             poles(2) = gp_Pnt(cat.x, cat.y, cat.z);
@@ -466,10 +464,10 @@ FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu
 
     auto &wrkpl = doc.get_entity<EntityWorkplane>(wrkpl_uu);
 
-    FaceBuilder face_builder{wrkpl, paths, fn_transform, fn_transform_normal};
+    FaceBuilder face_builder{};
 
     for (auto &child : poly_tree) {
-        face_builder.visit_poly_path(*child);
+        face_builder.visit_poly_path(*child, DocumentRef{wrkpl, paths, fn_transform, fn_transform_normal});
     }
 
     return face_builder;

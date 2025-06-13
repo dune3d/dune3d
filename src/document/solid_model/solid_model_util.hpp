@@ -77,23 +77,25 @@ public:
     unsigned int get_n_faces() const;
 
 private:
-    FaceBuilder(const EntityWorkplane &wrkpl, const Paths &paths, Transform transform, Transform transform_normal);
+    FaceBuilder();
 
+    struct DocumentRef {
+        const EntityWorkplane &wrkpl;
+        const Paths &paths;
+        Transform transform;
+        Transform transform_normal;
+    };
 
     static bool check_path(const Clipper2Lib::PathD &contour);
 
-    void visit_poly_path(const Clipper2Lib::PolyPathD &path);
+    void visit_poly_path(const Clipper2Lib::PolyPathD &path, const DocumentRef &docref);
 
-    const EntityWorkplane &m_wrkpl;
-    const Paths &m_paths;
-    Transform m_transform;
-    Transform m_transform_normal;
     TopoDS_Compound m_compound;
     TopoDS_Builder m_builder;
     std::list<TopoDS_Wire> m_wires;
     unsigned int m_n_faces = 0;
     bool m_has_hole = false;
-    TopoDS_Wire path_to_wire(const Clipper2Lib::PathD &path, bool hole);
+    TopoDS_Wire path_to_wire(const Clipper2Lib::PathD &path, bool hole, const DocumentRef &docref);
 };
 } // namespace solid_model_util
 
