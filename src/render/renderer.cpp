@@ -457,7 +457,8 @@ void Renderer::visit(const EntitySTEP &en)
 
     SelectableRef sr{SelectableRef::Type::ENTITY, en.m_uuid, 0};
     if (en.m_imported) {
-        if (any_of(display, EntityViewSTEP::Display::SOLID, EntityViewSTEP::Display::SOLID_WIREFRAME))
+        if (any_of(display, EntityViewSTEP::Display::SOLID, EntityViewSTEP::Display::SOLID_WIREFRAME)
+            && !en.m_include_in_solid_model)
             m_ca.add_selectable(m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal,
                                                     ICanvas::FaceColor::AS_IS),
                                 sr);
