@@ -27,6 +27,10 @@ public:
     {
         return m_measurement;
     }
+    void set_is_measurement(bool is_measurement) override
+    {
+        m_measurement = is_measurement;
+    }
 
     double measure_distance(const Document &doc) const;
 
@@ -62,6 +66,7 @@ public:
     {
         m_distance = d * (m_distance >= 0 ? 1 : -1);
     }
+    double measure_datum(const Document &doc) const override;
 
     DatumUnit get_datum_unit() const override
     {

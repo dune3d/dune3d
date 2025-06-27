@@ -66,6 +66,11 @@ double ConstraintPointLineDistance::measure_distance(const Document &doc) const
     return glm::length(pp - (lp1 + v * t));
 }
 
+double ConstraintPointLineDistance::measure_datum(const Document &doc) const
+{
+    return measure_distance(doc);
+}
+
 double ConstraintPointLineDistance::get_display_distance(const Document &doc) const
 {
     if (m_measurement)

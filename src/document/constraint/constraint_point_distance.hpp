@@ -28,6 +28,10 @@ public:
     {
         return m_measurement;
     }
+    void set_is_measurement(bool is_measurement) override
+    {
+        m_measurement = is_measurement;
+    }
 
     double m_distance = 1;
     glm::dvec3 m_offset = {0, 0, 0};
@@ -51,6 +55,7 @@ public:
     }
 
     virtual double measure_distance(const Document &doc) const = 0;
+    double measure_datum(const Document &doc) const override;
 
 
     double get_datum() const override

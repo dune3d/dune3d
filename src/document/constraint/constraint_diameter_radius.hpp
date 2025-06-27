@@ -30,6 +30,10 @@ public:
     {
         return m_measurement;
     }
+    void set_is_measurement(bool is_measurement) override
+    {
+        m_measurement = is_measurement;
+    }
 
     glm::dvec3 get_offset() const override
     {
@@ -61,6 +65,8 @@ public:
     {
         m_distance = d;
     }
+
+    double measure_datum(const Document &doc) const override;
 
     DatumUnit get_datum_unit() const override
     {

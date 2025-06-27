@@ -120,15 +120,18 @@ json ConstraintLinesAngle::serialize() const
     return j;
 }
 
+double ConstraintLinesAngle::measure_datum(const Document &doc) const
+{
+    auto vs = get_vectors(doc);
+    return glm::degrees(acos(glm::dot(glm::normalize(vs.l1v), glm::normalize(vs.l2v))));
+}
+
 double ConstraintLinesAngle::get_display_angle(const Document &doc) const
 {
-    if (m_measurement) {
-        auto vs = get_vectors(doc);
-        return glm::degrees(acos(glm::dot(glm::normalize(vs.l1v), glm::normalize(vs.l2v))));
-    }
-    else {
+    if (m_measurement)
+        return measure_datum(doc);
+    else
         return m_angle;
-    }
 }
 
 } // namespace dune3d

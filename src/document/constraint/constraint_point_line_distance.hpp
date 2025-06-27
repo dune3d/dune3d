@@ -38,6 +38,10 @@ public:
     {
         return m_measurement;
     }
+    void set_is_measurement(bool is_measurement) override
+    {
+        m_measurement = is_measurement;
+    }
 
     glm::dvec3 get_projected(const Document &doc) const;
     glm::dvec3 get_origin(const Document &doc) const override;
@@ -75,6 +79,8 @@ public:
     {
         m_distance = d * (m_distance >= 0 ? 1 : -1);
     }
+
+    double measure_datum(const Document &doc) const override;
 
     DatumUnit get_datum_unit() const override
     {

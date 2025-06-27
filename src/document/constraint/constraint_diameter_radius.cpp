@@ -72,6 +72,11 @@ double ConstraintDiameterRadius::measure_radius(const Document &doc) const
     return entity.get_radius();
 }
 
+double ConstraintDiameterRadius::measure_datum(const Document &doc) const
+{
+    return measure_distance(doc);
+}
+
 void ConstraintDiameterRadius::accept(ConstraintVisitor &visitor) const
 {
     visitor.visit(*this);

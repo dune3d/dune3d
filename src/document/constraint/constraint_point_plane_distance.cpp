@@ -69,6 +69,11 @@ double ConstraintPointPlaneDistance::measure_distance(const Document &doc) const
     return glm::dot(vn, vd);
 }
 
+double ConstraintPointPlaneDistance::measure_datum(const Document &doc) const
+{
+    return measure_distance(doc);
+}
+
 double ConstraintPointPlaneDistance::get_display_distance(const Document &doc) const
 {
     if (m_measurement)

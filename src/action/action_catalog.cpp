@@ -234,6 +234,9 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {{"Constrain Bezier/Bezier same curvature", "Constrain same curvature"},
           ActionGroup::CONSTRAIN,
           ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::TOGGLE_MEASUREMENT, {"Toggle measurement", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::SET_MEASUREMENT, {"Convert to measurement", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::UNSET_MEASUREMENT, {"Convert to constraint", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -411,6 +414,9 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CREATE_COINCIDENT_CONSTRAINTS),
         TOOL_LUT_ITEM(HIDE_REFERENCE_WORKPLANE),
         TOOL_LUT_ITEM(CONSTRAIN_BEZIER_BEZIER_SAME_CURVATURE),
+        TOOL_LUT_ITEM(TOGGLE_MEASUREMENT),
+        TOOL_LUT_ITEM(SET_MEASUREMENT),
+        TOOL_LUT_ITEM(UNSET_MEASUREMENT),
 };
 
 

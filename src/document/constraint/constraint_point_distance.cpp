@@ -93,4 +93,9 @@ double ConstraintPointDistanceBase::get_display_distance(const Document &doc) co
         return m_distance;
 }
 
+double ConstraintPointDistanceBase::measure_datum(const Document &doc) const
+{
+    return measure_distance(doc);
+}
+
 } // namespace dune3d

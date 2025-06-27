@@ -251,6 +251,7 @@ src_gui = files(
   'src/core/tools/tool_move_picture_anchor.cpp',
   'src/core/tools/tool_create_coincident_constraints.cpp',
   'src/core/tools/tool_hide_reference_workplane.cpp',
+  'src/core/tools/tool_toggle_measurement.cpp',
   'src/core/tools/tool_import_picture.cpp',
   'src/util/history_manager.cpp',
   'src/util/action_label.cpp',
