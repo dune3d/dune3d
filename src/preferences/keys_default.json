@@ -1190,6 +1190,17 @@
         ]
     },
     {
+        "tool": "PASTE_PICTURE",
+        "keys": [
+            [
+                {
+                    "key": "V",
+                    "mod": 4
+                }
+            ]
+        ]
+    },
+    {
         "tool": "CUT",
         "keys": [
             [

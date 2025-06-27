@@ -252,6 +252,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolSelectSpineEntities>(tool_id, *this, m_intf, flags);
 
     case ToolID::IMPORT_PICTURE:
+    case ToolID::PASTE_PICTURE:
         return std::make_unique<ToolImportPicture>(tool_id, *this, m_intf, flags);
 
     case ToolID::ADD_PICTURE_ANCHOR:
