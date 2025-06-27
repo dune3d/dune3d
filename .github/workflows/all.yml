@@ -156,3 +156,31 @@ jobs:
         restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}
     - name: Build
       run: nix build .
+
+  build-alpine:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - all
+          - dune3d_py.so
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    needs: stylecheck
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install updates
+      run: apk -U upgrade
+    - name: Install dependencies
+      run: apk add build-base gtkmm4-dev cairomm-dev librsvg-dev libspnav-dev opencascade-dev glm-dev python3 cmake meson eigen-dev git py3-gobject3 py3-cairo
+    - name: Install python dependencies
+      if: ${{ matrix.target == 'dune3d_py.so' }}
+      run: apk add python3-dev py3-pybind11-dev
+    - name: Build
+      run: |
+        mkdir ../build
+        meson setup ../build
+        ninja -C ../build ${{ matrix.target }}
+    - name: Test python module
+      if: ${{ matrix.target == 'dune3d_py.so' }}
+      run: python3 -c 'import sys; sys.path.append("../build"); import dune3d_py'
