@@ -105,7 +105,7 @@ void RotateWindow::update_entries()
     const auto rel = m_button_rel->get_active();
     glm::dquat q;
     if (rel)
-        q = glm::inverse(m_initial) * m_normal;
+        q = m_normal * glm::inverse(m_initial);
     else
         q = m_normal;
     auto angles = glm::degrees(glm::eulerAngles(q));
@@ -124,7 +124,7 @@ glm::dquat RotateWindow::get_value() const
     if (m_button_abs->get_active())
         return q;
     else
-        return m_initial * q;
+        return q * m_initial;
 }
 
 } // namespace dune3d
