@@ -6,6 +6,7 @@
 #include "document/group/group.hpp"
 #include "document/constraint/constraint.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
+#include "document/constraint/constraint_hv.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
 #include "canvas/selectable_ref.hpp"
 #include "core/idocument_info.hpp"
@@ -466,5 +467,30 @@ std::list<UUID> entities_from_selection(const Document &doc, const std::set<Sele
     }
     return r;
 }
+
+bool entity_is_constrained_hv(const Document &doc, const UUID &uu, const UUID &wrkpl)
+{
+    if (!wrkpl)
+        return false;
+    auto en = doc.get_entity_ptr<EntityLine2D>(uu);
+    if (!en)
+        return false;
+    if (en->m_wrkpl != wrkpl)
+        return false;
+    for (auto constraint : doc.find_constraints({{uu, 1}})) {
+        const auto hv = dynamic_cast<const ConstraintHV *>(constraint);
+        if (!hv)
+            continue;
+        if (hv->m_wrkpl != wrkpl)
+            continue;
+
+        if ((hv->m_entity1 == EntityAndPoint{uu, 1} && hv->m_entity2 == EntityAndPoint{uu, 2})
+            || (hv->m_entity1 == EntityAndPoint{uu, 2} && hv->m_entity2 == EntityAndPoint{uu, 1}))
+            return true;
+    }
+
+    return false;
+}
+
 
 } // namespace dune3d

@@ -47,7 +47,8 @@ bool ToolConstrainPerpendicular::can_preview_constrain()
 
 ToolBase::CanBegin ToolConstrainPerpendicular::can_begin()
 {
-    auto tl = two_lines_from_selection(get_doc(), m_selection);
+    const auto &doc = get_doc();
+    auto tl = two_lines_from_selection(doc, m_selection);
     if (!tl.has_value())
         return false;
 
@@ -59,8 +60,15 @@ ToolBase::CanBegin ToolConstrainPerpendicular::can_begin()
     if (!any_entity_from_current_group(enps))
         return false;
 
-    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
-                                                Constraint::Type::LINES_ANGLE);
+    if (has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
+                                            Constraint::Type::LINES_ANGLE))
+        return false;
+
+    const auto wrkpl = get_workplane_uuid();
+    if (entity_is_constrained_hv(doc, tl->first, wrkpl) && entity_is_constrained_hv(doc, tl->second, wrkpl))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)

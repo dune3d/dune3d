@@ -38,7 +38,8 @@ static std::optional<std::pair<UUID, UUID>> two_entities_from_selection(const Do
 
 ToolBase::CanBegin ToolConstrainParallel::can_begin()
 {
-    auto tp = two_entities_from_selection(get_doc(), m_selection);
+    const auto &doc = get_doc();
+    auto tp = two_entities_from_selection(doc, m_selection);
 
     if (!tp.has_value())
         return false;
@@ -48,8 +49,16 @@ ToolBase::CanBegin ToolConstrainParallel::can_begin()
     if (!any_entity_from_current_group(enps))
         return false;
 
-    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
-                                                Constraint::Type::LINES_ANGLE);
+
+    if (has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
+                                            Constraint::Type::LINES_ANGLE))
+        return false;
+
+    const auto wrkpl = get_workplane_uuid();
+    if (entity_is_constrained_hv(doc, tp->first, wrkpl) && entity_is_constrained_hv(doc, tp->second, wrkpl))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainParallel::begin(const ToolArgs &args)

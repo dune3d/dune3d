@@ -77,4 +77,6 @@ std::list<UUID> entities_from_selection(const Document &doc, const std::set<Sele
 
 std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &current_doc, const SelectableRef &sr);
 
+bool entity_is_constrained_hv(const Document &doc, const UUID &uu, const UUID &wrkpl);
+
 } // namespace dune3d
