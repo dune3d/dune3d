@@ -9,6 +9,7 @@
 #include "dialogs/dialogs.hpp"
 #include "dialogs/enter_datum_window.hpp"
 #include "tool_common_constrain_impl.hpp"
+#include "core/tool_id.hpp"
 
 namespace dune3d {
 
@@ -24,7 +25,13 @@ ToolResponse ToolCommonConstrainDatum::prepare_interactive(Constraint &constrain
     if (auto wrkpl_uu = co_wrkpl.get_workplane(get_doc()))
         m_constraint_wrkpl = &get_entity<EntityWorkplane>(wrkpl_uu);
 
-    return ToolResponse();
+    ToolArgs args;
+    SelectableRef ref;
+    ref.type = SelectableRef::Type::CONSTRAINT;
+    ref.item = constraint.m_uuid;
+    args.selection.insert(std::move(ref));
+
+    return ToolResponse::next(ToolResponse::Result::NOP, ToolID::ENTER_DATUM, std::move(args));
 }
 
 ToolResponse ToolCommonConstrainDatum::update(const ToolArgs &args)

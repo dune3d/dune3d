@@ -6,6 +6,7 @@
 #include "bitmask_operators.hpp"
 #include <glm/glm.hpp>
 #include <set>
+#include <optional>
 
 namespace dune3d {
 
@@ -28,6 +29,7 @@ public:
     bool m_keep_selection = false;
     InToolActionID action;
     std::unique_ptr<ToolData> data = nullptr;
+    ToolID tool_id;
 
     /*Target target;
     int work_layer = 0;
@@ -42,7 +44,7 @@ class ToolResponse {
 public:
     // ToolID next_tool;
     //  std::unique_ptr<ToolData> data = nullptr;
-    enum class Result { NOP, END, COMMIT, REVERT };
+    enum class Result { NOP, END, COMMIT, REVERT, EDIT_DATUM };
     Result result = Result::NOP;
     /**
      * Use this if you're done. The Core will then delete the active tool and
@@ -66,15 +68,17 @@ public:
     /**
      * If you want another Tool to be launched you've finished, use this one.
      */
-    /*static ToolResponse next(Result res, ToolID t, std::unique_ptr<ToolData> data = nullptr)
+    static ToolResponse next(Result res, ToolID tool_id, ToolArgs tool_args)
     {
         ToolResponse r(res);
-        r.next_tool = t;
-        r.data = std::move(data);
+        r.next_tool_args = std::move(tool_args);
+        r.next_tool_args.value().tool_id = tool_id;
         return r;
-    };*/
+    };
 
     ToolResponse();
+
+    std::optional<ToolArgs> next_tool_args;
 
 private:
     ToolResponse(Result r);

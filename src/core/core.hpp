@@ -55,6 +55,11 @@ public:
     ToolResponse tool_begin(ToolID tool_id, const ToolArgs &args, bool transient = false);
     ToolResponse tool_update(ToolArgs &args);
 
+    void push_next_tool(ToolArgs &args)
+    {
+        this->m_pending_tool_args.emplace_back(std::move(args));
+    }
+
     std::set<InToolActionID> get_tool_actions() const;
 
     struct CanBeginInfo {

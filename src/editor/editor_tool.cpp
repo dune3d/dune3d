@@ -63,6 +63,11 @@ void Editor::tool_update_data(std::unique_ptr<ToolData> data)
 
 void Editor::tool_process(ToolResponse &resp)
 {
+    if (resp.next_tool_args.has_value()) {
+        auto next_tool_args = std::move(resp.next_tool_args.emplace());
+        m_core.push_next_tool(next_tool_args);
+    }
+
     tool_process_one();
     while (auto args = m_core.get_pending_tool_args()) {
         m_core.tool_update(*args);
