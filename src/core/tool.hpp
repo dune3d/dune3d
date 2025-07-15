@@ -44,7 +44,7 @@ class ToolResponse {
 public:
     // ToolID next_tool;
     //  std::unique_ptr<ToolData> data = nullptr;
-    enum class Result { NOP, END, COMMIT, REVERT, EDIT_DATUM };
+    enum class Result { NOP, END, COMMIT, REVERT };
     Result result = Result::NOP;
     /**
      * Use this if you're done. The Core will then delete the active tool and
@@ -67,12 +67,12 @@ public:
 
     /**
      * If you want another Tool to be launched you've finished, use this one.
+     * Make sure to set `tool_args.tool_id`
      */
-    static ToolResponse next(Result res, ToolID tool_id, ToolArgs tool_args)
+    static ToolResponse next(Result res, ToolArgs tool_args)
     {
         ToolResponse r(res);
         r.next_tool_args = std::move(tool_args);
-        r.next_tool_args.value().tool_id = tool_id;
         return r;
     };
 

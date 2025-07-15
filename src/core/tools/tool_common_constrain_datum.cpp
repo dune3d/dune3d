@@ -26,12 +26,14 @@ ToolResponse ToolCommonConstrainDatum::prepare_interactive(Constraint &constrain
         m_constraint_wrkpl = &get_entity<EntityWorkplane>(wrkpl_uu);
 
     ToolArgs args;
+    args.tool_id = ToolID::ENTER_DATUM;
+
     SelectableRef ref;
     ref.type = SelectableRef::Type::CONSTRAINT;
     ref.item = constraint.m_uuid;
     args.selection.insert(std::move(ref));
 
-    return ToolResponse::next(ToolResponse::Result::NOP, ToolID::ENTER_DATUM, std::move(args));
+    return ToolResponse::next(ToolResponse::Result::NOP, std::move(args));
 }
 
 ToolResponse ToolCommonConstrainDatum::update(const ToolArgs &args)
