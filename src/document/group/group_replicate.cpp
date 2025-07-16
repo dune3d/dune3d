@@ -22,7 +22,7 @@ GroupReplicate::GroupReplicate(const UUID &uu) : Group(uu)
 
 
 GroupReplicate::GroupReplicate(const UUID &uu, const json &j)
-    : Group(uu, j), m_source_group(j.at("source_group").get<UUID>())
+    : Group(uu, j), m_source_group(j.at("source_group").get<UUID>()), m_use_acc(j.value("use_acc", false))
 {
 }
 
@@ -30,6 +30,7 @@ json GroupReplicate::serialize() const
 {
     auto j = Group::serialize();
     j["source_group"] = m_source_group;
+    j["use_acc"] = m_use_acc;
     return j;
 }
 

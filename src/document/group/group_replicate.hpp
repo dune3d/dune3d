@@ -23,6 +23,8 @@ public:
         return {m_source_group};
     }
 
+    bool m_use_acc = false;
+
     Operation m_operation = Operation::DIFFERENCE;
     Operation get_operation() const override
     {

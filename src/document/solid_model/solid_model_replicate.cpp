@@ -26,20 +26,28 @@ static std::shared_ptr<const SolidModel> create_replicate(const Document &doc, G
     if (!source_group)
         return nullptr;
 
-    group.m_operation = source_group->get_operation();
+    if (!group.m_use_acc)
+        group.m_operation = source_group->get_operation();
 
     const auto source_solid_model = dynamic_cast<const SolidModelOcc *>(source_group->get_solid_model());
     if (!source_solid_model) {
         return nullptr;
     }
-    if (source_solid_model->m_shape.IsNull()) {
+
+    TopoDS_Shape shape;
+    if (group.m_use_acc)
+        shape = source_solid_model->m_shape_acc;
+    else
+        shape = source_solid_model->m_shape;
+
+    if (shape.IsNull()) {
         group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no shape");
         return nullptr;
     }
 
     for (unsigned int instance = 0; instance < group.get_count(); instance++) {
         auto trsf = make_trsf(instance);
-        TopoDS_Shape sh = BRepBuilderAPI_Transform(source_solid_model->m_shape, trsf);
+        TopoDS_Shape sh = BRepBuilderAPI_Transform(shape, trsf);
         if (mod->m_shape.IsNull())
             mod->m_shape = sh;
         else

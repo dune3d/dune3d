@@ -578,22 +578,54 @@ public:
         connect_spinbutton(*m_sp_count, sigc::mem_fun(*this, &GroupEditorArray::update_count));
 
 
-        auto items = Gtk::StringList::create();
-        items->append("Original");
-        items->append("First copy");
-        items->append("Arbitrary");
+        {
+            auto items = Gtk::StringList::create();
+            items->append("Original");
+            items->append("First copy");
+            items->append("Arbitrary");
 
-        m_offset_combo = Gtk::make_managed<Gtk::DropDown>(items);
-        m_offset_combo->set_selected(static_cast<guint>(group.m_offset));
-        m_offset_combo->property_selected().signal_changed().connect([this] {
-            if (is_reloading())
-                return;
-            auto &group = get_group();
-            group.m_offset = static_cast<GroupLinearArray::Offset>(m_offset_combo->get_selected());
-            m_core.get_current_document().set_group_generate_pending(group.m_uuid);
-            m_signal_changed.emit(CommitMode::IMMEDIATE);
-        });
-        grid_attach_label_and_widget(*this, "Offset", *m_offset_combo, m_top);
+            m_offset_combo = Gtk::make_managed<Gtk::DropDown>(items);
+            m_offset_combo->set_selected(static_cast<guint>(group.m_offset));
+            m_offset_combo->property_selected().signal_changed().connect([this] {
+                if (is_reloading())
+                    return;
+                auto &group = get_group();
+                group.m_offset = static_cast<GroupLinearArray::Offset>(m_offset_combo->get_selected());
+                m_core.get_current_document().set_group_generate_pending(group.m_uuid);
+                m_signal_changed.emit(CommitMode::IMMEDIATE);
+            });
+            grid_attach_label_and_widget(*this, "Offset", *m_offset_combo, m_top);
+        }
+
+        {
+            auto items = Gtk::StringList::create();
+            items->append("Union (acc)");
+            items->append("Difference (acc)");
+            items->append("Intersection (acc)");
+            items->append("From source");
+
+            m_operation_combo = Gtk::make_managed<Gtk::DropDown>(items);
+            if (group.m_use_acc)
+                m_operation_combo->set_selected(static_cast<guint>(group.get_operation()));
+            else
+                m_operation_combo->set_selected(3);
+            m_operation_combo->property_selected().signal_changed().connect([this] {
+                if (is_reloading())
+                    return;
+                auto &group = get_group();
+                const auto sel = m_operation_combo->get_selected();
+                if (sel == 3) {
+                    group.m_use_acc = false;
+                }
+                else {
+                    group.set_operation(static_cast<GroupExtrude::Operation>(sel));
+                    group.m_use_acc = true;
+                }
+                m_core.get_current_document().set_group_update_solid_model_pending(m_group_uu);
+                m_signal_changed.emit(CommitMode::IMMEDIATE);
+            });
+            grid_attach_label_and_widget(*this, "Operation", *m_operation_combo, m_top);
+        }
     }
 
     void do_reload() override
@@ -602,6 +634,10 @@ public:
         auto &group = get_group();
         m_sp_count->set_value(group.m_count);
         m_offset_combo->set_selected(static_cast<guint>(group.m_offset));
+        if (group.m_use_acc)
+            m_operation_combo->set_selected(static_cast<guint>(group.get_operation()));
+        else
+            m_operation_combo->set_selected(3);
     }
 
 private:
@@ -624,6 +660,7 @@ private:
 
     Gtk::SpinButton *m_sp_count = nullptr;
     Gtk::DropDown *m_offset_combo = nullptr;
+    Gtk::DropDown *m_operation_combo = nullptr;
 };
 
 class GroupEditorExplodedCluster : public GroupEditor {
