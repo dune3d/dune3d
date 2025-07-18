@@ -2,7 +2,7 @@
 #include <gtkmm.h>
 #include "util/uuid.hpp"
 #include "action/action.hpp"
-#include "changeable_commit_mode.hpp"
+#include "editor/changeable_commit_mode.hpp"
 
 namespace dune3d {
 

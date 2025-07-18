@@ -11,7 +11,7 @@
 #include "tool_popover.hpp"
 #include "dune3d_application.hpp"
 #include "util/selection_util.hpp"
-#include "group_editor.hpp"
+#include "group_editor/group_editor.hpp"
 #include "render/renderer.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "logger/logger.hpp"
