@@ -27,7 +27,7 @@ public:
 
     std::vector<Source> m_sources;
 
-    std::set<UUID> get_source_groups() const override;
+    std::set<UUID> get_source_groups(const Document &doc) const override;
 
     bool m_ruled = false;
 

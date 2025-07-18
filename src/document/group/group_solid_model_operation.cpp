@@ -38,7 +38,7 @@ std::set<UUID> GroupSolidModelOperation::get_referenced_entities(const Document 
 
 std::set<UUID> GroupSolidModelOperation::get_referenced_groups(const Document &doc) const
 {
-    return get_source_groups();
+    return get_source_groups(doc);
 }
 
 std::set<UUID> GroupSolidModelOperation::get_required_entities(const Document &doc) const
@@ -48,10 +48,10 @@ std::set<UUID> GroupSolidModelOperation::get_required_entities(const Document &d
 
 std::set<UUID> GroupSolidModelOperation::get_required_groups(const Document &doc) const
 {
-    return get_source_groups();
+    return get_source_groups(doc);
 }
 
-std::set<UUID> GroupSolidModelOperation::get_source_groups() const
+std::set<UUID> GroupSolidModelOperation::get_source_groups(const Document &doc) const
 {
     return {m_source_group_argument, m_source_group_tool};
 }

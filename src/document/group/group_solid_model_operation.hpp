@@ -23,7 +23,7 @@ public:
     UUID m_source_group_argument;
     UUID m_source_group_tool;
 
-    std::set<UUID> get_source_groups() const override;
+    std::set<UUID> get_source_groups(const Document &doc) const override;
 
     std::shared_ptr<const SolidModel> m_solid_model;
 

@@ -261,11 +261,12 @@ void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &
         it_doc.m_check_active = is_current_doc || doc_view.document_is_visible();
         it_doc.m_active = is_current_doc;
         update_name(it_doc, doci);
-        const auto &current_group = doci.get_document().get_group(doci.get_current_group());
+        const auto &doc = doci.get_document();
+        const auto &current_group = doc.get_group(doci.get_current_group());
         std::set<UUID> source_groups;
         if (auto group_src = dynamic_cast<const IGroupSourceGroup *>(&current_group))
-            source_groups = group_src->get_source_groups();
-        auto body = current_group.find_body(doci.get_document());
+            source_groups = group_src->get_source_groups(doc);
+        auto body = current_group.find_body(doc);
         UUID body_uu = body.group.m_uuid;
         bool after_active = false;
         for (size_t i_body = 0; i_body < it_doc.m_body_store->get_n_items(); i_body++) {
@@ -286,7 +287,7 @@ void WorkspaceBrowser::update_current_group(const std::map<UUID, DocumentView> &
                 auto &it_group = *it_body.m_group_store->get_item(i_group);
                 bool is_current = doci.get_current_group() == it_group.m_uuid;
                 it_group.m_active = is_current && is_current_doc;
-                auto &gr = doci.get_document().get_group(it_group.m_uuid);
+                auto &gr = doc.get_group(it_group.m_uuid);
                 it_group.m_dof = gr.m_dof;
                 it_group.m_name = gr.m_name;
                 it_group.m_source_group = source_groups.contains(it_group.m_uuid);

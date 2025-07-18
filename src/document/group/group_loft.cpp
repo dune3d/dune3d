@@ -53,7 +53,7 @@ std::set<UUID> GroupLoft::get_referenced_entities(const Document &doc) const
 
 std::set<UUID> GroupLoft::get_referenced_groups(const Document &doc) const
 {
-    return get_source_groups();
+    return get_source_groups(doc);
 }
 
 std::set<UUID> GroupLoft::get_required_entities(const Document &doc) const
@@ -67,10 +67,10 @@ std::set<UUID> GroupLoft::get_required_entities(const Document &doc) const
 
 std::set<UUID> GroupLoft::get_required_groups(const Document &doc) const
 {
-    return get_source_groups();
+    return get_source_groups(doc);
 }
 
-std::set<UUID> GroupLoft::get_source_groups() const
+std::set<UUID> GroupLoft::get_source_groups(const Document &doc) const
 {
     std::set<UUID> r;
     for (auto &src : m_sources) {
