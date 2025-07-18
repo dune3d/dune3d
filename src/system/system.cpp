@@ -1240,7 +1240,7 @@ void System::add_replicate(const GroupReplicate &group, CreateEq create_eq2, Cre
     auto hg = hGroup{(uint32_t)group.get_index() + 1};
 
     for (const auto &[uu, it] : m_doc.m_entities) {
-        if (it->m_group != group.m_source_group)
+        if (!group.is_source_group(m_doc, it->m_group))
             continue;
         if (it->m_construction)
             continue;

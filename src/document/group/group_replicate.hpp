@@ -17,11 +17,15 @@ public:
     explicit GroupReplicate(const UUID &uu, const json &j);
 
     UUID m_source_group;
+    bool is_source_group(const Document &doc, const UUID &uu) const;
 
-    std::set<UUID> get_source_groups(const Document &doc) const override
-    {
-        return {m_source_group};
-    }
+    std::set<UUID> get_source_groups(const Document &doc) const override;
+    std::vector<const Group *> get_source_groups_sorted(const Document &doc) const;
+
+    enum class Sources { SINGLE, BODY, RANGE };
+    Sources m_sources = Sources::SINGLE;
+
+    UUID m_source_group_start;
 
     Operation m_operation = Operation::DIFFERENCE;
     Operation get_operation() const override

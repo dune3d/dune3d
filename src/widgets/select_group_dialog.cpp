@@ -24,7 +24,8 @@ private:
 };
 
 } // namespace
-SelectGroupDialog::SelectGroupDialog(const Document &doc, const UUID &current_group_uu, const UUID &source)
+SelectGroupDialog::SelectGroupDialog(const Document &doc, const UUID &current_group_uu, const UUID &source,
+                                     GroupsFilter groups_filter)
     : Gtk::Window(), m_doc(doc)
 {
     set_modal(true);
@@ -64,8 +65,9 @@ SelectGroupDialog::SelectGroupDialog(const Document &doc, const UUID &current_gr
     for (auto group : groups_sorted) {
         if (group->get_index() >= current_group.get_index())
             break;
-        if (!IGroupSolidModel::try_get_solid_model(*group))
-            continue;
+        if (groups_filter == GroupsFilter::SOLID_MODEL)
+            if (!IGroupSolidModel::try_get_solid_model(*group))
+                continue;
         auto gi = SelectGroupItem::create();
         gi->m_name = group->m_name;
         gi->m_uuid = group->m_uuid;

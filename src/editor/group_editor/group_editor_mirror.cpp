@@ -5,7 +5,7 @@
 
 namespace dune3d {
 
-GroupEditorMirror::GroupEditorMirror(Core &core, const UUID &group_uu) : GroupEditor(core, group_uu)
+GroupEditorMirror::GroupEditorMirror(Core &core, const UUID &group_uu) : GroupEditorReplicate(core, group_uu)
 {
 
     m_include_source_switch = Gtk::make_managed<Gtk::Switch>();
@@ -22,11 +22,13 @@ GroupEditorMirror::GroupEditorMirror(Core &core, const UUID &group_uu) : GroupEd
         m_core.get_current_document().set_group_generate_pending(group.m_uuid);
         m_signal_changed.emit(CommitMode::IMMEDIATE);
     });
+
+    add_source_widgets();
 }
 
 void GroupEditorMirror::do_reload()
 {
-    GroupEditor::do_reload();
+    GroupEditorReplicate::do_reload();
     auto &group = get_group();
     m_include_source_switch->set_active(group.m_include_source);
 }

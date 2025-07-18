@@ -274,6 +274,7 @@ src_gui = files(
   'src/editor/group_editor/group_editor_solid_model.cpp',
   'src/editor/group_editor/group_editor_solid_model_operation.cpp',
   'src/editor/group_editor/group_editor_sweep.cpp',
+  'src/editor/group_editor/group_editor_replicate.cpp',
   'src/editor/selection_editor.cpp',
   'src/editor/selection_menu_creator.cpp',
   'src/dialogs/dialogs.cpp',

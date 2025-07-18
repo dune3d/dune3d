@@ -1,11 +1,11 @@
 #pragma once
-#include "group_editor.hpp"
+#include "group_editor_replicate.hpp"
 
 namespace dune3d {
 
 class GroupMirror;
 
-class GroupEditorMirror : public GroupEditor {
+class GroupEditorMirror : public GroupEditorReplicate {
 public:
     GroupEditorMirror(Core &core, const UUID &group_uu);
 

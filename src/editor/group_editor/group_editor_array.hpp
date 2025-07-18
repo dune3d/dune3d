@@ -1,11 +1,11 @@
 #pragma once
-#include "group_editor.hpp"
+#include "group_editor_replicate.hpp"
 
 namespace dune3d {
 
 class GroupArray;
 
-class GroupEditorArray : public GroupEditor {
+class GroupEditorArray : public GroupEditorReplicate {
 public:
     GroupEditorArray(Core &core, const UUID &group_uu);
 

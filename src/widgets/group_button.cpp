@@ -5,7 +5,8 @@
 
 namespace dune3d {
 
-GroupButton::GroupButton(const Document &doc, const UUID &current_group) : m_doc(doc), m_current_group(current_group)
+GroupButton::GroupButton(const Document &doc, const UUID &current_group, GroupsFilter groups_filter)
+    : m_doc(doc), m_groups_filter(groups_filter), m_current_group(current_group)
 {
     m_label = Gtk::make_managed<Gtk::Label>();
     m_label->set_ellipsize(Pango::EllipsizeMode::END);
@@ -35,7 +36,7 @@ void GroupButton::update_label()
 
 void GroupButton::select_group()
 {
-    auto dia = new SelectGroupDialog(m_doc, m_current_group, m_group);
+    auto dia = new SelectGroupDialog(m_doc, m_current_group, m_group, m_groups_filter);
     dia->set_transient_for(dynamic_cast<Gtk::Window &>(*get_ancestor(GTK_TYPE_WINDOW)));
     dia->present();
     dia->signal_changed().connect([this, dia] {

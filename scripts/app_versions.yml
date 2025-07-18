@@ -33,3 +33,4 @@ versions:
     31: save solid model operation in sketch groups
     32: support constraining points to 3D beziers
     33: add bezier/bezier same curvature constraint
+    34: support multiple source groups on array and mirror groups

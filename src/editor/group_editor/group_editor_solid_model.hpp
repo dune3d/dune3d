@@ -13,6 +13,8 @@ protected:
 
 private:
     IGroupSolidModel &get_group();
+
+protected:
     Gtk::DropDown *m_operation_combo = nullptr;
 };
 

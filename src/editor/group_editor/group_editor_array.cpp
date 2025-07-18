@@ -6,7 +6,7 @@
 
 namespace dune3d {
 
-GroupEditorArray::GroupEditorArray(Core &core, const UUID &group_uu) : GroupEditor(core, group_uu)
+GroupEditorArray::GroupEditorArray(Core &core, const UUID &group_uu) : GroupEditorReplicate(core, group_uu)
 {
     auto &group = get_group();
 
@@ -34,11 +34,13 @@ GroupEditorArray::GroupEditorArray(Core &core, const UUID &group_uu) : GroupEdit
         m_signal_changed.emit(CommitMode::IMMEDIATE);
     });
     grid_attach_label_and_widget(*this, "Offset", *m_offset_combo, m_top);
+
+    add_source_widgets();
 }
 
 void GroupEditorArray::do_reload()
 {
-    GroupEditor::do_reload();
+    GroupEditorReplicate::do_reload();
     auto &group = get_group();
     m_sp_count->set_value(group.m_count);
     m_offset_combo->set_selected(static_cast<guint>(group.m_offset));

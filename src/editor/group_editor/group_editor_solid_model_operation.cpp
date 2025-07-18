@@ -11,8 +11,9 @@ GroupEditorSolidModelOperation::GroupEditorSolidModelOperation(Core &core, const
 {
     add_operation_combo();
 
-    m_argument_button = Gtk::make_managed<GroupButton>(m_core.get_current_document(), group_uu);
-    m_tool_button = Gtk::make_managed<GroupButton>(m_core.get_current_document(), group_uu);
+    m_argument_button =
+            Gtk::make_managed<GroupButton>(m_core.get_current_document(), group_uu, GroupsFilter::SOLID_MODEL);
+    m_tool_button = Gtk::make_managed<GroupButton>(m_core.get_current_document(), group_uu, GroupsFilter::SOLID_MODEL);
 
     grid_attach_label_and_widget(*this, "Argument", *m_argument_button, m_top);
     grid_attach_label_and_widget(*this, "Tool", *m_tool_button, m_top);

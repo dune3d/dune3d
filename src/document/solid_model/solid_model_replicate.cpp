@@ -12,6 +12,7 @@
 #include <gp_Ax2.hxx>
 
 #include <functional>
+#include "util/template_util.hpp"
 
 namespace dune3d {
 
@@ -22,24 +23,50 @@ static std::shared_ptr<const SolidModel> create_replicate(const Document &doc, G
     auto mod = std::make_shared<SolidModelOcc>();
     group.m_array_messages.clear();
 
-    auto source_group = dynamic_cast<const IGroupSolidModel *>(&doc.get_group(group.m_source_group));
-    if (!source_group)
-        return nullptr;
+    TopoDS_Shape shape;
 
-    group.m_operation = source_group->get_operation();
+    if (any_of(group.m_sources, GroupReplicate::Sources::SINGLE, GroupReplicate::Sources::BODY)) {
+        auto source_group = dynamic_cast<const IGroupSolidModel *>(&doc.get_group(group.m_source_group));
 
-    const auto source_solid_model = dynamic_cast<const SolidModelOcc *>(source_group->get_solid_model());
-    if (!source_solid_model) {
-        return nullptr;
+        if (group.m_sources == GroupReplicate::Sources::SINGLE)
+            group.m_operation = source_group->get_operation();
+
+        const auto source_solid_model = dynamic_cast<const SolidModelOcc *>(source_group->get_solid_model());
+        if (!source_solid_model) {
+            return nullptr;
+        }
+
+        if (group.m_sources == GroupReplicate::Sources::SINGLE)
+            shape = source_solid_model->m_shape;
+        else
+            shape = source_solid_model->m_shape_acc;
+
+        if (shape.IsNull()) {
+            group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no shape");
+            return nullptr;
+        }
     }
-    if (source_solid_model->m_shape.IsNull()) {
-        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no shape");
-        return nullptr;
+    else { // range
+        for (auto sg : group.get_source_groups_sorted(doc)) {
+            auto sgs = dynamic_cast<const IGroupSolidModel *>(sg);
+            if (!sgs)
+                continue;
+            auto solid_model = dynamic_cast<const SolidModelOcc *>(sgs->get_solid_model());
+            if (!solid_model)
+                continue;
+            if (solid_model->m_shape.IsNull())
+                continue;
+            if (shape.IsNull())
+                shape = solid_model->m_shape;
+            else
+                shape = SolidModelOcc::calc(sgs->get_operation(), shape, solid_model->m_shape);
+        }
     }
+
 
     for (unsigned int instance = 0; instance < group.get_count(); instance++) {
         auto trsf = make_trsf(instance);
-        TopoDS_Shape sh = BRepBuilderAPI_Transform(source_solid_model->m_shape, trsf);
+        TopoDS_Shape sh = BRepBuilderAPI_Transform(shape, trsf);
         if (mod->m_shape.IsNull())
             mod->m_shape = sh;
         else
