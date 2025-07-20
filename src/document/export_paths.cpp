@@ -6,7 +6,7 @@
 #include "entity/entity_arc2d.hpp"
 #include "entity/entity_bezier2d.hpp"
 #include "entity/entity_workplane.hpp"
-#include "solid_model/solid_model_util.hpp"
+#include "util/paths.hpp"
 #include "util/fs_util.hpp"
 #include <cairomm/cairomm.h>
 
@@ -37,7 +37,7 @@ void export_paths(const std::filesystem::path &filename, const Document &doc, co
         if (group_filter && !group_filter(*group))
             continue;
 
-        const auto paths = solid_model_util::Paths::from_document(doc, group->m_active_wrkpl, group->m_uuid);
+        const auto paths = paths::Paths::from_document(doc, group->m_active_wrkpl, group->m_uuid);
 
         if (paths.paths.size() == 0)
             continue;

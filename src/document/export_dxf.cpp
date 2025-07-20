@@ -4,7 +4,7 @@
 #include "entity/entity_line2d.hpp"
 #include "entity/entity_arc2d.hpp"
 #include "entity/entity_bezier2d.hpp"
-#include "solid_model/solid_model_util.hpp"
+#include "util/paths.hpp"
 #include "util/fs_util.hpp"
 #include "dxflib/dl_dxf.h"
 
@@ -60,7 +60,7 @@ void export_dxf(const std::filesystem::path &filename, const Document &doc, cons
     if (!group.m_active_wrkpl)
         throw std::runtime_error("needs workplane");
 
-    const auto paths = solid_model_util::Paths::from_document(doc, group.m_active_wrkpl, group.m_uuid);
+    const auto paths = paths::Paths::from_document(doc, group.m_active_wrkpl, group.m_uuid);
     if (paths.paths.size() == 0)
         return;
 

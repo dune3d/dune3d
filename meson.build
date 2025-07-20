@@ -155,6 +155,7 @@ src_common = files(
   'src/util/picture_data.cpp',
   'src/util/picture_load.cpp',
   'src/util/picture_util.cpp',
+  'src/util/paths.cpp',
 )
 
 src_gui = files(

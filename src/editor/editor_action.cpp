@@ -16,7 +16,7 @@
 #include "document/entity/entity_cluster.hpp"
 #include "util/selection_util.hpp"
 #include "util/key_util.hpp"
-#include "document/solid_model/solid_model_util.hpp"
+#include "util/paths.hpp"
 #include "core/tool_id.hpp"
 #include "buffer.hpp"
 
@@ -210,8 +210,8 @@ void Editor::init_actions()
         auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(&en);
         if (!en_wrkpl)
             return;
-        auto paths = solid_model_util::Paths::from_document(m_core.get_current_document(), en_wrkpl->get_workplane(),
-                                                            group.m_uuid);
+        auto paths =
+                paths::Paths::from_document(m_core.get_current_document(), en_wrkpl->get_workplane(), group.m_uuid);
 
         for (auto &path : paths.paths) {
             for (auto &[node, edge] : path) {
