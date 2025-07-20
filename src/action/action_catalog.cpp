@@ -238,6 +238,9 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::TOGGLE_MEASUREMENT, {"Toggle measurement", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::SET_MEASUREMENT, {"Convert to measurement", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::UNSET_MEASUREMENT, {"Convert to constraint", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::EXPORT_DXF_CURRENT_GROUP,
+         {"Export DXF from current group", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+
 };
 
 
@@ -324,6 +327,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(COPY),
         ACTION_LUT_ITEM(CONSTRAIN_MENU),
         ACTION_LUT_ITEM(LOOK_HERE),
+        ACTION_LUT_ITEM(EXPORT_DXF_CURRENT_GROUP),
 };
 
 #define TOOL_LUT_ITEM(x) {#x, ToolID::x}

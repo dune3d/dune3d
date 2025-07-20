@@ -76,5 +76,6 @@ enum class ActionID {
     COPY,
     CONSTRAIN_MENU,
     LOOK_HERE,
+    EXPORT_DXF_CURRENT_GROUP,
 };
 }

@@ -6,9 +6,11 @@
 #include "document/entity/entity_workplane.hpp"
 #include "document/solid_model/solid_model.hpp"
 #include "document/export_paths.hpp"
+#include "document/export_dxf.hpp"
 #include "canvas/canvas.hpp"
 #include "dune3d_appwindow.hpp"
 #include "dune3d_application.hpp"
+#include "util/template_util.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -125,8 +127,12 @@ void Editor::on_export_paths(const ActionConnection &conn)
 
     auto dialog = Gtk::FileDialog::create();
 
+    std::string suffix = ".svg";
+    if (action == ActionID::EXPORT_DXF_CURRENT_GROUP)
+        suffix = ".dxf";
+
     if (auto initial_file =
-                get_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(), ".svg",
+                get_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(), suffix,
                                             &Dune3DApplication::UserConfig::ExportPaths::paths)) {
         dialog->set_initial_file(initial_file);
     }
@@ -135,25 +141,31 @@ void Editor::on_export_paths(const ActionConnection &conn)
     auto filters = Gio::ListStore<Gtk::FileFilter>::create();
 
     auto filter_any = Gtk::FileFilter::create();
-    filter_any->set_name("SVG");
-    filter_any->add_pattern("*.svg");
+    if (action == ActionID::EXPORT_DXF_CURRENT_GROUP) {
+        filter_any->set_name("DXF");
+        filter_any->add_pattern("*.dxf");
+    }
+    else {
+        filter_any->set_name("SVG");
+        filter_any->add_pattern("*.svg");
+    }
     filters->append(filter_any);
 
     dialog->set_filters(filters);
 
 
     // Show the dialog and wait for a user response:
-    dialog->save(m_win, [this, dialog, action](const Glib::RefPtr<Gio::AsyncResult> &result) {
+    dialog->save(m_win, [this, dialog, action, suffix](const Glib::RefPtr<Gio::AsyncResult> &result) {
         try {
             auto file = dialog->save_finish(result);
             // open_file_view(file);
             //  Notice that this is a std::string, not a Glib::ustring.
-            const auto path = path_from_string(append_suffix_if_required(file->get_path(), ".svg"));
+            const auto path = path_from_string(append_suffix_if_required(file->get_path(), suffix));
 
             auto group_filter = [this, action](const Group &group) {
                 if (m_core.get_current_group() == group.m_uuid)
                     return true;
-                if (action == ActionID::EXPORT_PATHS_IN_CURRENT_GROUP)
+                if (any_of(action, ActionID::EXPORT_PATHS_IN_CURRENT_GROUP, ActionID::EXPORT_DXF_CURRENT_GROUP))
                     return false;
                 auto &body_group = group.find_body(m_core.get_current_document()).group;
                 auto &doc_view = get_current_document_view();
@@ -161,7 +173,11 @@ void Editor::on_export_paths(const ActionConnection &conn)
                 auto body_visible = doc_view.body_is_visible(body_group.m_uuid);
                 return body_visible && group_visible;
             };
-            export_paths(path, m_core.get_current_document(), m_core.get_current_group(), group_filter);
+
+            if (action == ActionID::EXPORT_DXF_CURRENT_GROUP)
+                export_dxf(path, m_core.get_current_document(), m_core.get_current_group());
+            else
+                export_paths(path, m_core.get_current_document(), m_core.get_current_group(), group_filter);
             set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
                                         &Dune3DApplication::UserConfig::ExportPaths::paths, path_to_string(path));
         }

@@ -230,6 +230,7 @@ void Editor::init_actions()
 
     connect_action(ActionID::EXPORT_PATHS, sigc::mem_fun(*this, &Editor::on_export_paths));
     connect_action(ActionID::EXPORT_PATHS_IN_CURRENT_GROUP, sigc::mem_fun(*this, &Editor::on_export_paths));
+    connect_action(ActionID::EXPORT_DXF_CURRENT_GROUP, sigc::mem_fun(*this, &Editor::on_export_paths));
     connect_action(ActionID::EXPORT_PROJECTION, sigc::mem_fun(*this, &Editor::on_export_projection));
     connect_action(ActionID::EXPORT_PROJECTION_ALL, sigc::mem_fun(*this, &Editor::on_export_projection));
 
@@ -450,6 +451,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
 
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = has_current_wrkpl;
+        m_action_sensitivity[ActionID::EXPORT_DXF_CURRENT_GROUP] = has_current_wrkpl;
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = document_from_selection(sel).has_value();
         {
             auto enp = point_from_selection(m_core.get_current_document(), sel, EntityType::CLUSTER);
@@ -476,6 +478,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::SELECT_PATH] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = false;
+        m_action_sensitivity[ActionID::EXPORT_DXF_CURRENT_GROUP] = false;
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = false;
         m_action_sensitivity[ActionID::EXPLODE_CLUSTER] = false;
         m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = false;

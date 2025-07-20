@@ -132,6 +132,7 @@ src_common = files(
   'src/document/group/group_clone.cpp',
   'src/document/group/group_pipe.cpp',
   'src/document/export_paths.cpp',
+  'src/document/export_dxf.cpp',
   'src/system/system.cpp',
   'src/util/file_version.cpp',
   'src/util/util.cpp',
