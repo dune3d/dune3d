@@ -14,6 +14,7 @@
 #include "document/entity/entity_bezier2d.hpp"
 #include "document/entity/entity_bezier3d.hpp"
 #include "document/solid_model/solid_model.hpp"
+#include "igroup_solid_model_json.hpp"
 
 namespace dune3d {
 GroupReplicate::GroupReplicate(const UUID &uu) : Group(uu)
@@ -29,7 +30,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(GroupReplicate::Sources, {
 
 GroupReplicate::GroupReplicate(const UUID &uu, const json &j)
     : Group(uu, j), m_source_group(j.at("source_group").get<UUID>()),
-      m_sources(j.value("sources", GroupReplicate::Sources::SINGLE))
+      m_sources(j.value("sources", GroupReplicate::Sources::SINGLE)),
+      m_operation(j.value("operation", IGroupSolidModel::Operation::DIFFERENCE))
 {
     if (m_sources == Sources::RANGE)
         m_source_group_start = j.at("source_group_start").get<UUID>();
@@ -42,6 +44,8 @@ json GroupReplicate::serialize() const
     j["sources"] = m_sources;
     if (m_sources == Sources::RANGE)
         j["source_group_start"] = m_source_group_start;
+    if (m_sources != Sources::SINGLE)
+        j["operation"] = m_operation;
     return j;
 }
 

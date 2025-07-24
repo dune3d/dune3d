@@ -27,7 +27,7 @@ static std::shared_ptr<const SolidModel> create_replicate(const Document &doc, G
 
     if (any_of(group.m_sources, GroupReplicate::Sources::SINGLE, GroupReplicate::Sources::BODY)) {
         auto source_group = dynamic_cast<const IGroupSolidModel *>(&doc.get_group(group.m_source_group));
-        if(!source_group)
+        if (!source_group)
             return nullptr;
 
         if (group.m_sources == GroupReplicate::Sources::SINGLE)
