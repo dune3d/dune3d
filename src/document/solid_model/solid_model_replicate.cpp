@@ -65,6 +65,11 @@ static std::shared_ptr<const SolidModel> create_replicate(const Document &doc, G
         }
     }
 
+    if (shape.IsNull()) {
+        group.m_array_messages.emplace_back(GroupStatusMessage::Status::ERR, "no shape");
+        return nullptr;
+    }
+
 
     for (unsigned int instance = 0; instance < group.get_count(); instance++) {
         auto trsf = make_trsf(instance);
