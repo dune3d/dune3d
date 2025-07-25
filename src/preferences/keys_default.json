@@ -1243,5 +1243,16 @@
             ]
         ],
         "tool": "HIDE_REFERENCE_WORKPLANE"
+    },
+    {
+        "action": "TOGGLE_IRRELEVANT_WORKPLANES",
+        "keys": [
+            [
+                {
+                    "key": "r",
+                    "mod": 8
+                }
+            ]
+        ]
     }
 ]

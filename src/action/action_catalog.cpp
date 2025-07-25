@@ -240,6 +240,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ToolID::UNSET_MEASUREMENT, {"Convert to constraint", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::EXPORT_DXF_CURRENT_GROUP,
          {"Export DXF from current group", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::TOGGLE_IRRELEVANT_WORKPLANES,
+         {"Toggle irrelevant workplanes", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_IN_TOOL}},
 
 };
 
@@ -328,6 +330,7 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(CONSTRAIN_MENU),
         ACTION_LUT_ITEM(LOOK_HERE),
         ACTION_LUT_ITEM(EXPORT_DXF_CURRENT_GROUP),
+        ACTION_LUT_ITEM(TOGGLE_IRRELEVANT_WORKPLANES),
 };
 
 #define TOOL_LUT_ITEM(x) {#x, ToolID::x}

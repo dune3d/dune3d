@@ -398,6 +398,11 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
     if (!m_is_current_document)
         return;
 
+    if (m_doc_view->hide_irrelevant_workplanes()) {
+        if (wrkpl.m_group != m_current_group->m_uuid && wrkpl.m_uuid != m_current_group->m_active_wrkpl)
+            return;
+    }
+
     m_ca.add_selectable(m_ca.draw_point(wrkpl.m_origin, IconID::POINT_DIAMOND),
                         SelectableRef{SelectableRef::Type::ENTITY, wrkpl.m_uuid, 1});
     glm::vec2 sz = wrkpl.m_size / 2.;
@@ -506,6 +511,10 @@ public:
         return nullptr;
     }
     bool construction_entities_from_previous_groups_are_visible() const override
+    {
+        return false;
+    }
+    bool hide_irrelevant_workplanes() const override
     {
         return false;
     }

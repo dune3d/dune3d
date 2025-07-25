@@ -56,6 +56,12 @@ public:
         return m_show_construction_entities_from_previous_groups;
     }
 
+    bool m_hide_irrelevant_workplanes = false;
+    bool hide_irrelevant_workplanes() const override
+    {
+        return m_hide_irrelevant_workplanes;
+    }
+
     json serialize() const;
 
     const EntityView *get_entity_view(const UUID &uu) const override;

@@ -265,6 +265,11 @@ void Editor::init_actions()
         set_show_previous_construction_entities(
                 !get_current_document_view().m_show_construction_entities_from_previous_groups);
     });
+    connect_action(ActionID::TOGGLE_IRRELEVANT_WORKPLANES, [this](const auto &conn) {
+        if (!m_core.has_documents())
+            return;
+        set_hide_irrelevant_workplanes(!get_current_document_view().m_hide_irrelevant_workplanes);
+    });
 
     connect_action(ActionID::COPY, [this](const auto &conn) {
         if (auto buf = Buffer::create(m_core.get_current_document(), get_canvas().get_selection(),
@@ -303,6 +308,17 @@ void Editor::set_show_previous_construction_entities(bool show)
     update_view_hints();
     canvas_update_keep_selection();
 }
+
+void Editor::set_hide_irrelevant_workplanes(bool hide)
+{
+    if (!m_core.has_documents())
+        return;
+    get_current_document_view().m_hide_irrelevant_workplanes = hide;
+    m_hide_irrelevant_workplanes_action->set_state(Glib::Variant<bool>::create(hide));
+    update_view_hints();
+    canvas_update_keep_selection();
+}
+
 
 void Editor::on_create_group_action(const ActionConnection &conn)
 {
@@ -397,6 +413,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::SELECT_UNDERCONSTRAINED] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP] = m_core.has_documents();
     m_action_sensitivity[ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES] = m_core.has_documents();
+    m_action_sensitivity[ActionID::TOGGLE_IRRELEVANT_WORKPLANES] = m_core.has_documents();
     m_action_sensitivity[ActionID::EXPORT_PROJECTION_ALL] = m_core.has_documents();
     bool has_solid_model = false;
 
