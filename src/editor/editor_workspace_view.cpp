@@ -186,6 +186,8 @@ void Editor::set_current_workspace_view(const UUID &uu)
         ca.set_cam_quat(wv.m_cam_quat);
         ca.set_center(wv.m_center);
         set_perspective_projection(wv.m_projection == CanvasProjection::PERSP);
+        set_show_previous_construction_entities(wv.m_show_construction_entities_from_previous_groups);
+        set_hide_irrelevant_workplanes(wv.m_hide_irrelevant_workplanes);
         if (wv.m_curvature_comb_scale == 0)
             m_curvature_comb_scale->set_value(m_curvature_comb_scale->get_adjustment()->get_lower());
         else

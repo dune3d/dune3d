@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include "document_view.hpp"
+#include "iworkspace_view.hpp"
 #include "nlohmann/json_fwd.hpp"
 #include "canvas/projection.hpp"
 #include <glm/glm.hpp>
@@ -12,7 +13,7 @@ namespace dune3d {
 
 using json = nlohmann::json;
 
-class WorkspaceView {
+class WorkspaceView : public IWorkspaceView {
 public:
     explicit WorkspaceView(const json &j);
     WorkspaceView();
@@ -29,6 +30,22 @@ public:
     CanvasProjection m_projection = CanvasProjection::ORTHO;
     glm::quat m_cam_quat = glm::quat_identity<float, glm::defaultp>();
     float m_curvature_comb_scale = 0;
+    bool m_show_construction_entities_from_previous_groups = false;
+    bool construction_entities_from_previous_groups_are_visible() const override
+    {
+        return m_show_construction_entities_from_previous_groups;
+    }
+
+    bool m_hide_irrelevant_workplanes = false;
+    bool hide_irrelevant_workplanes() const override
+    {
+        return m_hide_irrelevant_workplanes;
+    }
+    float get_curvature_comb_scale() const override
+    {
+        return m_curvature_comb_scale;
+    }
+
 
     bool document_is_visible(const UUID &uu_doc) const;
     json serialize(const UUID &uu_doc) const;

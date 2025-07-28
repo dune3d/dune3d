@@ -822,9 +822,9 @@ void Editor::update_view_hints()
     if (m_selection_filter_window->is_active())
         hints.push_back("selection filtered");
     if (m_core.has_documents()) {
-        if (get_current_document_view().construction_entities_from_previous_groups_are_visible())
+        if (get_current_workspace_view().m_show_construction_entities_from_previous_groups)
             hints.push_back("prev. construction entities");
-        if (get_current_document_view().hide_irrelevant_workplanes())
+        if (get_current_workspace_view().m_hide_irrelevant_workplanes)
             hints.push_back("no irrelevant workplanes");
         auto &wv = m_workspace_views.at(m_current_workspace_view);
         if (wv.m_curvature_comb_scale > 0)
@@ -1199,7 +1199,6 @@ void Editor::render_document(const IDocumentInfo &doc)
     }
     Renderer renderer(get_canvas(), m_core);
     renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
-    renderer.m_curvature_comb_scale = m_workspace_views.at(m_current_workspace_view).m_curvature_comb_scale;
     renderer.m_connect_curvature_comb = m_preferences.canvas.connect_curvature_combs;
     renderer.m_first_group = m_update_groups_after;
 
@@ -1207,7 +1206,8 @@ void Editor::render_document(const IDocumentInfo &doc)
         renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
 
     try {
-        renderer.render(doc.get_document(), doc.get_current_group(), doc_view, doc.get_dirname(), sr);
+        renderer.render(doc.get_document(), doc.get_current_group(), doc_view,
+                        m_workspace_views.at(m_current_workspace_view), doc.get_dirname(), sr);
     }
     catch (const std::exception &ex) {
         Logger::log_critical("exception rendering document " + doc.get_basename(), Logger::Domain::RENDERER, ex.what());
@@ -1510,7 +1510,6 @@ void Editor::open_file(const std::filesystem::path &path)
         if (current_wsv && m_core.get_current_idocument_info().get_uuid() == doc_uu) {
             auto &dv = m_workspace_views.at(current_wsv).m_documents[doc_uu];
             set_current_group(dv.m_current_group);
-            set_show_previous_construction_entities(dv.m_show_construction_entities_from_previous_groups);
         }
 
         update_workspace_view_names();
@@ -1585,12 +1584,17 @@ void Editor::set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<Co
 
 DocumentView &Editor::get_current_document_view()
 {
-    return m_workspace_views.at(m_current_workspace_view).m_documents[m_core.get_current_idocument_info().get_uuid()];
+    return get_current_workspace_view().m_documents[m_core.get_current_idocument_info().get_uuid()];
 }
 
 std::map<UUID, DocumentView> &Editor::get_current_document_views()
 {
-    return m_workspace_views.at(m_current_workspace_view).m_documents;
+    return get_current_workspace_view().m_documents;
+}
+
+WorkspaceView &Editor::get_current_workspace_view()
+{
+    return m_workspace_views.at(m_current_workspace_view);
 }
 
 void Editor::update_title()

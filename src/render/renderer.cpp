@@ -7,6 +7,7 @@
 #include "document/solid_model/solid_model.hpp"
 #include "canvas/selectable_ref.hpp"
 #include "workspace/idocument_view.hpp"
+#include "workspace/iworkspace_view.hpp"
 #include "workspace/entity_view.hpp"
 #include "util/util.hpp"
 #include "util/glm_util.hpp"
@@ -64,14 +65,18 @@ bool Renderer::group_is_visible(const UUID &uu) const
 }
 
 void Renderer::render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view,
-                      const std::filesystem::path &containing_dir, std::optional<SelectableRef> sr)
+                      const IWorkspaceView &wrk_view, const std::filesystem::path &containing_dir,
+                      std::optional<SelectableRef> sr)
 {
     m_doc = &doc;
     m_doc_view = &doc_view;
+    m_workspace_view = &wrk_view;
     m_current_group = &doc.get_group(current_group);
     m_current_body_group = &m_current_group->find_body(doc).group;
     m_is_current_document = !sr.has_value();
     m_containing_dir = containing_dir;
+    m_curvature_comb_scale = m_workspace_view->get_curvature_comb_scale();
+
     int first_group_index = 0;
     if (m_first_group)
         first_group_index = doc.get_group(m_first_group).get_index();
@@ -95,6 +100,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
 
         m_doc = nullptr;
         m_doc_view = nullptr;
+        m_workspace_view = nullptr;
         m_current_group = nullptr;
         return;
     }
@@ -166,6 +172,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
 
     m_doc = nullptr;
     m_doc_view = nullptr;
+    m_workspace_view = nullptr;
     m_current_group = nullptr;
     if (sr)
         m_ca.unset_override_selectable();
@@ -177,7 +184,7 @@ void Renderer::render(const Entity &entity)
         return;
     if (entity.m_construction
         && ((entity.m_group != m_current_group->m_uuid
-             && !m_doc_view->construction_entities_from_previous_groups_are_visible())
+             && !m_workspace_view->construction_entities_from_previous_groups_are_visible())
             || !m_is_current_document))
         return;
 
@@ -398,7 +405,7 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
     if (!m_is_current_document)
         return;
 
-    if (m_doc_view->hide_irrelevant_workplanes()) {
+    if (m_workspace_view->hide_irrelevant_workplanes()) {
         if (wrkpl.m_group != m_current_group->m_uuid && wrkpl.m_uuid != m_current_group->m_active_wrkpl)
             return;
     }
@@ -510,14 +517,6 @@ public:
     {
         return nullptr;
     }
-    bool construction_entities_from_previous_groups_are_visible() const override
-    {
-        return false;
-    }
-    bool hide_irrelevant_workplanes() const override
-    {
-        return false;
-    }
 };
 
 
@@ -535,7 +534,7 @@ void Renderer::visit(const EntityDocument &en)
         Renderer renderer{m_ca, m_doc_prv};
         SelectableRef sr{SelectableRef::Type::ENTITY, en.m_uuid, 0};
         renderer.render(doc->get_document(), doc->get_document().get_groups_sorted().back()->m_uuid, FakeDocumentView{},
-                        doc->get_dirname(), sr);
+                        *m_workspace_view, doc->get_dirname(), sr);
     }
     else {
         add_selectables(sr_origin, m_ca.draw_bitmap_text({0, 0, 0}, 1, path_to_string(en.m_path) + " not loaded"));

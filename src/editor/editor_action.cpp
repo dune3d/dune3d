@@ -263,12 +263,12 @@ void Editor::init_actions()
         if (!m_core.has_documents())
             return;
         set_show_previous_construction_entities(
-                !get_current_document_view().m_show_construction_entities_from_previous_groups);
+                !get_current_workspace_view().m_show_construction_entities_from_previous_groups);
     });
     connect_action(ActionID::TOGGLE_IRRELEVANT_WORKPLANES, [this](const auto &conn) {
         if (!m_core.has_documents())
             return;
-        set_hide_irrelevant_workplanes(!get_current_document_view().m_hide_irrelevant_workplanes);
+        set_hide_irrelevant_workplanes(!get_current_workspace_view().m_hide_irrelevant_workplanes);
     });
 
     connect_action(ActionID::COPY, [this](const auto &conn) {
@@ -303,7 +303,7 @@ void Editor::set_show_previous_construction_entities(bool show)
 {
     if (!m_core.has_documents())
         return;
-    get_current_document_view().m_show_construction_entities_from_previous_groups = show;
+    get_current_workspace_view().m_show_construction_entities_from_previous_groups = show;
     m_previous_construction_entities_action->set_state(Glib::Variant<bool>::create(show));
     update_view_hints();
     canvas_update_keep_selection();
@@ -313,7 +313,7 @@ void Editor::set_hide_irrelevant_workplanes(bool hide)
 {
     if (!m_core.has_documents())
         return;
-    get_current_document_view().m_hide_irrelevant_workplanes = hide;
+    get_current_workspace_view().m_hide_irrelevant_workplanes = hide;
     m_hide_irrelevant_workplanes_action->set_state(Glib::Variant<bool>::create(hide));
     update_view_hints();
     canvas_update_keep_selection();

@@ -234,6 +234,7 @@ private:
 
     std::map<UUID, WorkspaceView> m_workspace_views;
     UUID m_current_workspace_view;
+    WorkspaceView &get_current_workspace_view();
     std::map<UUID, DocumentView> &get_current_document_views();
 
     UUID create_workspace_view();
