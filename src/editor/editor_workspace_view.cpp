@@ -166,6 +166,8 @@ void Editor::update_workspace_view_names()
 
 void Editor::set_current_workspace_view(const UUID &uu)
 {
+    CanvasUpdater canvas_updater{*this};
+
     m_current_workspace_view = uu;
     auto pages = m_win.get_workspace_notebook().get_pages();
 
@@ -200,7 +202,6 @@ void Editor::set_current_workspace_view(const UUID &uu)
         set_current_group(get_current_document_view().m_current_group);
     }
     update_action_sensitivity();
-    canvas_update_keep_selection();
     m_workspace_browser->update_current_group(get_current_document_views());
 }
 

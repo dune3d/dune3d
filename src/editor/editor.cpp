@@ -31,6 +31,21 @@
 #include <iostream>
 
 namespace dune3d {
+
+Editor::CanvasUpdater::CanvasUpdater(Editor &editor) : m_editor(editor)
+{
+    m_editor.m_canvas_update_pending++;
+}
+
+Editor::CanvasUpdater::~CanvasUpdater()
+{
+    if (m_editor.m_canvas_update_pending == 0)
+        return; // should not happen
+    m_editor.m_canvas_update_pending--;
+    if (m_editor.m_canvas_update_pending == 0)
+        m_editor.canvas_update_keep_selection();
+}
+
 Editor::Editor(Dune3DAppWindow &win, Preferences &prefs)
     : m_preferences(prefs), m_dialogs(win, *this), m_win(win), m_core(*this), m_selection_menu_creator(m_core)
 {
@@ -87,7 +102,7 @@ void Editor::init()
             }
         }
         m_win.get_workspace_notebook().set_visible(m_core.has_documents());
-        canvas_update_keep_selection();
+        CanvasUpdater canvas_updater{*this};
         m_workspace_browser->update_documents(get_current_document_views());
         update_group_editor();
         update_workplane_label();
@@ -238,7 +253,7 @@ void Editor::init_view_options()
                 scale = powf(10, val);
             auto &wv = m_workspace_views.at(m_current_workspace_view);
             wv.m_curvature_comb_scale = scale;
-            canvas_update_keep_selection();
+            CanvasUpdater canvas_updater{*this};
             update_view_hints();
         });
 
@@ -736,14 +751,14 @@ void Editor::init_properties_notebook()
         get_canvas().set_selection({sr}, true);
         get_canvas().set_selection_mode(SelectionMode::NORMAL);
     });
-    m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
+    m_constraints_box->signal_changed().connect([this] { CanvasUpdater canvas_updater{*this}; });
 
     {
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
 
         m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core, static_cast<IDocumentViewProvider &>(*this));
         m_selection_editor->signal_changed().connect(sigc::mem_fun(*this, &Editor::handle_commit_from_editor));
-        m_selection_editor->signal_view_changed().connect([this] { canvas_update_keep_selection(); });
+        m_selection_editor->signal_view_changed().connect([this] { CanvasUpdater canvas_updater{*this}; });
         m_selection_editor->set_vexpand(true);
         box->append(*m_selection_editor);
         auto label = Gtk::make_managed<Gtk::Label>("Commit pending");
@@ -1093,6 +1108,8 @@ KeyMatchResult Editor::keys_match(const KeySequence &keys) const
 
 void Editor::apply_preferences()
 {
+    CanvasUpdater canvas_updater{*this};
+
     for (auto &[id, conn] : m_action_connections) {
         auto &act = action_catalog.at(id);
         if (!(act.flags & ActionCatalogItem::FLAGS_NO_PREFERENCES) && m_preferences.key_sequences.keys.count(id)) {
@@ -1153,7 +1170,7 @@ void Editor::apply_preferences()
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     update_action_bar_visibility();
     update_error_overlay();
-    canvas_update_keep_selection();
+
     /*
         key_sequence_dialog->clear();
         for (const auto &it : action_connections) {
@@ -1457,6 +1474,8 @@ void Editor::open_file(const std::filesystem::path &path)
     }
     add_to_recent_docs(path);
     try {
+        CanvasUpdater canvas_updater{*this};
+
         const UUID doc_uu = UUID::random();
 
         std::map<UUID, WorkspaceView> loaded_workspace_views;
@@ -1544,9 +1563,10 @@ void Editor::load_linked_documents(const UUID &uu_doc)
 
 void Editor::set_current_group(const UUID &uu_group)
 {
+    CanvasUpdater canvas_updater{*this};
+
     m_core.set_current_group(uu_group);
     m_workspace_browser->update_current_group(get_current_document_views());
-    canvas_update_keep_selection();
     update_workplane_label();
     m_constraints_box->update();
     update_group_editor();
