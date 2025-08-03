@@ -151,6 +151,7 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     {
         Gtk::Box *lollipop_box = refBuilder->get_widget<Gtk::Box>("lollipop_box");
         auto axes_lollipop = Gtk::make_managed<AxesLollipop>();
+        axes_lollipop->set_canvas(get_canvas()); // Add this line
         lollipop_box->append(*axes_lollipop);
         get_canvas().signal_view_changed().connect(sigc::track_obj(
                 [this, axes_lollipop] { axes_lollipop->set_quat(get_canvas().get_cam_quat()); }, *axes_lollipop));
