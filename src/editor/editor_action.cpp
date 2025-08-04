@@ -98,6 +98,7 @@ void Editor::init_actions()
     connect_action(ActionID::PREVIOUS_GROUP, [this](auto &a) { m_workspace_browser->group_prev_next(-1); });
 
     connect_action(ActionID::TOGGLE_SOLID_MODEL, [this](const auto &a) {
+        CanvasUpdater canvas_updater{*this};
         auto &doc = m_core.get_current_document();
         auto &group = doc.get_group(m_core.get_current_group());
         auto &body_group = group.find_body(doc).group.m_uuid;
@@ -105,7 +106,6 @@ void Editor::init_actions()
 
         doc_view.m_body_views[body_group].m_solid_model_visible = !doc_view.body_solid_model_is_visible(body_group);
         m_workspace_browser->update_current_group(get_current_document_views());
-        canvas_update_keep_selection();
     });
 
     for (const auto &[id, it] : action_catalog) {
@@ -117,7 +117,7 @@ void Editor::init_actions()
     connect_action(ActionID::UNDO, [this](const auto &a) {
         m_core.undo();
         m_win.hide_delete_items_popup();
-        canvas_update_keep_selection();
+        CanvasUpdater canvas_updater{*this};
         update_workplane_label();
         update_selection_editor();
         update_action_sensitivity();
@@ -125,7 +125,7 @@ void Editor::init_actions()
     connect_action(ActionID::REDO, [this](const auto &a) {
         m_core.redo();
         m_win.hide_delete_items_popup();
-        canvas_update_keep_selection();
+        CanvasUpdater canvas_updater{*this};
         update_workplane_label();
         update_selection_editor();
         update_action_sensitivity();
@@ -249,10 +249,10 @@ void Editor::init_actions()
 
     connect_action(ActionID::SET_CURRENT_DOCUMENT, [this](const auto &a) {
         if (auto doc = document_from_selection(get_canvas().get_selection())) {
+            CanvasUpdater canvas_updater{*this};
             m_core.set_current_document(doc.value());
             m_workspace_views.at(m_current_workspace_view).m_current_document = doc.value();
             m_workspace_browser->update_current_group(get_current_document_views());
-            canvas_update_keep_selection();
             update_version_info();
         }
     });
@@ -263,12 +263,12 @@ void Editor::init_actions()
         if (!m_core.has_documents())
             return;
         set_show_previous_construction_entities(
-                !get_current_document_view().m_show_construction_entities_from_previous_groups);
+                !get_current_workspace_view().m_show_construction_entities_from_previous_groups);
     });
     connect_action(ActionID::TOGGLE_IRRELEVANT_WORKPLANES, [this](const auto &conn) {
         if (!m_core.has_documents())
             return;
-        set_hide_irrelevant_workplanes(!get_current_document_view().m_hide_irrelevant_workplanes);
+        set_hide_irrelevant_workplanes(!get_current_workspace_view().m_hide_irrelevant_workplanes);
     });
 
     connect_action(ActionID::COPY, [this](const auto &conn) {
@@ -303,20 +303,20 @@ void Editor::set_show_previous_construction_entities(bool show)
 {
     if (!m_core.has_documents())
         return;
-    get_current_document_view().m_show_construction_entities_from_previous_groups = show;
+    CanvasUpdater canvas_updater{*this};
+    get_current_workspace_view().m_show_construction_entities_from_previous_groups = show;
     m_previous_construction_entities_action->set_state(Glib::Variant<bool>::create(show));
     update_view_hints();
-    canvas_update_keep_selection();
 }
 
 void Editor::set_hide_irrelevant_workplanes(bool hide)
 {
     if (!m_core.has_documents())
         return;
-    get_current_document_view().m_hide_irrelevant_workplanes = hide;
+    CanvasUpdater canvas_updater{*this};
+    get_current_workspace_view().m_hide_irrelevant_workplanes = hide;
     m_hide_irrelevant_workplanes_action->set_state(Glib::Variant<bool>::create(hide));
     update_view_hints();
-    canvas_update_keep_selection();
 }
 
 
@@ -836,6 +836,8 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
     auto &group = dynamic_cast<GroupExplodedCluster &>(group_base);
     if (!group.m_active_wrkpl)
         return;
+    CanvasUpdater canvas_updater{*this};
+
     auto &cluster = doc.get_entity<EntityCluster &>(group.m_cluster);
 
     auto content = ClusterContent::create();
@@ -901,7 +903,6 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
     m_core.set_needs_save();
     m_core.rebuild("unexplode cluster");
     m_workspace_browser->update_documents(get_current_document_views());
-    canvas_update_keep_selection();
     m_workspace_browser->select_group(cluster.m_group);
 }
 

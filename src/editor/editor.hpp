@@ -134,6 +134,17 @@ private:
     void canvas_update();
     void canvas_update_keep_selection();
     void render_document(const IDocumentInfo &doc);
+    unsigned int m_canvas_update_pending = 0;
+
+    class CanvasUpdater {
+    public:
+        [[nodiscard]] CanvasUpdater(Editor &editor);
+
+        ~CanvasUpdater();
+
+    private:
+        Editor &m_editor;
+    };
 
     void tool_begin(ToolID id);
     void tool_process(ToolResponse &resp);
@@ -234,6 +245,7 @@ private:
 
     std::map<UUID, WorkspaceView> m_workspace_views;
     UUID m_current_workspace_view;
+    WorkspaceView &get_current_workspace_view();
     std::map<UUID, DocumentView> &get_current_document_views();
 
     UUID create_workspace_view();

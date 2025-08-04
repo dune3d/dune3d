@@ -25,7 +25,7 @@ void main() {
 	flags_to_geom = flags;
     origin_to_geom = (proj*view*vec4(origin, 1));
     vec3 t = screen*vec3(1,-1,0);
-    if(vec.x == vec.x) {  // isnan() is broken on some platforms
+    if(vec.x == vec.x && !isnan(vec.x)) {  // isnan() is broken on some platforms, but nan == nan evaluates to true on some others
         vec4 v4 = proj*view*vec4(vec, 0);
         v4.y *= -1;
         vec_to_geom = normalize(v4.xy/t.xy);

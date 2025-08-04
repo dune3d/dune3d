@@ -148,6 +148,7 @@ public:
         auto en = std::make_unique<T>(uu);
         auto p = en.get();
         m_groups.emplace(uu, std::move(en));
+        update_groups_sorted();
         return *p;
     }
 
@@ -162,8 +163,8 @@ public:
     glm::dvec3 get_point(const EntityAndPoint &ep) const;
     bool is_valid_point(const EntityAndPoint &ep) const;
 
-    std::vector<Group *> get_groups_sorted();
-    std::vector<const Group *> get_groups_sorted() const;
+    const std::vector<Group *> &get_groups_sorted();
+    const std::vector<const Group *> &get_groups_sorted() const;
 
     void accumulate_first_group(const Group *&first_group, const UUID &group_uu) const;
 
@@ -210,6 +211,9 @@ public:
 
 private:
     std::map<UUID, std::unique_ptr<Group>> m_groups;
+    std::vector<Group *> m_groups_sorted;
+    std::vector<const Group *> m_groups_sorted_const;
+    void update_groups_sorted();
 
     UUID m_first_group_generate;
     UUID m_first_group_solve;

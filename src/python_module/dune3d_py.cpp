@@ -38,7 +38,8 @@ PYBIND11_MODULE(dune3d_py, m)
     py::class_<Document>(m, "Document")
             .def_static("new_from_file",
                         [](const std::string &path) { return Document::new_from_file(path_from_string(path)); })
-            .def("get_groups_sorted", static_cast<std::vector<Group *> (Document::*)()>(&Document::get_groups_sorted),
+            .def("get_groups_sorted",
+                 static_cast<const std::vector<Group *> &(Document::*)()>(&Document::get_groups_sorted),
                  py::return_value_policy::reference)
             .def("render_texts", [](Document &doc) {
                 for (auto &[uu, it] : doc.m_entities) {

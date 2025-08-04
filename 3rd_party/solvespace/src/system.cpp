@@ -548,10 +548,7 @@ static void add_expr(Expr *e, Equation *eq,
     if(e->op == Expr::Op::PARAM) {
         eq_params[eq].insert(e->parh.v);
         auto &x = usage[e->parh.v];
-        if(x.contains(eq))
-            x.at(eq)++;
-        else
-            x.emplace(eq, 1);
+        x[eq]++;
         return;
     }
     ssassert(e->op != Expr::Op::PARAM_PTR,

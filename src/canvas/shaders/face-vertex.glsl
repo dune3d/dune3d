@@ -22,7 +22,7 @@ void main()
 {
     // gl_Position = proj*view*vec4(position, 1, 1);
     color_to_fragment = color;
-    if(override_color.r == override_color.r)  // isnan() is broken on some platforms
+    if(override_color.r == override_color.r && !isnan(override_color.r))  // isnan() is broken on some platforms, but nan == nan evaluates to true on some others
         color_to_fragment = override_color;
     vec4 p4 = vec4(position*normal_mat + origin, 1);
     vec4 n4 = vec4(normal, 0);

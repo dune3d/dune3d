@@ -31,6 +31,21 @@
 #include <iostream>
 
 namespace dune3d {
+
+Editor::CanvasUpdater::CanvasUpdater(Editor &editor) : m_editor(editor)
+{
+    m_editor.m_canvas_update_pending++;
+}
+
+Editor::CanvasUpdater::~CanvasUpdater()
+{
+    if (m_editor.m_canvas_update_pending == 0)
+        return; // should not happen
+    m_editor.m_canvas_update_pending--;
+    if (m_editor.m_canvas_update_pending == 0)
+        m_editor.canvas_update_keep_selection();
+}
+
 Editor::Editor(Dune3DAppWindow &win, Preferences &prefs)
     : m_preferences(prefs), m_dialogs(win, *this), m_win(win), m_core(*this), m_selection_menu_creator(m_core)
 {
@@ -87,7 +102,7 @@ void Editor::init()
             }
         }
         m_win.get_workspace_notebook().set_visible(m_core.has_documents());
-        canvas_update_keep_selection();
+        CanvasUpdater canvas_updater{*this};
         m_workspace_browser->update_documents(get_current_document_views());
         update_group_editor();
         update_workplane_label();
@@ -238,7 +253,7 @@ void Editor::init_view_options()
                 scale = powf(10, val);
             auto &wv = m_workspace_views.at(m_current_workspace_view);
             wv.m_curvature_comb_scale = scale;
-            canvas_update_keep_selection();
+            CanvasUpdater canvas_updater{*this};
             update_view_hints();
         });
 
@@ -736,14 +751,14 @@ void Editor::init_properties_notebook()
         get_canvas().set_selection({sr}, true);
         get_canvas().set_selection_mode(SelectionMode::NORMAL);
     });
-    m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
+    m_constraints_box->signal_changed().connect([this] { CanvasUpdater canvas_updater{*this}; });
 
     {
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
 
         m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core, static_cast<IDocumentViewProvider &>(*this));
         m_selection_editor->signal_changed().connect(sigc::mem_fun(*this, &Editor::handle_commit_from_editor));
-        m_selection_editor->signal_view_changed().connect([this] { canvas_update_keep_selection(); });
+        m_selection_editor->signal_view_changed().connect([this] { CanvasUpdater canvas_updater{*this}; });
         m_selection_editor->set_vexpand(true);
         box->append(*m_selection_editor);
         auto label = Gtk::make_managed<Gtk::Label>("Commit pending");
@@ -822,9 +837,9 @@ void Editor::update_view_hints()
     if (m_selection_filter_window->is_active())
         hints.push_back("selection filtered");
     if (m_core.has_documents()) {
-        if (get_current_document_view().construction_entities_from_previous_groups_are_visible())
+        if (get_current_workspace_view().m_show_construction_entities_from_previous_groups)
             hints.push_back("prev. construction entities");
-        if (get_current_document_view().hide_irrelevant_workplanes())
+        if (get_current_workspace_view().m_hide_irrelevant_workplanes)
             hints.push_back("no irrelevant workplanes");
         auto &wv = m_workspace_views.at(m_current_workspace_view);
         if (wv.m_curvature_comb_scale > 0)
@@ -1093,6 +1108,8 @@ KeyMatchResult Editor::keys_match(const KeySequence &keys) const
 
 void Editor::apply_preferences()
 {
+    CanvasUpdater canvas_updater{*this};
+
     for (auto &[id, conn] : m_action_connections) {
         auto &act = action_catalog.at(id);
         if (!(act.flags & ActionCatalogItem::FLAGS_NO_PREFERENCES) && m_preferences.key_sequences.keys.count(id)) {
@@ -1153,7 +1170,7 @@ void Editor::apply_preferences()
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     update_action_bar_visibility();
     update_error_overlay();
-    canvas_update_keep_selection();
+
     /*
         key_sequence_dialog->clear();
         for (const auto &it : action_connections) {
@@ -1199,7 +1216,6 @@ void Editor::render_document(const IDocumentInfo &doc)
     }
     Renderer renderer(get_canvas(), m_core);
     renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
-    renderer.m_curvature_comb_scale = m_workspace_views.at(m_current_workspace_view).m_curvature_comb_scale;
     renderer.m_connect_curvature_comb = m_preferences.canvas.connect_curvature_combs;
     renderer.m_first_group = m_update_groups_after;
 
@@ -1207,7 +1223,8 @@ void Editor::render_document(const IDocumentInfo &doc)
         renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
 
     try {
-        renderer.render(doc.get_document(), doc.get_current_group(), doc_view, doc.get_dirname(), sr);
+        renderer.render(doc.get_document(), doc.get_current_group(), doc_view,
+                        m_workspace_views.at(m_current_workspace_view), doc.get_dirname(), sr);
     }
     catch (const std::exception &ex) {
         Logger::log_critical("exception rendering document " + doc.get_basename(), Logger::Domain::RENDERER, ex.what());
@@ -1457,6 +1474,8 @@ void Editor::open_file(const std::filesystem::path &path)
     }
     add_to_recent_docs(path);
     try {
+        CanvasUpdater canvas_updater{*this};
+
         const UUID doc_uu = UUID::random();
 
         std::map<UUID, WorkspaceView> loaded_workspace_views;
@@ -1510,7 +1529,6 @@ void Editor::open_file(const std::filesystem::path &path)
         if (current_wsv && m_core.get_current_idocument_info().get_uuid() == doc_uu) {
             auto &dv = m_workspace_views.at(current_wsv).m_documents[doc_uu];
             set_current_group(dv.m_current_group);
-            set_show_previous_construction_entities(dv.m_show_construction_entities_from_previous_groups);
         }
 
         update_workspace_view_names();
@@ -1545,9 +1563,10 @@ void Editor::load_linked_documents(const UUID &uu_doc)
 
 void Editor::set_current_group(const UUID &uu_group)
 {
+    CanvasUpdater canvas_updater{*this};
+
     m_core.set_current_group(uu_group);
     m_workspace_browser->update_current_group(get_current_document_views());
-    canvas_update_keep_selection();
     update_workplane_label();
     m_constraints_box->update();
     update_group_editor();
@@ -1585,12 +1604,17 @@ void Editor::set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<Co
 
 DocumentView &Editor::get_current_document_view()
 {
-    return m_workspace_views.at(m_current_workspace_view).m_documents[m_core.get_current_idocument_info().get_uuid()];
+    return get_current_workspace_view().m_documents[m_core.get_current_idocument_info().get_uuid()];
 }
 
 std::map<UUID, DocumentView> &Editor::get_current_document_views()
 {
-    return m_workspace_views.at(m_current_workspace_view).m_documents;
+    return get_current_workspace_view().m_documents;
+}
+
+WorkspaceView &Editor::get_current_workspace_view()
+{
+    return m_workspace_views.at(m_current_workspace_view);
 }
 
 void Editor::update_title()
