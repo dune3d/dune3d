@@ -74,7 +74,7 @@ double ConstraintPointPlaneDistance::measure_datum(const Document &doc) const
     return measure_distance(doc);
 }
 
-double ConstraintPointPlaneDistance::get_display_distance(const Document &doc) const
+double ConstraintPointPlaneDistance::get_display_datum(const Document &doc) const
 {
     if (m_measurement)
         return measure_distance(doc);

@@ -131,7 +131,7 @@ public:
     std::unique_ptr<Constraint> clone() const override;
     void accept(ConstraintVisitor &visitor) const override;
 
-    double get_display_angle(const Document &doc) const;
+    double get_display_datum(const Document &doc) const override;
 };
 
 } // namespace dune3d

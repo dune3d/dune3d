@@ -126,7 +126,7 @@ double ConstraintLinesAngle::measure_datum(const Document &doc) const
     return glm::degrees(acos(glm::dot(glm::normalize(vs.l1v), glm::normalize(vs.l2v))));
 }
 
-double ConstraintLinesAngle::get_display_angle(const Document &doc) const
+double ConstraintLinesAngle::get_display_datum(const Document &doc) const
 {
     if (m_measurement)
         return measure_datum(doc);

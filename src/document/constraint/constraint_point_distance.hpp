@@ -37,7 +37,7 @@ public:
     glm::dvec3 m_offset = {0, 0, 0};
     glm::dvec3 get_origin(const Document &doc) const override;
 
-    double get_display_distance(const Document &doc) const;
+    double get_display_datum(const Document &doc) const override;
 
     glm::dvec3 get_offset() const override
     {

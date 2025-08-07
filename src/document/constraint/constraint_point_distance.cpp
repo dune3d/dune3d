@@ -85,7 +85,7 @@ glm::dvec3 ConstraintPointDistanceBase::get_origin(const Document &doc) const
     return mid;
 }
 
-double ConstraintPointDistanceBase::get_display_distance(const Document &doc) const
+double ConstraintPointDistanceBase::get_display_datum(const Document &doc) const
 {
     if (m_measurement)
         return measure_distance(doc);

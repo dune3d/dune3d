@@ -95,7 +95,7 @@ const UUID &ConstraintDiameterRadius::get_workplane(const Document &doc) const
     return dynamic_cast<const IEntityInWorkplane &>(en).get_workplane();
 }
 
-double ConstraintDiameterRadius::get_display_distance(const Document &doc) const
+double ConstraintDiameterRadius::get_display_datum(const Document &doc) const
 {
     if (m_measurement)
         return measure_distance(doc);

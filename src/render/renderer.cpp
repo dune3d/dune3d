@@ -770,7 +770,7 @@ void Renderer::visit(const ConstraintPointDistance &constr)
     }
 
     std::string label =
-            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_distance(*m_doc)));
+            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_datum(*m_doc)));
     draw_distance_line(from, to, p, label, constr.m_uuid, fallback_normal);
 }
 
@@ -791,7 +791,7 @@ void Renderer::visit(const ConstraintPointDistanceAligned &constr)
     }
 
     std::string label =
-            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_distance(*m_doc)));
+            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_datum(*m_doc)));
     draw_distance_line_with_direction(from, to, constr.get_align_vector(*m_doc), p, label, constr.m_uuid,
                                       fallback_normal);
 }
@@ -880,7 +880,7 @@ void Renderer::visit(const ConstraintPointLineDistance &constr)
     }
 
     draw_distance_line(pproj, pp, p,
-                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_distance(*m_doc))),
+                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_datum(*m_doc))),
                        constr.m_uuid, fallback_normal);
 }
 
@@ -898,7 +898,7 @@ void Renderer::visit(const ConstraintPointPlaneDistance &constr)
     const auto fallback_normal = l1.get_point(2, *m_doc) - l1.get_point(1, *m_doc);
 
     draw_distance_line(pproj, pp, p,
-                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_distance(*m_doc))),
+                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_datum(*m_doc))),
                        constr.m_uuid, fallback_normal);
 }
 
@@ -937,7 +937,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(to, (+n + l * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * aspect) * scale), sr);
 
-    const auto label = format_measurement(constr.is_measurement(), constr.get_display_distance(*m_doc));
+    const auto label = format_measurement(constr.is_measurement(), constr.get_display_datum(*m_doc));
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 }
 
@@ -984,7 +984,7 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(ptt, (-dnt + d * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_line(ptt, wrkpl.transform(to)), sr);
 
-    std::string label = std::format(" {:.3f}", constr.get_display_distance(*m_doc));
+    std::string label = std::format(" {:.3f}", constr.get_display_datum(*m_doc));
     if (constr.is_measurement())
         label = "(" + label + ")";
     add_selectables(sr, m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label));
@@ -1216,7 +1216,7 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
     }
 
     const auto label =
-            format_measurement(constr.is_measurement(), std::format(" {:.1f}°", constr.get_display_angle(*m_doc)));
+            format_measurement(constr.is_measurement(), std::format(" {:.1f}°", constr.get_display_datum(*m_doc)));
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 }
 

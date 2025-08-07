@@ -7,6 +7,7 @@ class Document;
 class IConstraintDatum {
 public:
     virtual double get_datum() const = 0;
+    virtual double get_display_datum(const Document &doc) const = 0;
     virtual void set_datum(double d) = 0;
     virtual std::pair<double, double> get_datum_range() const = 0;
     virtual std::string get_datum_name() const = 0;
