@@ -82,6 +82,8 @@ public:
 
     double get_display_datum(const Document &doc) const override;
 
+    std::string format_datum(double datum) const override;
+
     void accept(ConstraintVisitor &visitor) const override;
 
     bool replace_point(const EntityAndPoint &old_point, const EntityAndPoint &new_point) override;

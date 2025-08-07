@@ -7,6 +7,7 @@
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
 #include "constraint_visitor.hpp"
+#include <format>
 
 namespace dune3d {
 ConstraintPointDistanceBase::ConstraintPointDistanceBase(const UUID &uu) : Constraint(uu)
@@ -91,6 +92,11 @@ double ConstraintPointDistanceBase::get_display_datum(const Document &doc) const
         return measure_distance(doc);
     else
         return m_distance;
+}
+
+std::string ConstraintPointDistanceBase::format_datum(double datum) const
+{
+    return std::format("{:.3f}", datum);
 }
 
 double ConstraintPointDistanceBase::measure_datum(const Document &doc) const

@@ -19,7 +19,6 @@
 #include "util/template_util.hpp"
 #include "logger/logger.hpp"
 #include <array>
-#include <format>
 #include <ranges>
 #include <glm/gtx/io.hpp>
 
@@ -740,17 +739,13 @@ static glm::vec3 project_point_onto_plane(const glm::vec3 &plane_origin, const g
     return point - dist * plane_normal;
 }
 
-static std::string format_measurement(bool is_meas, const std::string &s)
+static std::string format_datum(const Document &doc, const IConstraintDatum &dat)
 {
-    if (is_meas)
+    const auto s = dat.format_datum(dat.get_display_datum(doc));
+    if (dat.is_measurement())
         return "(" + s + ")";
     else
         return s;
-}
-
-static std::string format_measurement(bool is_meas, double v)
-{
-    return format_measurement(is_meas, std::format(" {:.3f}", v));
 }
 
 void Renderer::visit(const ConstraintPointDistance &constr)
@@ -769,8 +764,7 @@ void Renderer::visit(const ConstraintPointDistance &constr)
         to = wrkpl.project3(to);
     }
 
-    std::string label =
-            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_datum(*m_doc)));
+    const auto label = format_datum(*m_doc, constr);
     draw_distance_line(from, to, p, label, constr.m_uuid, fallback_normal);
 }
 
@@ -790,8 +784,7 @@ void Renderer::visit(const ConstraintPointDistanceAligned &constr)
         to = wrkpl.project3(to);
     }
 
-    std::string label =
-            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_datum(*m_doc)));
+    const auto label = format_datum(*m_doc, constr);
     draw_distance_line_with_direction(from, to, constr.get_align_vector(*m_doc), p, label, constr.m_uuid,
                                       fallback_normal);
 }
@@ -879,9 +872,7 @@ void Renderer::visit(const ConstraintPointLineDistance &constr)
         pp = wrkpl.project3(pp);
     }
 
-    draw_distance_line(pproj, pp, p,
-                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_datum(*m_doc))),
-                       constr.m_uuid, fallback_normal);
+    draw_distance_line(pproj, pp, p, format_datum(*m_doc, constr), constr.m_uuid, fallback_normal);
 }
 
 void Renderer::visit(const ConstraintPointPlaneDistance &constr)
@@ -897,9 +888,7 @@ void Renderer::visit(const ConstraintPointPlaneDistance &constr)
     const auto &l1 = m_doc->get_entity(constr.m_line1);
     const auto fallback_normal = l1.get_point(2, *m_doc) - l1.get_point(1, *m_doc);
 
-    draw_distance_line(pproj, pp, p,
-                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_datum(*m_doc))),
-                       constr.m_uuid, fallback_normal);
+    draw_distance_line(pproj, pp, p, format_datum(*m_doc, constr), constr.m_uuid, fallback_normal);
 }
 
 void Renderer::visit(const ConstraintDiameterRadius &constr)
@@ -937,7 +926,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(to, (+n + l * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * aspect) * scale), sr);
 
-    const auto label = format_measurement(constr.is_measurement(), constr.get_display_datum(*m_doc));
+    const auto label = format_datum(*m_doc, constr);
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 }
 
@@ -984,9 +973,7 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(ptt, (-dnt + d * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_line(ptt, wrkpl.transform(to)), sr);
 
-    std::string label = std::format(" {:.3f}", constr.get_display_datum(*m_doc));
-    if (constr.is_measurement())
-        label = "(" + label + ")";
+    const auto label = format_datum(*m_doc, constr);
     add_selectables(sr, m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label));
 }
 
@@ -1215,8 +1202,7 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
         }
     }
 
-    const auto label =
-            format_measurement(constr.is_measurement(), std::format(" {:.1f}°", constr.get_display_datum(*m_doc)));
+    const auto label = format_datum(*m_doc, constr);
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 }
 

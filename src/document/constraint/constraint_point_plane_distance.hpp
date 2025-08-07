@@ -79,6 +79,7 @@ public:
     }
 
     double get_display_datum(const Document &doc) const override;
+    std::string format_datum(double datum) const override;
 
     EntityAndPoint m_point;
     UUID m_line1;

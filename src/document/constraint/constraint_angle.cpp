@@ -5,6 +5,7 @@
 #include "util/glm_util.hpp"
 #include "constraint_visitor.hpp"
 #include "document/document.hpp"
+#include <format>
 
 namespace dune3d {
 ConstraintAngleBase::ConstraintAngleBase(const UUID &uu) : Constraint(uu)
@@ -132,6 +133,11 @@ double ConstraintLinesAngle::get_display_datum(const Document &doc) const
         return measure_datum(doc);
     else
         return m_angle;
+}
+
+std::string ConstraintLinesAngle::format_datum(double datum) const
+{
+    return std::format("{:.1f}°", datum);
 }
 
 } // namespace dune3d

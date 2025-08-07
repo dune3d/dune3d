@@ -15,5 +15,6 @@ public:
     virtual bool is_measurement() const = 0;
     virtual void set_is_measurement(bool is_measurement) = 0;
     virtual double measure_datum(const Document &doc) const = 0;
+    virtual std::string format_datum(double datum) const = 0;
 };
 } // namespace dune3d

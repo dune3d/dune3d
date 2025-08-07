@@ -73,6 +73,8 @@ public:
         return DatumUnit::MM;
     }
 
+    std::string format_datum(double datum) const override;
+
     const UUID &get_workplane(const Document &doc) const override
     {
         return m_wrkpl;

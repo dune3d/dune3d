@@ -107,6 +107,8 @@ public:
         return DatumUnit::DEGREE;
     }
 
+    std::string format_datum(double datum) const override;
+
     std::pair<double, double> get_datum_range() const override
     {
         return {0, 360};

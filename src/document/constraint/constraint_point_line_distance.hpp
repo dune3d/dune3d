@@ -97,6 +97,7 @@ public:
 
     double measure_distance(const Document &doc) const;
     double get_display_datum(const Document &doc) const override;
+    std::string format_datum(double datum) const override;
 };
 
 
