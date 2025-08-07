@@ -11,6 +11,7 @@
 #include "canvas/selectable_ref.hpp"
 #include "core/idocument_info.hpp"
 #include "core/idocument_provider.hpp"
+#include <format>
 #include <algorithm>
 
 namespace dune3d {
@@ -301,10 +302,18 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
             return "not found";
 
         std::string name = "constraint";
-        if (auto dat = dynamic_cast<const IConstraintDatum *>(constraint); dat && dat->is_measurement())
-            name = "measurement";
+        std::string suffix;
+        if (auto dat = dynamic_cast<const IConstraintDatum *>(constraint)) {
+            const auto datum = dat->format_datum(dat->get_display_datum(doc));
 
-        label = constraint->get_type_name() + " " + name;
+            std::string unit;
+            if (dat->get_datum_unit() == DatumUnit::MM)
+                unit = "mm";
+
+            suffix = std::format(" ({}{})", datum, unit);
+        }
+
+        label = constraint->get_type_name() + " " + name + suffix;
         if (auto constraint_wrkpl = dynamic_cast<const IConstraintWorkplane *>(constraint)) {
             if (auto wrkpl_uu = constraint_wrkpl->get_workplane(doc)) {
                 auto &wrkpl = doc.get_entity(wrkpl_uu);
