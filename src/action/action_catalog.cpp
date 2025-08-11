@@ -242,7 +242,14 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {"Export DXF from current group", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::TOGGLE_IRRELEVANT_WORKPLANES,
          {"Toggle irrelevant workplanes", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_IN_TOOL}},
-
+        {ToolID::CONVERT_TO_POINT_ON_LINE_CONSTRAINT,
+         {{"Convert to point on line constraint", "Convert to point on line"},
+          ActionGroup::UNKNOWN,
+          ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONVERT_TO_MIDPOINT_CONSTRAINT,
+         {{"Convert to midpoint constraint", "Convert to midpoint"},
+          ActionGroup::UNKNOWN,
+          ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -426,6 +433,8 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(TOGGLE_MEASUREMENT),
         TOOL_LUT_ITEM(SET_MEASUREMENT),
         TOOL_LUT_ITEM(UNSET_MEASUREMENT),
+        TOOL_LUT_ITEM(CONVERT_TO_POINT_ON_LINE_CONSTRAINT),
+        TOOL_LUT_ITEM(CONVERT_TO_MIDPOINT_CONSTRAINT),
 };
 
 

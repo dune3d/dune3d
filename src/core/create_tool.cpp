@@ -58,6 +58,7 @@
 #include "tools/tool_create_coincident_constraints.hpp"
 #include "tools/tool_hide_reference_workplane.hpp"
 #include "tools/tool_toggle_measurement.hpp"
+#include "tools/tool_convert_point_on_line_constraint.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -271,6 +272,10 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::SET_MEASUREMENT:
     case ToolID::UNSET_MEASUREMENT:
         return std::make_unique<ToolToggleMeasurement>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONVERT_TO_POINT_ON_LINE_CONSTRAINT:
+    case ToolID::CONVERT_TO_MIDPOINT_CONSTRAINT:
+        return std::make_unique<ToolConvertPointOnLineConstraint>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }
