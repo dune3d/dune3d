@@ -1535,6 +1535,8 @@ void Editor::open_file(const std::filesystem::path &path)
         update_can_close_workspace_view_pages();
         m_win.get_app().add_recent_item(path);
         update_title();
+        update_version_info();
+
 
         load_linked_documents(doc_uu);
     }
