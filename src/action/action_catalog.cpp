@@ -250,6 +250,10 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {{"Convert to midpoint constraint", "Convert to midpoint"},
           ActionGroup::UNKNOWN,
           ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONSTRAIN_BEZIER_ARC_SAME_CURVATURE,
+         {{"Constrain Bezier/Arc same curvature", "Constrain same curvature"},
+          ActionGroup::CONSTRAIN,
+          ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -435,6 +439,7 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(UNSET_MEASUREMENT),
         TOOL_LUT_ITEM(CONVERT_TO_POINT_ON_LINE_CONSTRAINT),
         TOOL_LUT_ITEM(CONVERT_TO_MIDPOINT_CONSTRAINT),
+        TOOL_LUT_ITEM(CONSTRAIN_BEZIER_ARC_SAME_CURVATURE),
 };
 
 

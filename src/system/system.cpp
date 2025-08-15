@@ -2704,6 +2704,60 @@ void System::visit(const ConstraintBezierBezierSameCurvature &constraint)
     }
 }
 
+
+void System::visit(const ConstraintBezierArcSameCurvature &constraint)
+{
+    const auto c = n_constraint++;
+
+    const auto enp_arc = constraint.get_arc(m_doc);
+    const auto enp_bezier = constraint.get_bezier(m_doc);
+    auto en_arc = SK.GetEntity({get_entity_ref(EntityRef{enp_arc.entity, 0})});
+    auto en_wrkpl = get_entity_ref(EntityRef{m_doc.get_entity<EntityArc2D>(enp_arc.entity).m_wrkpl, 0});
+
+    auto en_p1 = SK.GetEntity({get_entity_ref(EntityRef{enp_bezier.entity, 1})});
+    auto en_p2 = SK.GetEntity({get_entity_ref(EntityRef{enp_bezier.entity, 2})});
+    auto en_c1 = SK.GetEntity({get_entity_ref(EntityRef{enp_bezier.entity, 3})});
+    auto en_c2 = SK.GetEntity({get_entity_ref(EntityRef{enp_bezier.entity, 4})});
+
+    auto p1 = en_p1->PointGetExprsInWorkplane({en_wrkpl});
+    auto p2 = en_p2->PointGetExprsInWorkplane({en_wrkpl});
+    auto c1 = en_c1->PointGetExprsInWorkplane({en_wrkpl});
+    auto c2 = en_c2->PointGetExprsInWorkplane({en_wrkpl});
+
+    ExprVector d;
+    ExprVector dd;
+    Expr *mul = Expr::From(((enp_bezier.point == 1) == (enp_arc.point == 2)) ? 1 : -1);
+    if (enp_bezier.point == 1) { // t=0
+        // m_p1 * -3 + m_c1 * 3
+        d = p1.ScaledBy(Expr::From(-3)).Plus(c1.ScaledBy(Expr::From(3)));
+
+        // 6 * (m_c2 - 2. * m_c1 + m_p1)
+        dd = (c2.Minus(c1.ScaledBy(Expr::From(2))).Plus(p1)).ScaledBy(Expr::From(6));
+    }
+    else { // t=1
+        // m_p2 * 3. + m_c2 *-3
+        d = p2.ScaledBy(Expr::From(3)).Plus(c2.ScaledBy(Expr::From(-3)));
+
+        // 6 * (m_p2 - 2. * m_c2 + m_c1)
+        dd = (p2.Minus(c2.ScaledBy(Expr::From(2))).Plus(c1)).ScaledBy(Expr::From(6));
+    }
+
+    // const auto numerator = d.x * dd.y - dd.x * d.y;
+    auto numerator = d.x->Times(dd.y)->Minus(dd.x->Times(d.y));
+    //  const auto denominator = pow(d.x * d.x + d.y * d.y, 3. / 2);
+    auto base = d.x->Times(d.x)->Plus(d.y->Times(d.y));
+    auto denominator = (base->Times(base)->Times(base))->Sqrt();
+
+    auto bezeir_radius = denominator->Div(numerator)->Times(mul); // inverse of curvature
+
+    auto arc_radius = en_arc->CircleGetRadiusExpr();
+
+    AddEq(hConstraint{c}, &m_sys->eq, bezeir_radius->Minus(arc_radius), 0);
+
+    // for tangency
+    visit(static_cast<const ConstraintArcArcTangent &>(constraint));
+}
+
 int System::get_group_index(const UUID &uu) const
 {
     return m_doc.get_group(uu).get_index() + 1;

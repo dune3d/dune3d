@@ -4,6 +4,7 @@
 #include "document/entity/ientity_in_workplane.hpp"
 #include "document/constraint/constraint_bezier_bezier_tangent_symmetric.hpp"
 #include "document/constraint/constraint_bezier_bezier_same_curvature.hpp"
+#include "document/constraint/constraint_bezier_arc_same_curvature.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "util/selection_util.hpp"
 #include "util/template_util.hpp"
@@ -30,8 +31,14 @@ ToolBase::CanBegin ToolConstrainCurveCurveTangent::can_begin()
     if (!any_entity_from_current_group(en1, en2))
         return false;
 
-    if (any_of(m_tool_id, ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC,
-               ToolID::CONSTRAIN_BEZIER_BEZIER_SAME_CURVATURE)) {
+    if (m_tool_id == ToolID::CONSTRAIN_BEZIER_ARC_SAME_CURVATURE) {
+        using ET = Entity::Type;
+        if (!((en1.of_type(ET::ARC_2D) && en2.of_type(ET::BEZIER_2D))
+              || (en1.of_type(ET::BEZIER_2D) && en2.of_type(ET::ARC_2D))))
+            return false;
+    }
+    else if (any_of(m_tool_id, ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC,
+                    ToolID::CONSTRAIN_BEZIER_BEZIER_SAME_CURVATURE)) {
         if (!(en1.of_type(Entity::Type::BEZIER_2D) && en2.of_type(Entity::Type::BEZIER_2D)))
             return false;
     }
@@ -42,7 +49,8 @@ ToolBase::CanBegin ToolConstrainCurveCurveTangent::can_begin()
     }
 
     return !has_constraint_of_type(curves->get_enps(), Constraint::Type::BEZIER_BEZIER_TANGENT_SYMMETRIC,
-                                   Constraint::Type::ARC_ARC_TANGENT, Constraint::Type::BEZIER_BEZIER_SAME_CURVATURE);
+                                   Constraint::Type::ARC_ARC_TANGENT, Constraint::Type::BEZIER_BEZIER_SAME_CURVATURE,
+                                   Constraint::Type::BEZIER_ARC_SAME_CURVATURE);
 }
 
 ToolResponse ToolConstrainCurveCurveTangent::begin(const ToolArgs &args)
@@ -59,6 +67,8 @@ ToolResponse ToolConstrainCurveCurveTangent::begin(const ToolArgs &args)
             return add_constraint<ConstraintArcArcTangent>();
         case ToolID::CONSTRAIN_BEZIER_BEZIER_SAME_CURVATURE:
             return add_constraint<ConstraintBezierBezierSameCurvature>();
+        case ToolID::CONSTRAIN_BEZIER_ARC_SAME_CURVATURE:
+            return add_constraint<ConstraintBezierArcSameCurvature>();
         default:
             throw std::runtime_error("unsupported tool");
         }

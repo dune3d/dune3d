@@ -34,3 +34,4 @@ versions:
     32: support constraining points to 3D beziers
     33: add bezier/bezier same curvature constraint
     34: support multiple source groups on array and mirror groups
+    35: add bezier/arc same curvature constraint
