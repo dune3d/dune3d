@@ -78,9 +78,9 @@ double ConstraintPointPlaneDistance::measure_datum(const Document &doc) const
 double ConstraintPointPlaneDistance::get_display_datum(const Document &doc) const
 {
     if (m_measurement)
-        return measure_distance(doc);
+        return std::abs(measure_distance(doc));
     else
-        return m_distance;
+        return std::abs(m_distance);
 }
 
 std::string ConstraintPointPlaneDistance::format_datum(double datum) const
