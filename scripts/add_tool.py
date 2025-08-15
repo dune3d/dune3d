@@ -10,6 +10,8 @@ parser.add_argument('-c', '--class-name', required=True)
 #parser.add_argument('-t', '--tool-id', required=True)
 #parser.add_argument('-f', '--file-name', required=True)
 parser.add_argument('-n', '--name', required=True)
+parser.add_argument('--no-action', action='store_true')
+parser.add_argument('--no-impl', action='store_true')
 
 def camel_to_snake(camel_string):
     return re.sub(r'([A-Z])', r'_\1', camel_string).lower().lstrip("_")
@@ -18,6 +20,8 @@ args = parser.parse_args()
 class_name = f"Tool{args.class_name}"
 filename = f"tool_{camel_to_snake(args.class_name)}"
 tool_id = camel_to_snake(args.class_name).upper()
+do_add_action = not args.no_action
+do_add_impl = not args.no_impl
 
 def add_tool_id():
     src = "src/core/tool_id.hpp"
@@ -143,11 +147,13 @@ def add_to_create_tool():
     idx2 = lines.index("    }")
     
     new_lines = lines[:idx1]
-    new_lines.append(f'#include "tools/{filename}.hpp"')
+    if do_add_impl :
+        new_lines.append(f'#include "tools/{filename}.hpp"')
     new_lines += lines[idx1:idx2]
-    new_lines.append("")
-    new_lines.append(f"    case ToolID::{tool_id}:")
-    new_lines.append(f"        return std::make_unique<{class_name}>(tool_id, *this, m_intf, flags);")
+    if do_add_action and do_add_impl:
+        new_lines.append("")
+        new_lines.append(f"    case ToolID::{tool_id}:")
+        new_lines.append(f"        return std::make_unique<{class_name}>(tool_id, *this, m_intf, flags);")
     new_lines += lines[idx2:]
     
     new_lines.append("")
@@ -155,8 +161,12 @@ def add_to_create_tool():
     with open(src, "w") as fi:
         fi.write("\n".join(new_lines))
 
-add_tool_id()
-add_action()
-create_files()
-add_to_meson()
+if do_add_action :
+    add_tool_id()
+    add_action()
+
+if do_add_impl:
+    create_files()
+    add_to_meson()
+
 add_to_create_tool()
