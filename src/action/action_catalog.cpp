@@ -254,6 +254,18 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {{"Constrain Bezier/Arc same curvature", "Constrain same curvature"},
           ActionGroup::CONSTRAIN,
           ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONVERT_TO_SAME_CURVATURE_CONSTRAINT,
+         {{"Convert to same curvature constraint", "Convert to same curvature"},
+          ActionGroup::UNKNOWN,
+          ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONVERT_TO_TANGENT_CONSTRAINT,
+         {{"Convert to tangent constraint", "Convert to tangent"},
+          ActionGroup::UNKNOWN,
+          ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::CONVERT_TO_TANGENT_SYMMETRIC_CONSTRAINT,
+         {{"Convert to tangent symmetric constraint", "Make symmetric"},
+          ActionGroup::UNKNOWN,
+          ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -440,6 +452,9 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONVERT_TO_POINT_ON_LINE_CONSTRAINT),
         TOOL_LUT_ITEM(CONVERT_TO_MIDPOINT_CONSTRAINT),
         TOOL_LUT_ITEM(CONSTRAIN_BEZIER_ARC_SAME_CURVATURE),
+        TOOL_LUT_ITEM(CONVERT_TO_SAME_CURVATURE_CONSTRAINT),
+        TOOL_LUT_ITEM(CONVERT_TO_TANGENT_CONSTRAINT),
+        TOOL_LUT_ITEM(CONVERT_TO_TANGENT_SYMMETRIC_CONSTRAINT),
 };
 
 
