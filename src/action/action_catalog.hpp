@@ -13,6 +13,7 @@ public:
         FLAGS_NO_MENU = (1 << 3),
         FLAGS_SPECIFIC = (1 << 4),
         FLAGS_NO_PREFERENCES = (1 << 5),
+        FLAGS_HIDDEN = FLAGS_NO_MENU | FLAGS_NO_POPOVER | FLAGS_NO_PREFERENCES,
     };
 
     struct Name {

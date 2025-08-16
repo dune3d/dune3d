@@ -10,10 +10,7 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
         {ActionID::EXPORT_SOLID_MODEL_STL, {"Export STL", ActionGroup::DOCUMENT, ActionCatalogItem::FLAGS_DEFAULT}},
         {ActionID::EXPORT_SOLID_MODEL_STEP, {"Export STEP", ActionGroup::DOCUMENT, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_CONTOUR, {"Draw contour", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
-        {ToolID::DRAW_CONTOUR_FROM_POINT,
-         {"Draw contour", ActionGroup::DRAW,
-          ActionCatalogItem::FLAGS_NO_MENU | ActionCatalogItem::FLAGS_NO_POPOVER
-                  | ActionCatalogItem::FLAGS_NO_PREFERENCES}},
+        {ToolID::DRAW_CONTOUR_FROM_POINT, {"Draw contour", ActionGroup::DRAW, ActionCatalogItem::FLAGS_HIDDEN}},
         {ToolID::DRAW_LINE_3D, {"Draw line in 3D", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_LINE_2D, {"Draw line in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
         {ToolID::DRAW_ARC_2D, {"Draw arc in workplane", ActionGroup::DRAW, ActionCatalogItem::FLAGS_DEFAULT}},
