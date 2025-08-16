@@ -128,6 +128,7 @@ private:
     std::set<SelectableRef> m_context_menu_selection;
     enum class ContextMenuMode { ALL, CONSTRAIN };
     void open_context_menu(ContextMenuMode mode = ContextMenuMode::ALL);
+    void install_hover(Gtk::Button &button, ToolID id);
     sigc::connection m_context_menu_hover_timeout;
 
     void set_current_group(const UUID &group);

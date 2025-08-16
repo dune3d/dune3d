@@ -544,6 +544,43 @@ void Editor::update_selection_mode_label()
     }
 }
 
+void Editor::install_hover(Gtk::Button &button, ToolID id)
+{
+    auto ctrl = Gtk::EventControllerMotion::create();
+
+    ctrl->signal_leave().connect([this] {
+        m_context_menu_hover_timeout.disconnect();
+        m_context_menu_hover_timeout = Glib::signal_timeout().connect(
+                [this] {
+                    if (m_core.reset_preview()) {
+                        canvas_update_keep_selection();
+                        m_context_menu->set_opacity(1);
+                    }
+                    return false;
+                },
+                200);
+    });
+    ctrl->signal_motion().connect([this, id](double, double) {
+        m_context_menu_hover_timeout.disconnect();
+        if (m_core.get_current_preview_tool() == ToolID::NONE) {
+            m_context_menu_hover_timeout = Glib::signal_timeout().connect(
+                    [this, id] {
+                        if (m_core.apply_preview(id, m_context_menu_selection)) {
+                            m_context_menu->set_opacity(.5);
+                            canvas_update_keep_selection();
+                        }
+                        return false;
+                    },
+                    200);
+        }
+        else {
+            if (m_core.apply_preview(id, m_context_menu_selection))
+                canvas_update_keep_selection();
+        }
+    });
+    button.add_controller(ctrl);
+}
+
 void Editor::open_context_menu(ContextMenuMode mode)
 {
     Gdk::Rectangle rect;
@@ -656,39 +693,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 trigger_action(id);
             });
             if (m_preferences.editor.preview_constraints && can_preview) {
-
-                auto ctrl = Gtk::EventControllerMotion::create();
-                ctrl->signal_leave().connect([this] {
-                    m_context_menu_hover_timeout.disconnect();
-                    m_context_menu_hover_timeout = Glib::signal_timeout().connect(
-                            [this] {
-                                if (m_core.reset_preview()) {
-                                    canvas_update_keep_selection();
-                                    m_context_menu->set_opacity(1);
-                                }
-                                return false;
-                            },
-                            200);
-                });
-                ctrl->signal_motion().connect([this, id](double, double) {
-                    m_context_menu_hover_timeout.disconnect();
-                    if (m_core.get_current_preview_tool() == ToolID::NONE) {
-                        m_context_menu_hover_timeout = Glib::signal_timeout().connect(
-                                [this, id] {
-                                    if (m_core.apply_preview(std::get<ToolID>(id), m_context_menu_selection)) {
-                                        m_context_menu->set_opacity(.5);
-                                        canvas_update_keep_selection();
-                                    }
-                                    return false;
-                                },
-                                200);
-                    }
-                    else {
-                        if (m_core.apply_preview(std::get<ToolID>(id), m_context_menu_selection))
-                            canvas_update_keep_selection();
-                    }
-                });
-                button->add_controller(ctrl);
+                install_hover(*button, std::get<ToolID>(id));
             }
             button->add_css_class("context-menu-button");
             auto label = Gtk::make_managed<Gtk::Label>(action_catalog.at(id).name.menu);
