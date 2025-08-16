@@ -16,8 +16,16 @@ Group &ToolCommon::get_group()
     return get_doc().get_group(m_core.get_current_group());
 }
 
+bool ToolCommon::is_force_unset_workplane()
+{
+    return false;
+}
+
 UUID ToolCommon::get_workplane_uuid()
 {
+    if (is_force_unset_workplane())
+        return UUID();
+
     if (m_intf.get_use_workplane())
         return m_core.get_current_workplane();
     else

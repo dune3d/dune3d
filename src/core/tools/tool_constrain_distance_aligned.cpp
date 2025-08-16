@@ -26,6 +26,35 @@ ToolBase::CanBegin ToolConstrainDistanceAligned::can_begin()
     return true;
 }
 
+bool ToolConstrainDistanceAligned::is_force_unset_workplane()
+{
+    return m_tool_id == ToolID::CONSTRAIN_DISTANCE_ALIGNED_3D;
+}
+
+bool ToolConstrainDistanceAligned::constraint_is_in_workplane()
+{
+    return get_workplane_uuid() != UUID{};
+}
+
+ToolID ToolConstrainDistanceAligned::get_force_unset_workplane_tool()
+{
+    if (m_tool_id != ToolID::CONSTRAIN_DISTANCE_ALIGNED)
+        return ToolID::NONE;
+
+    auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
+        return ToolID::NONE;
+
+    auto tp = two_points_from_selection(get_doc(), m_selection);
+    if (!tp)
+        return ToolID::NONE;
+
+    if (all_entities_in_current_workplane(tp->get_enps()))
+        return ToolID::NONE;
+
+    return ToolID::CONSTRAIN_DISTANCE_ALIGNED_3D;
+}
+
 ToolResponse ToolConstrainDistanceAligned::begin(const ToolArgs &args)
 {
     m_tp = two_points_from_selection(get_doc(), m_selection).value();

@@ -3,6 +3,7 @@
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "util/selection_util.hpp"
 #include "tool_common_constrain_impl.hpp"
+#include "core/tool_id.hpp"
 
 namespace dune3d {
 
@@ -24,6 +25,32 @@ ToolBase::CanBegin ToolConstrainPointOnPoint::can_begin()
     return !has_constraint_of_type_in_workplane(
             enps, Constraint::Type::POINT_DISTANCE, Constraint::Type::POINTS_COINCIDENT,
             Constraint::Type::POINT_DISTANCE_HORIZONTAL, Constraint::Type::POINT_DISTANCE_VERTICAL);
+}
+
+ToolID ToolConstrainPointOnPoint::get_force_unset_workplane_tool()
+{
+    auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
+        return ToolID::NONE;
+
+    auto tp = two_points_from_selection(get_doc(), m_selection);
+    if (!tp)
+        return ToolID::NONE;
+
+    if (all_entities_in_current_workplane(tp->get_enps()))
+        return ToolID::NONE;
+
+    return ToolID::CONSTRAIN_POINT_ON_POINT_3D;
+}
+
+bool ToolConstrainPointOnPoint::constraint_is_in_workplane()
+{
+    return get_workplane_uuid() != UUID{};
+}
+
+bool ToolConstrainPointOnPoint::is_force_unset_workplane()
+{
+    return m_tool_id == ToolID::CONSTRAIN_POINT_ON_POINT_3D;
 }
 
 ToolResponse ToolConstrainPointOnPoint::begin(const ToolArgs &args)

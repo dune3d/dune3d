@@ -98,6 +98,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainHV>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_DISTANCE:
+    case ToolID::CONSTRAIN_DISTANCE_3D:
     case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
     case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
     case ToolID::MEASURE_DISTANCE:
@@ -115,6 +116,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainSameOrientation>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_PARALLEL:
+    case ToolID::CONSTRAIN_PARALLEL_3D:
         return std::make_unique<ToolConstrainParallel>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_WORKPLANE_NORMAL:
@@ -127,6 +129,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolMoveAnchor>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_EQUAL_LENGTH:
+    case ToolID::CONSTRAIN_EQUAL_LENGTH_3D:
         return std::make_unique<ToolConstrainEqualLength>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_EQUAL_RADIUS:
@@ -150,7 +153,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolSelectEdges>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_PERPENDICULAR:
+    case ToolID::CONSTRAIN_PERPENDICULAR_3D:
     case ToolID::CONSTRAIN_ANGLE:
+    case ToolID::CONSTRAIN_ANGLE_3D:
     case ToolID::MEASURE_ANGLE:
         return std::make_unique<ToolConstrainPerpendicular>(tool_id, *this, m_intf, flags);
 
@@ -190,6 +195,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolLinkDocument>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_DISTANCE_ALIGNED:
+    case ToolID::CONSTRAIN_DISTANCE_ALIGNED_3D:
     case ToolID::MEASURE_DISTANCE_ALIGNED:
         return std::make_unique<ToolConstrainDistanceAligned>(tool_id, *this, m_intf, flags);
 
@@ -212,10 +218,13 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolPaste>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_ON_POINT:
+    case ToolID::CONSTRAIN_POINT_ON_POINT_3D:
         return std::make_unique<ToolConstrainPointOnPoint>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_ON_LINE:
+    case ToolID::CONSTRAIN_POINT_ON_LINE_3D:
     case ToolID::CONSTRAIN_MIDPOINT:
+    case ToolID::CONSTRAIN_MIDPOINT_3D:
         return std::make_unique<ToolConstrainPointOnLine>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_ON_CIRCLE:
@@ -225,6 +234,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainPointOnBezier>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_LINE_DISTANCE:
+    case ToolID::CONSTRAIN_POINT_LINE_DISTANCE_3D:
     case ToolID::MEASURE_POINT_LINE_DISTANCE:
         return std::make_unique<ToolConstrainPointLineDistance>(tool_id, *this, m_intf, flags);
 

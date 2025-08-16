@@ -4,6 +4,7 @@
 #include "document/constraint/constraint_parallel.hpp"
 #include "util/selection_util.hpp"
 #include "tool_common_constrain_impl.hpp"
+#include "core/tool_id.hpp"
 
 namespace dune3d {
 
@@ -34,6 +35,34 @@ static std::optional<std::pair<UUID, UUID>> two_entities_from_selection(const Do
         return {{en1.m_uuid, en2.m_uuid}};
 
     return {};
+}
+
+bool ToolConstrainParallel::is_force_unset_workplane()
+{
+    return m_tool_id == ToolID::CONSTRAIN_PARALLEL_3D;
+}
+
+bool ToolConstrainParallel::constraint_is_in_workplane()
+{
+    return get_workplane_uuid() != UUID{};
+}
+
+ToolID ToolConstrainParallel::get_force_unset_workplane_tool()
+{
+    auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
+        return ToolID::NONE;
+
+    auto tp = two_entities_from_selection(get_doc(), m_selection);
+    if (!tp)
+        return ToolID::NONE;
+
+    std::set<EntityAndPoint> enps = {{tp->first, 0}, {tp->second, 0}};
+
+    if (all_entities_in_current_workplane(enps))
+        return ToolID::NONE;
+
+    return ToolID::CONSTRAIN_PARALLEL_3D;
 }
 
 ToolBase::CanBegin ToolConstrainParallel::can_begin()

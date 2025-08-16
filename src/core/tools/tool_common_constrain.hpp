@@ -12,6 +12,8 @@ public:
     ToolResponse update(const ToolArgs &args) override;
 
     bool can_preview_constrain() override;
+    ToolID get_force_unset_workplane_tool() override;
+    bool constraint_is_in_workplane() override;
 
 protected:
     ToolResponse commit();
@@ -25,6 +27,8 @@ protected:
     bool any_entity_from_current_group(const std::set<EntityAndPoint> &enps);
     template <typename... Args> bool any_entity_from_current_group(const Args &...enps);
     template <typename... Args> bool any_entity_from_current_group(const std::tuple<Args...> &enps);
+
+    bool all_entities_in_current_workplane(const std::set<EntityAndPoint> &enps);
 
 private:
     template <typename... Args, size_t... Is>
