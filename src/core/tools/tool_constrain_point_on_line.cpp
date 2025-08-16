@@ -1,7 +1,9 @@
 #include "tool_constrain_point_on_line.hpp"
 #include "document/constraint/constraint_point_on_line.hpp"
+#include "document/constraint/constraint_midpoint.hpp"
 #include "util/selection_util.hpp"
 #include "tool_common_constrain_impl.hpp"
+#include "core/tool_id.hpp"
 
 namespace dune3d {
 
@@ -26,11 +28,26 @@ ToolResponse ToolConstrainPointOnLine::begin(const ToolArgs &args)
     if (!tp.has_value())
         return ToolResponse::end();
 
-    auto &constraint = add_constraint<ConstraintPointOnLine>();
-    constraint.m_line = tp->line;
-    constraint.m_point = tp->point;
-    constraint.m_wrkpl = get_workplane_uuid();
-    constraint.m_modify_to_satisfy = true;
+    ConstraintPointOnLineBase *constraint = nullptr;
+
+    switch (m_tool_id) {
+    case ToolID::CONSTRAIN_MIDPOINT: {
+        auto &c = add_constraint<ConstraintMidpoint>();
+        constraint = &c;
+    } break;
+
+    case ToolID::CONSTRAIN_POINT_ON_LINE: {
+        auto &c = add_constraint<ConstraintPointOnLine>();
+        c.m_modify_to_satisfy = true;
+        constraint = &c;
+    } break;
+
+    default:
+        return ToolResponse::end();
+    }
+    constraint->m_line = tp->line;
+    constraint->m_point = tp->point;
+    constraint->m_wrkpl = get_workplane_uuid();
 
     return commit();
 }

@@ -13,7 +13,6 @@
 #include "tools/tool_constrain_same_orientation.hpp"
 #include "tools/tool_constrain_workplane_normal.hpp"
 #include "tools/tool_constrain_parallel.hpp"
-#include "tools/tool_constrain_midpoint.hpp"
 #include "tools/tool_constrain_equal_length.hpp"
 #include "tools/tool_constrain_equal_radius.hpp"
 #include "tools/tool_constrain_point_in_plane.hpp"
@@ -127,9 +126,6 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::MOVE_ANCHOR:
         return std::make_unique<ToolMoveAnchor>(tool_id, *this, m_intf, flags);
 
-    case ToolID::CONSTRAIN_MIDPOINT:
-        return std::make_unique<ToolConstrainMidpoint>(tool_id, *this, m_intf, flags);
-
     case ToolID::CONSTRAIN_EQUAL_LENGTH:
         return std::make_unique<ToolConstrainEqualLength>(tool_id, *this, m_intf, flags);
 
@@ -219,6 +215,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainPointOnPoint>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_ON_LINE:
+    case ToolID::CONSTRAIN_MIDPOINT:
         return std::make_unique<ToolConstrainPointOnLine>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_ON_CIRCLE:

@@ -212,7 +212,6 @@ src_gui = files(
   'src/core/tools/tool_constrain_same_orientation.cpp',
   'src/core/tools/tool_constrain_parallel.cpp',
   'src/core/tools/tool_constrain_workplane_normal.cpp',
-  'src/core/tools/tool_constrain_midpoint.cpp',
   'src/core/tools/tool_constrain_equal_length.cpp',
   'src/core/tools/tool_constrain_equal_radius.cpp',
   'src/core/tools/tool_constrain_diameter_radius.cpp',
