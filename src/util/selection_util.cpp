@@ -305,6 +305,8 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
         std::string suffix;
         if (auto dat = dynamic_cast<const IConstraintDatum *>(constraint)) {
             const auto datum = dat->format_datum(dat->get_display_datum(doc));
+            if (dat->is_measurement())
+                name = "measurement";
 
             std::string unit;
             if (dat->get_datum_unit() == DatumUnit::MM)
