@@ -41,12 +41,14 @@ public:
     UUID m_uuid;
     using Type = EntityType;
     virtual Type get_type() const = 0;
-    static std::string get_type_name(Type type);
-    static std::string get_type_name_plural(Type type);
-    static std::string get_type_name_for_n(Type type, std::size_t n);
-    std::string get_type_name() const;
-    std::string get_type_name_plural() const;
-    std::string get_type_name_for_n(std::size_t n) const;
+
+    enum class TypeNameStyle { FULL, WITHOUT_WORKPLANE };
+    static std::string get_type_name(Type type, TypeNameStyle style = TypeNameStyle::FULL);
+    static std::string get_type_name_plural(Type type, TypeNameStyle style = TypeNameStyle::FULL);
+    static std::string get_type_name_for_n(Type type, std::size_t n, TypeNameStyle style = TypeNameStyle::FULL);
+    std::string get_type_name(TypeNameStyle style = TypeNameStyle::FULL) const;
+    std::string get_type_name_plural(TypeNameStyle style = TypeNameStyle::FULL) const;
+    std::string get_type_name_for_n(std::size_t n, TypeNameStyle style = TypeNameStyle::FULL) const;
 
     template <typename... Args> bool of_type(Args &&...args) const
     {

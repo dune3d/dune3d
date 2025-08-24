@@ -3,6 +3,7 @@
 #include "document/entity/entity_line2d.hpp"
 #include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_line3d.hpp"
+#include "document/entity/entity_workplane.hpp"
 #include "document/group/group.hpp"
 #include "document/constraint/constraint.hpp"
 #include "document/constraint/constraint_points_coincident.hpp"
@@ -271,6 +272,21 @@ std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel_a
     return it.item;
 }
 
+static std::string get_workplane_description(const Document &doc, const UUID &wrkpl_uu, const UUID &current_group)
+{
+    std::string label;
+    auto &wrkpl = doc.get_entity(wrkpl_uu);
+    auto &wrkpl_group = doc.get_group(wrkpl.m_group);
+    label += " in workplane";
+    if (wrkpl.has_name() && wrkpl.m_name.size())
+        label += " " + wrkpl.m_name;
+    if (wrkpl_group.m_uuid == current_group)
+        label += " from current group";
+    else
+        label += " from group " + wrkpl_group.m_name;
+    return label;
+}
+
 std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &current_doc, const SelectableRef &sr)
 {
     auto &doci = prv.get_idocument_info(current_doc);
@@ -285,7 +301,18 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
         auto &group = doc.get_group(entity->m_group);
         if (entity->m_construction)
             label = "Construction ";
-        label += entity->get_type_name();
+        if (auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(entity)) {
+            label += entity->get_type_name(Entity::TypeNameStyle::WITHOUT_WORKPLANE);
+            if (en_wrkpl->get_workplane() != group.m_active_wrkpl) {
+                label += get_workplane_description(doc, en_wrkpl->get_workplane(), current_group);
+            }
+            else {
+                label += " in workplane";
+            }
+        }
+        else {
+            label += entity->get_type_name();
+        }
         if (entity->has_name() && entity->m_name.size())
             label += " " + entity->m_name;
         if (auto point_name = entity->get_point_name(sr.point); point_name.size())
@@ -318,15 +345,7 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
         label = constraint->get_type_name() + " " + name + suffix;
         if (auto constraint_wrkpl = dynamic_cast<const IConstraintWorkplane *>(constraint)) {
             if (auto wrkpl_uu = constraint_wrkpl->get_workplane(doc)) {
-                auto &wrkpl = doc.get_entity(wrkpl_uu);
-                auto &wrkpl_group = doc.get_group(wrkpl.m_group);
-                label += " in workplane";
-                if (wrkpl.has_name() && wrkpl.m_name.size())
-                    label += " " + wrkpl.m_name;
-                if (wrkpl_group.m_uuid == current_group)
-                    label += " from current group";
-                else
-                    label += " from group " + wrkpl_group.m_name;
+                label += get_workplane_description(doc, wrkpl_uu, current_group);
             }
         }
     } break;
