@@ -10,6 +10,7 @@ is_windows = target_machine.system() == 'windows'
 
 
 gtk4 = dependency('gtk4', version: '>=4.10')
+pthread = cxx.find_library('pthread')
 gtkmm = dependency('gtkmm-4.0', version: '>=4.10')
 epoxy = dependency('epoxy')
 eigen = dependency('eigen3')
@@ -388,7 +389,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs', required:false)
 endif
 
-build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype, png]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype, png, pthread]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
