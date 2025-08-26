@@ -1,0 +1,18 @@
+
+task:
+  matrix:
+    - name: FreeBSD 14.3
+      freebsd_instance:
+        image: freebsd-14-3-release-amd64-ufs
+  install_script:
+    - sed -i.bak -e 's,pkg+http://pkg.FreeBSD.org/\${ABI}/quarterly,pkg+http://pkg.FreeBSD.org/\${ABI}/latest,' /etc/pkg/FreeBSD.conf
+    - pkg update -f
+    - pkg upgrade -y
+    - pkg install -y git gmake pkgconf libuuid gtkmm40 glm opencascade meson cmake eigen
+  script:
+    - ls
+    - clang --version
+    - mkdir ../build
+    - meson setup ../build --cmake-prefix-path=/usr/local/lib
+    - meson compile -C ../build
+
