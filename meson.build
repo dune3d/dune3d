@@ -245,6 +245,7 @@ src_gui = files(
   'src/core/tools/tool_text_to_cluster.cpp',
   'src/core/tools/tool_draw_text.cpp',
   'src/core/tools/tool_select_spine_entities.cpp',
+  'src/core/tools/tool_select_entities.cpp',
   'src/core/tools/tool_add_picture_anchor.cpp',
   'src/core/tools/tool_move_picture_anchor.cpp',
   'src/core/tools/tool_create_coincident_constraints.cpp',

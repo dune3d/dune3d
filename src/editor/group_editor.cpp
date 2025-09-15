@@ -465,9 +465,13 @@ public:
         grid_attach_label_and_widget(*this, "Radius", *m_radius_sp, m_top);
 
         {
-            auto button = Gtk::make_managed<Gtk::Button>("Select edges…");
-            button->signal_clicked().connect([this] { m_signal_trigger_action.emit(ToolID::SELECT_EDGES); });
-            attach(*button, 0, m_top++, 2, 1);
+            m_entities_label = Gtk::make_managed<Gtk::Label>("No entities");
+            m_entities_label->set_xalign(0);
+            auto button = Gtk::make_managed<Gtk::Button>();
+            button->set_child(*m_entities_label);
+            button->signal_clicked().connect([this] { m_signal_trigger_action.emit(ToolID::SELECT_ENTITIES); });
+            grid_attach_label_and_widget(*this, "Fillet Entities", *button, m_top);
+            update_label();
         }
     }
 
@@ -495,6 +499,19 @@ private:
         return true;
     }
 
+    void update_label()
+    {
+        auto &group = get_group();
+        auto sz = group.m_entities.size();
+        std::string label;
+        if (sz == 0)
+            label = "No entities";
+        else
+            label = std::format("{} {}", sz, Entity::get_type_name_for_n(EntityType::INVALID, sz));
+        m_entities_label->set_label(label);
+    }
+
+    Gtk::Label *m_entities_label = nullptr;
     SpinButtonDim *m_radius_sp = nullptr;
 };
 

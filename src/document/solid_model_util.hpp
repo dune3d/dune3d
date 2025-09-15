@@ -5,6 +5,7 @@
 #include <list>
 #include "clipper2/clipper.h"
 #include <TopoDS_Builder.hxx>
+#include <TopoDS_Edge.hxx>
 
 
 namespace dune3d {
@@ -40,6 +41,7 @@ public:
     const Entity &entity;
     const Transform transform_fn;
     glm::dvec2 transform(const glm::dvec2 &v) const;
+    static bool isPointOnEdge(const TopoDS_Edge& edge, const gp_Pnt& point, double tol = 1e-7);
 };
 
 using Path = std::deque<std::pair<Node &, Edge &>>;

@@ -17,6 +17,11 @@
 #include <NCollection_Array1.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <gp_Circ.hxx>
+#include <BRep_Tool.hxx>
+#include <Geom_Curve.hxx>
+#include <Geom_Line.hxx>
+#include <GeomAPI_ProjectPointOnCurve.hxx>
+#include <TopoDS_Edge.hxx>
 
 namespace dune3d::solid_model_util {
 
@@ -428,6 +433,21 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole)
         }
     }
     return wire;
+}
+
+bool Edge::isPointOnEdge(const TopoDS_Edge& edge, const gp_Pnt& point, double tol) {
+    Standard_Real first, last;
+    Handle(Geom_Curve) curve = BRep_Tool::Curve(edge, first, last);
+    if (curve.IsNull()) return false;
+
+    GeomAPI_ProjectPointOnCurve proj(point, curve, first, last);
+    if (proj.NbPoints() == 0) return false;
+
+    gp_Pnt closest = proj.NearestPoint();
+    if (point.Distance(closest) > tol) return false;
+
+    Standard_Real param = proj.LowerDistanceParameter();
+    return (param >= first - tol && param <= last + tol);
 }
 
 FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,
