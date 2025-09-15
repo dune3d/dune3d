@@ -20,6 +20,7 @@ class ICanvas;
 class IDocumentProvider;
 class Document;
 class IDocumentView;
+class IWorkspaceView;
 class SelectableRef;
 enum class ConstraintType;
 
@@ -27,10 +28,10 @@ class Renderer : private EntityVisitor, private ConstraintVisitor {
 public:
     Renderer(ICanvas &ca, IDocumentProvider &docprv);
     void render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view,
-                const std::filesystem::path &containing_dir, std::optional<SelectableRef> sr);
+                const IWorkspaceView &wrk_view, const std::filesystem::path &containing_dir,
+                std::optional<SelectableRef> sr);
 
     bool m_solid_model_edge_select_mode = false;
-    float m_curvature_comb_scale = 0;
     bool m_connect_curvature_comb = true;
     UUID m_first_group;
 
@@ -84,11 +85,14 @@ private:
     void visit(const ConstraintBezierLineTangent &constr) override;
     void visit(const ConstraintBezierBezierTangentSymmetric &constr) override;
     void visit(const ConstraintPointOnBezier &constr) override;
+    void visit(const ConstraintBezierBezierSameCurvature &constr) override;
+    void visit(const ConstraintBezierArcSameCurvature &constr) override;
 
     ICanvas &m_ca;
     IDocumentProvider &m_doc_prv;
     const Document *m_doc = nullptr;
     const IDocumentView *m_doc_view = nullptr;
+    const IWorkspaceView *m_workspace_view = nullptr;
     const Group *m_current_group = nullptr;
     const Group *m_current_body_group = nullptr;
     std::filesystem::path m_containing_dir;
@@ -130,6 +134,8 @@ private:
     void restore(Badge<AutoSaveRestore>);
 
     void set_chunk_from_group(const Group &group);
+
+    float m_curvature_comb_scale = 0;
 };
 
 } // namespace dune3d

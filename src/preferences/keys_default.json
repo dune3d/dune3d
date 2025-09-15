@@ -1190,6 +1190,17 @@
         ]
     },
     {
+        "tool": "PASTE_PICTURE",
+        "keys": [
+            [
+                {
+                    "key": "V",
+                    "mod": 4
+                }
+            ]
+        ]
+    },
+    {
         "tool": "CUT",
         "keys": [
             [
@@ -1218,6 +1229,28 @@
                 {
                     "key": "h",
                     "mod": 0
+                }
+            ]
+        ]
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "Delete",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "HIDE_REFERENCE_WORKPLANE"
+    },
+    {
+        "action": "TOGGLE_IRRELEVANT_WORKPLANES",
+        "keys": [
+            [
+                {
+                    "key": "r",
+                    "mod": 8
                 }
             ]
         ]

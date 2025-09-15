@@ -15,6 +15,7 @@ public:
         EDITOR,
         TOOL,
         CORE,
+        RENDERER,
         CANVAS,
         IMPORT,
         VERSION,

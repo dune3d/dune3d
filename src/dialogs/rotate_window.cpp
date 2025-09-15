@@ -50,20 +50,19 @@ RotateWindow::RotateWindow(Gtk::Window &parent, EditorInterface &intf, const std
 
         m_button_abs->set_group(*m_button_rel);
 
-
-        grid_attach_label_and_widget(*grid, "Mode", *box2, top);
+        grid->attach(*box2, 0, top++, 2, 1);
     }
 
 
     m_sp_roll = Gtk::make_managed<SpinButtonAngle>();
     m_sp_roll->set_hexpand(true);
-    grid_attach_label_and_widget(*grid, "Roll", *m_sp_roll, top);
+    grid_attach_label_and_widget(*grid, "X", *m_sp_roll, top);
 
     m_sp_pitch = Gtk::make_managed<SpinButtonAngle>();
-    grid_attach_label_and_widget(*grid, "Pitch", *m_sp_pitch, top);
+    grid_attach_label_and_widget(*grid, "Y", *m_sp_pitch, top);
 
     m_sp_yaw = Gtk::make_managed<SpinButtonAngle>();
-    grid_attach_label_and_widget(*grid, "Yaw", *m_sp_yaw, top);
+    grid_attach_label_and_widget(*grid, "Z", *m_sp_yaw, top);
 
     update_entries();
 
@@ -106,7 +105,7 @@ void RotateWindow::update_entries()
     const auto rel = m_button_rel->get_active();
     glm::dquat q;
     if (rel)
-        q = glm::inverse(m_initial) * m_normal;
+        q = m_normal * glm::inverse(m_initial);
     else
         q = m_normal;
     auto angles = glm::degrees(glm::eulerAngles(q));
@@ -125,7 +124,7 @@ glm::dquat RotateWindow::get_value() const
     if (m_button_abs->get_active())
         return q;
     else
-        return m_initial * q;
+        return q * m_initial;
 }
 
 } // namespace dune3d

@@ -19,6 +19,8 @@ json WorkspaceView::serialize(const UUID &uu_doc) const
     j["projection"] = m_projection;
     j["cam_quat"] = m_cam_quat;
     j["curvature_comb_scale"] = m_curvature_comb_scale;
+    j["show_construction_entities_from_previous_groups"] = m_show_construction_entities_from_previous_groups;
+    j["hide_irrelevant_workplanes"] = m_hide_irrelevant_workplanes;
     return j;
 }
 
@@ -54,7 +56,10 @@ WorkspaceView::WorkspaceView() = default;
 WorkspaceView::WorkspaceView(const json &j)
     : m_name(j.at("name").get<std::string>()), m_center(j.at("center").get<glm::dvec3>()),
       m_cam_distance(j.at("cam_distance").get<float>()), m_projection(j.at("projection").get<CanvasProjection>()),
-      m_cam_quat(j.at("cam_quat").get<glm::dquat>()), m_curvature_comb_scale(j.value("curvature_comb_scale", 0.))
+      m_cam_quat(j.at("cam_quat").get<glm::dquat>()), m_curvature_comb_scale(j.value("curvature_comb_scale", 0.)),
+      m_show_construction_entities_from_previous_groups(
+              j.value("show_construction_entities_from_previous_groups", false)),
+      m_hide_irrelevant_workplanes(j.value("hide_irrelevant_workplanes", false))
 {
     m_documents.emplace(UUID{}, j.at("document"));
     if (m_name == "Default")

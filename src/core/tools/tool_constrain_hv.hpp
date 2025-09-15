@@ -12,5 +12,10 @@ public:
     {
         return true;
     }
+
+    bool constraint_is_in_workplane() override
+    {
+        return true;
+    }
 };
 } // namespace dune3d

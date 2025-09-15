@@ -13,7 +13,7 @@
 #include "document/entity/entity_bezier2d.hpp"
 #include "document/entity/entity_bezier3d.hpp"
 #include "document/entity/entity_workplane.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 
 namespace dune3d {
 GroupExtrude::GroupExtrude(const UUID &uu) : GroupSweep(uu)

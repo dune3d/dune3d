@@ -4,6 +4,7 @@
 #include "constraint_visitor.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity_bezier2d.hpp"
+#include "document/entity/entity_bezier3d.hpp"
 #include "document/entity/entity_workplane.hpp"
 
 namespace dune3d {
@@ -19,22 +20,43 @@ void ConstraintPointOnBezier::accept(ConstraintVisitor &visitor) const
 
 void ConstraintPointOnBezier::modify_to_satisfy(const Document &doc)
 {
-    const auto &bezier = doc.get_entity<EntityBezier2D>(m_line);
-    const auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
-    const auto point = wrkpl.project(doc.get_point(m_point));
-    double best_t = 0;
-    double best_distance = INFINITY;
-    unsigned int steps = 64;
-    for (unsigned int i = 1; i <= steps; i++) {
-        const auto t = (double)i / steps;
-        const auto p = bezier.get_interpolated(t);
-        const auto dist = glm::length(p - point);
-        if (dist < best_distance) {
-            best_distance = dist;
-            best_t = t;
+    const auto &entity = doc.get_entity<Entity>(m_line);
+    if (entity.of_type(Entity::Type::BEZIER_3D)) {
+        const auto &bezier = dynamic_cast<const EntityBezier3D &>(entity);
+        const auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
+        const auto point = wrkpl.project3(doc.get_point(m_point));
+        double best_t = 0;
+        double best_distance = INFINITY;
+        unsigned int steps = 64;
+        for (unsigned int i = 1; i <= steps; i++) {
+            const auto t = (double)i / steps;
+            const auto p = bezier.get_interpolated(t);
+            const auto dist = glm::length(p - point);
+            if (dist < best_distance) {
+                best_distance = dist;
+                best_t = t;
+            }
         }
+        m_val = best_t;
     }
-    m_val = best_t;
+    else {
+        const auto &bezier = dynamic_cast<const EntityBezier2D &>(entity);
+        const auto &wrkpl = doc.get_entity<EntityWorkplane>(m_wrkpl);
+        const auto point = wrkpl.project(doc.get_point(m_point));
+        double best_t = 0;
+        double best_distance = INFINITY;
+        unsigned int steps = 64;
+        for (unsigned int i = 1; i <= steps; i++) {
+            const auto t = (double)i / steps;
+            const auto p = bezier.get_interpolated(t);
+            const auto dist = glm::length(p - point);
+            if (dist < best_distance) {
+                best_distance = dist;
+                best_t = t;
+            }
+        }
+        m_val = best_t;
+    }
 }
 
 } // namespace dune3d

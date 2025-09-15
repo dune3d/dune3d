@@ -4,13 +4,16 @@
 #include "document/constraint/constraint_angle.hpp"
 #include "core/tool_id.hpp"
 #include "util/selection_util.hpp"
+#include "util/template_util.hpp"
 #include "tool_common_constrain_impl.hpp"
 
 namespace dune3d {
 
 static std::optional<std::pair<UUID, UUID>> two_lines_from_selection(const Document &doc,
-                                                                     const std::set<SelectableRef> &sel)
+                                                                     const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 2)
         return {};
     auto it = sel.begin();
@@ -40,12 +43,50 @@ static std::optional<std::pair<UUID, UUID>> two_lines_from_selection(const Docum
 
 bool ToolConstrainPerpendicular::can_preview_constrain()
 {
-    return m_tool_id == ToolID::CONSTRAIN_PERPENDICULAR;
+    return any_of(m_tool_id, ToolID::CONSTRAIN_PERPENDICULAR, ToolID::CONSTRAIN_PERPENDICULAR_3D);
+}
+
+bool ToolConstrainPerpendicular::is_force_unset_workplane()
+{
+    return any_of(m_tool_id, ToolID::CONSTRAIN_PERPENDICULAR_3D, ToolID::CONSTRAIN_ANGLE_3D);
+}
+
+bool ToolConstrainPerpendicular::constraint_is_in_workplane()
+{
+    return get_workplane_uuid() != UUID{};
+}
+
+ToolID ToolConstrainPerpendicular::get_force_unset_workplane_tool()
+{
+    auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
+        return ToolID::NONE;
+
+    auto tl = two_lines_from_selection(get_doc(), m_selection);
+    if (!tl.has_value())
+        return ToolID::NONE;
+
+    std::set<EntityAndPoint> enps = {{tl->first, 0}, {tl->second, 0}};
+
+    if (all_entities_in_current_workplane(enps))
+        return ToolID::NONE;
+
+    switch (m_tool_id) {
+    case ToolID::CONSTRAIN_ANGLE:
+        return ToolID::CONSTRAIN_ANGLE_3D;
+
+    case ToolID::CONSTRAIN_PERPENDICULAR:
+        return ToolID::CONSTRAIN_PERPENDICULAR_3D;
+
+    default:
+        return ToolID::NONE;
+    }
 }
 
 ToolBase::CanBegin ToolConstrainPerpendicular::can_begin()
 {
-    auto tl = two_lines_from_selection(get_doc(), m_selection);
+    const auto &doc = get_doc();
+    auto tl = two_lines_from_selection(doc, m_selection);
     if (!tl.has_value())
         return false;
 
@@ -57,8 +98,15 @@ ToolBase::CanBegin ToolConstrainPerpendicular::can_begin()
     if (!any_entity_from_current_group(enps))
         return false;
 
-    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
-                                                Constraint::Type::LINES_ANGLE);
+    if (has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
+                                            Constraint::Type::LINES_ANGLE))
+        return false;
+
+    const auto wrkpl = get_workplane_uuid();
+    if (entity_is_constrained_hv(doc, tl->first, wrkpl) && entity_is_constrained_hv(doc, tl->second, wrkpl))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
@@ -69,7 +117,7 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
         return ToolResponse::end();
 
     ConstraintAngleBase *constraint = nullptr;
-    if (m_tool_id == ToolID::CONSTRAIN_PERPENDICULAR) {
+    if (any_of(m_tool_id, ToolID::CONSTRAIN_PERPENDICULAR, ToolID::CONSTRAIN_PERPENDICULAR_3D)) {
         constraint = &add_constraint<ConstraintLinesPerpendicular>();
     }
     else {
@@ -92,7 +140,7 @@ ToolResponse ToolConstrainPerpendicular::begin(const ToolArgs &args)
     constraint->m_entity1 = tl->first;
     constraint->m_entity2 = tl->second;
 
-    if (m_tool_id == ToolID::CONSTRAIN_PERPENDICULAR)
+    if (any_of(m_tool_id, ToolID::CONSTRAIN_PERPENDICULAR, ToolID::CONSTRAIN_PERPENDICULAR_3D))
         return commit();
 
     m_core.solve_current();

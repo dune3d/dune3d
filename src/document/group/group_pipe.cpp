@@ -5,7 +5,7 @@
 #include "util/util.hpp"
 #include "util/template_util.hpp"
 #include "document/document.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include "document/entity/entity.hpp"
 
 namespace dune3d {

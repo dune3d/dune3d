@@ -5,6 +5,7 @@
 namespace dune3d {
 
 class EntityPicture;
+class PictureData;
 
 class ToolImportPicture : public virtual ToolCommon, public ToolHelperConstrain {
 public:
@@ -29,6 +30,7 @@ public:
 private:
     EntityPicture *m_pic = nullptr;
     const EntityWorkplane *m_wrkpl = nullptr;
+    void add_picture(std::shared_ptr<const PictureData> data);
 
     void update_tip();
     bool m_constrain = true;

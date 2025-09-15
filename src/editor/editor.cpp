@@ -11,7 +11,7 @@
 #include "tool_popover.hpp"
 #include "dune3d_application.hpp"
 #include "util/selection_util.hpp"
-#include "group_editor.hpp"
+#include "group_editor/group_editor.hpp"
 #include "render/renderer.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "logger/logger.hpp"
@@ -31,6 +31,21 @@
 #include <iostream>
 
 namespace dune3d {
+
+Editor::CanvasUpdater::CanvasUpdater(Editor &editor) : m_editor(editor)
+{
+    m_editor.m_canvas_update_pending++;
+}
+
+Editor::CanvasUpdater::~CanvasUpdater()
+{
+    if (m_editor.m_canvas_update_pending == 0)
+        return; // should not happen
+    m_editor.m_canvas_update_pending--;
+    if (m_editor.m_canvas_update_pending == 0)
+        m_editor.canvas_update_keep_selection();
+}
+
 Editor::Editor(Dune3DAppWindow &win, Preferences &prefs)
     : m_preferences(prefs), m_dialogs(win, *this), m_win(win), m_core(*this), m_selection_menu_creator(m_core)
 {
@@ -87,7 +102,7 @@ void Editor::init()
             }
         }
         m_win.get_workspace_notebook().set_visible(m_core.has_documents());
-        canvas_update_keep_selection();
+        CanvasUpdater canvas_updater{*this};
         m_workspace_browser->update_documents(get_current_document_views());
         update_group_editor();
         update_workplane_label();
@@ -201,6 +216,11 @@ void Editor::init_view_options()
         auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
         set_show_previous_construction_entities(b);
     });
+    m_hide_irrelevant_workplanes_action = m_win.add_action_bool("irrelevant_workplanes", false);
+    m_hide_irrelevant_workplanes_action->signal_change_state().connect([this](const Glib::VariantBase &v) {
+        auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
+        set_hide_irrelevant_workplanes(b);
+    });
 
     add_tool_action(ActionID::CLIPPING_PLANE_WINDOW, "clipping_planes");
     add_tool_action(ActionID::SELECTION_FILTER, "selection_filter");
@@ -208,6 +228,7 @@ void Editor::init_view_options()
     m_view_options_menu->append("Selection filter", "win.selection_filter");
     m_view_options_menu->append("Clipping planes", "win.clipping_planes");
     m_view_options_menu->append("Previous construction entities", "win.previous_construction");
+    m_view_options_menu->append("Hide irrelevant workplanes", "win.irrelevant_workplanes");
     m_view_options_menu->append("Perspective projection", "win.perspective");
     {
         auto it = Gio::MenuItem::create("scale", "scale");
@@ -232,7 +253,7 @@ void Editor::init_view_options()
                 scale = powf(10, val);
             auto &wv = m_workspace_views.at(m_current_workspace_view);
             wv.m_curvature_comb_scale = scale;
-            canvas_update_keep_selection();
+            CanvasUpdater canvas_updater{*this};
             update_view_hints();
         });
 
@@ -523,6 +544,43 @@ void Editor::update_selection_mode_label()
     }
 }
 
+void Editor::install_hover(Gtk::Button &button, ToolID id)
+{
+    auto ctrl = Gtk::EventControllerMotion::create();
+
+    ctrl->signal_leave().connect([this] {
+        m_context_menu_hover_timeout.disconnect();
+        m_context_menu_hover_timeout = Glib::signal_timeout().connect(
+                [this] {
+                    if (m_core.reset_preview()) {
+                        canvas_update_keep_selection();
+                        m_context_menu->set_opacity(1);
+                    }
+                    return false;
+                },
+                200);
+    });
+    ctrl->signal_motion().connect([this, id](double, double) {
+        m_context_menu_hover_timeout.disconnect();
+        if (m_core.get_current_preview_tool() == ToolID::NONE) {
+            m_context_menu_hover_timeout = Glib::signal_timeout().connect(
+                    [this, id] {
+                        if (m_core.apply_preview(id, m_context_menu_selection)) {
+                            m_context_menu->set_opacity(.5);
+                            canvas_update_keep_selection();
+                        }
+                        return false;
+                    },
+                    200);
+        }
+        else {
+            if (m_core.apply_preview(id, m_context_menu_selection))
+                canvas_update_keep_selection();
+        }
+    });
+    button.add_controller(ctrl);
+}
+
 void Editor::open_context_menu(ContextMenuMode mode)
 {
     Gdk::Rectangle rect;
@@ -543,7 +601,9 @@ void Editor::open_context_menu(ContextMenuMode mode)
     update_action_sensitivity(sel);
     struct ActionInfo {
         ActionToolID id;
-        bool can_preview;
+        bool can_preview = false;
+        ToolID force_unset_workplane_tool = ToolID::NONE;
+        bool constraint_is_in_workplane = false;
     };
     std::vector<ActionInfo> ids;
 
@@ -556,7 +616,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 if (auto tool = std::get_if<ToolID>(&id)) {
                     auto r = m_core.tool_can_begin(*tool, sel);
                     if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
-                        ids.emplace_back(id, r.can_preview);
+                        ids.emplace_back(id, r.can_preview, r.force_unset_workplane_tool, r.constraint_is_in_workplane);
                         auto item = Gio::MenuItem::create(it_cat.name.menu, "menu." + action_tool_id_to_string(id));
                         if (it_cat.group == ActionGroup::MEASURE) {
                             meas_items.push_back(item);
@@ -570,7 +630,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 }
                 else if (auto act = std::get_if<ActionID>(&id)) {
                     if (get_action_sensitive(*act) && (it_cat.flags & ActionCatalogItem::FLAGS_SPECIFIC)) {
-                        ids.emplace_back(id, false);
+                        ids.emplace_back(id);
                         auto item = Gio::MenuItem::create(it_cat.name.menu, "menu." + action_tool_id_to_string(id));
                         item->set_attribute_value("custom",
                                                   Glib::Variant<Glib::ustring>::create(action_tool_id_to_string(id)));
@@ -625,9 +685,13 @@ void Editor::open_context_menu(ContextMenuMode mode)
             }
         }
     }
+
+    const bool has_any_can_force_unset_workplane =
+            std::ranges::any_of(ids, [](const auto &x) { return x.force_unset_workplane_tool != ToolID::NONE; });
+    auto sg = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::HORIZONTAL);
     if (menu->get_n_items() != 0) {
         m_context_menu->set_menu_model(menu);
-        for (const auto [id, can_preview] : ids) {
+        for (const auto [id, can_preview, force_unset_workplane_tool, constraint_is_in_workplane] : ids) {
             auto button = Gtk::make_managed<Gtk::Button>();
             button->signal_clicked().connect([this, id] {
                 m_context_menu->popdown();
@@ -635,54 +699,58 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 trigger_action(id);
             });
             if (m_preferences.editor.preview_constraints && can_preview) {
-
-                auto ctrl = Gtk::EventControllerMotion::create();
-                ctrl->signal_leave().connect([this] {
-                    m_context_menu_hover_timeout.disconnect();
-                    m_context_menu_hover_timeout = Glib::signal_timeout().connect(
-                            [this] {
-                                if (m_core.reset_preview()) {
-                                    canvas_update_keep_selection();
-                                    m_context_menu->set_opacity(1);
-                                }
-                                return false;
-                            },
-                            200);
-                });
-                ctrl->signal_motion().connect([this, id](double, double) {
-                    m_context_menu_hover_timeout.disconnect();
-                    if (m_core.get_current_preview_tool() == ToolID::NONE) {
-                        m_context_menu_hover_timeout = Glib::signal_timeout().connect(
-                                [this, id] {
-                                    if (m_core.apply_preview(std::get<ToolID>(id), m_context_menu_selection)) {
-                                        m_context_menu->set_opacity(.5);
-                                        canvas_update_keep_selection();
-                                    }
-                                    return false;
-                                },
-                                200);
-                    }
-                    else {
-                        if (m_core.apply_preview(std::get<ToolID>(id), m_context_menu_selection))
-                            canvas_update_keep_selection();
-                    }
-                });
-                button->add_controller(ctrl);
+                install_hover(*button, std::get<ToolID>(id));
             }
             button->add_css_class("context-menu-button");
             auto label = Gtk::make_managed<Gtk::Label>(action_catalog.at(id).name.menu);
             label->set_xalign(0);
-            label->set_hexpand(true);
             auto label2 =
                     Gtk::make_managed<Gtk::Label>(key_sequences_to_string(m_action_connections.at(id).key_sequences));
             label2->add_css_class("dim-label");
-            auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 8);
+            label2->set_margin_start(8);
+            auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
             box->append(*label);
+            if (constraint_is_in_workplane) {
+                auto icon = Gtk::make_managed<Gtk::Image>();
+                icon->set_tooltip_text("Constraint applies in workplane");
+                icon->set_from_icon_name("action-constrain-in-workplane-symbolic");
+                box->append(*icon);
+                icon->set_hexpand(true);
+                icon->set_halign(Gtk::Align::START);
+            }
+            else {
+                label->set_hexpand(true);
+            }
             box->append(*label2);
             button->set_child(*box);
 
             button->set_has_frame(false);
-            m_context_menu->add_child(*button, action_tool_id_to_string(id));
+            auto box2 = Gtk::make_managed<Gtk::Box>();
+            box2->append(*button);
+            if (force_unset_workplane_tool != ToolID::NONE) {
+                auto button2 = Gtk::make_managed<Gtk::Button>("in 3D");
+                button2->add_css_class("context-menu-button");
+                button2->add_css_class("context-menu-button-3d");
+                button2->set_has_frame(false);
+                sg->add_widget(*button2);
+                button2->signal_clicked().connect([this, force_unset_workplane_tool] {
+                    m_context_menu->popdown();
+                    get_canvas().set_selection(m_context_menu_selection, false);
+                    tool_begin(force_unset_workplane_tool);
+                });
+                if (m_preferences.editor.preview_constraints && can_preview) {
+                    install_hover(*button2, force_unset_workplane_tool);
+                }
+
+
+                box2->append(*button2);
+            }
+            else if (has_any_can_force_unset_workplane) {
+                auto placeholder = Gtk::make_managed<Gtk::Label>();
+                sg->add_widget(*placeholder);
+                box2->append(*placeholder);
+            }
+            m_context_menu->add_child(*box2, action_tool_id_to_string(id));
         }
         m_context_menu->popup();
     }
@@ -730,14 +798,14 @@ void Editor::init_properties_notebook()
         get_canvas().set_selection({sr}, true);
         get_canvas().set_selection_mode(SelectionMode::NORMAL);
     });
-    m_constraints_box->signal_changed().connect([this] { canvas_update_keep_selection(); });
+    m_constraints_box->signal_changed().connect([this] { CanvasUpdater canvas_updater{*this}; });
 
     {
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
 
         m_selection_editor = Gtk::make_managed<SelectionEditor>(m_core, static_cast<IDocumentViewProvider &>(*this));
         m_selection_editor->signal_changed().connect(sigc::mem_fun(*this, &Editor::handle_commit_from_editor));
-        m_selection_editor->signal_view_changed().connect([this] { canvas_update_keep_selection(); });
+        m_selection_editor->signal_view_changed().connect([this] { CanvasUpdater canvas_updater{*this}; });
         m_selection_editor->set_vexpand(true);
         box->append(*m_selection_editor);
         auto label = Gtk::make_managed<Gtk::Label>("Commit pending");
@@ -816,8 +884,10 @@ void Editor::update_view_hints()
     if (m_selection_filter_window->is_active())
         hints.push_back("selection filtered");
     if (m_core.has_documents()) {
-        if (get_current_document_view().construction_entities_from_previous_groups_are_visible())
+        if (get_current_workspace_view().m_show_construction_entities_from_previous_groups)
             hints.push_back("prev. construction entities");
+        if (get_current_workspace_view().m_hide_irrelevant_workplanes)
+            hints.push_back("no irrelevant workplanes");
         auto &wv = m_workspace_views.at(m_current_workspace_view);
         if (wv.m_curvature_comb_scale > 0)
             hints.push_back("curv. combs");
@@ -899,6 +969,7 @@ void Editor::on_save_as(const ActionConnection &conn)
             update_title();
             if (m_after_save_cb)
                 m_after_save_cb();
+            m_after_save_cb = nullptr;
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
@@ -1084,6 +1155,8 @@ KeyMatchResult Editor::keys_match(const KeySequence &keys) const
 
 void Editor::apply_preferences()
 {
+    CanvasUpdater canvas_updater{*this};
+
     for (auto &[id, conn] : m_action_connections) {
         auto &act = action_catalog.at(id);
         if (!(act.flags & ActionCatalogItem::FLAGS_NO_PREFERENCES) && m_preferences.key_sequences.keys.count(id)) {
@@ -1144,7 +1217,7 @@ void Editor::apply_preferences()
     m_win.tool_bar_set_vertical(m_preferences.tool_bar.vertical_layout);
     update_action_bar_visibility();
     update_error_overlay();
-    canvas_update_keep_selection();
+
     /*
         key_sequence_dialog->clear();
         for (const auto &it : action_connections) {
@@ -1190,14 +1263,19 @@ void Editor::render_document(const IDocumentInfo &doc)
     }
     Renderer renderer(get_canvas(), m_core);
     renderer.m_solid_model_edge_select_mode = m_solid_model_edge_select_mode;
-    renderer.m_curvature_comb_scale = m_workspace_views.at(m_current_workspace_view).m_curvature_comb_scale;
     renderer.m_connect_curvature_comb = m_preferences.canvas.connect_curvature_combs;
     renderer.m_first_group = m_update_groups_after;
 
     if (doc.get_uuid() == m_core.get_current_idocument_info().get_uuid())
         renderer.add_constraint_icons(m_constraint_tip_pos, m_constraint_tip_vec, m_constraint_tip_icons);
 
-    renderer.render(doc.get_document(), doc.get_current_group(), doc_view, doc.get_dirname(), sr);
+    try {
+        renderer.render(doc.get_document(), doc.get_current_group(), doc_view,
+                        m_workspace_views.at(m_current_workspace_view), doc.get_dirname(), sr);
+    }
+    catch (const std::exception &ex) {
+        Logger::log_critical("exception rendering document " + doc.get_basename(), Logger::Domain::RENDERER, ex.what());
+    }
 }
 void Editor::canvas_update()
 {
@@ -1443,6 +1521,8 @@ void Editor::open_file(const std::filesystem::path &path)
     }
     add_to_recent_docs(path);
     try {
+        CanvasUpdater canvas_updater{*this};
+
         const UUID doc_uu = UUID::random();
 
         std::map<UUID, WorkspaceView> loaded_workspace_views;
@@ -1496,13 +1576,14 @@ void Editor::open_file(const std::filesystem::path &path)
         if (current_wsv && m_core.get_current_idocument_info().get_uuid() == doc_uu) {
             auto &dv = m_workspace_views.at(current_wsv).m_documents[doc_uu];
             set_current_group(dv.m_current_group);
-            set_show_previous_construction_entities(dv.m_show_construction_entities_from_previous_groups);
         }
 
         update_workspace_view_names();
         update_can_close_workspace_view_pages();
         m_win.get_app().add_recent_item(path);
         update_title();
+        update_version_info();
+
 
         load_linked_documents(doc_uu);
     }
@@ -1531,9 +1612,10 @@ void Editor::load_linked_documents(const UUID &uu_doc)
 
 void Editor::set_current_group(const UUID &uu_group)
 {
+    CanvasUpdater canvas_updater{*this};
+
     m_core.set_current_group(uu_group);
     m_workspace_browser->update_current_group(get_current_document_views());
-    canvas_update_keep_selection();
     update_workplane_label();
     m_constraints_box->update();
     update_group_editor();
@@ -1571,12 +1653,17 @@ void Editor::set_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<Co
 
 DocumentView &Editor::get_current_document_view()
 {
-    return m_workspace_views.at(m_current_workspace_view).m_documents[m_core.get_current_idocument_info().get_uuid()];
+    return get_current_workspace_view().m_documents[m_core.get_current_idocument_info().get_uuid()];
 }
 
 std::map<UUID, DocumentView> &Editor::get_current_document_views()
 {
-    return m_workspace_views.at(m_current_workspace_view).m_documents;
+    return get_current_workspace_view().m_documents;
+}
+
+WorkspaceView &Editor::get_current_workspace_view()
+{
+    return m_workspace_views.at(m_current_workspace_view);
 }
 
 void Editor::update_title()

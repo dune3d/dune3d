@@ -13,7 +13,6 @@
 #include "tools/tool_constrain_same_orientation.hpp"
 #include "tools/tool_constrain_workplane_normal.hpp"
 #include "tools/tool_constrain_parallel.hpp"
-#include "tools/tool_constrain_midpoint.hpp"
 #include "tools/tool_constrain_equal_length.hpp"
 #include "tools/tool_constrain_equal_radius.hpp"
 #include "tools/tool_constrain_point_in_plane.hpp"
@@ -57,6 +56,10 @@
 #include "tools/tool_add_picture_anchor.hpp"
 #include "tools/tool_move_picture_anchor.hpp"
 #include "tools/tool_create_coincident_constraints.hpp"
+#include "tools/tool_hide_reference_workplane.hpp"
+#include "tools/tool_toggle_measurement.hpp"
+#include "tools/tool_convert_point_on_line_constraint.hpp"
+#include "tools/tool_convert_tangent_constraint.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -96,6 +99,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainHV>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_DISTANCE:
+    case ToolID::CONSTRAIN_DISTANCE_3D:
     case ToolID::CONSTRAIN_DISTANCE_HORIZONTAL:
     case ToolID::CONSTRAIN_DISTANCE_VERTICAL:
     case ToolID::MEASURE_DISTANCE:
@@ -113,6 +117,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainSameOrientation>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_PARALLEL:
+    case ToolID::CONSTRAIN_PARALLEL_3D:
         return std::make_unique<ToolConstrainParallel>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_WORKPLANE_NORMAL:
@@ -124,10 +129,8 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::MOVE_ANCHOR:
         return std::make_unique<ToolMoveAnchor>(tool_id, *this, m_intf, flags);
 
-    case ToolID::CONSTRAIN_MIDPOINT:
-        return std::make_unique<ToolConstrainMidpoint>(tool_id, *this, m_intf, flags);
-
     case ToolID::CONSTRAIN_EQUAL_LENGTH:
+    case ToolID::CONSTRAIN_EQUAL_LENGTH_3D:
         return std::make_unique<ToolConstrainEqualLength>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_EQUAL_RADIUS:
@@ -151,7 +154,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolSelectEdges>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_PERPENDICULAR:
+    case ToolID::CONSTRAIN_PERPENDICULAR_3D:
     case ToolID::CONSTRAIN_ANGLE:
+    case ToolID::CONSTRAIN_ANGLE_3D:
     case ToolID::MEASURE_ANGLE:
         return std::make_unique<ToolConstrainPerpendicular>(tool_id, *this, m_intf, flags);
 
@@ -191,6 +196,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolLinkDocument>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_DISTANCE_ALIGNED:
+    case ToolID::CONSTRAIN_DISTANCE_ALIGNED_3D:
     case ToolID::MEASURE_DISTANCE_ALIGNED:
         return std::make_unique<ToolConstrainDistanceAligned>(tool_id, *this, m_intf, flags);
 
@@ -213,9 +219,13 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolPaste>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_ON_POINT:
+    case ToolID::CONSTRAIN_POINT_ON_POINT_3D:
         return std::make_unique<ToolConstrainPointOnPoint>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_ON_LINE:
+    case ToolID::CONSTRAIN_POINT_ON_LINE_3D:
+    case ToolID::CONSTRAIN_MIDPOINT:
+    case ToolID::CONSTRAIN_MIDPOINT_3D:
         return std::make_unique<ToolConstrainPointOnLine>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_ON_CIRCLE:
@@ -225,6 +235,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolConstrainPointOnBezier>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_POINT_LINE_DISTANCE:
+    case ToolID::CONSTRAIN_POINT_LINE_DISTANCE_3D:
     case ToolID::MEASURE_POINT_LINE_DISTANCE:
         return std::make_unique<ToolConstrainPointLineDistance>(tool_id, *this, m_intf, flags);
 
@@ -238,6 +249,8 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_CURVE_CURVE_TANGENT:
     case ToolID::CONSTRAIN_BEZIER_BEZIER_TANGENT_SYMMETRIC:
+    case ToolID::CONSTRAIN_BEZIER_BEZIER_SAME_CURVATURE:
+    case ToolID::CONSTRAIN_BEZIER_ARC_SAME_CURVATURE:
         return std::make_unique<ToolConstrainCurveCurveTangent>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_LINE_POINTS_PERPENDICULAR:
@@ -253,6 +266,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
         return std::make_unique<ToolSelectEntities>(tool_id, *this, m_intf, flags);
 
     case ToolID::IMPORT_PICTURE:
+    case ToolID::PASTE_PICTURE:
         return std::make_unique<ToolImportPicture>(tool_id, *this, m_intf, flags);
 
     case ToolID::ADD_PICTURE_ANCHOR:
@@ -263,6 +277,23 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CREATE_COINCIDENT_CONSTRAINTS:
         return std::make_unique<ToolCreateCoincidentConstraints>(tool_id, *this, m_intf, flags);
+
+    case ToolID::HIDE_REFERENCE_WORKPLANE:
+        return std::make_unique<ToolHideReferenceWorkplane>(tool_id, *this, m_intf, flags);
+
+    case ToolID::TOGGLE_MEASUREMENT:
+    case ToolID::SET_MEASUREMENT:
+    case ToolID::UNSET_MEASUREMENT:
+        return std::make_unique<ToolToggleMeasurement>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONVERT_TO_POINT_ON_LINE_CONSTRAINT:
+    case ToolID::CONVERT_TO_MIDPOINT_CONSTRAINT:
+        return std::make_unique<ToolConvertPointOnLineConstraint>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONVERT_TO_SAME_CURVATURE_CONSTRAINT:
+    case ToolID::CONVERT_TO_TANGENT_CONSTRAINT:
+    case ToolID::CONVERT_TO_TANGENT_SYMMETRIC_CONSTRAINT:
+        return std::make_unique<ToolConvertTangentConstraint>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }

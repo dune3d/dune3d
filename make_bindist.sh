@@ -28,19 +28,19 @@ LIBS=(
 	libTKGeomBase.dll\
 	libTKHLR.dll\
 	libTKFillet.dll\
-	libTKIGES.dll\
 	libTKMath.dll\
 	libTKLCAF.dll\
 	libTKMesh.dll\
 	libTKPrim.dll\
 	libTKShHealing.dll\
-	libTKSTEP.dll\
-	libTKSTL.dll\
 	libTKXCAF.dll\
 	libTKTopAlgo.dll\
-	libTKXDESTEP.dll\
 	libTKXSBase.dll\
 	libTKOffset.dll\
+	libTKDEIGES.dll\
+	libTKDESTEP.dll\
+	libTKDESTL.dll\
+	libTKDE.dll\
 	libgcc_s_seh-1.dll\
 	libfreetype-6.dll\
 	libfontconfig-1.dll\
@@ -68,10 +68,6 @@ LIBS=(
 	libtbb12.dll\
 	libtbbmalloc.dll\
 	libTKBool.dll\
-	libTKSTEP209.dll\
-	libTKSTEPAttr.dll\
-	libTKSTEPBase.dll\
-	libTKXDE.dll\
 	libTKCAF.dll\
 	libTKService.dll\
 	libTKVCAF.dll\
@@ -93,6 +89,7 @@ LIBS=(
 	libbrotlicommon.dll\
 	libsharpyuv-0.dll\
 	libxml2-2.dll\
+	libxml2-16.dll\
 	librsvg-2-2.dll\
 	vulkan-1.dll\
 	gspawn-win64-helper.exe\

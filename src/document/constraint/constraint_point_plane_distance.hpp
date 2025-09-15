@@ -27,6 +27,10 @@ public:
     {
         return m_measurement;
     }
+    void set_is_measurement(bool is_measurement) override
+    {
+        m_measurement = is_measurement;
+    }
 
     double measure_distance(const Document &doc) const;
 
@@ -62,6 +66,7 @@ public:
     {
         m_distance = d * (m_distance >= 0 ? 1 : -1);
     }
+    double measure_datum(const Document &doc) const override;
 
     DatumUnit get_datum_unit() const override
     {
@@ -73,7 +78,8 @@ public:
         return {-1e6, 1e6};
     }
 
-    double get_display_distance(const Document &doc) const;
+    double get_display_datum(const Document &doc) const override;
+    std::string format_datum(double datum) const override;
 
     EntityAndPoint m_point;
     UUID m_line1;

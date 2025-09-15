@@ -13,7 +13,8 @@
 #include "document/entity/entity_arc3d.hpp"
 #include "document/entity/entity_bezier2d.hpp"
 #include "document/entity/entity_bezier3d.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
+#include "igroup_solid_model_json.hpp"
 
 namespace dune3d {
 GroupReplicate::GroupReplicate(const UUID &uu) : Group(uu)
@@ -21,15 +22,30 @@ GroupReplicate::GroupReplicate(const UUID &uu) : Group(uu)
 }
 
 
+NLOHMANN_JSON_SERIALIZE_ENUM(GroupReplicate::Sources, {
+                                                              {GroupReplicate::Sources::BODY, "body"},
+                                                              {GroupReplicate::Sources::RANGE, "range"},
+                                                              {GroupReplicate::Sources::SINGLE, "single"},
+                                                      })
+
 GroupReplicate::GroupReplicate(const UUID &uu, const json &j)
-    : Group(uu, j), m_source_group(j.at("source_group").get<UUID>())
+    : Group(uu, j), m_source_group(j.at("source_group").get<UUID>()),
+      m_sources(j.value("sources", GroupReplicate::Sources::SINGLE)),
+      m_operation(j.value("operation", IGroupSolidModel::Operation::DIFFERENCE))
 {
+    if (m_sources == Sources::RANGE)
+        m_source_group_start = j.at("source_group_start").get<UUID>();
 }
 
 json GroupReplicate::serialize() const
 {
     auto j = Group::serialize();
     j["source_group"] = m_source_group;
+    j["sources"] = m_sources;
+    if (m_sources == Sources::RANGE)
+        j["source_group_start"] = m_source_group_start;
+    if (m_sources != Sources::SINGLE)
+        j["operation"] = m_operation;
     return j;
 }
 
@@ -44,10 +60,49 @@ UUID GroupReplicate::get_entity_uuid(const UUID &uu, unsigned int instance) cons
                       {reinterpret_cast<const uint8_t *>(&instance), sizeof(instance)});
 }
 
+bool GroupReplicate::is_source_group(const Document &doc, const UUID &uu) const
+{
+    return get_source_groups(doc).contains(uu);
+}
+
+std::vector<const Group *> GroupReplicate::get_source_groups_sorted(const Document &doc) const
+{
+    if (m_sources == Sources::SINGLE) {
+        return {&doc.get_group(m_source_group)};
+    }
+    UUID start_group = m_source_group_start;
+
+    if (m_sources == Sources::BODY) {
+        auto &group = doc.get_group(m_source_group);
+        start_group = group.find_body(doc).group.m_uuid;
+    }
+
+    std::vector<const Group *> r;
+    bool have_start = false;
+    for (auto group : doc.get_groups_sorted()) {
+        if (group->m_uuid == start_group)
+            have_start = true;
+        if (have_start)
+            r.push_back(group);
+        if (group->m_uuid == m_source_group)
+            return r;
+    }
+    return r;
+}
+
+std::set<UUID> GroupReplicate::get_source_groups(const Document &doc) const
+{
+    std::set<UUID> r;
+    for (const auto group : get_source_groups_sorted(doc)) {
+        r.insert(group->m_uuid);
+    }
+    return r;
+}
+
 void GroupReplicate::generate(Document &doc)
 {
     for (const auto &[uu, it] : doc.m_entities) {
-        if (it->m_group != m_source_group)
+        if (!is_source_group(doc, it->m_group))
             continue;
         if (it->m_construction)
             continue;

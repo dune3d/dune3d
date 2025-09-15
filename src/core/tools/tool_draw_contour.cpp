@@ -17,7 +17,7 @@
 #include "util/template_util.hpp"
 #include "tool_common_impl.hpp"
 #include "core/tool_id.hpp"
-#include "document/solid_model_util.hpp"
+#include "util/paths.hpp"
 
 
 namespace dune3d {
@@ -240,8 +240,7 @@ Constraint *ToolDrawContour::constrain_point_and_add_head_tangent_constraint(con
 bool ToolDrawContour::check_close_path()
 {
     if (auto hsel = m_intf.get_hover_selection()) {
-        const auto paths =
-                solid_model_util::Paths::from_document(get_doc(), m_wrkpl->m_uuid, m_core.get_current_group());
+        const auto paths = paths::Paths::from_document(get_doc(), m_wrkpl->m_uuid, m_core.get_current_group());
         for (const auto &path : paths.paths) {
             if (std::ranges::find_if(
                         path, [this](const auto &x) { return x.second.entity.m_uuid == m_entities.back()->m_uuid; })

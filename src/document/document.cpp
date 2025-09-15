@@ -52,7 +52,7 @@ json Document::serialize() const
     return j;
 }
 
-static const unsigned int app_version = 31;
+static const unsigned int app_version = 35;
 
 unsigned int Document::get_app_version()
 {
@@ -72,6 +72,7 @@ Document::Document() : m_version(app_version)
 
     set_group_generate_pending(grp.m_uuid);
     update_pending();
+    update_groups_sorted();
 }
 
 template <typename T, typename... Args> void load_and_log(std::map<UUID, T> &map, const std::string &type, Args... args)
@@ -100,6 +101,7 @@ Document::Document(const json &j, const std::filesystem::path &containing_dir) :
     for (const auto &[uu, it] : j.at("groups").items()) {
         load_and_log(m_groups, "Group", uu, it);
     }
+    update_groups_sorted();
 
     if (m_groups.size())
         set_group_generate_pending(get_groups_sorted().front()->m_uuid);
@@ -148,6 +150,7 @@ Document::Document(const Document &other) : m_version(other.m_version)
     for (const auto &[uu, it] : other.m_groups) {
         m_groups.emplace(uu, it->clone());
     }
+    update_groups_sorted();
 }
 
 Document Document::new_from_file(const std::filesystem::path &path)
@@ -155,25 +158,27 @@ Document Document::new_from_file(const std::filesystem::path &path)
     return Document{load_json_from_file(path), path.parent_path()};
 }
 
-std::vector<Group *> Document::get_groups_sorted()
+const std::vector<Group *> &Document::get_groups_sorted()
 {
-    auto groups = static_cast<const Document *>(this)->get_groups_sorted();
-    std::vector<Group *> r;
-    r.reserve(groups.size());
-    for (auto g : groups) {
-        r.push_back(const_cast<Group *>(g));
-    }
-    return r;
+    return m_groups_sorted;
 }
-std::vector<const Group *> Document::get_groups_sorted() const
+
+const std::vector<const Group *> &Document::get_groups_sorted() const
 {
-    std::vector<const Group *> r;
-    r.reserve(m_groups.size());
+    return m_groups_sorted_const;
+}
+
+void Document::update_groups_sorted()
+{
+    m_groups_sorted.clear();
+    m_groups_sorted.reserve(m_groups.size());
     for (auto &[uu, it] : m_groups) {
-        r.push_back(it.get());
+        m_groups_sorted.push_back(it.get());
     }
-    std::ranges::sort(r, {}, [](auto a) { return a->get_index(); });
-    return r;
+    std::ranges::sort(m_groups_sorted, {}, [](auto a) { return a->get_index(); });
+    m_groups_sorted_const.clear();
+    m_groups_sorted_const.reserve(m_groups_sorted.size());
+    m_groups_sorted_const.insert(m_groups_sorted_const.end(), m_groups_sorted.begin(), m_groups_sorted.end());
 }
 
 std::vector<Document::BodyGroups> Document::get_groups_by_body() const
@@ -344,6 +349,7 @@ void Document::insert_group(std::unique_ptr<Group> new_group, const UUID &after)
             group->set_index({}, group->get_index() + 1);
     }
     m_groups.emplace(new_group->m_uuid, std::move(new_group));
+    update_groups_sorted();
 }
 
 UUID Document::get_group_rel(const UUID &group, int delta) const
@@ -393,6 +399,7 @@ bool Document::reorder_group(const UUID &group_uu, const UUID &after)
             gr->set_index({}, index++);
         }
     }
+    update_groups_sorted();
 
     set_group_generate_pending(group_uu);
     set_group_generate_pending(group_before);
@@ -551,6 +558,7 @@ void Document::delete_items(const ItemsToDelete &items)
         if (!m_entities.contains(gr->m_active_wrkpl))
             gr->m_active_wrkpl = UUID();
     }
+    update_groups_sorted();
 }
 
 glm::dvec3 Document::get_point(const EntityAndPoint &ep) const
@@ -672,6 +680,11 @@ std::string Document::find_next_group_name(GroupType type) const
 const GroupReference &Document::get_reference_group() const
 {
     return dynamic_cast<const GroupReference &>(*get_groups_sorted().front());
+}
+
+GroupReference &Document::get_reference_group()
+{
+    return dynamic_cast<GroupReference &>(*get_groups_sorted().front());
 }
 
 Document::~Document() = default;

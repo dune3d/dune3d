@@ -54,12 +54,12 @@ public:
         std::map<ItemType, unsigned int> item_count;
         for (const auto &[type, uu] : items) {
             if (type == SelectableRef::Type::ENTITY) {
-                auto &en = doc.get_entity(uu);
-                item_count[en.get_type()]++;
+                if (auto en = doc.get_entity_ptr(uu))
+                    item_count[en->get_type()]++;
             }
             else if (type == SelectableRef::Type::CONSTRAINT) {
-                auto &co = doc.get_constraint(uu);
-                item_count[co.get_type()]++;
+                if (auto co = doc.get_constraint_ptr(uu))
+                    item_count[co->get_type()]++;
             }
         }
         int top = 0;

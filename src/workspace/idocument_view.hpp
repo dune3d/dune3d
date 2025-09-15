@@ -12,7 +12,6 @@ public:
     virtual bool body_solid_model_is_visible(const UUID &uu) const = 0;
     virtual bool group_is_visible(const UUID &uu) const = 0;
     virtual const EntityView *get_entity_view(const UUID &uu) const = 0;
-    virtual bool construction_entities_from_previous_groups_are_visible() const = 0;
 };
 
 } // namespace dune3d

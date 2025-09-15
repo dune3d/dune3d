@@ -26,7 +26,7 @@ EntityCluster::EntityCluster(const UUID &uu, const json &j)
     for (const auto &[k, v] : j.at("anchors").items()) {
         EntityAndPoint enp = v;
         m_anchors.emplace(std::stoi(k), enp);
-        m_anchors_transformed.emplace(std::stoi(k), get_anchor_point(enp));
+        m_anchors_transformed.emplace(std::stoi(k), transform(get_anchor_point(enp)));
     }
 }
 

@@ -30,6 +30,10 @@ public:
     {
         return m_measurement;
     }
+    void set_is_measurement(bool is_measurement) override
+    {
+        m_measurement = is_measurement;
+    }
 
     glm::dvec3 get_offset() const override
     {
@@ -62,6 +66,8 @@ public:
         m_distance = d;
     }
 
+    double measure_datum(const Document &doc) const override;
+
     DatumUnit get_datum_unit() const override
     {
         return DatumUnit::MM;
@@ -74,7 +80,9 @@ public:
 
     const UUID &get_workplane(const Document &doc) const override;
 
-    double get_display_distance(const Document &doc) const;
+    double get_display_datum(const Document &doc) const override;
+
+    std::string format_datum(double datum) const override;
 
     void accept(ConstraintVisitor &visitor) const override;
 

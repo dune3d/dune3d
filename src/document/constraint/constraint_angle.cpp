@@ -5,6 +5,7 @@
 #include "util/glm_util.hpp"
 #include "constraint_visitor.hpp"
 #include "document/document.hpp"
+#include <format>
 
 namespace dune3d {
 ConstraintAngleBase::ConstraintAngleBase(const UUID &uu) : Constraint(uu)
@@ -120,15 +121,23 @@ json ConstraintLinesAngle::serialize() const
     return j;
 }
 
-double ConstraintLinesAngle::get_display_angle(const Document &doc) const
+double ConstraintLinesAngle::measure_datum(const Document &doc) const
 {
-    if (m_measurement) {
-        auto vs = get_vectors(doc);
-        return glm::degrees(acos(glm::dot(glm::normalize(vs.l1v), glm::normalize(vs.l2v))));
-    }
-    else {
+    auto vs = get_vectors(doc);
+    return glm::degrees(acos(glm::dot(glm::normalize(vs.l1v), glm::normalize(vs.l2v))));
+}
+
+double ConstraintLinesAngle::get_display_datum(const Document &doc) const
+{
+    if (m_measurement)
+        return measure_datum(doc);
+    else
         return m_angle;
-    }
+}
+
+std::string ConstraintLinesAngle::format_datum(double datum) const
+{
+    return std::format("{:.1f}°", datum);
 }
 
 } // namespace dune3d

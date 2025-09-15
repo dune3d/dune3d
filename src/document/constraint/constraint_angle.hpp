@@ -70,6 +70,10 @@ public:
     {
         return m_measurement;
     }
+    void set_is_measurement(bool is_measurement) override
+    {
+        m_measurement = is_measurement;
+    }
 
     glm::dvec3 get_offset() const override
     {
@@ -96,10 +100,14 @@ public:
         m_angle = d;
     }
 
+    double measure_datum(const Document &doc) const override;
+
     DatumUnit get_datum_unit() const override
     {
         return DatumUnit::DEGREE;
     }
+
+    std::string format_datum(double datum) const override;
 
     std::pair<double, double> get_datum_range() const override
     {
@@ -125,7 +133,7 @@ public:
     std::unique_ptr<Constraint> clone() const override;
     void accept(ConstraintVisitor &visitor) const override;
 
-    double get_display_angle(const Document &doc) const;
+    double get_display_datum(const Document &doc) const override;
 };
 
 } // namespace dune3d

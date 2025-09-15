@@ -6,7 +6,7 @@
 #include "document/entity/entity_circle3d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/ientity_in_workplane.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 
 namespace dune3d {
 

@@ -2,6 +2,7 @@
 #include <gtkmm.h>
 #include "util/uuid.hpp"
 #include "util/changeable.hpp"
+#include "groups_filter.hpp"
 
 namespace dune3d {
 
@@ -9,7 +10,7 @@ class Document;
 
 class SelectGroupDialog : public Gtk::Window, public Changeable {
 public:
-    SelectGroupDialog(const Document &doc, const UUID &current_group, const UUID &source);
+    SelectGroupDialog(const Document &doc, const UUID &current_group, const UUID &source, GroupsFilter groups_filter);
 
     UUID get_selected_group() const;
 

@@ -4,12 +4,15 @@
 #include "document/constraint/constraint_parallel.hpp"
 #include "util/selection_util.hpp"
 #include "tool_common_constrain_impl.hpp"
+#include "core/tool_id.hpp"
 
 namespace dune3d {
 
 static std::optional<std::pair<UUID, UUID>> two_entities_from_selection(const Document &doc,
-                                                                        const std::set<SelectableRef> &sel)
+                                                                        const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 2)
         return {};
     auto it = sel.begin();
@@ -34,9 +37,38 @@ static std::optional<std::pair<UUID, UUID>> two_entities_from_selection(const Do
     return {};
 }
 
+bool ToolConstrainParallel::is_force_unset_workplane()
+{
+    return m_tool_id == ToolID::CONSTRAIN_PARALLEL_3D;
+}
+
+bool ToolConstrainParallel::constraint_is_in_workplane()
+{
+    return get_workplane_uuid() != UUID{};
+}
+
+ToolID ToolConstrainParallel::get_force_unset_workplane_tool()
+{
+    auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
+        return ToolID::NONE;
+
+    auto tp = two_entities_from_selection(get_doc(), m_selection);
+    if (!tp)
+        return ToolID::NONE;
+
+    std::set<EntityAndPoint> enps = {{tp->first, 0}, {tp->second, 0}};
+
+    if (all_entities_in_current_workplane(enps))
+        return ToolID::NONE;
+
+    return ToolID::CONSTRAIN_PARALLEL_3D;
+}
+
 ToolBase::CanBegin ToolConstrainParallel::can_begin()
 {
-    auto tp = two_entities_from_selection(get_doc(), m_selection);
+    const auto &doc = get_doc();
+    auto tp = two_entities_from_selection(doc, m_selection);
 
     if (!tp.has_value())
         return false;
@@ -46,8 +78,16 @@ ToolBase::CanBegin ToolConstrainParallel::can_begin()
     if (!any_entity_from_current_group(enps))
         return false;
 
-    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
-                                                Constraint::Type::LINES_ANGLE);
+
+    if (has_constraint_of_type_in_workplane(enps, Constraint::Type::PARALLEL, Constraint::Type::LINES_PERPENDICULAR,
+                                            Constraint::Type::LINES_ANGLE))
+        return false;
+
+    const auto wrkpl = get_workplane_uuid();
+    if (entity_is_constrained_hv(doc, tp->first, wrkpl) && entity_is_constrained_hv(doc, tp->second, wrkpl))
+        return false;
+
+    return true;
 }
 
 ToolResponse ToolConstrainParallel::begin(const ToolArgs &args)

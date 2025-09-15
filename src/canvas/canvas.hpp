@@ -318,7 +318,7 @@ private:
     bool m_needs_resize = false;
 
     glm::quat m_cam_quat;
-    float m_cam_distance = 10;
+    float m_cam_distance = 100;
     float m_cam_fov = 45;
     glm::vec3 m_center = {0, 0, 0};
     Projection m_projection = Projection::ORTHO;
@@ -444,6 +444,7 @@ private:
     bool m_dragging = false;
     void update_drag_selection(glm::vec2 pos);
     bool m_inhibit_drag_selection = false;
+    bool cancel_drag_selection();
 
     int m_scale_factor = 1;
 

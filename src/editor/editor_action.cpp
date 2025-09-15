@@ -16,7 +16,7 @@
 #include "document/entity/entity_cluster.hpp"
 #include "util/selection_util.hpp"
 #include "util/key_util.hpp"
-#include "document/solid_model_util.hpp"
+#include "util/paths.hpp"
 #include "core/tool_id.hpp"
 #include "buffer.hpp"
 
@@ -61,6 +61,7 @@ void Editor::init_actions()
             update_version_info();
             if (m_after_save_cb)
                 m_after_save_cb();
+            m_after_save_cb = nullptr;
         }
         else {
             trigger_action(ActionID::SAVE_AS);
@@ -97,6 +98,7 @@ void Editor::init_actions()
     connect_action(ActionID::PREVIOUS_GROUP, [this](auto &a) { m_workspace_browser->group_prev_next(-1); });
 
     connect_action(ActionID::TOGGLE_SOLID_MODEL, [this](const auto &a) {
+        CanvasUpdater canvas_updater{*this};
         auto &doc = m_core.get_current_document();
         auto &group = doc.get_group(m_core.get_current_group());
         auto &body_group = group.find_body(doc).group.m_uuid;
@@ -104,7 +106,6 @@ void Editor::init_actions()
 
         doc_view.m_body_views[body_group].m_solid_model_visible = !doc_view.body_solid_model_is_visible(body_group);
         m_workspace_browser->update_current_group(get_current_document_views());
-        canvas_update_keep_selection();
     });
 
     for (const auto &[id, it] : action_catalog) {
@@ -116,7 +117,7 @@ void Editor::init_actions()
     connect_action(ActionID::UNDO, [this](const auto &a) {
         m_core.undo();
         m_win.hide_delete_items_popup();
-        canvas_update_keep_selection();
+        CanvasUpdater canvas_updater{*this};
         update_workplane_label();
         update_selection_editor();
         update_action_sensitivity();
@@ -124,7 +125,7 @@ void Editor::init_actions()
     connect_action(ActionID::REDO, [this](const auto &a) {
         m_core.redo();
         m_win.hide_delete_items_popup();
-        canvas_update_keep_selection();
+        CanvasUpdater canvas_updater{*this};
         update_workplane_label();
         update_selection_editor();
         update_action_sensitivity();
@@ -209,8 +210,8 @@ void Editor::init_actions()
         auto en_wrkpl = dynamic_cast<const IEntityInWorkplane *>(&en);
         if (!en_wrkpl)
             return;
-        auto paths = solid_model_util::Paths::from_document(m_core.get_current_document(), en_wrkpl->get_workplane(),
-                                                            group.m_uuid);
+        auto paths =
+                paths::Paths::from_document(m_core.get_current_document(), en_wrkpl->get_workplane(), group.m_uuid);
 
         for (auto &path : paths.paths) {
             for (auto &[node, edge] : path) {
@@ -229,7 +230,9 @@ void Editor::init_actions()
 
     connect_action(ActionID::EXPORT_PATHS, sigc::mem_fun(*this, &Editor::on_export_paths));
     connect_action(ActionID::EXPORT_PATHS_IN_CURRENT_GROUP, sigc::mem_fun(*this, &Editor::on_export_paths));
+    connect_action(ActionID::EXPORT_DXF_CURRENT_GROUP, sigc::mem_fun(*this, &Editor::on_export_paths));
     connect_action(ActionID::EXPORT_PROJECTION, sigc::mem_fun(*this, &Editor::on_export_projection));
+    connect_action(ActionID::EXPORT_PROJECTION_ALL, sigc::mem_fun(*this, &Editor::on_export_projection));
 
     connect_action(ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP, [this](auto &a) {
         auto &doc = m_core.get_current_document();
@@ -246,10 +249,10 @@ void Editor::init_actions()
 
     connect_action(ActionID::SET_CURRENT_DOCUMENT, [this](const auto &a) {
         if (auto doc = document_from_selection(get_canvas().get_selection())) {
+            CanvasUpdater canvas_updater{*this};
             m_core.set_current_document(doc.value());
             m_workspace_views.at(m_current_workspace_view).m_current_document = doc.value();
             m_workspace_browser->update_current_group(get_current_document_views());
-            canvas_update_keep_selection();
             update_version_info();
         }
     });
@@ -260,7 +263,12 @@ void Editor::init_actions()
         if (!m_core.has_documents())
             return;
         set_show_previous_construction_entities(
-                !get_current_document_view().m_show_construction_entities_from_previous_groups);
+                !get_current_workspace_view().m_show_construction_entities_from_previous_groups);
+    });
+    connect_action(ActionID::TOGGLE_IRRELEVANT_WORKPLANES, [this](const auto &conn) {
+        if (!m_core.has_documents())
+            return;
+        set_hide_irrelevant_workplanes(!get_current_workspace_view().m_hide_irrelevant_workplanes);
     });
 
     connect_action(ActionID::COPY, [this](const auto &conn) {
@@ -295,11 +303,22 @@ void Editor::set_show_previous_construction_entities(bool show)
 {
     if (!m_core.has_documents())
         return;
-    get_current_document_view().m_show_construction_entities_from_previous_groups = show;
+    CanvasUpdater canvas_updater{*this};
+    get_current_workspace_view().m_show_construction_entities_from_previous_groups = show;
     m_previous_construction_entities_action->set_state(Glib::Variant<bool>::create(show));
     update_view_hints();
-    canvas_update_keep_selection();
 }
+
+void Editor::set_hide_irrelevant_workplanes(bool hide)
+{
+    if (!m_core.has_documents())
+        return;
+    CanvasUpdater canvas_updater{*this};
+    get_current_workspace_view().m_hide_irrelevant_workplanes = hide;
+    m_hide_irrelevant_workplanes_action->set_state(Glib::Variant<bool>::create(hide));
+    update_view_hints();
+}
+
 
 void Editor::on_create_group_action(const ActionConnection &conn)
 {
@@ -394,6 +413,8 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::SELECT_UNDERCONSTRAINED] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_ALL_ENTITIES_IN_CURRENT_GROUP] = m_core.has_documents();
     m_action_sensitivity[ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES] = m_core.has_documents();
+    m_action_sensitivity[ActionID::TOGGLE_IRRELEVANT_WORKPLANES] = m_core.has_documents();
+    m_action_sensitivity[ActionID::EXPORT_PROJECTION_ALL] = m_core.has_documents();
     bool has_solid_model = false;
 
     for (const auto [act, group_type] : create_group_action_map) {
@@ -447,6 +468,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
 
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = has_current_wrkpl;
+        m_action_sensitivity[ActionID::EXPORT_DXF_CURRENT_GROUP] = has_current_wrkpl;
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = document_from_selection(sel).has_value();
         {
             auto enp = point_from_selection(m_core.get_current_document(), sel, EntityType::CLUSTER);
@@ -473,6 +495,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::SELECT_PATH] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS] = false;
         m_action_sensitivity[ActionID::EXPORT_PATHS_IN_CURRENT_GROUP] = false;
+        m_action_sensitivity[ActionID::EXPORT_DXF_CURRENT_GROUP] = false;
         m_action_sensitivity[ActionID::SET_CURRENT_DOCUMENT] = false;
         m_action_sensitivity[ActionID::EXPLODE_CLUSTER] = false;
         m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = false;
@@ -813,6 +836,8 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
     auto &group = dynamic_cast<GroupExplodedCluster &>(group_base);
     if (!group.m_active_wrkpl)
         return;
+    CanvasUpdater canvas_updater{*this};
+
     auto &cluster = doc.get_entity<EntityCluster &>(group.m_cluster);
 
     auto content = ClusterContent::create();
@@ -878,7 +903,6 @@ void Editor::on_unexplode_cluster(const ActionConnection &conn)
     m_core.set_needs_save();
     m_core.rebuild("unexplode cluster");
     m_workspace_browser->update_documents(get_current_document_views());
-    canvas_update_keep_selection();
     m_workspace_browser->select_group(cluster.m_group);
 }
 

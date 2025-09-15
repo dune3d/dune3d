@@ -42,7 +42,7 @@ ToolResponse ToolConstrainPointPlaneDistance::begin(const ToolArgs &args)
     constraint.m_distance = constraint.measure_distance(get_doc());
     constraint.m_measurement = m_tool_id == ToolID::MEASURE_POINT_PLANE_DISTANCE;
 
-    return commit();
+    return prepare_interactive(constraint);
 }
 
 } // namespace dune3d

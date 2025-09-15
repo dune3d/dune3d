@@ -1,7 +1,7 @@
 #include "group_mirror_hv.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/document.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include "document/entity/entity_arc3d.hpp"
 #include "document/entity/entity_circle3d.hpp"
 #include "util/glm_util.hpp"

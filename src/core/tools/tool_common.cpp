@@ -16,8 +16,16 @@ Group &ToolCommon::get_group()
     return get_doc().get_group(m_core.get_current_group());
 }
 
+bool ToolCommon::is_force_unset_workplane()
+{
+    return false;
+}
+
 UUID ToolCommon::get_workplane_uuid()
 {
+    if (is_force_unset_workplane())
+        return UUID();
+
     if (m_intf.get_use_workplane())
         return m_core.get_current_workplane();
     else
@@ -63,6 +71,16 @@ bool ToolCommon::current_group_has_redundant_constraints()
 void ToolCommon::set_first_update_group_current()
 {
     m_intf.set_first_update_group(m_core.get_current_group());
+}
+
+bool ToolCommon::can_create_entity()
+{
+    return get_group().can_create_entity();
+}
+
+bool ToolCommon::can_create_constraint()
+{
+    return get_group().can_create_constraint();
 }
 
 } // namespace dune3d

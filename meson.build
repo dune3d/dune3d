@@ -1,6 +1,6 @@
 project('dune3d', ['cpp', 'c'],
   version: '1.3.0',
-  meson_version: '>=0.53',
+  meson_version: '>=1.3.0',
   default_options: ['cpp_std=c++20', 'warning_level=1'],
 )
 
@@ -10,6 +10,7 @@ is_windows = target_machine.system() == 'windows'
 
 
 gtk4 = dependency('gtk4', version: '>=4.10')
+pthread = cxx.find_library('pthread')
 gtkmm = dependency('gtkmm-4.0', version: '>=4.10')
 epoxy = dependency('epoxy')
 eigen = dependency('eigen3')
@@ -95,17 +96,20 @@ src_common = files(
   'src/document/constraint/constraint_bezier_line_tangent.cpp',
   'src/document/constraint/constraint_bezier_bezier_tangent_symmetric.cpp',
   'src/document/constraint/constraint_point_on_bezier.cpp',
-  'src/document/solid_model.cpp',
-  'src/document/solid_model_occ.cpp',
-  'src/document/solid_model_replicate.cpp',
-  'src/document/solid_model_local_operation.cpp',
-  'src/document/solid_model_circular_sweep.cpp',
-  'src/document/solid_model_extrude.cpp',
-  'src/document/solid_model_util.cpp',
-  'src/document/solid_model_loft.cpp',
-  'src/document/solid_model_sketch.cpp',
-  'src/document/solid_model_solid_model_operation.cpp',
-  'src/document/solid_model_pipe.cpp',
+  'src/document/constraint/constraint_bezier_bezier_same_curvature.cpp',
+  'src/document/constraint/constraint_bezier_arc_same_curvature.cpp',
+  'src/document/solid_model/solid_model.cpp',
+  'src/document/solid_model/solid_model_export.cpp',
+  'src/document/solid_model/solid_model_occ.cpp',
+  'src/document/solid_model/solid_model_replicate.cpp',
+  'src/document/solid_model/solid_model_local_operation.cpp',
+  'src/document/solid_model/solid_model_circular_sweep.cpp',
+  'src/document/solid_model/solid_model_extrude.cpp',
+  'src/document/solid_model/solid_model_util.cpp',
+  'src/document/solid_model/solid_model_loft.cpp',
+  'src/document/solid_model/solid_model_sketch.cpp',
+  'src/document/solid_model/solid_model_solid_model_operation.cpp',
+  'src/document/solid_model/solid_model_pipe.cpp',
   'src/document/group/group.cpp',
   'src/document/group/igroup_solid_model.cpp',
   'src/document/group/group_sketch.cpp',
@@ -130,6 +134,7 @@ src_common = files(
   'src/document/group/group_clone.cpp',
   'src/document/group/group_pipe.cpp',
   'src/document/export_paths.cpp',
+  'src/document/export_dxf.cpp',
   'src/system/system.cpp',
   'src/util/file_version.cpp',
   'src/util/util.cpp',
@@ -152,6 +157,7 @@ src_common = files(
   'src/util/picture_data.cpp',
   'src/util/picture_load.cpp',
   'src/util/picture_util.cpp',
+  'src/util/paths.cpp',
 )
 
 src_gui = files(
@@ -207,7 +213,6 @@ src_gui = files(
   'src/core/tools/tool_constrain_same_orientation.cpp',
   'src/core/tools/tool_constrain_parallel.cpp',
   'src/core/tools/tool_constrain_workplane_normal.cpp',
-  'src/core/tools/tool_constrain_midpoint.cpp',
   'src/core/tools/tool_constrain_equal_length.cpp',
   'src/core/tools/tool_constrain_equal_radius.cpp',
   'src/core/tools/tool_constrain_diameter_radius.cpp',
@@ -249,6 +254,10 @@ src_gui = files(
   'src/core/tools/tool_add_picture_anchor.cpp',
   'src/core/tools/tool_move_picture_anchor.cpp',
   'src/core/tools/tool_create_coincident_constraints.cpp',
+  'src/core/tools/tool_hide_reference_workplane.cpp',
+  'src/core/tools/tool_toggle_measurement.cpp',
+  'src/core/tools/tool_convert_point_on_line_constraint.cpp',
+  'src/core/tools/tool_convert_tangent_constraint.cpp',
   'src/core/tools/tool_import_picture.cpp',
   'src/util/history_manager.cpp',
   'src/util/action_label.cpp',
@@ -256,7 +265,22 @@ src_gui = files(
   'src/editor/workspace_browser.cpp',
   'src/widgets/constraints_box.cpp',
   'src/workspace/document_view.cpp',
-  'src/editor/group_editor.cpp',
+  'src/editor/group_editor/group_editor.cpp',
+  'src/editor/group_editor/group_editor_array.cpp',
+  'src/editor/group_editor/group_editor_clone.cpp',
+  'src/editor/group_editor/group_editor_create.cpp',
+  'src/editor/group_editor/group_editor_exploded_cluster.cpp',
+  'src/editor/group_editor/group_editor_extrude.cpp',
+  'src/editor/group_editor/group_editor_fillet.cpp',
+  'src/editor/group_editor/group_editor_loft.cpp',
+  'src/editor/group_editor/group_editor_mirror.cpp',
+  'src/editor/group_editor/group_editor_pipe.cpp',
+  'src/editor/group_editor/group_editor_reference.cpp',
+  'src/editor/group_editor/group_editor_revolve.cpp',
+  'src/editor/group_editor/group_editor_solid_model.cpp',
+  'src/editor/group_editor/group_editor_solid_model_operation.cpp',
+  'src/editor/group_editor/group_editor_sweep.cpp',
+  'src/editor/group_editor/group_editor_replicate.cpp',
   'src/editor/selection_editor.cpp',
   'src/editor/selection_menu_creator.cpp',
   'src/dialogs/dialogs.cpp',
@@ -292,6 +316,7 @@ src_gui = files(
   'src/workspace/workspace_view.cpp',
   'src/widgets/select_groups_dialog.cpp',
   'src/widgets/select_group_dialog.cpp',
+  'src/widgets/group_button.cpp',
   'src/import_dxf/dxf_importer.cpp',
   'src/editor/changeable_commit_mode.cpp',
   'src/editor/buffer.cpp',
@@ -365,7 +390,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs', required:false)
 endif
 
-build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype, png]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype, png, pthread]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid
@@ -387,11 +412,22 @@ include_directories = [
   include_directories('src'),
   include_directories('3rd_party'),
   include_directories('3rd_party/Clipper2Lib/include'),
+  include_directories('3rd_party/wayland-proxy'),
 ]
 
 subdir('3rd_party/solvespace')
 subdir('3rd_party/Clipper2Lib')
 subdir('3rd_party/dxflib')
+
+has_wayland = cxx.has_define('GDK_WINDOWING_WAYLAND', dependencies:[gtk4], prefix:'#include <gdk/gdk.h>')
+
+extra_libraries = []
+
+if has_wayland
+  subdir('3rd_party/wayland-proxy')
+  extra_libraries += wayland_proxy
+  cpp_args += '-DHAVE_WAYLAND_PROXY'
+endif
 
 if is_windows
 	windows = import('windows')
@@ -420,10 +456,10 @@ install_data('src/icons/scalable/apps/dune3d.svg', install_dir: icondir /  'scal
 dune3d = executable('dune3d',
     [src_common, src_gui, resources,icon_texture, color_presets, rc_compiled],
     dependencies: [build_dependencies],
-    link_with: [solvespace_nopic, clipper_nopic, dxflib_nopic],
+    link_with: [solvespace_nopic, clipper_nopic, dxflib_nopic] + extra_libraries,
     cpp_args: cpp_args,
     include_directories: include_directories,
-    gui_app: true,
+    win_subsystem: 'windows',
     install: true
 )
 

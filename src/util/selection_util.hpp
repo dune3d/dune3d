@@ -1,10 +1,9 @@
 #pragma once
-#include "uuid.hpp"
 #include <optional>
 #include <set>
 #include <array>
 #include <list>
-#include "document/entity/entity_and_point.hpp"
+#include "canvas/selectable_ref.hpp"
 
 namespace dune3d {
 
@@ -13,6 +12,9 @@ class SelectableRef;
 enum class EntityType;
 class IDocumentProvider;
 class ConstraintPointsCoincident;
+
+std::set<SelectableRef> filter_selection(const std::set<SelectableRef> &sel, SelectableRef::Type type);
+std::set<SelectableRef> entities_from_selection(const std::set<SelectableRef> &sel);
 
 struct TwoPoints {
     EntityAndPoint point1;
@@ -66,14 +68,15 @@ struct LinesAndPoint {
 std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc, const std::set<SelectableRef> &sel);
 std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel);
 
-const ConstraintPointsCoincident *constraint_points_coincident_from_selection(const Document &doc,
-                                                                              const std::set<SelectableRef> &sel,
-                                                                              const std::set<EntityType> &types);
+std::optional<TwoPoints> joint_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all,
+                                              const std::set<EntityType> &types);
 
 std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                         const std::set<EntityType> &types);
 
 
 std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &current_doc, const SelectableRef &sr);
+
+bool entity_is_constrained_hv(const Document &doc, const UUID &uu, const UUID &wrkpl);
 
 } // namespace dune3d

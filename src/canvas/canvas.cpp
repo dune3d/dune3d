@@ -238,7 +238,12 @@ void Canvas::setup_controllers()
             }
         });
         controller->signal_released().connect([this](int n_press, double x, double y) { handle_click_release(); });
-        controller->signal_cancel().connect([this](auto seq) { handle_click_release(); });
+        controller->signal_cancel().connect([this](auto seq) {
+            m_long_click_connection.disconnect();
+            m_dragging = false;
+            m_inhibit_drag_selection = false;
+            cancel_drag_selection();
+        });
         add_controller(controller);
     }
 
@@ -354,6 +359,17 @@ glm::vec3 Canvas::project_arcball(const glm::vec2 &v) const
     return {p.x, p.y, z};
 }
 
+bool Canvas::cancel_drag_selection()
+{
+    if (m_selection_mode != SelectionMode::DRAG)
+        return false;
+
+    m_box_selection.set_active(false);
+    set_selection_mode(SelectionMode::NORMAL);
+    m_signal_selection_changed.emit();
+    return true;
+}
+
 void Canvas::handle_click_release()
 {
     m_long_click_connection.disconnect();
@@ -361,10 +377,8 @@ void Canvas::handle_click_release()
     m_inhibit_drag_selection = false;
     if (m_last_selection_mode == SelectionMode::NONE || m_last_selection_mode == SelectionMode::HOVER_ONLY)
         return;
-    if (m_selection_mode == SelectionMode::DRAG) {
-        m_box_selection.set_active(false);
-        set_selection_mode(SelectionMode::NORMAL);
-        m_signal_selection_changed.emit();
+    if (cancel_drag_selection()) {
+        // nop
     }
     else if (m_selection_mode == SelectionMode::HOVER) {
         if (m_hover_selection.has_value()) {

@@ -6,6 +6,7 @@
 
 #include "editor/editor_interface.hpp"
 #include "tool_common_constrain_impl.hpp"
+#include "util/selection_util.hpp"
 
 namespace dune3d {
 
@@ -15,8 +16,10 @@ struct LineAndPoints {
 };
 
 static std::optional<LineAndPoints> line_and_points_from_selection(const Document &doc,
-                                                                   const std::set<SelectableRef> &sel)
+                                                                   const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 3)
         return {};
     auto it = sel.begin();

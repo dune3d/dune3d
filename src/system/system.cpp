@@ -1240,7 +1240,7 @@ void System::add_replicate(const GroupReplicate &group, CreateEq create_eq2, Cre
     auto hg = hGroup{(uint32_t)group.get_index() + 1};
 
     for (const auto &[uu, it] : m_doc.m_entities) {
-        if (it->m_group != group.m_source_group)
+        if (!group.is_source_group(m_doc, it->m_group))
             continue;
         if (it->m_construction)
             continue;
@@ -1824,6 +1824,10 @@ void System::update_document()
         else if (auto c = m_doc.get_constraint_ptr<ConstraintPointOnBezier>(uu)) {
             const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
             c->m_val = val;
+        }
+        else if (auto c = m_doc.get_constraint_ptr<ConstraintBezierBezierSameCurvature>(uu)) {
+            c->m_beta1 = SK.GetParam(hConstraint{idx}.param(0))->val;
+            c->m_beta2 = SK.GetParam(hConstraint{idx}.param(0x20000000))->val;
         }
     }
     for (auto &[uu, group] : m_doc.get_groups()) {
@@ -2569,23 +2573,29 @@ void System::visit(const ConstraintBezierBezierTangentSymmetric &constraint)
 {
     const auto c = n_constraint++;
 
-    auto en_bez1 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, 0})});
-    auto en_bez2 = SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, 0})});
+    // points are p0,p1,p2,p3 p3,p4,p5,p6
+    // indices    1 ,3, 4, 2  1 ,3, 4, 2
+    // coincidence is at p3
 
-    ExprVector t1;
-    if (constraint.m_arc1.point == 1)
-        t1 = en_bez1->CubicGetStartTangentExprs();
-    else
-        t1 = en_bez1->CubicGetFinishTangentExprs();
+    auto en_wrkpl = get_entity_ref(EntityRef{m_doc.get_entity<EntityBezier2D>(constraint.m_arc1.entity).m_wrkpl, 0});
 
-    ExprVector t2;
-    if (constraint.m_arc2.point == 1)
-        t2 = en_bez2->CubicGetStartTangentExprs();
-    else
-        t2 = en_bez2->CubicGetFinishTangentExprs();
+    auto en_p2 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, constraint.m_arc1.point == 2 ? 4u : 3u})});
+    auto en_p3 = SK.GetEntity({get_entity_ref(constraint.m_arc1)});
+    auto en_p4 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, constraint.m_arc2.point == 1 ? 3u : 4u})});
 
-    AddEq(hConstraint{c}, &m_sys->eq, t1.x->Plus(t2.x), 0);
-    AddEq(hConstraint{c}, &m_sys->eq, t1.y->Plus(t2.y), 1);
+    auto p2 = en_p2->PointGetExprsInWorkplane({en_wrkpl});
+    auto p3 = en_p3->PointGetExprsInWorkplane({en_wrkpl});
+    auto p4 = en_p4->PointGetExprsInWorkplane({en_wrkpl});
+
+    auto v1 = p2.Minus(p3);
+    auto v2 = p3.Minus(p4);
+
+    auto e = v1.Minus(v2);
+
+    AddEq(hConstraint{c}, &m_sys->eq, e.x, 2);
+    AddEq(hConstraint{c}, &m_sys->eq, e.y, 3);
 }
 
 void System::visit(const ConstraintPointOnBezier &constraint)
@@ -2629,6 +2639,123 @@ void System::visit(const ConstraintPointOnBezier &constraint)
 
     AddEq(hConstraint{c}, &m_sys->eq, point.x->Minus(p_t.x), 0);
     AddEq(hConstraint{c}, &m_sys->eq, point.y->Minus(p_t.y), 1);
+}
+
+void System::visit(const ConstraintBezierBezierSameCurvature &constraint)
+{
+    const auto c = n_constraint++;
+    m_constraint_refs.emplace(c, constraint.m_uuid);
+
+    // points are p0,p1,p2,p3 p3,p4,p5,p6
+    // indices    1 ,3, 4, 2  1 ,3, 4, 2
+    // coincidence is at p3
+
+    auto en_p1 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, constraint.m_arc1.point == 2 ? 3u : 4u})});
+    auto en_p2 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc1.entity, constraint.m_arc1.point == 2 ? 4u : 3u})});
+    auto en_p3 = SK.GetEntity({get_entity_ref(constraint.m_arc1)});
+    auto en_p4 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, constraint.m_arc2.point == 1 ? 3u : 4u})});
+    auto en_p5 =
+            SK.GetEntity({get_entity_ref(EntityRef{constraint.m_arc2.entity, constraint.m_arc2.point == 1 ? 4u : 3u})});
+
+    auto en_wrkpl = get_entity_ref(EntityRef{m_doc.get_entity<EntityBezier2D>(constraint.m_arc1.entity).m_wrkpl, 0});
+
+    Param pb1 = {};
+    pb1.h = hConstraint{c}.param(0);
+    pb1.val = constraint.m_beta1;
+    SK.param.Add(&pb1);
+
+    m_sys->param.Add(SK.GetParam(pb1.h));
+
+    Param pb2 = {};
+    pb2.h = hConstraint{c}.param(0x20000000);
+    pb2.val = constraint.m_beta2;
+    SK.param.Add(&pb2);
+
+    m_sys->param.Add(SK.GetParam(pb2.h));
+
+    auto b1 = Expr::From(pb1.h);
+    auto b2 = Expr::From(pb2.h);
+
+    auto p1 = en_p1->PointGetExprsInWorkplane({en_wrkpl});
+    auto p2 = en_p2->PointGetExprsInWorkplane({en_wrkpl});
+    auto p3 = en_p3->PointGetExprsInWorkplane({en_wrkpl});
+    auto p4 = en_p4->PointGetExprsInWorkplane({en_wrkpl});
+    auto p5 = en_p5->PointGetExprsInWorkplane({en_wrkpl});
+
+    // see https://en.wikipedia.org/wiki/Composite_B%C3%A9zier_curve#Smoothly_joining_cubic_B%C3%A9ziers
+    {
+        auto rhs = p3.Plus(p3.Minus(p2).ScaledBy(b1));
+        auto e = rhs.Minus(p4);
+        AddEq(hConstraint{c}, &m_sys->eq, e.x, 0);
+        AddEq(hConstraint{c}, &m_sys->eq, e.y, 1);
+    }
+    {
+        auto rhs = p3.Plus((p3.Minus(p2).ScaledBy(
+                                   b1->Times(Expr::From(2))->Plus(b1->Square())->Plus(b2->Times(Expr::From(.5))))))
+                           .Plus(p1.Minus(p2).ScaledBy(b1->Square()));
+
+        auto e = rhs.Minus(p5);
+
+        AddEq(hConstraint{c}, &m_sys->eq, e.x, 2);
+        AddEq(hConstraint{c}, &m_sys->eq, e.y, 3);
+    }
+}
+
+
+void System::visit(const ConstraintBezierArcSameCurvature &constraint)
+{
+    const auto c = n_constraint++;
+
+    const auto enp_arc = constraint.get_arc(m_doc);
+    const auto enp_bezier = constraint.get_bezier(m_doc);
+    auto en_arc = SK.GetEntity({get_entity_ref(EntityRef{enp_arc.entity, 0})});
+    auto en_wrkpl = get_entity_ref(EntityRef{m_doc.get_entity<EntityArc2D>(enp_arc.entity).m_wrkpl, 0});
+
+    auto en_p1 = SK.GetEntity({get_entity_ref(EntityRef{enp_bezier.entity, 1})});
+    auto en_p2 = SK.GetEntity({get_entity_ref(EntityRef{enp_bezier.entity, 2})});
+    auto en_c1 = SK.GetEntity({get_entity_ref(EntityRef{enp_bezier.entity, 3})});
+    auto en_c2 = SK.GetEntity({get_entity_ref(EntityRef{enp_bezier.entity, 4})});
+
+    auto p1 = en_p1->PointGetExprsInWorkplane({en_wrkpl});
+    auto p2 = en_p2->PointGetExprsInWorkplane({en_wrkpl});
+    auto c1 = en_c1->PointGetExprsInWorkplane({en_wrkpl});
+    auto c2 = en_c2->PointGetExprsInWorkplane({en_wrkpl});
+
+    ExprVector d;
+    ExprVector dd;
+    Expr *mul = Expr::From(((enp_bezier.point == 1) == (enp_arc.point == 2)) ? 1 : -1);
+    if (enp_bezier.point == 1) { // t=0
+        // m_p1 * -3 + m_c1 * 3
+        d = p1.ScaledBy(Expr::From(-3)).Plus(c1.ScaledBy(Expr::From(3)));
+
+        // 6 * (m_c2 - 2. * m_c1 + m_p1)
+        dd = (c2.Minus(c1.ScaledBy(Expr::From(2))).Plus(p1)).ScaledBy(Expr::From(6));
+    }
+    else { // t=1
+        // m_p2 * 3. + m_c2 *-3
+        d = p2.ScaledBy(Expr::From(3)).Plus(c2.ScaledBy(Expr::From(-3)));
+
+        // 6 * (m_p2 - 2. * m_c2 + m_c1)
+        dd = (p2.Minus(c2.ScaledBy(Expr::From(2))).Plus(c1)).ScaledBy(Expr::From(6));
+    }
+
+    // const auto numerator = d.x * dd.y - dd.x * d.y;
+    auto numerator = d.x->Times(dd.y)->Minus(dd.x->Times(d.y));
+    //  const auto denominator = pow(d.x * d.x + d.y * d.y, 3. / 2);
+    auto base = d.x->Times(d.x)->Plus(d.y->Times(d.y));
+    auto denominator = (base->Times(base)->Times(base))->Sqrt();
+
+    auto bezeir_radius = denominator->Div(numerator)->Times(mul); // inverse of curvature
+
+    auto arc_radius = en_arc->CircleGetRadiusExpr();
+
+    AddEq(hConstraint{c}, &m_sys->eq, bezeir_radius->Minus(arc_radius), 0);
+
+    // for tangency
+    visit(static_cast<const ConstraintArcArcTangent &>(constraint));
 }
 
 int System::get_group_index(const UUID &uu) const

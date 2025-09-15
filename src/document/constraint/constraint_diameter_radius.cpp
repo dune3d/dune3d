@@ -9,6 +9,7 @@
 #include "util/json_util.hpp"
 #include "util/glm_util.hpp"
 #include "constraint_visitor.hpp"
+#include <format>
 
 namespace dune3d {
 ConstraintDiameterRadius::ConstraintDiameterRadius(const UUID &uu) : Constraint(uu)
@@ -72,6 +73,11 @@ double ConstraintDiameterRadius::measure_radius(const Document &doc) const
     return entity.get_radius();
 }
 
+double ConstraintDiameterRadius::measure_datum(const Document &doc) const
+{
+    return measure_distance(doc);
+}
+
 void ConstraintDiameterRadius::accept(ConstraintVisitor &visitor) const
 {
     visitor.visit(*this);
@@ -90,12 +96,17 @@ const UUID &ConstraintDiameterRadius::get_workplane(const Document &doc) const
     return dynamic_cast<const IEntityInWorkplane &>(en).get_workplane();
 }
 
-double ConstraintDiameterRadius::get_display_distance(const Document &doc) const
+double ConstraintDiameterRadius::get_display_datum(const Document &doc) const
 {
     if (m_measurement)
         return measure_distance(doc);
     else
         return m_distance;
+}
+
+std::string ConstraintDiameterRadius::format_datum(double datum) const
+{
+    return std::format("{:.3f}", datum);
 }
 
 } // namespace dune3d

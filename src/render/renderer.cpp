@@ -4,9 +4,10 @@
 #include "document/entity/all_entities.hpp"
 #include "document/group/group_extrude.hpp"
 #include "document/constraint/all_constraints.hpp"
-#include "document/solid_model.hpp"
+#include "document/solid_model/solid_model.hpp"
 #include "canvas/selectable_ref.hpp"
 #include "workspace/idocument_view.hpp"
+#include "workspace/iworkspace_view.hpp"
 #include "workspace/entity_view.hpp"
 #include "util/util.hpp"
 #include "util/glm_util.hpp"
@@ -16,9 +17,8 @@
 #include "util/fs_util.hpp"
 #include "util/arc_util.hpp"
 #include "util/template_util.hpp"
-#include <iostream>
+#include "logger/logger.hpp"
 #include <array>
-#include <format>
 #include <ranges>
 #include <glm/gtx/io.hpp>
 
@@ -64,15 +64,19 @@ bool Renderer::group_is_visible(const UUID &uu) const
 }
 
 void Renderer::render(const Document &doc, const UUID &current_group, const IDocumentView &doc_view,
-                      const std::filesystem::path &containing_dir, std::optional<SelectableRef> sr)
+                      const IWorkspaceView &wrk_view, const std::filesystem::path &containing_dir,
+                      std::optional<SelectableRef> sr)
 {
     m_doc = &doc;
     m_doc_view = &doc_view;
+    m_workspace_view = &wrk_view;
     m_current_group = &doc.get_group(current_group);
     m_current_body_group = &m_current_group->find_body(doc).group;
     m_is_current_document = !sr.has_value();
     m_containing_dir = containing_dir;
-    unsigned int first_group_index = 0;
+    m_curvature_comb_scale = m_workspace_view->get_curvature_comb_scale();
+
+    int first_group_index = 0;
     if (m_first_group)
         first_group_index = doc.get_group(m_first_group).get_index();
 
@@ -95,6 +99,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
 
         m_doc = nullptr;
         m_doc_view = nullptr;
+        m_workspace_view = nullptr;
         m_current_group = nullptr;
         return;
     }
@@ -149,10 +154,15 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     if (!sr) {
         set_chunk_from_group(*m_current_group);
         for (const auto &[uu, el] : doc.m_constraints) {
-
             if (m_current_group->m_uuid != el->m_group)
                 continue;
-            el->accept(*this);
+            try {
+                el->accept(*this);
+            }
+            catch (const std::exception &ex) {
+                Logger::log_critical("exception rendering constraint " + static_cast<std::string>(uu),
+                                     Logger::Domain::RENDERER, ex.what());
+            }
         }
         draw_constraints();
     }
@@ -161,6 +171,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
 
     m_doc = nullptr;
     m_doc_view = nullptr;
+    m_workspace_view = nullptr;
     m_current_group = nullptr;
     if (sr)
         m_ca.unset_override_selectable();
@@ -172,7 +183,7 @@ void Renderer::render(const Entity &entity)
         return;
     if (entity.m_construction
         && ((entity.m_group != m_current_group->m_uuid
-             && !m_doc_view->construction_entities_from_previous_groups_are_visible())
+             && !m_workspace_view->construction_entities_from_previous_groups_are_visible())
             || !m_is_current_document))
         return;
 
@@ -180,7 +191,13 @@ void Renderer::render(const Entity &entity)
     m_ca.set_vertex_inactive(entity.m_group != m_current_group->m_uuid);
     m_ca.set_selection_invisible(entity.m_selection_invisible);
     m_ca.set_vertex_construction(entity.m_construction);
-    entity.accept(*this);
+    try {
+        entity.accept(*this);
+    }
+    catch (const std::exception &ex) {
+        Logger::log_critical("exception rendering entity " + static_cast<std::string>(entity.m_uuid),
+                             Logger::Domain::RENDERER, ex.what());
+    }
 }
 
 void Renderer::visit(const EntityLine3D &line)
@@ -387,6 +404,11 @@ void Renderer::visit(const EntityWorkplane &wrkpl)
     if (!m_is_current_document)
         return;
 
+    if (m_workspace_view->hide_irrelevant_workplanes()) {
+        if (wrkpl.m_group != m_current_group->m_uuid && wrkpl.m_uuid != m_current_group->m_active_wrkpl)
+            return;
+    }
+
     m_ca.add_selectable(m_ca.draw_point(wrkpl.m_origin, IconID::POINT_DIAMOND),
                         SelectableRef{SelectableRef::Type::ENTITY, wrkpl.m_uuid, 1});
     glm::vec2 sz = wrkpl.m_size / 2.;
@@ -446,7 +468,8 @@ void Renderer::visit(const EntitySTEP &en)
 
     SelectableRef sr{SelectableRef::Type::ENTITY, en.m_uuid, 0};
     if (en.m_imported) {
-        if (any_of(display, EntityViewSTEP::Display::SOLID, EntityViewSTEP::Display::SOLID_WIREFRAME))
+        if (any_of(display, EntityViewSTEP::Display::SOLID, EntityViewSTEP::Display::SOLID_WIREFRAME)
+            && !en.m_include_in_solid_model)
             m_ca.add_selectable(m_ca.add_face_group(en.m_imported->result.faces, en.m_origin, en.m_normal,
                                                     ICanvas::FaceColor::AS_IS),
                                 sr);
@@ -493,10 +516,6 @@ public:
     {
         return nullptr;
     }
-    bool construction_entities_from_previous_groups_are_visible() const override
-    {
-        return false;
-    }
 };
 
 
@@ -514,7 +533,7 @@ void Renderer::visit(const EntityDocument &en)
         Renderer renderer{m_ca, m_doc_prv};
         SelectableRef sr{SelectableRef::Type::ENTITY, en.m_uuid, 0};
         renderer.render(doc->get_document(), doc->get_document().get_groups_sorted().back()->m_uuid, FakeDocumentView{},
-                        doc->get_dirname(), sr);
+                        *m_workspace_view, doc->get_dirname(), sr);
     }
     else {
         add_selectables(sr_origin, m_ca.draw_bitmap_text({0, 0, 0}, 1, path_to_string(en.m_path) + " not loaded"));
@@ -720,17 +739,13 @@ static glm::vec3 project_point_onto_plane(const glm::vec3 &plane_origin, const g
     return point - dist * plane_normal;
 }
 
-static std::string format_measurement(bool is_meas, const std::string &s)
+static std::string format_datum(const Document &doc, const IConstraintDatum &dat)
 {
-    if (is_meas)
+    const auto s = dat.format_datum(dat.get_display_datum(doc));
+    if (dat.is_measurement())
         return "(" + s + ")";
     else
         return s;
-}
-
-static std::string format_measurement(bool is_meas, double v)
-{
-    return format_measurement(is_meas, std::format(" {:.3f}", v));
 }
 
 void Renderer::visit(const ConstraintPointDistance &constr)
@@ -749,8 +764,7 @@ void Renderer::visit(const ConstraintPointDistance &constr)
         to = wrkpl.project3(to);
     }
 
-    std::string label =
-            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_distance(*m_doc)));
+    const auto label = format_datum(*m_doc, constr);
     draw_distance_line(from, to, p, label, constr.m_uuid, fallback_normal);
 }
 
@@ -770,8 +784,7 @@ void Renderer::visit(const ConstraintPointDistanceAligned &constr)
         to = wrkpl.project3(to);
     }
 
-    std::string label =
-            format_measurement(constr.is_measurement(), std::format(" {:.3f}", constr.get_display_distance(*m_doc)));
+    const auto label = format_datum(*m_doc, constr);
     draw_distance_line_with_direction(from, to, constr.get_align_vector(*m_doc), p, label, constr.m_uuid,
                                       fallback_normal);
 }
@@ -859,9 +872,7 @@ void Renderer::visit(const ConstraintPointLineDistance &constr)
         pp = wrkpl.project3(pp);
     }
 
-    draw_distance_line(pproj, pp, p,
-                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_distance(*m_doc))),
-                       constr.m_uuid, fallback_normal);
+    draw_distance_line(pproj, pp, p, format_datum(*m_doc, constr), constr.m_uuid, fallback_normal);
 }
 
 void Renderer::visit(const ConstraintPointPlaneDistance &constr)
@@ -877,9 +888,7 @@ void Renderer::visit(const ConstraintPointPlaneDistance &constr)
     const auto &l1 = m_doc->get_entity(constr.m_line1);
     const auto fallback_normal = l1.get_point(2, *m_doc) - l1.get_point(1, *m_doc);
 
-    draw_distance_line(pproj, pp, p,
-                       format_measurement(constr.is_measurement(), std::abs(constr.get_display_distance(*m_doc))),
-                       constr.m_uuid, fallback_normal);
+    draw_distance_line(pproj, pp, p, format_datum(*m_doc, constr), constr.m_uuid, fallback_normal);
 }
 
 void Renderer::visit(const ConstraintDiameterRadius &constr)
@@ -917,7 +926,7 @@ void Renderer::visit(const ConstraintDiameterRadius &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(to, (+n + l * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_screen_line(to, (-n + l * aspect) * scale), sr);
 
-    const auto label = format_measurement(constr.is_measurement(), constr.get_display_distance(*m_doc));
+    const auto label = format_datum(*m_doc, constr);
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 }
 
@@ -964,9 +973,7 @@ void Renderer::visit(const ConstraintPointDistanceHV &constr)
     m_ca.add_selectable(m_ca.draw_screen_line(ptt, (-dnt + d * aspect) * scale), sr);
     m_ca.add_selectable(m_ca.draw_line(ptt, wrkpl.transform(to)), sr);
 
-    std::string label = std::format(" {:.3f}", constr.get_display_distance(*m_doc));
-    if (constr.is_measurement())
-        label = "(" + label + ")";
+    const auto label = format_datum(*m_doc, constr);
     add_selectables(sr, m_ca.draw_bitmap_text(wrkpl.transform(p), 1, label));
 }
 
@@ -1195,8 +1202,7 @@ void Renderer::visit(const ConstraintLinesAngle &constr)
         }
     }
 
-    const auto label =
-            format_measurement(constr.is_measurement(), std::format(" {:.1f}°", constr.get_display_angle(*m_doc)));
+    const auto label = format_datum(*m_doc, constr);
     add_selectables(sr, m_ca.draw_bitmap_text(p, 1, label));
 }
 
@@ -1233,9 +1239,20 @@ void Renderer::visit(const ConstraintBezierLineTangent &constraint)
 void Renderer::visit(const ConstraintPointOnBezier &constraint)
 {
     const auto pt = m_doc->get_point(constraint.m_point);
+    const auto &bez = m_doc->get_entity<IEntityTangentProjected>(constraint.m_line);
     const auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constraint.m_wrkpl);
-    const auto v = m_doc->get_entity<EntityBezier2D>(constraint.m_line).get_tangent(constraint.m_val);
-    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_BEZIER, constraint.m_uuid, wrkpl.transform_relative(v));
+    const auto v = wrkpl.transform_relative(bez.get_tangent_in_workplane(constraint.m_val, wrkpl));
+    add_constraint(pt, IconID::CONSTRAINT_POINT_ON_BEZIER, constraint.m_uuid, v);
+}
+
+void Renderer::visit(const ConstraintBezierBezierSameCurvature &constraint)
+{
+    visit(constraint, IconID::CONSTRAINT_G2);
+}
+
+void Renderer::visit(const ConstraintBezierArcSameCurvature &constraint)
+{
+    visit(constraint, IconID::CONSTRAINT_G2);
 }
 
 void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)

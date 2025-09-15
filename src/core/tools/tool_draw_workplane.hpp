@@ -8,6 +8,7 @@ class ToolDrawWorkplane : public virtual ToolCommon, public ToolHelperConstrain 
 public:
     using ToolCommon::ToolCommon;
 
+    CanBegin can_begin() override;
     ToolResponse begin(const ToolArgs &args) override;
     ToolResponse update(const ToolArgs &args) override;
     std::set<InToolActionID> get_actions() const override

@@ -12,7 +12,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (pkgs) lib;
         stdenv = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.llvmPackages_17.stdenv
-                  else pkgs.gcc13Stdenv;
+                  else pkgs.gcc14Stdenv;
       in
       {
         packages = rec {

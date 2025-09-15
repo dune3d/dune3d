@@ -114,6 +114,21 @@ public:
         return true;
     }
 
+    virtual bool can_create_entity() const
+    {
+        return true;
+    }
+
+    virtual bool can_create_constraint() const
+    {
+        return true;
+    }
+
+    virtual bool can_have_active_workplane() const
+    {
+        return true;
+    }
+
 protected:
     explicit Group(const UUID &uu, const json &j);
     explicit Group(const UUID &uu);

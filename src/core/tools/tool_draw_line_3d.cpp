@@ -8,6 +8,11 @@
 
 namespace dune3d {
 
+ToolBase::CanBegin ToolDrawLine3D::can_begin()
+{
+    return can_create_entity();
+}
+
 ToolResponse ToolDrawLine3D::begin(const ToolArgs &args)
 {
     update_tip();

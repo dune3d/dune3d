@@ -17,12 +17,13 @@ ToolResponse ToolCommonConstrainDatum::prepare_interactive(Constraint &constrain
     if (m_is_preview)
         return ToolResponse::commit();
 
-    auto &co_wrkpl = dynamic_cast<const IConstraintWorkplane &>(constraint);
     m_constraint_datum = &dynamic_cast<IConstraintDatum &>(constraint);
     m_constraint_movable = &dynamic_cast<IConstraintMovable &>(constraint);
 
-    if (auto wrkpl_uu = co_wrkpl.get_workplane(get_doc()))
-        m_constraint_wrkpl = &get_entity<EntityWorkplane>(wrkpl_uu);
+    auto co_wrkpl = dynamic_cast<const IConstraintWorkplane *>(&constraint);
+    if (co_wrkpl)
+        if (auto wrkpl_uu = co_wrkpl->get_workplane(get_doc()))
+            m_constraint_wrkpl = &get_entity<EntityWorkplane>(wrkpl_uu);
 
     return ToolResponse();
 }

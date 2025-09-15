@@ -6,11 +6,12 @@
 #include "entity/entity_arc2d.hpp"
 #include "entity/entity_bezier2d.hpp"
 #include "entity/entity_workplane.hpp"
-#include "solid_model_util.hpp"
+#include "util/paths.hpp"
 #include "util/fs_util.hpp"
 #include <cairomm/cairomm.h>
 
 namespace dune3d {
+
 void export_paths(const std::filesystem::path &filename, const Document &doc, const UUID &group_uu,
                   std::function<bool(const Group &)> group_filter)
 {
@@ -36,7 +37,7 @@ void export_paths(const std::filesystem::path &filename, const Document &doc, co
         if (group_filter && !group_filter(*group))
             continue;
 
-        const auto paths = solid_model_util::Paths::from_document(doc, group->m_active_wrkpl, group->m_uuid);
+        const auto paths = paths::Paths::from_document(doc, group->m_active_wrkpl, group->m_uuid);
 
         if (paths.paths.size() == 0)
             continue;
@@ -61,7 +62,7 @@ void export_paths(const std::filesystem::path &filename, const Document &doc, co
             ctx->save();
             ctx->set_matrix(cmat);
             if (auto rad = dynamic_cast<const IEntityRadius *>(&path.front().second.entity); rad && path.size() == 1) {
-                const auto center = rad->get_center();
+                const auto center = path.front().second.transform(rad->get_center());
                 ctx->arc(center.x, center.y, rad->get_radius(), 0, 2 * M_PI);
             }
             else {

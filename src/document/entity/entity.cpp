@@ -13,18 +13,24 @@ Entity::Entity(const UUID &uu) : m_uuid(uu)
 {
 }
 
-std::string Entity::get_type_name(Type type)
+std::string Entity::get_type_name(Type type, TypeNameStyle style)
 {
     switch (type) {
     case Type::LINE_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Line";
         return "Line in workplane";
     case Type::LINE_3D:
         return "Line in 3D";
     case Type::ARC_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Arc";
         return "Arc in workplane";
     case Type::ARC_3D:
         return "Arc in 3D";
     case Type::CIRCLE_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Circle";
         return "Circle in workplane";
     case Type::CIRCLE_3D:
         return "Circle in 3D";
@@ -33,10 +39,14 @@ std::string Entity::get_type_name(Type type)
     case Type::WORKPLANE:
         return "Workplane";
     case Type::POINT_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Point";
         return "Point in workplane";
     case Type::DOCUMENT:
         return "Document";
     case Type::BEZIER_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Bezier curve";
         return "Bezier curve in workplane";
     case Type::BEZIER_3D:
         return "Bezier curve in 3D";
@@ -51,23 +61,29 @@ std::string Entity::get_type_name(Type type)
     }
 }
 
-std::string Entity::get_type_name() const
+std::string Entity::get_type_name(TypeNameStyle style) const
 {
-    return get_type_name(get_type());
+    return get_type_name(get_type(), style);
 }
 
-std::string Entity::get_type_name_plural(Type type)
+std::string Entity::get_type_name_plural(Type type, TypeNameStyle style)
 {
     switch (type) {
     case Type::LINE_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Lines";
         return "Lines in workplane";
     case Type::LINE_3D:
         return "Lines in 3D";
     case Type::ARC_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Arcs";
         return "Arcs in workplane";
     case Type::ARC_3D:
         return "Arcs in 3D";
     case Type::CIRCLE_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Circles";
         return "Circles in workplane";
     case Type::CIRCLE_3D:
         return "Circles in 3D";
@@ -76,10 +92,14 @@ std::string Entity::get_type_name_plural(Type type)
     case Type::WORKPLANE:
         return "Workplanes";
     case Type::POINT_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Points";
         return "Points in workplane";
     case Type::DOCUMENT:
         return "Documents";
     case Type::BEZIER_2D:
+        if (style == TypeNameStyle::WITHOUT_WORKPLANE)
+            return "Bezier curves";
         return "Bezier curves in workplane";
     case Type::BEZIER_3D:
         return "Bezier curves in 3D";
@@ -94,19 +114,19 @@ std::string Entity::get_type_name_plural(Type type)
     }
 }
 
-std::string Entity::get_type_name_plural() const
+std::string Entity::get_type_name_plural(TypeNameStyle style) const
 {
-    return get_type_name_plural(get_type());
+    return get_type_name_plural(get_type(), style);
 }
 
-std::string Entity::get_type_name_for_n(Type type, std::size_t n)
+std::string Entity::get_type_name_for_n(Type type, std::size_t n, TypeNameStyle style)
 {
-    return n == 1 ? get_type_name(type) : get_type_name_plural(type);
+    return n == 1 ? get_type_name(type, style) : get_type_name_plural(type, style);
 }
 
-std::string Entity::get_type_name_for_n(std::size_t n) const
+std::string Entity::get_type_name_for_n(std::size_t n, TypeNameStyle style) const
 {
-    return get_type_name_for_n(get_type(), n);
+    return get_type_name_for_n(get_type(), n, style);
 }
 
 Entity::Entity(const UUID &uu, const json &j)

@@ -313,12 +313,22 @@ Core::CanBeginInfo Core::tool_can_begin(ToolID tool_id, const std::set<Selectabl
     auto t = create_tool(tool_id);
     t->m_selection = sel;
     bool can_preview = false;
-    if (auto tool_constrain = dynamic_cast<IToolConstrain *>(t.get()))
-        can_preview = tool_constrain->can_preview_constrain();
+    const auto can_begin = t->can_begin();
+    ToolID force_unset_workplane_tool = ToolID::NONE;
+    bool constraint_is_in_workplane = false;
+    if (can_begin != ToolBase::CanBegin::NO) {
+        if (auto tool_constrain = dynamic_cast<IToolConstrain *>(t.get())) {
+            can_preview = tool_constrain->can_preview_constrain();
+            force_unset_workplane_tool = tool_constrain->get_force_unset_workplane_tool();
+            constraint_is_in_workplane = tool_constrain->constraint_is_in_workplane();
+        }
+    }
     return {
-            .can_begin = t->can_begin(),
+            .can_begin = can_begin,
             .is_specific = t->is_specific(),
             .can_preview = can_preview,
+            .force_unset_workplane_tool = force_unset_workplane_tool,
+            .constraint_is_in_workplane = constraint_is_in_workplane,
     };
 }
 

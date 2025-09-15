@@ -7,8 +7,11 @@
 
 namespace dune3d {
 
-std::optional<std::pair<UUID, UUID>> two_wrkpl_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+std::optional<std::pair<UUID, UUID>> two_wrkpl_from_selection(const Document &doc,
+                                                              const std::set<SelectableRef> &sel_all)
 {
+    const auto sel = entities_from_selection(sel_all);
+
     if (sel.size() != 2)
         return {};
     auto it = sel.begin();
@@ -33,6 +36,9 @@ std::optional<std::pair<UUID, UUID>> two_wrkpl_from_selection(const Document &do
 
 ToolBase::CanBegin ToolConstrainSameOrientation::can_begin()
 {
+    if (!can_create_constraint())
+        return false;
+
     auto tw = two_wrkpl_from_selection(get_doc(), m_selection);
     if (!tw.has_value())
         return false;

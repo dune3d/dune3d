@@ -8,8 +8,7 @@ namespace dune3d {
 DocumentView::DocumentView() = default;
 DocumentView::DocumentView(const DocumentView &other)
     : m_current_group(other.m_current_group), m_group_views(other.m_group_views), m_body_views(other.m_body_views),
-      m_document_is_visible(other.m_document_is_visible),
-      m_show_construction_entities_from_previous_groups(other.m_show_construction_entities_from_previous_groups)
+      m_document_is_visible(other.m_document_is_visible)
 {
     for (const auto &[uu, it] : other.m_entity_views) {
         m_entity_views.emplace(uu, it->clone());
@@ -91,7 +90,6 @@ json DocumentView::serialize() const
 {
     json j;
     j["current_group"] = m_current_group;
-    j["show_construction_entities_from_previous_groups"] = m_show_construction_entities_from_previous_groups;
     {
         json o = json::object();
         for (const auto &[uu, it] : m_group_views) {
@@ -119,9 +117,7 @@ json DocumentView::serialize() const
 }
 
 DocumentView::DocumentView(const json &j)
-    : m_current_group(j.at("current_group").get<std::string>()), m_document_is_visible(true),
-      m_show_construction_entities_from_previous_groups(
-              j.value("show_construction_entities_from_previous_groups", false))
+    : m_current_group(j.at("current_group").get<std::string>()), m_document_is_visible(true)
 {
     for (const auto &[uu, it] : j.at("group_views").items()) {
         m_group_views.emplace(uu, it);
