@@ -22,6 +22,8 @@ enum class InToolActionID {
 
     CLEAR_SPINE_ENTITIES,
 
+    CLEAR_ENTITIES,
+
     N_SIDES_INC,
     N_SIDES_DEC,
     ENTER_N_SIDES,

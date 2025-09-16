@@ -44,7 +44,7 @@ const SolidModel *GroupLocalOperation::get_solid_model() const
 bool GroupLocalOperation::entity_type_is_supported(EntityType type)
 {
     using ET = EntityType;
-    return any_of(type, ET::LINE_2D, ET::ARC_2D, ET::BEZIER_2D, ET::LINE_3D, ET::ARC_3D, ET::BEZIER_3D);
+    return !any_of(type, ET::POINT_2D);
 }
 
 } // namespace dune3d

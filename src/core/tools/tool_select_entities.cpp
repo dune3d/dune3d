@@ -36,7 +36,7 @@ ToolResponse ToolSelectEntities::begin(const ToolArgs &args)
         actions.emplace_back(InToolActionID::LMB, "select/deselect entity");
         actions.emplace_back(InToolActionID::RMB, "finish");
         actions.emplace_back(InToolActionID::CANCEL, "cancel");
-        actions.emplace_back(InToolActionID::CLEAR_SPINE_ENTITIES);
+        actions.emplace_back(InToolActionID::CLEAR_ENTITIES);
         m_intf.tool_bar_set_actions(actions);
     }
 
@@ -66,24 +66,11 @@ ToolResponse ToolSelectEntities::update(const ToolArgs &args)
                 return ToolResponse();
             }
 
-
-            if (hsel->point != 0) {
-                if (!any_of(hsel->point, 1u, 2u)) {
-                    m_intf.tool_bar_flash("Click on start/end point");
-                    return ToolResponse();
-                }
-                if (!m_group->m_entities.contains(hsel->item)) {
-                    m_intf.tool_bar_flash("Start point must be a spine entity");
-                    return ToolResponse();
-                }
+            if (m_group->m_entities.contains(hsel->item)) {
+                m_group->m_entities.erase(hsel->item);
             }
             else {
-                if (m_group->m_entities.contains(hsel->item)) {
-                    m_group->m_entities.erase(hsel->item);
-                }
-                else {
-                    m_group->m_entities.insert(hsel->item);
-                }
+                m_group->m_entities.insert(hsel->item);
             }
             update_selection();
 
@@ -95,7 +82,7 @@ ToolResponse ToolSelectEntities::update(const ToolArgs &args)
             return ToolResponse::commit();
         }
 
-        case InToolActionID::CLEAR_SPINE_ENTITIES:
+        case InToolActionID::CLEAR_ENTITIES:
             m_group->m_entities.clear();
             update_selection();
             break;

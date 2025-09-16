@@ -58,13 +58,7 @@ std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, Gr
                 auto edge = TopoDS::Edge(topex.Current());
                 
                 for (const auto &entity : fillet_entities) {
-                    glm::dvec3 entityP1Vec = entity.second->get_point(1, doc);
-                    gp_Pnt entityP1(entityP1Vec.x, entityP1Vec.y, entityP1Vec.z);
-
-                    glm::dvec3 entityP2Vec = entity.second->get_point(2, doc);
-                    gp_Pnt entityP2(entityP2Vec.x, entityP2Vec.y, entityP2Vec.z);
-
-                    if (solid_model_util::Edge::isPointOnEdge(edge, entityP1, 1E-2) && solid_model_util::Edge::isPointOnEdge(edge, entityP2, 1E-2)) {
+                    if (solid_model_util::isEntityPartnerToEdge(edge, entity.second, doc)) {
                         mf.Add(group.m_radius, edge);
                     }
                 }

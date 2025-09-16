@@ -24,7 +24,7 @@ public:
                 I::LMB,
                 I::CANCEL,
                 I::RMB,
-                I::CLEAR_SPINE_ENTITIES,
+                I::CLEAR_ENTITIES,
         };
     }
 
