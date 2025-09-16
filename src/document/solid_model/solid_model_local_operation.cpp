@@ -89,8 +89,12 @@ std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, Gr
                 auto edge = TopoDS::Edge(topex.Current());
                 
                 for (const auto &entity : fillet_entities) {
-                    if (solid_model_util::isEntityPartnerToEdge(edge, entity.second, doc)) {
-                        mf.Add(group.m_radius, edge);
+                    try {
+                        if (solid_model_util::isEntityPartnerToEdge(edge, entity.second, doc)) {
+                            mf.Add(group.m_radius, edge);
+                        }
+                    } catch(...) {
+                        // the normal of an arc could be null, or a curve could be undefined.
                     }
                 }
                 
