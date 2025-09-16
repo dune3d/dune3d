@@ -13,8 +13,11 @@ GroupLocalOperation::GroupLocalOperation(const UUID &uu) : Group(uu)
 }
 
 GroupLocalOperation::GroupLocalOperation(const UUID &uu, const json &j)
-    : Group(uu, j), m_entities(j.at("entities")), m_edges(j.at("edges").get<std::set<unsigned int>>()), m_radius(j.at("radius").get<double>())
+    : Group(uu, j), m_edges(j.at("edges").get<std::set<unsigned int>>()), m_radius(j.at("radius").get<double>())
 {
+    if (j.contains("entities")) {
+        m_entities = j.at("entities");
+    }
 }
 
 json GroupLocalOperation::serialize() const

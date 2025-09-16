@@ -23,12 +23,6 @@ template <typename T>
 std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, GroupLocalOperation &group)
 {
     group.m_local_operation_messages.clear();
-    if (group.m_entities.size() == 0) {
-        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no edges");
-        return nullptr;
-    }
-
-    auto mod = std::make_shared<SolidModelOcc>();
 
     const auto last_solid_model_group = SolidModel::get_last_solid_model_group(doc, group);
     if (!last_solid_model_group) {
@@ -41,6 +35,43 @@ std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, Gr
         group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no solid model");
         return nullptr;
     }
+
+    if (group.m_edges.size()) {
+        TopExp_Explorer topex(last_solid_model->m_shape_acc, TopAbs_EDGE);
+        unsigned int edge_idx = 0;
+
+        // migrate to use entities instead of edges. 
+        // what this does is search through all the edges in a fillet, and see if it
+        // intersects one of of the entities in the document.
+        while (topex.More()) {
+            auto edge = TopoDS::Edge(topex.Current());
+            
+            if (group.m_edges.contains(edge_idx)) {
+                for (const auto &entity : doc.m_entities) {
+                    try {
+                        if (solid_model_util::isEntityPartnerToEdge(edge, entity.second.get(), doc))
+                        {
+                            group.m_entities.emplace(entity.second->m_uuid);
+                        }
+                    } catch(...) {
+                        // the normal of an arc could be null, or a curve could be undefined.
+                    }
+                }
+            }
+
+            group.m_edges.clear();
+            
+            topex.Next();
+            edge_idx++;
+        }
+    }
+
+    if (group.m_entities.size() == 0) {
+        group.m_local_operation_messages.emplace_back(GroupStatusMessage::Status::ERR, "no edges");
+        return nullptr;
+    }
+
+    auto mod = std::make_shared<SolidModelOcc>();
 
     std::map<UUID, const Entity *> fillet_entities;
 
