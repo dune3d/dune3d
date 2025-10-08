@@ -9,6 +9,7 @@ public:
     virtual void visit(const ConstraintPointOnLine &constraint) = 0;
     virtual void visit(const ConstraintPointOnCircle &constraint) = 0;
     virtual void visit(const ConstraintEqualLength &constraint) = 0;
+    virtual void visit(const ConstraintLengthRatio &constraint) = 0;
     virtual void visit(const ConstraintEqualRadius &constraint) = 0;
     virtual void visit(const ConstraintSameOrientation &constraint) = 0;
     virtual void visit(const ConstraintHV &constraint) = 0;

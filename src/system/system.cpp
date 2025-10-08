@@ -28,6 +28,8 @@
 #include "document/group/group_mirror_hv.hpp"
 #include "document/group/group_clone.hpp"
 #include <array>
+#include <algorithm>
+#include <cmath>
 #include <set>
 #include <iostream>
 
@@ -2330,6 +2332,63 @@ void System::visit(const ConstraintEqualLength &constraint)
     else
         cb.workplane.v = 0;
 
+
+    SK.constraint.Add(&cb);
+}
+
+void System::visit(const ConstraintLengthRatio &constraint)
+{
+    if (constraint.m_measurement)
+        return;
+
+    const auto group = get_group_index(constraint);
+
+    const auto c = n_constraint++;
+
+    ConstraintBase cb = {};
+    cb.h.v = c;
+    cb.group.v = group;
+    const auto ratio = std::clamp(constraint.m_ratio, ConstraintLengthRatio::s_min_ratio,
+                                  ConstraintLengthRatio::s_max_ratio);
+    cb.valA = ratio;
+
+    const auto ref1 = EntityRef{constraint.m_entity1, 0};
+    const auto ref2 = EntityRef{constraint.m_entity2, 0};
+
+    const auto &entity1 = m_doc.get_entity(constraint.m_entity1);
+    const auto &entity2 = m_doc.get_entity(constraint.m_entity2);
+
+    const bool arc1 = entity1.of_type(Entity::Type::ARC_2D, Entity::Type::ARC_3D);
+    const bool arc2 = entity2.of_type(Entity::Type::ARC_2D, Entity::Type::ARC_3D);
+
+    if (!arc1 && !arc2) {
+        cb.type = ConstraintBase::Type::LENGTH_RATIO;
+        cb.entityA.v = m_entity_refs_r.at(ref1);
+        cb.entityB.v = m_entity_refs_r.at(ref2);
+    }
+    else if (arc1 && !arc2) {
+        cb.type = ConstraintBase::Type::ARC_LINE_LEN_RATIO;
+        cb.entityA.v = m_entity_refs_r.at(ref2); // line first
+        cb.entityB.v = m_entity_refs_r.at(ref1); // arc second
+    }
+    else if (!arc1 && arc2) {
+        cb.type = ConstraintBase::Type::ARC_LINE_LEN_RATIO;
+        cb.entityA.v = m_entity_refs_r.at(ref1); // line first
+        cb.entityB.v = m_entity_refs_r.at(ref2); // arc second
+        cb.valA = 1.0 / ratio;
+        if (!std::isfinite(cb.valA))
+            cb.valA = ConstraintLengthRatio::s_max_ratio;
+    }
+    else {
+        cb.type = ConstraintBase::Type::ARC_ARC_LEN_RATIO;
+        cb.entityA.v = m_entity_refs_r.at(ref1);
+        cb.entityB.v = m_entity_refs_r.at(ref2);
+    }
+
+    if (constraint.m_wrkpl)
+        cb.workplane.v = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
+    else
+        cb.workplane.v = 0;
 
     SK.constraint.Add(&cb);
 }

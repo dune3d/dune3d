@@ -929,6 +929,21 @@
                     "mod": 0
                 },
                 {
+                    "key": "t",
+                    "mod": 0
+                }
+            ]
+        ],
+        "tool": "CONSTRAIN_LENGTH_RATIO"
+    },
+    {
+        "keys": [
+            [
+                {
+                    "key": "c",
+                    "mod": 0
+                },
+                {
                     "key": "q",
                     "mod": 0
                 }

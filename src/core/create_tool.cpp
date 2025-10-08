@@ -14,6 +14,7 @@
 #include "tools/tool_constrain_workplane_normal.hpp"
 #include "tools/tool_constrain_parallel.hpp"
 #include "tools/tool_constrain_equal_length.hpp"
+#include "tools/tool_constrain_length_ratio.hpp"
 #include "tools/tool_constrain_equal_radius.hpp"
 #include "tools/tool_constrain_point_in_plane.hpp"
 #include "tools/tool_add_anchor.hpp"
@@ -131,6 +132,10 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::CONSTRAIN_EQUAL_LENGTH:
     case ToolID::CONSTRAIN_EQUAL_LENGTH_3D:
         return std::make_unique<ToolConstrainEqualLength>(tool_id, *this, m_intf, flags);
+
+    case ToolID::CONSTRAIN_LENGTH_RATIO:
+    case ToolID::CONSTRAIN_LENGTH_RATIO_3D:
+        return std::make_unique<ToolConstrainLengthRatio>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_EQUAL_RADIUS:
         return std::make_unique<ToolConstrainEqualRadius>(tool_id, *this, m_intf, flags);
