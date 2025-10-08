@@ -24,15 +24,15 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="32"
-     inkscape:cx="120.01563"
-     inkscape:cy="41.765625"
-     inkscape:window-width="1359"
+     inkscape:zoom="22.627417"
+     inkscape:cx="409.70209"
+     inkscape:cy="22.693708"
+     inkscape:window-width="1385"
      inkscape:window-height="1150"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:current-layer="CONSTRAINT_G2">
+     inkscape:current-layer="CONSTRAINT_LENGTH_RATIO">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -1122,27 +1122,22 @@
          x="103.71667"
          y="2.1166673" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.661459;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="circle15-1"
-         cx="106.9446"
-         cy="5.3445835"
-         r="0.52916676" />
+         cx="106.75908"
+         cy="5.4239578"
+         r="0.66145825" />
       <circle
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.661459;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
          id="circle15-2"
-         cx="104.72209"
-         cy="3.1220837"
-         r="0.52916676" />
-      <rect
-         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0951569;stroke-linejoin:round;paint-order:markers fill stroke"
-         id="rect73"
-         width="4.536365"
-         height="0.52916664"
-         x="69.573868"
-         y="77.564301"
-         rx="0.29104164"
-         ry="0.26458332"
-         transform="rotate(-45)" />
+         cx="104.907"
+         cy="3.0427082"
+         r="0.66145831" />
+      <path
+         style="color:#000000;overflow:visible;fill:#000000;stroke-width:0;paint-order:stroke fill markers"
+         d="M 106.36221,2.3812498 H 107.15596 L 105.30387,6.0854162 H 104.51012 Z"
+         id="path3"
+         sodipodi:nodetypes="ccccc" />
     </g>
   </g>
 </svg>
