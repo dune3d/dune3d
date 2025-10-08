@@ -81,6 +81,7 @@ private:
     void visit(const ConstraintPointOnLine &constraint) override;
     void visit(const ConstraintPointOnCircle &constraint) override;
     void visit(const ConstraintEqualLength &constraint) override;
+    void visit(const ConstraintLengthRatio &constraint) override;
     void visit(const ConstraintEqualRadius &constraint) override;
     void visit(const ConstraintSameOrientation &constraint) override;
     void visit(const ConstraintHV &constraint) override;

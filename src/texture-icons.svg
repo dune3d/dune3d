@@ -7,7 +7,7 @@
    viewBox="0 0 210 297"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4.1 (93de688d07, 2025-03-30)"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
    sodipodi:docname="texture-icons.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -1110,6 +1110,39 @@
          height="0.26458332"
          x="32.014584"
          y="8.2020817" />
+    </g>
+    <g
+       id="CONSTRAINT_LENGTH_RATIO"
+       transform="translate(5.2919573)">
+      <rect
+         style="color:#000000;overflow:visible;fill:#ffffff;stroke:none;stroke-width:0.0649999;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect60"
+         width="4.2333331"
+         height="4.2333331"
+         x="103.71667"
+         y="2.1166673" />
+      <circle
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="circle15-1"
+         cx="106.9446"
+         cy="5.3445835"
+         r="0.52916676" />
+      <circle
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="circle15-2"
+         cx="104.72209"
+         cy="3.1220837"
+         r="0.52916676" />
+      <rect
+         style="color:#000000;overflow:visible;fill:#000000;stroke:none;stroke-width:0.0951569;stroke-linejoin:round;paint-order:markers fill stroke"
+         id="rect73"
+         width="4.536365"
+         height="0.52916664"
+         x="69.573868"
+         y="77.564301"
+         rx="0.29104164"
+         ry="0.26458332"
+         transform="rotate(-45)" />
     </g>
   </g>
 </svg>

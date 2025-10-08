@@ -11,6 +11,7 @@
 #include "constraint_same_orientation.hpp"
 #include "constraint_parallel.hpp"
 #include "constraint_equal_length.hpp"
+#include "constraint_length_ratio.hpp"
 #include "constraint_equal_radius.hpp"
 #include "constraint_diameter_radius.hpp"
 #include "constraint_arc_arc_tangent.hpp"
