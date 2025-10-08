@@ -33,6 +33,14 @@ EnterDatumWindow::EnterDatumWindow(Gtk::Window &parent, EditorInterface &intf, c
         m_sp = Gtk::make_managed<Gtk::SpinButton>();
         m_sp->set_range(-1e3, 1e3);
         break;
+
+    case DatumUnit::RATIO: {
+        auto sp = Gtk::make_managed<Gtk::SpinButton>();
+        sp->set_digits(4);
+        sp->set_increments(0.1, 0.1);
+        sp->set_range(-1e6, 1e6);
+        m_sp = sp;
+    } break;
     }
     m_sp->set_margin_start(8);
     m_sp->set_value(def);
