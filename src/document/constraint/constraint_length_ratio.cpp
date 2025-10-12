@@ -102,12 +102,9 @@ json ConstraintLengthRatio::serialize() const
     j["entity1"] = m_entity1;
     j["entity2"] = m_entity2;
     j["ratio"] = m_ratio;
-    if (m_wrkpl)
-        j["wrkpl"] = m_wrkpl;
-    if (m_measurement)
-        j["measurement"] = true;
-    if (glm::length(m_offset) > 0.0)
-        j["offset"] = m_offset;
+    j["wrkpl"] = m_wrkpl;
+    j["measurement"] = m_measurement;
+    j["offset"] = m_offset;
     return j;
 }
 
