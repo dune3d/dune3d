@@ -2,7 +2,6 @@
 #include "document/document.hpp"
 #include "document/entity/entity.hpp"
 #include "document/constraint/constraint_length_ratio.hpp"
-#include <algorithm>
 #include <list>
 #include "util/selection_util.hpp"
 #include "tool_common_constrain_impl.hpp"
@@ -77,11 +76,12 @@ ToolResponse ToolConstrainLengthRatio::begin(const ToolArgs &args)
     constraint.m_entity2 = entity2;
     constraint.m_wrkpl = get_workplane_uuid();
     constraint.m_offset = {0.0, 0.0, 0.0};
-    constraint.m_ratio = constraint.measure_ratio(get_doc());
-    constraint.m_ratio =
-            std::clamp(constraint.m_ratio, ConstraintLengthRatio::s_min_ratio, ConstraintLengthRatio::s_max_ratio);
+    constraint.m_modify_to_satisfy = true;
 
     set_current_group_solve_pending();
+
+    if (!m_is_preview)
+        m_core.solve_current();
 
     return prepare_interactive(constraint);
 }

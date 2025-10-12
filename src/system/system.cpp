@@ -1823,6 +1823,34 @@ void System::update_document()
                 c->m_modify_to_satisfy = false;
             }
         }
+        else if (auto c = m_doc.get_constraint_ptr<ConstraintLengthRatio>(uu)) {
+            auto *sk_constraint = SK.constraint.FindById(hConstraint{idx});
+
+            if (c->m_measurement || c->m_modify_to_satisfy)
+                sk_constraint->ModifyToSatisfy();
+
+            double val = sk_constraint->valA;
+
+            const auto &entity1 = m_doc.get_entity(c->m_entity1);
+            const auto &entity2 = m_doc.get_entity(c->m_entity2);
+            const bool arc1 = entity1.of_type(Entity::Type::ARC_2D, Entity::Type::ARC_3D);
+            const bool arc2 = entity2.of_type(Entity::Type::ARC_2D, Entity::Type::ARC_3D);
+
+            if (!arc1 && arc2) {
+                if (std::abs(val) > ConstraintLengthRatio::s_min_ratio)
+                    val = 1.0 / val;
+                else
+                    val = ConstraintLengthRatio::s_max_ratio;
+            }
+
+            if (!std::isfinite(val))
+                val = ConstraintLengthRatio::s_max_ratio;
+            else
+                val = std::abs(val);
+
+            c->m_ratio = std::clamp(val, ConstraintLengthRatio::s_min_ratio, ConstraintLengthRatio::s_max_ratio);
+            c->m_modify_to_satisfy = false;
+        }
         else if (auto c = m_doc.get_constraint_ptr<ConstraintPointOnBezier>(uu)) {
             const auto val = SK.GetParam(hConstraint{idx}.param(0))->val;
             c->m_val = val;
@@ -2338,12 +2366,13 @@ void System::visit(const ConstraintEqualLength &constraint)
 
 void System::visit(const ConstraintLengthRatio &constraint)
 {
-    if (constraint.m_measurement)
-        return;
-
     const auto group = get_group_index(constraint);
 
     const auto c = n_constraint++;
+
+    const bool track_value = constraint.m_measurement || constraint.m_modify_to_satisfy;
+    if (track_value)
+        m_constraint_refs.emplace(c, constraint.m_uuid); // read back solver-updated value
 
     ConstraintBase cb = {};
     cb.h.v = c;
@@ -2351,6 +2380,7 @@ void System::visit(const ConstraintLengthRatio &constraint)
     const auto ratio =
             std::clamp(constraint.m_ratio, ConstraintLengthRatio::s_min_ratio, ConstraintLengthRatio::s_max_ratio);
     cb.valA = ratio;
+    cb.reference = constraint.m_measurement;
 
     const auto ref1 = EntityRef{constraint.m_entity1, 0};
     const auto ref2 = EntityRef{constraint.m_entity2, 0};
@@ -2389,6 +2419,9 @@ void System::visit(const ConstraintLengthRatio &constraint)
         cb.workplane.v = get_entity_ref(EntityRef{constraint.m_wrkpl, 0});
     else
         cb.workplane.v = 0;
+
+    if (track_value)
+        cb.ModifyToSatisfy();
 
     SK.constraint.Add(&cb);
 }

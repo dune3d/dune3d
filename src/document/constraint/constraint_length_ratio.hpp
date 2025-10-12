@@ -4,6 +4,7 @@
 #include "iconstraint_datum.hpp"
 #include "iconstraint_movable.hpp"
 #include "iconstraint_workplane.hpp"
+#include <algorithm>
 #include <glm/glm.hpp>
 
 namespace dune3d {
@@ -51,10 +52,10 @@ public:
     }
     void set_datum(double d) override
     {
-        m_ratio = d;
+        m_ratio = std::clamp(d, s_min_ratio, s_max_ratio);
     }
-    double get_display_datum(const Document &doc) const override;
-    double measure_datum(const Document &doc) const override;
+    double get_display_datum(const Document &) const override;
+    double measure_datum(const Document &) const override;
     std::pair<double, double> get_datum_range() const override
     {
         return {s_min_ratio, s_max_ratio};
@@ -74,9 +75,6 @@ public:
     {
         m_measurement = is_measurement;
     }
-
-    static double measure_entity_length(const Document &doc, const UUID &entity);
-    double measure_ratio(const Document &doc) const;
 
     UUID m_entity1;
     UUID m_entity2;
