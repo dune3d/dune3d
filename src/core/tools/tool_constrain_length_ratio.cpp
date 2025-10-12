@@ -37,7 +37,7 @@ ToolBase::CanBegin ToolConstrainLengthRatio::can_begin()
     if (!any_entity_from_current_group(enps))
         return false;
 
-    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::LENGTH_RATIO);
+    return !has_constraint_of_type_in_workplane(enps, Constraint::Type::LENGTH_RATIO, Constraint::Type::EQUAL_LENGTH);
 }
 
 bool ToolConstrainLengthRatio::is_force_unset_workplane()
