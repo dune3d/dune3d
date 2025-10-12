@@ -93,8 +93,7 @@ ConstraintLengthRatio::ConstraintLengthRatio(const UUID &uu) : Base(uu)
 
 ConstraintLengthRatio::ConstraintLengthRatio(const UUID &uu, const json &j)
     : Base(uu, j), m_entity1(j.at("entity1").get<UUID>()), m_entity2(j.at("entity2").get<UUID>()),
-      m_ratio(j.value("ratio", 1.0)), m_wrkpl(j.value("wrkpl", UUID{})),
-      m_measurement(j.value("measurement", false))
+      m_ratio(j.value("ratio", 1.0)), m_wrkpl(j.value("wrkpl", UUID{})), m_measurement(j.value("measurement", false))
 {
     m_offset = j.value("offset", glm::dvec3(0.0, 0.0, 0.0));
     m_ratio = std::clamp(m_ratio, s_min_ratio, s_max_ratio);

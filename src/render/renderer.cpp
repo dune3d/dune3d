@@ -1114,10 +1114,8 @@ void Renderer::visit(const ConstraintLengthRatio &constraint)
     const auto c1 = get_center(e1, *m_doc);
     const auto c2 = get_center(e2, *m_doc);
 
-    add_constraint(c1, IconID::CONSTRAINT_LENGTH_RATIO, constraint.m_uuid,
-                   length_indicator_vec(e1, *m_doc));
-    add_constraint(c2, IconID::CONSTRAINT_LENGTH_RATIO, constraint.m_uuid,
-                   length_indicator_vec(e2, *m_doc));
+    add_constraint(c1, IconID::CONSTRAINT_LENGTH_RATIO, constraint.m_uuid, length_indicator_vec(e1, *m_doc));
+    add_constraint(c2, IconID::CONSTRAINT_LENGTH_RATIO, constraint.m_uuid, length_indicator_vec(e2, *m_doc));
 
     auto position = constraint.get_origin(*m_doc) + constraint.get_offset();
     if (constraint.m_wrkpl) {

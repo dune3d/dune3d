@@ -2348,8 +2348,8 @@ void System::visit(const ConstraintLengthRatio &constraint)
     ConstraintBase cb = {};
     cb.h.v = c;
     cb.group.v = group;
-    const auto ratio = std::clamp(constraint.m_ratio, ConstraintLengthRatio::s_min_ratio,
-                                  ConstraintLengthRatio::s_max_ratio);
+    const auto ratio =
+            std::clamp(constraint.m_ratio, ConstraintLengthRatio::s_min_ratio, ConstraintLengthRatio::s_max_ratio);
     cb.valA = ratio;
 
     const auto ref1 = EntityRef{constraint.m_entity1, 0};

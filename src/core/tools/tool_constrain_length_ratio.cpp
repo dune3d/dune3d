@@ -12,9 +12,8 @@
 namespace dune3d {
 static std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
 {
-    return entities_from_selection(doc, sel,
-                                   {Entity::Type::LINE_2D, Entity::Type::LINE_3D, Entity::Type::ARC_2D,
-                                    Entity::Type::ARC_3D});
+    return entities_from_selection(
+            doc, sel, {Entity::Type::LINE_2D, Entity::Type::LINE_3D, Entity::Type::ARC_2D, Entity::Type::ARC_3D});
 }
 
 static std::set<EntityAndPoint> enps_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
@@ -79,8 +78,8 @@ ToolResponse ToolConstrainLengthRatio::begin(const ToolArgs &args)
     constraint.m_wrkpl = get_workplane_uuid();
     constraint.m_offset = {0.0, 0.0, 0.0};
     constraint.m_ratio = constraint.measure_ratio(get_doc());
-    constraint.m_ratio = std::clamp(constraint.m_ratio, ConstraintLengthRatio::s_min_ratio,
-                                    ConstraintLengthRatio::s_max_ratio);
+    constraint.m_ratio =
+            std::clamp(constraint.m_ratio, ConstraintLengthRatio::s_min_ratio, ConstraintLengthRatio::s_max_ratio);
 
     set_current_group_solve_pending();
 
