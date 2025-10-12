@@ -42,7 +42,7 @@ public:
     }
     bool offset_is_in_workplane() const override
     {
-        return static_cast<bool>(m_wrkpl);
+        return false;
     }
 
     double get_datum() const override
