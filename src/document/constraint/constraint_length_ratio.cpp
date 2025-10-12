@@ -18,10 +18,9 @@
 
 namespace dune3d {
 
-namespace {
-constexpr double kLengthEpsilon = 1e-9;
+static constexpr double kLengthEpsilon = 1e-9;
 
-glm::dvec3 get_entity_anchor(const Document &doc, const Entity &entity)
+static glm::dvec3 get_entity_anchor(const Document &doc, const Entity &entity)
 {
     if (auto arc2d = dynamic_cast<const EntityArc2D *>(&entity)) {
         return arc2d->get_point(3, doc);
@@ -35,7 +34,7 @@ glm::dvec3 get_entity_anchor(const Document &doc, const Entity &entity)
     return (entity.get_point(1, doc) + entity.get_point(2, doc)) / 2.0;
 }
 
-double length_of_arc_2d(const EntityArc2D &arc)
+static double length_of_arc_2d(const EntityArc2D &arc)
 {
     const auto from = arc.m_from - arc.m_center;
     const auto to = arc.m_to - arc.m_center;
@@ -49,7 +48,7 @@ double length_of_arc_2d(const EntityArc2D &arc)
     return radius * delta;
 }
 
-double length_of_arc_3d(const EntityArc3D &arc)
+static double length_of_arc_3d(const EntityArc3D &arc)
 {
     const auto from = arc.m_from - arc.m_center;
     const auto to = arc.m_to - arc.m_center;
@@ -66,7 +65,7 @@ double length_of_arc_3d(const EntityArc3D &arc)
     return radius * delta;
 }
 
-double length_of_entity_impl(const Document &doc, const UUID &entity_uu)
+static double length_of_entity_impl(const Document &doc, const UUID &entity_uu)
 {
     const auto &entity = doc.get_entity(entity_uu);
     switch (entity.get_type()) {
@@ -84,8 +83,6 @@ double length_of_entity_impl(const Document &doc, const UUID &entity_uu)
         return 0.0;
     }
 }
-
-} // namespace
 
 ConstraintLengthRatio::ConstraintLengthRatio(const UUID &uu) : Base(uu)
 {
