@@ -65,6 +65,8 @@ public:
         ToolBase::CanBegin can_begin;
         bool is_specific;
         bool can_preview;
+        ToolID force_unset_workplane_tool;
+        bool constraint_is_in_workplane;
     };
 
     CanBeginInfo tool_can_begin(ToolID tool_id, const std::set<SelectableRef> &sel);

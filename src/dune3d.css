@@ -51,3 +51,4 @@ button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
 .workspace-browser-toast {border-radius: 5px; padding: 5px;}
 
 .context-menu-button {padding-left: 11px; padding-top:2px; padding-bottom:2px;}
+.context-menu-button-3d {padding-left: 4px; padding-right: 4px; padding-top:2px; padding-bottom:2px;}

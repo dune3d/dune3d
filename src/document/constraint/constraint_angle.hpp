@@ -107,6 +107,8 @@ public:
         return DatumUnit::DEGREE;
     }
 
+    std::string format_datum(double datum) const override;
+
     std::pair<double, double> get_datum_range() const override
     {
         return {0, 360};
@@ -131,7 +133,7 @@ public:
     std::unique_ptr<Constraint> clone() const override;
     void accept(ConstraintVisitor &visitor) const override;
 
-    double get_display_angle(const Document &doc) const;
+    double get_display_datum(const Document &doc) const override;
 };
 
 } // namespace dune3d

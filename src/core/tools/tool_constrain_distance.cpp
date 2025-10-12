@@ -2,6 +2,7 @@
 #include "document/document.hpp"
 #include "document/constraint/constraint_point_distance.hpp"
 #include "document/constraint/constraint_point_distance_hv.hpp"
+#include "document/entity/ientity_in_workplane.hpp"
 #include "util/selection_util.hpp"
 #include "util/template_util.hpp"
 #include "core/tool_id.hpp"
@@ -38,6 +39,7 @@ ToolBase::CanBegin ToolConstrainDistance::can_begin()
                                                     Constraint::Type::SYMMETRIC_HORIZONTAL);
 
     case ToolID::CONSTRAIN_DISTANCE:
+    case ToolID::CONSTRAIN_DISTANCE_3D:
         return !has_constraint_of_type_in_workplane(tp->get_enps(), Constraint::Type::POINT_DISTANCE,
                                                     Constraint::Type::HORIZONTAL, Constraint::Type::VERTICAL,
                                                     Constraint::Type::SYMMETRIC_HORIZONTAL,
@@ -50,8 +52,37 @@ ToolBase::CanBegin ToolConstrainDistance::can_begin()
 
 bool ToolConstrainDistance::can_preview_constrain()
 {
-    return any_of(m_tool_id, ToolID::CONSTRAIN_DISTANCE, ToolID::CONSTRAIN_DISTANCE_HORIZONTAL,
-                  ToolID::CONSTRAIN_DISTANCE_VERTICAL);
+    return any_of(m_tool_id, ToolID::CONSTRAIN_DISTANCE, ToolID::CONSTRAIN_DISTANCE_3D,
+                  ToolID::CONSTRAIN_DISTANCE_HORIZONTAL, ToolID::CONSTRAIN_DISTANCE_VERTICAL);
+}
+
+bool ToolConstrainDistance::is_force_unset_workplane()
+{
+    return m_tool_id == ToolID::CONSTRAIN_DISTANCE_3D;
+}
+
+bool ToolConstrainDistance::constraint_is_in_workplane()
+{
+    return get_workplane_uuid() != UUID{};
+}
+
+ToolID ToolConstrainDistance::get_force_unset_workplane_tool()
+{
+    if (m_tool_id != ToolID::CONSTRAIN_DISTANCE)
+        return ToolID::NONE;
+
+    auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
+        return ToolID::NONE;
+
+    auto tp = two_points_from_selection(get_doc(), m_selection);
+    if (!tp)
+        return ToolID::NONE;
+
+    if (all_entities_in_current_workplane(tp->get_enps()))
+        return ToolID::NONE;
+
+    return ToolID::CONSTRAIN_DISTANCE_3D;
 }
 
 

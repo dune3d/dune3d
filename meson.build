@@ -10,6 +10,7 @@ is_windows = target_machine.system() == 'windows'
 
 
 gtk4 = dependency('gtk4', version: '>=4.10')
+pthread = cxx.find_library('pthread')
 gtkmm = dependency('gtkmm-4.0', version: '>=4.10')
 epoxy = dependency('epoxy')
 eigen = dependency('eigen3')
@@ -96,6 +97,7 @@ src_common = files(
   'src/document/constraint/constraint_bezier_bezier_tangent_symmetric.cpp',
   'src/document/constraint/constraint_point_on_bezier.cpp',
   'src/document/constraint/constraint_bezier_bezier_same_curvature.cpp',
+  'src/document/constraint/constraint_bezier_arc_same_curvature.cpp',
   'src/document/solid_model/solid_model.cpp',
   'src/document/solid_model/solid_model_export.cpp',
   'src/document/solid_model/solid_model_occ.cpp',
@@ -211,7 +213,6 @@ src_gui = files(
   'src/core/tools/tool_constrain_same_orientation.cpp',
   'src/core/tools/tool_constrain_parallel.cpp',
   'src/core/tools/tool_constrain_workplane_normal.cpp',
-  'src/core/tools/tool_constrain_midpoint.cpp',
   'src/core/tools/tool_constrain_equal_length.cpp',
   'src/core/tools/tool_constrain_equal_radius.cpp',
   'src/core/tools/tool_constrain_diameter_radius.cpp',
@@ -254,6 +255,8 @@ src_gui = files(
   'src/core/tools/tool_create_coincident_constraints.cpp',
   'src/core/tools/tool_hide_reference_workplane.cpp',
   'src/core/tools/tool_toggle_measurement.cpp',
+  'src/core/tools/tool_convert_point_on_line_constraint.cpp',
+  'src/core/tools/tool_convert_tangent_constraint.cpp',
   'src/core/tools/tool_import_picture.cpp',
   'src/util/history_manager.cpp',
   'src/util/action_label.cpp',
@@ -386,7 +389,7 @@ if is_libstdcpp
     stdlibs += cxx.find_library('stdc++fs', required:false)
 endif
 
-build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype, png]
+build_dependencies = [gtk4, gtkmm, epoxy, opencascade, eigen, glm, stdlibs, spnav, harfbuzz, freetype, png, pthread]
 if not is_windows
 	uuid = dependency('uuid')
 	build_dependencies += uuid

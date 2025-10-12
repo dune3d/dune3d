@@ -52,7 +52,7 @@ json Document::serialize() const
     return j;
 }
 
-static const unsigned int app_version = 34;
+static const unsigned int app_version = 35;
 
 unsigned int Document::get_app_version()
 {
@@ -72,6 +72,7 @@ Document::Document() : m_version(app_version)
 
     set_group_generate_pending(grp.m_uuid);
     update_pending();
+    update_groups_sorted();
 }
 
 template <typename T, typename... Args> void load_and_log(std::map<UUID, T> &map, const std::string &type, Args... args)

@@ -25,7 +25,7 @@ jobs:
         install: >-
           mingw-w64-x86_64-gcc
           mingw-w64-x86_64-pkgconf
-          mingw-w64-x86_64-gtkmm4
+          mingw-w64-x86_64-gtkmm-4.0
           mingw-w64-x86_64-glm
           mingw-w64-x86_64-eigen3
           mingw-w64-x86_64-meson

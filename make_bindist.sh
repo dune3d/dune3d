@@ -89,6 +89,7 @@ LIBS=(
 	libbrotlicommon.dll\
 	libsharpyuv-0.dll\
 	libxml2-2.dll\
+	libxml2-16.dll\
 	librsvg-2-2.dll\
 	vulkan-1.dll\
 	gspawn-win64-helper.exe\

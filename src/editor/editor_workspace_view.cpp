@@ -200,6 +200,7 @@ void Editor::set_current_workspace_view(const UUID &uu)
     if (m_core.has_documents()) {
         m_core.set_current_document(wv.m_current_document);
         set_current_group(get_current_document_view().m_current_group);
+        update_version_info();
     }
     update_action_sensitivity();
     m_workspace_browser->update_current_group(get_current_document_views());

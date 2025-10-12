@@ -1,6 +1,7 @@
 #include "tool_constrain_point_line_distance.hpp"
 #include "document/constraint/constraint_point_line_distance.hpp"
 #include "util/selection_util.hpp"
+#include "util/template_util.hpp"
 #include "tool_common_constrain_impl.hpp"
 #include "core/tool_id.hpp"
 
@@ -24,7 +25,33 @@ ToolBase::CanBegin ToolConstrainPointLineDistance::can_begin()
 
 bool ToolConstrainPointLineDistance::can_preview_constrain()
 {
-    return m_tool_id == ToolID::CONSTRAIN_POINT_LINE_DISTANCE;
+    return any_of(m_tool_id, ToolID::CONSTRAIN_POINT_LINE_DISTANCE, ToolID::CONSTRAIN_POINT_LINE_DISTANCE_3D);
+}
+
+bool ToolConstrainPointLineDistance::is_force_unset_workplane()
+{
+    return m_tool_id == ToolID::CONSTRAIN_POINT_LINE_DISTANCE_3D;
+}
+
+bool ToolConstrainPointLineDistance::constraint_is_in_workplane()
+{
+    return get_workplane_uuid() != UUID{};
+}
+
+ToolID ToolConstrainPointLineDistance::get_force_unset_workplane_tool()
+{
+    auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
+        return ToolID::NONE;
+
+    auto lp = line_and_point_from_selection(get_doc(), m_selection, LineAndPoint::AllowSameEntity::NO);
+    if (!lp)
+        return ToolID::NONE;
+    ;
+    if (all_entities_in_current_workplane(lp->get_enps()))
+        return ToolID::NONE;
+
+    return ToolID::CONSTRAIN_POINT_LINE_DISTANCE_3D;
 }
 
 ToolResponse ToolConstrainPointLineDistance::begin(const ToolArgs &args)

@@ -3,6 +3,8 @@
 #include "editor/editor_interface.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity.hpp"
+#include "document/entity/ientity_in_workplane.hpp"
+#include "core/tool_id.hpp"
 
 namespace dune3d {
 
@@ -12,6 +14,16 @@ bool ToolCommonConstrain::is_specific()
 }
 
 bool ToolCommonConstrain::can_preview_constrain()
+{
+    return false;
+}
+
+ToolID ToolCommonConstrain::get_force_unset_workplane_tool()
+{
+    return ToolID::NONE;
+}
+
+bool ToolCommonConstrain::constraint_is_in_workplane()
 {
     return false;
 }
@@ -43,6 +55,23 @@ bool ToolCommonConstrain::any_entity_from_current_group(const std::set<EntityAnd
             return true;
     }
     return false;
+}
+
+bool ToolCommonConstrain::all_entities_in_current_workplane(const std::set<EntityAndPoint> &enps)
+{
+    auto wrkpl = get_workplane_uuid();
+    if (!wrkpl)
+        return false;
+    for (const auto &enp : enps) {
+        if (auto en_wrkpl = get_doc().get_entity_ptr<IEntityInWorkplane>(enp.entity)) {
+            if (en_wrkpl->get_workplane() != wrkpl)
+                return false;
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
 }
 
 

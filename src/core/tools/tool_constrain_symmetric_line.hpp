@@ -11,6 +11,11 @@ public:
     ToolResponse update(const ToolArgs &args) override;
     CanBegin can_begin() override;
 
+    bool constraint_is_in_workplane() override
+    {
+        return true;
+    }
+
 private:
     TwoPoints m_points;
 };

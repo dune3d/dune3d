@@ -85,6 +85,8 @@ std::string Constraint::get_type_name(Type type)
         return "Point on bezier";
     case Type::BEZIER_BEZIER_SAME_CURVATURE:
         return "Bezier/Bezier same curvature";
+    case Type::BEZIER_ARC_SAME_CURVATURE:
+        return "Bezier/Arc same curvature";
     default:
         return "Constraint";
     }
@@ -139,6 +141,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                       "bezier_bezier_tangent_symmetric"},
                                      {Constraint::Type::POINT_ON_BEZIER, "point_on_bezier"},
                                      {Constraint::Type::BEZIER_BEZIER_SAME_CURVATURE, "bezier_bezier_same_curvature"},
+                                     {Constraint::Type::BEZIER_ARC_SAME_CURVATURE, "bezier_arc_same_curvature"},
                              })
 
 json Constraint::serialize() const
@@ -218,6 +221,8 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintPointOnBezier>(uu, j);
     case Type::BEZIER_BEZIER_SAME_CURVATURE:
         return std::make_unique<ConstraintBezierBezierSameCurvature>(uu, j);
+    case Type::BEZIER_ARC_SAME_CURVATURE:
+        return std::make_unique<ConstraintBezierArcSameCurvature>(uu, j);
     case Type::INVALID:
         throw std::runtime_error("unknown constraint type " + j.at("type").get<std::string>());
     }

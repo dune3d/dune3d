@@ -544,6 +544,43 @@ void Editor::update_selection_mode_label()
     }
 }
 
+void Editor::install_hover(Gtk::Button &button, ToolID id)
+{
+    auto ctrl = Gtk::EventControllerMotion::create();
+
+    ctrl->signal_leave().connect([this] {
+        m_context_menu_hover_timeout.disconnect();
+        m_context_menu_hover_timeout = Glib::signal_timeout().connect(
+                [this] {
+                    if (m_core.reset_preview()) {
+                        canvas_update_keep_selection();
+                        m_context_menu->set_opacity(1);
+                    }
+                    return false;
+                },
+                200);
+    });
+    ctrl->signal_motion().connect([this, id](double, double) {
+        m_context_menu_hover_timeout.disconnect();
+        if (m_core.get_current_preview_tool() == ToolID::NONE) {
+            m_context_menu_hover_timeout = Glib::signal_timeout().connect(
+                    [this, id] {
+                        if (m_core.apply_preview(id, m_context_menu_selection)) {
+                            m_context_menu->set_opacity(.5);
+                            canvas_update_keep_selection();
+                        }
+                        return false;
+                    },
+                    200);
+        }
+        else {
+            if (m_core.apply_preview(id, m_context_menu_selection))
+                canvas_update_keep_selection();
+        }
+    });
+    button.add_controller(ctrl);
+}
+
 void Editor::open_context_menu(ContextMenuMode mode)
 {
     Gdk::Rectangle rect;
@@ -564,7 +601,9 @@ void Editor::open_context_menu(ContextMenuMode mode)
     update_action_sensitivity(sel);
     struct ActionInfo {
         ActionToolID id;
-        bool can_preview;
+        bool can_preview = false;
+        ToolID force_unset_workplane_tool = ToolID::NONE;
+        bool constraint_is_in_workplane = false;
     };
     std::vector<ActionInfo> ids;
 
@@ -577,7 +616,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 if (auto tool = std::get_if<ToolID>(&id)) {
                     auto r = m_core.tool_can_begin(*tool, sel);
                     if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
-                        ids.emplace_back(id, r.can_preview);
+                        ids.emplace_back(id, r.can_preview, r.force_unset_workplane_tool, r.constraint_is_in_workplane);
                         auto item = Gio::MenuItem::create(it_cat.name.menu, "menu." + action_tool_id_to_string(id));
                         if (it_cat.group == ActionGroup::MEASURE) {
                             meas_items.push_back(item);
@@ -591,7 +630,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 }
                 else if (auto act = std::get_if<ActionID>(&id)) {
                     if (get_action_sensitive(*act) && (it_cat.flags & ActionCatalogItem::FLAGS_SPECIFIC)) {
-                        ids.emplace_back(id, false);
+                        ids.emplace_back(id);
                         auto item = Gio::MenuItem::create(it_cat.name.menu, "menu." + action_tool_id_to_string(id));
                         item->set_attribute_value("custom",
                                                   Glib::Variant<Glib::ustring>::create(action_tool_id_to_string(id)));
@@ -646,9 +685,13 @@ void Editor::open_context_menu(ContextMenuMode mode)
             }
         }
     }
+
+    const bool has_any_can_force_unset_workplane =
+            std::ranges::any_of(ids, [](const auto &x) { return x.force_unset_workplane_tool != ToolID::NONE; });
+    auto sg = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::HORIZONTAL);
     if (menu->get_n_items() != 0) {
         m_context_menu->set_menu_model(menu);
-        for (const auto [id, can_preview] : ids) {
+        for (const auto [id, can_preview, force_unset_workplane_tool, constraint_is_in_workplane] : ids) {
             auto button = Gtk::make_managed<Gtk::Button>();
             button->signal_clicked().connect([this, id] {
                 m_context_menu->popdown();
@@ -656,54 +699,58 @@ void Editor::open_context_menu(ContextMenuMode mode)
                 trigger_action(id);
             });
             if (m_preferences.editor.preview_constraints && can_preview) {
-
-                auto ctrl = Gtk::EventControllerMotion::create();
-                ctrl->signal_leave().connect([this] {
-                    m_context_menu_hover_timeout.disconnect();
-                    m_context_menu_hover_timeout = Glib::signal_timeout().connect(
-                            [this] {
-                                if (m_core.reset_preview()) {
-                                    canvas_update_keep_selection();
-                                    m_context_menu->set_opacity(1);
-                                }
-                                return false;
-                            },
-                            200);
-                });
-                ctrl->signal_motion().connect([this, id](double, double) {
-                    m_context_menu_hover_timeout.disconnect();
-                    if (m_core.get_current_preview_tool() == ToolID::NONE) {
-                        m_context_menu_hover_timeout = Glib::signal_timeout().connect(
-                                [this, id] {
-                                    if (m_core.apply_preview(std::get<ToolID>(id), m_context_menu_selection)) {
-                                        m_context_menu->set_opacity(.5);
-                                        canvas_update_keep_selection();
-                                    }
-                                    return false;
-                                },
-                                200);
-                    }
-                    else {
-                        if (m_core.apply_preview(std::get<ToolID>(id), m_context_menu_selection))
-                            canvas_update_keep_selection();
-                    }
-                });
-                button->add_controller(ctrl);
+                install_hover(*button, std::get<ToolID>(id));
             }
             button->add_css_class("context-menu-button");
             auto label = Gtk::make_managed<Gtk::Label>(action_catalog.at(id).name.menu);
             label->set_xalign(0);
-            label->set_hexpand(true);
             auto label2 =
                     Gtk::make_managed<Gtk::Label>(key_sequences_to_string(m_action_connections.at(id).key_sequences));
             label2->add_css_class("dim-label");
-            auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 8);
+            label2->set_margin_start(8);
+            auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
             box->append(*label);
+            if (constraint_is_in_workplane) {
+                auto icon = Gtk::make_managed<Gtk::Image>();
+                icon->set_tooltip_text("Constraint applies in workplane");
+                icon->set_from_icon_name("action-constrain-in-workplane-symbolic");
+                box->append(*icon);
+                icon->set_hexpand(true);
+                icon->set_halign(Gtk::Align::START);
+            }
+            else {
+                label->set_hexpand(true);
+            }
             box->append(*label2);
             button->set_child(*box);
 
             button->set_has_frame(false);
-            m_context_menu->add_child(*button, action_tool_id_to_string(id));
+            auto box2 = Gtk::make_managed<Gtk::Box>();
+            box2->append(*button);
+            if (force_unset_workplane_tool != ToolID::NONE) {
+                auto button2 = Gtk::make_managed<Gtk::Button>("in 3D");
+                button2->add_css_class("context-menu-button");
+                button2->add_css_class("context-menu-button-3d");
+                button2->set_has_frame(false);
+                sg->add_widget(*button2);
+                button2->signal_clicked().connect([this, force_unset_workplane_tool] {
+                    m_context_menu->popdown();
+                    get_canvas().set_selection(m_context_menu_selection, false);
+                    tool_begin(force_unset_workplane_tool);
+                });
+                if (m_preferences.editor.preview_constraints && can_preview) {
+                    install_hover(*button2, force_unset_workplane_tool);
+                }
+
+
+                box2->append(*button2);
+            }
+            else if (has_any_can_force_unset_workplane) {
+                auto placeholder = Gtk::make_managed<Gtk::Label>();
+                sg->add_widget(*placeholder);
+                box2->append(*placeholder);
+            }
+            m_context_menu->add_child(*box2, action_tool_id_to_string(id));
         }
         m_context_menu->popup();
     }
@@ -1535,6 +1582,8 @@ void Editor::open_file(const std::filesystem::path &path)
         update_can_close_workspace_view_pages();
         m_win.get_app().add_recent_item(path);
         update_title();
+        update_version_info();
+
 
         load_linked_documents(doc_uu);
     }

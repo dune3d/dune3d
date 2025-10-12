@@ -78,7 +78,8 @@ public:
         return {-1e6, 1e6};
     }
 
-    double get_display_distance(const Document &doc) const;
+    double get_display_datum(const Document &doc) const override;
+    std::string format_datum(double datum) const override;
 
     EntityAndPoint m_point;
     UUID m_line1;

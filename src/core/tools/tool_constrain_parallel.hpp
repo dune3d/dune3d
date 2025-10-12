@@ -12,5 +12,11 @@ public:
     {
         return true;
     }
+
+    ToolID get_force_unset_workplane_tool() override;
+    bool constraint_is_in_workplane() override;
+
+protected:
+    bool is_force_unset_workplane() override;
 };
 } // namespace dune3d

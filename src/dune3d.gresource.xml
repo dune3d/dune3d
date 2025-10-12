@@ -46,6 +46,7 @@
     <file preprocess="xml-stripblanks">icons/scalable/actions/action-clip-less-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/actions/action-clip-greater-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/actions/action-draw-text-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/action-constrain-in-workplane-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/apps/dune3d.svg</file>
     <file>icon_texture_atlas.png</file>
   </gresource>

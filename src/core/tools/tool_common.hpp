@@ -40,6 +40,7 @@ protected:
 
     void set_first_update_group_current();
 
+    virtual bool is_force_unset_workplane();
     UUID get_workplane_uuid();
     EntityWorkplane *get_workplane();
     glm::dvec3 get_cursor_pos_for_workplane(const EntityWorkplane &wrkpl) const;

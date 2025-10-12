@@ -80,7 +80,9 @@ public:
 
     const UUID &get_workplane(const Document &doc) const override;
 
-    double get_display_distance(const Document &doc) const;
+    double get_display_datum(const Document &doc) const override;
+
+    std::string format_datum(double datum) const override;
 
     void accept(ConstraintVisitor &visitor) const override;
 
