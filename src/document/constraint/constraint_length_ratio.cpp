@@ -23,7 +23,7 @@ static glm::dvec3 get_entity_anchor(const Document &doc, const Entity &entity)
     if (auto arc3d = dynamic_cast<const EntityArc3D *>(&entity)) {
         return arc3d->get_point(3, doc);
     }
-    if (entity.get_type() == Entity::Type::CIRCLE_2D || entity.get_type() == Entity::Type::CIRCLE_3D) {
+    if (entity.of_type(Entity::Type::CIRCLE_2D, Entity::Type::CIRCLE_3D)) {
         return entity.get_point(1, doc);
     }
     return (entity.get_point(1, doc) + entity.get_point(2, doc)) / 2.0;
