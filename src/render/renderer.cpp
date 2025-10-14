@@ -1123,7 +1123,7 @@ void Renderer::visit(const ConstraintLengthRatio &constraint)
         position = wrkpl.project3(position);
     }
 
-    const auto label = format_datum(*m_doc, constraint) + "×";
+    const auto label = format_datum(*m_doc, constraint);
     add_selectables(SelectableRef{SelectableRef::Type::CONSTRAINT, constraint.m_uuid, 0},
                     m_ca.draw_bitmap_text(position, 1, label));
 }

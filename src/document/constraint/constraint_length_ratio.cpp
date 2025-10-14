@@ -82,7 +82,7 @@ DatumUnit ConstraintLengthRatio::get_datum_unit() const
 
 std::string ConstraintLengthRatio::format_datum(double datum) const
 {
-    return std::format("{:.4f}", datum);
+    return std::format("{:.4f}×", datum);
 }
 
 } // namespace dune3d
