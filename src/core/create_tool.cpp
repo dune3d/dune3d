@@ -135,6 +135,7 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::CONSTRAIN_LENGTH_RATIO:
     case ToolID::CONSTRAIN_LENGTH_RATIO_3D:
+    case ToolID::MEASURE_LENGTH_RATIO:
         return std::make_unique<ToolConstrainLengthRatio>(tool_id, *this, m_intf, flags);
 
     case ToolID::CONSTRAIN_EQUAL_RADIUS:

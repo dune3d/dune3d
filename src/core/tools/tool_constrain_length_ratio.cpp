@@ -33,6 +33,9 @@ ToolBase::CanBegin ToolConstrainLengthRatio::can_begin()
     if (enps.size() != 2)
         return false;
 
+    if (m_tool_id == ToolID::MEASURE_LENGTH_RATIO)
+        return true;
+
     if (!any_entity_from_current_group(enps))
         return false;
 
@@ -76,8 +79,12 @@ ToolResponse ToolConstrainLengthRatio::begin(const ToolArgs &args)
     constraint.m_entity2 = entity2;
     constraint.m_wrkpl = get_workplane_uuid();
     constraint.m_offset = {0.0, 0.0, 0.0};
-    constraint.m_modify_to_satisfy = true;
-
+    if (m_tool_id == ToolID::MEASURE_LENGTH_RATIO) {
+        constraint.m_measurement = true;
+    } else {
+        constraint.m_modify_to_satisfy = true;
+    }
+    
     set_current_group_solve_pending();
 
     if (!m_is_preview)
