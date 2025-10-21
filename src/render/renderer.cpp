@@ -1269,6 +1269,7 @@ void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<
             {CT::ARC_ARC_TANGENT, IconID::CONSTRAINT_ARC_ARC_TANGENT},
             {CT::PARALLEL, IconID::CONSTRAINT_PARALLEL},
             {CT::POINT_ON_BEZIER, IconID::CONSTRAINT_POINT_ON_BEZIER},
+            {CT::LOCK_ROTATION, IconID::CONSTRAINT_LOCK_ROTATION},
     };
     for (const auto constraint : constraints) {
         if (!constraint_icon_map.contains(constraint))

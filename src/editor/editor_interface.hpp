@@ -21,6 +21,7 @@ class EditorInterface {
 public:
     virtual glm::dvec3 get_cursor_pos() const = 0;
     virtual glm::vec3 get_cam_normal() const = 0;
+    virtual glm::quat get_cam_quat() const = 0;
     virtual glm::dvec3 get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const = 0;
 
     virtual void tool_bar_set_actions(const std::vector<ActionLabelInfo> &labels) = 0;

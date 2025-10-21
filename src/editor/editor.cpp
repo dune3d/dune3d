@@ -420,6 +420,7 @@ void Editor::init_canvas()
         get_canvas().add_controller(controller);
     }
     get_canvas().signal_cursor_moved().connect(sigc::mem_fun(*this, &Editor::handle_cursor_move));
+    get_canvas().signal_view_changed().connect(sigc::mem_fun(*this, &Editor::handle_view_changed));
     get_canvas().signal_select_from_menu().connect([this](const auto &sel) {
         if (m_core.tool_is_active()) {
             ToolArgs args;
@@ -1331,6 +1332,11 @@ glm::vec3 Editor::get_cam_normal() const
     return get_canvas().get_cam_normal();
 }
 
+glm::quat Editor::get_cam_quat() const
+{
+    return get_canvas().get_cam_quat();
+}
+
 glm::dvec3 Editor::get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const
 {
     return get_canvas().get_cursor_pos_for_plane(origin, normal);
@@ -1370,6 +1376,19 @@ void Editor::handle_cursor_move()
             m_drag_tool = ToolID::NONE;
         }
     }
+}
+
+void Editor::handle_view_changed()
+{
+    if (!m_core.tool_is_active())
+        return;
+    if (!m_core.tool_handles_view_changed())
+        return;
+
+    ToolArgs args;
+    args.type = ToolEventType::VIEW_CHANGED;
+    ToolResponse r = m_core.tool_update(args);
+    tool_process(r);
 }
 
 void Editor::handle_click(unsigned int button, unsigned int n)
@@ -1436,14 +1455,15 @@ void Editor::tool_bar_set_actions(const std::vector<ActionLabelInfo> &labels)
     if (m_in_tool_action_label_infos != labels) {
         tool_bar_clear_actions();
         for (const auto &it : labels) {
-            tool_bar_append_action(it.action1, it.action2, it.label);
+            tool_bar_append_action(it.action1, it.action2, it.action3, it.label);
         }
 
         m_in_tool_action_label_infos = labels;
     }
 }
 
-void Editor::tool_bar_append_action(InToolActionID action1, InToolActionID action2, const std::string &s)
+void Editor::tool_bar_append_action(InToolActionID action1, InToolActionID action2, InToolActionID action3,
+                                    const std::string &s)
 {
     auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 5);
     if (action1 == InToolActionID::LMB || action1 == InToolActionID::RMB) {
@@ -1462,7 +1482,7 @@ void Editor::tool_bar_append_action(InToolActionID action1, InToolActionID actio
     }
     else {
         auto key_box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 0);
-        for (const auto action : {action1, action2}) {
+        for (const auto action : {action1, action2, action3}) {
             if (action != InToolActionID::NONE) {
                 const auto &prefs = m_in_tool_key_sequeces_preferences.keys;
                 if (prefs.count(action)) {

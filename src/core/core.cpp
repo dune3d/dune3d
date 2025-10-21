@@ -693,4 +693,11 @@ bool Core::reset_preview()
     return true;
 }
 
+bool Core::tool_handles_view_changed() const
+{
+    if (!m_tool)
+        return false;
+    return m_tool->handles_view_changed();
+}
+
 } // namespace dune3d

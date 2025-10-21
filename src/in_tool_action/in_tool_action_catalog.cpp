@@ -36,6 +36,14 @@ const std::map<InToolActionID, InToolActionCatalogItem> in_tool_action_catalog =
          {"decrease tolerance", ToolID::CREATE_COINCIDENT_CONSTRAINTS, InToolActionCatalogItem::FLAGS_DEFAULT}},
         {InToolActionID::ENTER_TOLERANCE,
          {"enter tolerance", ToolID::CREATE_COINCIDENT_CONSTRAINTS, InToolActionCatalogItem::FLAGS_DEFAULT}},
+        {InToolActionID::ROTATE_X, {"rotate around X axis", ToolID::NONE, InToolActionCatalogItem::FLAGS_DEFAULT}},
+        {InToolActionID::ROTATE_Y, {"rotate around Y axis", ToolID::NONE, InToolActionCatalogItem::FLAGS_DEFAULT}},
+        {InToolActionID::ROTATE_Z, {"rotate around Z axis", ToolID::NONE, InToolActionCatalogItem::FLAGS_DEFAULT}},
+        {InToolActionID::TOGGLE_LOCK_ROTATION_CONSTRAINT,
+         {"toggle lock rotation constraint", ToolID::NONE, InToolActionCatalogItem::FLAGS_DEFAULT}},
+        {InToolActionID::TOGGLE_AUTO_NORMAL,
+         {"toggle automatic rotation", ToolID::DRAW_WORKPLANE, InToolActionCatalogItem::FLAGS_DEFAULT}},
+
 };
 
 
@@ -61,6 +69,11 @@ const LutEnumStr<InToolActionID> in_tool_action_lut = {
         LUT_ITEM(TOLERANCE_DEC),
         LUT_ITEM(TOLERANCE_INC),
         LUT_ITEM(ENTER_TOLERANCE),
+        LUT_ITEM(ROTATE_X),
+        LUT_ITEM(ROTATE_Y),
+        LUT_ITEM(ROTATE_Z),
+        LUT_ITEM(TOGGLE_LOCK_ROTATION_CONSTRAINT),
+        LUT_ITEM(TOGGLE_AUTO_NORMAL),
 };
 
 

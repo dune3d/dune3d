@@ -12,7 +12,7 @@ namespace dune3d {
 class ICore;
 class EditorInterface;
 
-enum class ToolEventType { NONE, MOVE, ACTION, DATA };
+enum class ToolEventType { NONE, MOVE, VIEW_CHANGED, ACTION, DATA };
 
 enum class ToolID;
 enum class InToolActionID;
@@ -150,6 +150,11 @@ public:
     }
 
     virtual bool needs_delayed_begin() const
+    {
+        return false;
+    }
+
+    virtual bool handles_view_changed() const
     {
         return false;
     }

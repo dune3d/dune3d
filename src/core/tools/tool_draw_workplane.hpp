@@ -19,13 +19,25 @@ public:
                 I::CANCEL,
                 I::RMB,
                 I::TOGGLE_COINCIDENT_CONSTRAINT,
+                I::ROTATE_X,
+                I::ROTATE_Y,
+                I::ROTATE_Z,
+                I::TOGGLE_LOCK_ROTATION_CONSTRAINT,
+                I::TOGGLE_AUTO_NORMAL,
         };
+    }
+
+    bool handles_view_changed() const override
+    {
+        return true;
     }
 
 private:
     class EntityWorkplane *m_wrkpl = nullptr;
 
     bool m_constrain = true;
+    bool m_lock_rotation = false;
+    bool m_auto_normal = true;
 
     void update_tip();
 };

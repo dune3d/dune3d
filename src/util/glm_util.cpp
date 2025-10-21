@@ -93,4 +93,35 @@ glm::dquat quat_from_uv(const glm::dvec3 &u, const glm::dvec3 &v)
 
     return glm::normalize(q);
 }
+
+
+unsigned int abs_max_axis(const glm::dvec3 &v)
+{
+    auto a = glm::abs(v);
+    if (a.x > a.y && a.x > a.z)
+        return 0;
+    else if (a.y > a.x && a.y > a.z)
+        return 1;
+    else
+        return 2;
+}
+
+static std::string axis_from_vec(const glm::dvec3 &v)
+{
+    const auto ax = abs_max_axis(v);
+    static const std::string xyz = "XYZ";
+
+    return (v[ax] > 0 ? "+" : "−") + std::string(1, xyz[ax]);
+}
+
+std::string quat_to_string(const glm::dquat &q)
+{
+    const glm::dvec3 u = glm::rotate(q, glm::dvec3(1, 0, 0));
+    const glm::dvec3 v = glm::rotate(q, glm::dvec3(0, 1, 0));
+    const glm::dvec3 n = glm::rotate(q, glm::dvec3(0, 0, 1));
+
+    return "U:<tt>" + axis_from_vec(u) + "</tt> V:<tt>" + axis_from_vec(v) + "</tt> N:<tt>" + axis_from_vec(n)
+           + "</tt>";
+}
+
 } // namespace dune3d

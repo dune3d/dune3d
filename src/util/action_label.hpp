@@ -9,18 +9,13 @@ public:
     ActionLabelInfo(InToolActionID a1);
     ActionLabelInfo(InToolActionID a1, const std::string &s);
     ActionLabelInfo(InToolActionID a1, InToolActionID a2, const std::string &s);
+    ActionLabelInfo(InToolActionID a1, InToolActionID a2, InToolActionID a3, const std::string &s);
 
     InToolActionID action1;
     InToolActionID action2;
+    InToolActionID action3;
     std::string label;
-    std::pair<InToolActionID, InToolActionID> get_key() const
-    {
-        return std::make_pair(action1, action2);
-    }
 
-    bool operator==(const ActionLabelInfo &other) const
-    {
-        return action1 == other.action1 && action2 == other.action2 && label == other.label;
-    }
+    bool operator==(const ActionLabelInfo &other) const = default;
 };
 } // namespace dune3d

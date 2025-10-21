@@ -44,6 +44,7 @@ public:
     void tool_bar_flash_replace(const std::string &s) override;
     glm::dvec3 get_cursor_pos() const override;
     glm::vec3 get_cam_normal() const override;
+    glm::quat get_cam_quat() const override;
     glm::dvec3 get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const override;
     void tool_update_data(std::unique_ptr<ToolData> data) override;
     void enable_hover_selection(bool enable) override;
@@ -151,6 +152,7 @@ private:
     void tool_process(ToolResponse &resp);
     void tool_process_one();
     void handle_cursor_move();
+    void handle_view_changed();
     double m_last_x = NAN;
     double m_last_y = NAN;
     void handle_click(unsigned int button, unsigned int n);
@@ -200,7 +202,8 @@ private:
 
     std::map<ActionID, bool> m_action_sensitivity;
 
-    void tool_bar_append_action(InToolActionID action1, InToolActionID action2, const std::string &s);
+    void tool_bar_append_action(InToolActionID action1, InToolActionID action2, InToolActionID action3,
+                                const std::string &s);
     void tool_bar_clear_actions();
     std::vector<ActionLabelInfo> m_in_tool_action_label_infos;
 

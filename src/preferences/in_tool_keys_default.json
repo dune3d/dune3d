@@ -146,5 +146,45 @@
                 "mod": 0
             }
         ]
+    ],
+    "ROTATE_X": [
+        [
+            {
+                "key": "x",
+                "mod": 0
+            }
+        ]
+    ],
+    "ROTATE_Y": [
+        [
+            {
+                "key": "y",
+                "mod": 0
+            }
+        ]
+    ],
+    "ROTATE_Z": [
+        [
+            {
+                "key": "z",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_LOCK_ROTATION_CONSTRAINT": [
+        [
+            {
+                "key": "k",
+                "mod": 0
+            }
+        ]
+    ],
+    "TOGGLE_AUTO_NORMAL": [
+        [
+            {
+                "key": "a",
+                "mod": 0
+            }
+        ]
     ]
 }

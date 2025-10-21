@@ -156,6 +156,8 @@ public:
         return m_constraint_preview_tool;
     }
 
+    bool tool_handles_view_changed() const;
+
 private:
     EditorInterface &m_intf;
 
