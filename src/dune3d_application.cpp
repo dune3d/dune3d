@@ -174,8 +174,13 @@ void Dune3DApplication::UserConfig::load(const std::filesystem::path &filename)
         const json &o = j["recent"];
         for (const auto &[fn, v] : o.items()) {
             auto path = path_from_string(fn);
-            if (std::filesystem::is_regular_file(path))
-                recent_items.emplace(path, Glib::DateTime::create_now_local(v.get<int64_t>()));
+            try {
+                if (std::filesystem::is_regular_file(path))
+                    recent_items.emplace(path, Glib::DateTime::create_now_local(v.get<int64_t>()));
+            }
+            catch (...) {
+                // nop
+            }
         }
     }
     if (j.count("export_paths")) {
