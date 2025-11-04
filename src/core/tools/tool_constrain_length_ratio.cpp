@@ -81,10 +81,11 @@ ToolResponse ToolConstrainLengthRatio::begin(const ToolArgs &args)
     constraint.m_offset = {0.0, 0.0, 0.0};
     if (m_tool_id == ToolID::MEASURE_LENGTH_RATIO) {
         constraint.m_measurement = true;
-    } else {
+    }
+    else {
         constraint.m_modify_to_satisfy = true;
     }
-    
+
     set_current_group_solve_pending();
 
     if (!m_is_preview)
