@@ -66,6 +66,7 @@ private:
     void visit(const ConstraintParallel &constr) override;
     void visit(const ConstraintSameOrientation &constr) override;
     void visit(const ConstraintEqualLength &constr) override;
+    void visit(const ConstraintLengthRatio &constr) override;
     void visit(const ConstraintEqualRadius &constr) override;
     void visit(const ConstraintDiameterRadius &constr) override;
     void visit(const ConstraintArcArcTangent &constr) override;

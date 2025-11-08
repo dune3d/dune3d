@@ -7,6 +7,7 @@ class ConstraintParallel;
 class ConstraintPointOnLine;
 class ConstraintPointOnCircle;
 class ConstraintEqualLength;
+class ConstraintLengthRatio;
 class ConstraintSameOrientation;
 class ConstraintPointDistance;
 class ConstraintPointDistanceHV;

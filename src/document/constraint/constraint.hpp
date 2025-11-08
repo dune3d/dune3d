@@ -50,6 +50,7 @@ enum class ConstraintType {
     POINT_ON_BEZIER,
     BEZIER_BEZIER_SAME_CURVATURE,
     BEZIER_ARC_SAME_CURVATURE,
+    LENGTH_RATIO,
 };
 
 class Constraint {
