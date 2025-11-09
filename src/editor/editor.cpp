@@ -764,6 +764,7 @@ void Editor::init_properties_notebook()
 {
     m_properties_notebook = Gtk::make_managed<Gtk::Notebook>();
     m_properties_notebook->set_show_border(false);
+    m_properties_notebook->add_css_class("properties_notebook");
     m_properties_notebook->set_tab_pos(Gtk::PositionType::BOTTOM);
     m_win.get_left_bar().set_end_child(*m_properties_notebook);
     {

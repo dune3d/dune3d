@@ -1,3 +1,4 @@
+
 .dune3d-tool-bar-name-label {font-weight: bold;}
 
 .solid-model-toggle-button:checked {border-color: rgba(0,0,0,0); background: none;}
@@ -36,6 +37,20 @@
 .navigation-sidebar :selected image {color: @theme_fg_color;}
 button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
 
+.navigation-sidebar row, .navigation-sidebar button{
+line-height: 16px;
+min-height: 16px;
+font-size: 16px;
+margin:0px;
+padding: 0px;
+}
+
+.navigation-sidebar row {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin: 1px;
+}
+
 .view-options-button > button {
   padding: 0px 8px 0px 8px;
   border: 0px;
@@ -49,6 +64,36 @@ button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
 .window-subtitle-label {font-size: 80%;}
 
 .workspace-browser-toast {border-radius: 5px; padding: 5px;}
+
+.toolbar {
+  background-color: @theme_base_color;
+}
+.group_editor * {
+font-size: 16px;
+min-height: 16px;
+margin:0px;
+padding:0px;
+}
+.group_editor entry, .group_editor label{
+padding:2px;
+}
+
+.properties_notebook header tab{
+font-size: 16px;a
+min-height: 16px;
+
+margin:0px;
+padding:0px;
+}
+
+.properties_notebook header tab *{
+padding: 2px;
+padding-left: 5px;
+padding-right: 5px;
+
+margin: 2px;
+margin-top: 5px;
+}
 
 .context-menu-button {padding-left: 11px; padding-top:2px; padding-bottom:2px;}
 .context-menu-button-3d {padding-left: 4px; padding-right: 4px; padding-top:2px; padding-bottom:2px;}
