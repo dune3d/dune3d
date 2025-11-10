@@ -38,9 +38,9 @@
 button.osd:disabled:backdrop {background-image: image(rgba(53, 53, 53, 0.7));}
 
 .navigation-sidebar row, .navigation-sidebar button{
-line-height: 16px;
-min-height: 16px;
-font-size: 16px;
+line-height: 1em;
+min-height: 1em;
+font-size: 1em;
 margin:0px;
 padding: 0px;
 }
@@ -69,8 +69,8 @@ padding: 0px;
   background-color: @theme_base_color;
 }
 .group_editor * {
-font-size: 16px;
-min-height: 16px;
+font-size: 1em;
+min-height: 1em;
 margin:0px;
 padding:0px;
 }
@@ -79,8 +79,8 @@ padding:2px;
 }
 
 .properties_notebook header tab{
-font-size: 16px;a
-min-height: 16px;
+font-size: 1em;
+min-height: 1em;
 
 margin:0px;
 padding:0px;
