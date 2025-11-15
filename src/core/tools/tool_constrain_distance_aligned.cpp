@@ -109,13 +109,15 @@ ToolResponse ToolConstrainDistanceAligned::update(const ToolArgs &args)
                 return ToolResponse();
             }
 
-            auto &constraint = add_constraint<ConstraintPointDistanceAligned>();
+            auto &constraint = just_add_constraint<ConstraintPointDistanceAligned>();
             constraint.m_wrkpl = get_workplane_uuid();
             constraint.m_entity1 = m_tp.point1;
             constraint.m_entity2 = m_tp.point2;
             constraint.m_align_entity = entity.m_uuid;
             constraint.m_distance = constraint.measure_distance(get_doc());
             constraint.m_measurement = m_tool_id == ToolID::MEASURE_DISTANCE_ALIGNED;
+            if (!constraint.m_measurement)
+                set_current_group_solve_pending();
 
             m_done = true;
             m_intf.set_no_canvas_update(false);
