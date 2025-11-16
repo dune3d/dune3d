@@ -93,6 +93,7 @@ void Editor::init_actions()
 
     connect_action(ActionID::EXPORT_SOLID_MODEL_STL, sigc::mem_fun(*this, &Editor::on_export_solid_model));
     connect_action(ActionID::EXPORT_SOLID_MODEL_STEP, sigc::mem_fun(*this, &Editor::on_export_solid_model));
+    connect_action(ActionID::EXPORT_ALL_SOLID_MODELS_STEP, sigc::mem_fun(*this, &Editor::on_export_solid_model));
 
     connect_action(ActionID::NEXT_GROUP, [this](auto &a) { m_workspace_browser->group_prev_next(1); });
     connect_action(ActionID::PREVIOUS_GROUP, [this](auto &a) { m_workspace_browser->group_prev_next(-1); });
@@ -505,6 +506,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = has_solid_model;
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STL] = has_solid_model;
     m_action_sensitivity[ActionID::EXPORT_PROJECTION] = has_solid_model;
+    m_action_sensitivity[ActionID::EXPORT_ALL_SOLID_MODELS_STEP] = m_core.has_documents();
 
 
     m_signal_action_sensitive.emit();

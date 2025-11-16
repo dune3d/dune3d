@@ -4,17 +4,9 @@
 #include "document/group/group.hpp"
 #include "document/group/igroup_solid_model.hpp"
 #include "util/fs_util.hpp"
+#include "util/step_exporter.hpp"
 
-#include <Quantity_Color.hxx>
-#include <TDocStd_Document.hxx>
-#include <TopoDS.hxx>
-#include <TopoDS_Shape.hxx>
-#include <XCAFApp_Application.hxx>
 #include <Standard_Version.hxx>
-
-#include <XCAFDoc_ColorTool.hxx>
-#include <XCAFDoc_DocumentTool.hxx>
-#include <XCAFDoc_ShapeTool.hxx>
 
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>
@@ -29,7 +21,6 @@
 #include <Poly_Triangulation.hxx>
 #include <TShort_Array1OfShortReal.hxx>
 #include <Precision.hxx>
-#include <Quantity_Color.hxx>
 #include <BRepTools_WireExplorer.hxx>
 #include <ShapeAnalysis_Edge.hxx>
 #include <BRepAdaptor_Curve.hxx>
@@ -46,12 +37,9 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <StlAPI_Writer.hxx>
-#include <STEPCAFControl_Writer.hxx>
-#include <APIHeaderSection_MakeHeader.hxx>
 
 
 #include <GCPnts_TangentialDeflection.hxx>
-#include <TDataStd_Name.hxx>
 
 #include <HLRBRep_Algo.hxx>
 #include <HLRBRep_HLRToShape.hxx>
@@ -65,7 +53,7 @@ namespace dune3d {
 
 class Triangulator {
 public:
-    Triangulator(const TopoDS_Shape &shape, face::Faces &faces);
+    Triangulator(const TopoDS_Shape &shape, const Color &color, face::Faces &faces);
 
 
 private:
@@ -76,17 +64,14 @@ private:
     bool processFace(const TopoDS_Face &face, const glm::dmat4 &mat = glm::dmat4(1));
 
     face::Faces &m_faces;
-    face::Color m_default_color;
+    face::Color m_color;
 };
 
-Triangulator::Triangulator(const TopoDS_Shape &shape, face::Faces &faces) : m_faces(faces)
+Triangulator::Triangulator(const TopoDS_Shape &shape, const Color &color, face::Faces &faces) : m_faces(faces)
 {
-    {
-        auto color = Preferences::get().canvas.appearance.get_color(ColorP::SOLID_MODEL);
-        m_default_color.r = color.r;
-        m_default_color.b = color.b;
-        m_default_color.g = color.g;
-    }
+    m_color.r = color.r;
+    m_color.b = color.b;
+    m_color.g = color.g;
     processNode(shape);
 }
 
@@ -149,7 +134,7 @@ bool Triangulator::processFace(const TopoDS_Face &face, const glm::dmat4 &mat_in
 
     m_faces.emplace_back();
     auto &face_out = m_faces.back();
-    face_out.color = m_default_color;
+    face_out.color = m_color;
     face_out.vertices.reserve(triangulation->NbNodes());
 
     std::map<face::Vertex, std::vector<size_t>> pts_map;
@@ -323,7 +308,7 @@ bool Triangulator::processNode(const TopoDS_Shape &shape)
 void SolidModelOcc::triangulate()
 {
     m_faces.clear();
-    Triangulator tri{m_shape_acc, m_faces};
+    Triangulator tri{m_shape_acc, m_color, m_faces};
 }
 
 inline double defaultAngularDeflection(double linearTolerance)
@@ -356,42 +341,9 @@ void SolidModelOcc::export_stl(const std::filesystem::path &path) const
     writer.Write(m_shape_acc, path_to_string(path).c_str());
 }
 
-
-void SolidModelOcc::export_step(const std::filesystem::path &path) const
+void SolidModelOcc::add_to_step_exporter(STEPExporter &exporter, const char *name) const
 {
-    auto app = XCAFApp_Application::GetApplication();
-    Handle(TDocStd_Document) doc;
-    app->NewDocument("MDTV-XCAF", doc);
-
-    auto assy = XCAFDoc_DocumentTool::ShapeTool(doc->Main());
-    auto assy_label = assy->NewShape();
-    TDataStd_Name::Set(assy_label, ("PCA"));
-
-
-    TDF_Label board_label = assy->AddShape(m_shape_acc, false);
-    assy->AddComponent(assy_label, board_label, m_shape_acc.Location());
-    TDataStd_Name::Set(board_label, "PCB");
-
-#if OCC_VERSION_MAJOR >= 7 && OCC_VERSION_MINOR >= 2
-    assy->UpdateAssemblies();
-#endif
-
-    STEPCAFControl_Writer writer;
-    writer.SetColorMode(Standard_True);
-    writer.SetNameMode(Standard_True);
-    if (Standard_False == writer.Transfer(doc, STEPControl_AsIs)) {
-        throw std::runtime_error("transfer error");
-    }
-
-    APIHeaderSection_MakeHeader hdr(writer.ChangeWriter().Model());
-    hdr.SetName(new TCollection_HAsciiString("Body"));
-    hdr.SetAuthorValue(1, new TCollection_HAsciiString("An Author"));
-    hdr.SetOrganizationValue(1, new TCollection_HAsciiString("A Company"));
-    hdr.SetOriginatingSystem(new TCollection_HAsciiString("Dune 3D"));
-    hdr.SetDescriptionValue(1, new TCollection_HAsciiString("Body"));
-
-    if (Standard_False == writer.Write(path_to_string(path).c_str()))
-        throw std::runtime_error("write error");
+    exporter.add_model(name, m_shape_acc, m_color);
 }
 
 void SolidModelOcc::find_edges()
@@ -480,16 +432,16 @@ bool SolidModelOcc::update_acc_finish(const Document &doc, const Group &group)
 
 void SolidModelOcc::finish(const Document &doc, const Group &group)
 {
-    triangulate();
-    find_edges();
-
     auto body = group.find_body(doc).body;
     if (body.m_color) {
-        auto &c = *body.m_color;
-        for (auto &face : m_faces) {
-            face.color = {c.r, c.g, c.b};
-        }
+        m_color = *body.m_color;
     }
+    else {
+        m_color = Preferences::get().canvas.appearance.get_color(ColorP::SOLID_MODEL);
+    }
+
+    triangulate();
+    find_edges();
 }
 
 } // namespace dune3d
