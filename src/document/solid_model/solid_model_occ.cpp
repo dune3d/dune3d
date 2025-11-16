@@ -72,14 +72,8 @@ private:
     bool processNode(const TopoDS_Shape &shape);
     bool processComp(const TopoDS_Shape &shape, const glm::dmat4 &mat_in = glm::dmat4(1));
     bool processSolid(const TopoDS_Shape &shape, const glm::dmat4 &mat_in = glm::dmat4(1));
-    bool getColor(TDF_Label label, Quantity_Color &color);
-    bool processShell(const TopoDS_Shape &shape, Quantity_Color *color, const glm::dmat4 &mat = glm::dmat4(1));
-    bool processFace(const TopoDS_Face &face, Quantity_Color *color, const glm::dmat4 &mat = glm::dmat4(1));
-
-    Handle(XCAFApp_Application) m_app;
-    Handle(TDocStd_Document) m_doc;
-    Handle(XCAFDoc_ColorTool) m_color;
-    Handle(XCAFDoc_ShapeTool) m_assy;
+    bool processShell(const TopoDS_Shape &shape, const glm::dmat4 &mat = glm::dmat4(1));
+    bool processFace(const TopoDS_Face &face, const glm::dmat4 &mat = glm::dmat4(1));
 
     face::Faces &m_faces;
     face::Color m_default_color;
@@ -122,7 +116,7 @@ static glm::dmat4 update_matrix(const gp_Trsf &tr, const glm::dmat4 &mat_in)
 }
 
 
-bool Triangulator::processFace(const TopoDS_Face &face, Quantity_Color *color, const glm::dmat4 &mat_in)
+bool Triangulator::processFace(const TopoDS_Face &face, const glm::dmat4 &mat_in)
 {
     if (Standard_True == face.IsNull())
         return false;
@@ -144,19 +138,6 @@ bool Triangulator::processFace(const TopoDS_Face &face, Quantity_Color *color, c
     if (triangulation.IsNull() == Standard_True)
         return false;
 
-    Quantity_Color lcolor;
-
-    // check for a face color; this has precedence over SOLID colors
-    do {
-        TDF_Label L;
-
-        if (m_color && m_color->ShapeTool()->Search(face, L)) {
-            if (m_color->GetColor(L, XCAFDoc_ColorGen, lcolor) || m_color->GetColor(L, XCAFDoc_ColorCurv, lcolor)
-                || m_color->GetColor(L, XCAFDoc_ColorSurf, lcolor))
-                color = &lcolor;
-        }
-    } while (0);
-
     Poly::ComputeNormals(triangulation);
 
 #ifndef HORIZON_NEW_OCC
@@ -168,14 +149,7 @@ bool Triangulator::processFace(const TopoDS_Face &face, Quantity_Color *color, c
 
     m_faces.emplace_back();
     auto &face_out = m_faces.back();
-    if (color) {
-        face_out.color.r = color->Red();
-        face_out.color.g = color->Green();
-        face_out.color.b = color->Blue();
-    }
-    else {
-        face_out.color = m_default_color;
-    }
+    face_out.color = m_default_color;
     face_out.vertices.reserve(triangulation->NbNodes());
 
     std::map<face::Vertex, std::vector<size_t>> pts_map;
@@ -238,55 +212,23 @@ bool Triangulator::processFace(const TopoDS_Face &face, Quantity_Color *color, c
     return true;
 }
 
-bool Triangulator::processShell(const TopoDS_Shape &shape, Quantity_Color *color, const glm::dmat4 &mat)
+bool Triangulator::processShell(const TopoDS_Shape &shape, const glm::dmat4 &mat)
 {
     TopoDS_Iterator it;
     bool ret = false;
     for (it.Initialize(shape, false, false); it.More(); it.Next()) {
         const TopoDS_Face &face = TopoDS::Face(it.Value());
 
-        if (processFace(face, color, mat))
+        if (processFace(face, mat))
             ret = true;
     }
 
     return ret;
 }
 
-bool Triangulator::getColor(TDF_Label label, Quantity_Color &color)
-{
-    while (true) {
-        if (m_color->GetColor(label, XCAFDoc_ColorGen, color))
-            return true;
-        else if (m_color->GetColor(label, XCAFDoc_ColorSurf, color))
-            return true;
-        else if (m_color->GetColor(label, XCAFDoc_ColorCurv, color))
-            return true;
-
-        label = label.Father();
-
-        if (label.IsNull())
-            break;
-    };
-
-    return false;
-}
-
 bool Triangulator::processSolid(const TopoDS_Shape &shape, const glm::dmat4 &mat_in)
 {
-    TDF_Label label;
-    if (m_assy)
-        label = m_assy->FindShape(shape, Standard_False);
     bool ret = false;
-
-    Quantity_Color col;
-    Quantity_Color *lcolor = NULL;
-
-    if (label.IsNull()) {
-    }
-    else {
-        if (getColor(label, col))
-            lcolor = &col;
-    }
 
     auto mat = update_matrix(shape.Location().Transformation(), mat_in);
 
@@ -294,7 +236,7 @@ bool Triangulator::processSolid(const TopoDS_Shape &shape, const glm::dmat4 &mat
     for (it.Initialize(shape, false, false); it.More(); it.Next()) {
         const TopoDS_Shape &subShape = it.Value();
 
-        if (processShell(subShape, lcolor, mat))
+        if (processShell(subShape, mat))
             ret = true;
     }
 
@@ -327,12 +269,12 @@ bool Triangulator::processComp(const TopoDS_Shape &shape, const glm::dmat4 &mat_
             break;
 
         case TopAbs_SHELL:
-            if (processShell(subShape, NULL))
+            if (processShell(subShape))
                 ret = true;
             break;
 
         case TopAbs_FACE:
-            if (processFace(TopoDS::Face(subShape), NULL))
+            if (processFace(TopoDS::Face(subShape)))
                 ret = true;
             break;
 
@@ -361,12 +303,12 @@ bool Triangulator::processNode(const TopoDS_Shape &shape)
         break;
 
     case TopAbs_SHELL:
-        if (processShell(shape, NULL))
+        if (processShell(shape))
             ret = true;
         break;
 
     case TopAbs_FACE:
-        if (processFace(TopoDS::Face(shape), NULL))
+        if (processFace(TopoDS::Face(shape)))
             ret = true;
         break;
 
