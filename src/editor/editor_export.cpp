@@ -95,7 +95,7 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
 
     auto filter_any = Gtk::FileFilter::create();
     std::string suffix;
-    if ((action == ActionID::EXPORT_SOLID_MODEL_STEP) || (action == ActionID::EXPORT_ALL_SOLID_MODELS_STEP)) {
+    if (any_of(action, ActionID::EXPORT_SOLID_MODEL_STEP, ActionID::EXPORT_ALL_SOLID_MODELS_STEP)) {
         filter_any->set_name("STEP");
         filter_any->add_pattern("*.step");
         filter_any->add_pattern("*.stp");
