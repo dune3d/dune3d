@@ -40,7 +40,6 @@
 
 
 #include <GCPnts_TangentialDeflection.hxx>
-#include <TDataStd_Name.hxx>
 
 #include <HLRBRep_Algo.hxx>
 #include <HLRBRep_HLRToShape.hxx>
@@ -345,13 +344,13 @@ void SolidModelOcc::export_stl(const std::filesystem::path &path) const
 void SolidModelOcc::export_step(const std::filesystem::path &path) const
 {
     STEPExporter exporter;
-    add_to_step_exporter(exporter);
+    add_to_step_exporter(exporter, NULL);
     exporter.write(path);
 }
 
-void SolidModelOcc::add_to_step_exporter(STEPExporter &exporter) const
+void SolidModelOcc::add_to_step_exporter(STEPExporter &exporter, const char *name) const
 {
-    exporter.add_component(m_shape_acc, m_color);
+    exporter.add_component(name, m_shape_acc, m_color);
 }
 
 void SolidModelOcc::find_edges()

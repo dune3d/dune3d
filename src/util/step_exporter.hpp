@@ -8,7 +8,7 @@ namespace dune3d {
 class STEPExporter {
 public:
     STEPExporter();
-    void add_component(const TopoDS_Shape &shape, const Color &color);
+    void add_component(const char *name, const TopoDS_Shape &shape, const Color &color);
     void write(const std::filesystem::path &path) const;
 
 private:

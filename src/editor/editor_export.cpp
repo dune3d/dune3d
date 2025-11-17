@@ -75,7 +75,7 @@ static void export_all_step(const Document &doc, const std::filesystem::path &pa
         }
 
         if (last_solid_model)
-            last_solid_model->add_to_step_exporter(exporter);
+            last_solid_model->add_to_step_exporter(exporter, body_groups.body.m_name.c_str());
     }
 
     exporter.write(path);

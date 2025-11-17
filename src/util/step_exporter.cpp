@@ -5,6 +5,7 @@
 #include <Quantity_Color.hxx>
 #include <STEPCAFControl_Writer.hxx>
 #include <Standard_Version.hxx>
+#include <TDataStd_Name.hxx>
 #include <XCAFApp_Application.hxx>
 #include <XCAFDoc_ColorTool.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
@@ -19,10 +20,12 @@ STEPExporter::STEPExporter()
     m_assy = shape_tool->NewShape();
 }
 
-void STEPExporter::add_component(const TopoDS_Shape &shape, const Color &color)
+void STEPExporter::add_component(const char *name, const TopoDS_Shape &shape, const Color &color)
 {
     auto shape_tool = XCAFDoc_DocumentTool::ShapeTool(m_doc->Main());
     TDF_Label label = shape_tool->AddShape(shape, false);
+    if (name)
+        TDataStd_Name::Set(label, name);
     shape_tool->AddComponent(m_assy, label, shape.Location());
 
     auto color_tool = XCAFDoc_DocumentTool::ColorTool(m_doc->Main());
