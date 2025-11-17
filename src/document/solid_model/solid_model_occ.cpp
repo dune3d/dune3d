@@ -442,7 +442,8 @@ void SolidModelOcc::finish(const Document &doc, const Group &group)
     auto body = group.find_body(doc).body;
     if (body.m_color) {
         m_color = *body.m_color;
-    } else {
+    }
+    else {
         m_color = Preferences::get().canvas.appearance.get_color(ColorP::SOLID_MODEL);
     }
 

@@ -126,7 +126,8 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
             const auto path = path_from_string(append_suffix_if_required(file->get_path(), suffix));
             if (action == ActionID::EXPORT_ALL_SOLID_MODELS_STEP) {
                 export_all_step(m_core.get_current_document(), path);
-            } else {
+            }
+            else {
                 auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
                 if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
                     if (action == ActionID::EXPORT_SOLID_MODEL_STEP)
@@ -135,8 +136,8 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
                         gr->get_solid_model()->export_stl(path);
                 }
             }
-            set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
-                                        export_type, path_to_string(path));
+            set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(), export_type,
+                                        path_to_string(path));
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
