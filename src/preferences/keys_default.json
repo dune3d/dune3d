@@ -1254,5 +1254,16 @@
                 }
             ]
         ]
+    },
+    {
+        "action": "GO_TO_SOURCE_GROUP",
+        "keys": [
+            [
+                {
+                    "key": "S",
+                    "mod": 8
+                }
+            ]
+        ]
     }
 ]

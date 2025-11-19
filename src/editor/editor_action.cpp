@@ -13,6 +13,7 @@
 #include "document/group/igroup_solid_model.hpp"
 #include "document/group/group_exploded_cluster.hpp"
 #include "document/group/group_reference.hpp"
+#include "document/group/igroup_source_group.hpp"
 #include "document/entity/entity_cluster.hpp"
 #include "util/selection_util.hpp"
 #include "util/key_util.hpp"
@@ -160,6 +161,10 @@ void Editor::init_actions()
         trigger_action(ActionID::ALIGN_VIEW_TO_WORKPLANE);
         trigger_action(ActionID::CENTER_VIEW_TO_WORKPLANE);
     });
+
+    connect_action(ActionID::GO_TO_GROUP, sigc::mem_fun(*this, &Editor::on_go_to_group));
+    connect_action(ActionID::GO_TO_SOURCE_GROUP, sigc::mem_fun(*this, &Editor::on_go_to_source_group));
+
 
     connect_action(ActionID::VIEW_PERSP, [this](auto &a) { set_perspective_projection(true); });
     connect_action(ActionID::VIEW_ORTHO, [this](auto &a) { set_perspective_projection(false); });
@@ -391,6 +396,39 @@ void Editor::on_look_here(const ActionConnection &conn)
     get_canvas().animate_to_center_abs(pt);
 }
 
+void Editor::on_go_to_group(const ActionConnection &conn)
+{
+    if (!m_core.has_documents())
+        return;
+    auto enp = point_from_selection(m_core.get_current_document(), get_canvas().get_selection());
+    if (!enp)
+        return;
+
+    const auto &doc = m_core.get_current_document();
+    auto &en = doc.get_entity(enp->entity);
+
+    m_workspace_browser->select_group(en.m_group);
+}
+
+void Editor::on_go_to_source_group(const ActionConnection &conn)
+{
+    if (!m_core.has_documents())
+        return;
+
+    const auto &doc = m_core.get_current_document();
+    auto &group = doc.get_group(m_core.get_current_group());
+
+    auto sg = dynamic_cast<const IGroupSourceGroup *>(&group);
+    if (!sg)
+        return;
+
+    auto sources = sg->get_source_groups(doc);
+    if (sources.size() != 1)
+        return;
+
+    m_workspace_browser->select_group(*sources.begin());
+}
+
 
 void Editor::update_action_sensitivity()
 {
@@ -430,6 +468,15 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         if (auto gr_solid = dynamic_cast<const IGroupSolidModel *>(&current_group))
             has_solid_model = gr_solid->get_solid_model() != nullptr;
 
+        {
+            bool can_go_to_source_group = false;
+            if (auto gr_source = dynamic_cast<const IGroupSourceGroup *>(&current_group)) {
+                auto srcs = gr_source->get_source_groups(m_core.get_current_document());
+                can_go_to_source_group = srcs.size() == 1;
+            }
+            m_action_sensitivity[ActionID::GO_TO_SOURCE_GROUP] = can_go_to_source_group;
+        }
+
         auto groups_sorted = m_core.get_current_document().get_groups_sorted();
         assert(groups_sorted.size());
         const bool is_first = groups_sorted.front() == &current_group;
@@ -455,15 +502,18 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
             auto enp = point_from_selection(m_core.get_current_document(), sel);
             bool can_select_path = false;
             bool can_look_here = false;
+            bool can_go_to_group = false;
 
             if (enp) {
                 auto &en = m_core.get_current_document().get_entity(enp->entity);
+                can_go_to_group = en.m_group != current_group.m_uuid;
                 can_select_path = en.of_type(Entity::Type::LINE_2D, Entity::Type::ARC_2D, Entity::Type::BEZIER_2D);
 
                 can_look_here = m_core.get_current_document().is_valid_point(*enp);
             }
             m_action_sensitivity[ActionID::SELECT_PATH] = can_select_path;
             m_action_sensitivity[ActionID::LOOK_HERE] = can_look_here;
+            m_action_sensitivity[ActionID::GO_TO_GROUP] = can_go_to_group;
         }
 
         m_action_sensitivity[ActionID::EXPORT_PATHS] = has_current_wrkpl;
@@ -500,6 +550,8 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
         m_action_sensitivity[ActionID::EXPLODE_CLUSTER] = false;
         m_action_sensitivity[ActionID::UNEXPLODE_CLUSTER] = false;
         m_action_sensitivity[ActionID::COPY] = false;
+        m_action_sensitivity[ActionID::GO_TO_GROUP] = false;
+        m_action_sensitivity[ActionID::GO_TO_SOURCE_GROUP] = false;
     }
 
     m_action_sensitivity[ActionID::EXPORT_SOLID_MODEL_STEP] = has_solid_model;

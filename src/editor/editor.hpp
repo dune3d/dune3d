@@ -115,6 +115,8 @@ private:
     void on_align_to_workplane(const ActionConnection &conn);
     void on_center_to_workplane(const ActionConnection &conn);
     void on_look_here(const ActionConnection &conn);
+    void on_go_to_group(const ActionConnection &conn);
+    void on_go_to_source_group(const ActionConnection &conn);
 
     void on_explode_cluster(const ActionConnection &conn);
     void on_unexplode_cluster(const ActionConnection &conn);

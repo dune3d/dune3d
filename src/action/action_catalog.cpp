@@ -285,6 +285,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {{"Convert to tangent symmetric constraint", "Make symmetric"},
           ActionGroup::UNKNOWN,
           ActionCatalogItem::FLAGS_DEFAULT}},
+        {ActionID::GO_TO_GROUP, {"Go to group", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_SPECIFIC}},
+        {ActionID::GO_TO_SOURCE_GROUP, {"Go to source group", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -373,6 +375,8 @@ const LutEnumStr<ActionID> action_lut = {
         ACTION_LUT_ITEM(LOOK_HERE),
         ACTION_LUT_ITEM(EXPORT_DXF_CURRENT_GROUP),
         ACTION_LUT_ITEM(TOGGLE_IRRELEVANT_WORKPLANES),
+        ACTION_LUT_ITEM(GO_TO_GROUP),
+        ACTION_LUT_ITEM(GO_TO_SOURCE_GROUP),
 };
 
 #define TOOL_LUT_ITEM(x) {#x, ToolID::x}
