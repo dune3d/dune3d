@@ -11,6 +11,7 @@
 #include "dune3d_appwindow.hpp"
 #include "dune3d_application.hpp"
 #include "util/template_util.hpp"
+#include "util/step_exporter.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -58,6 +59,28 @@ static void set_export_initial_filename(Dune3DApplication::UserConfig &cfg, cons
         return;
     cfg.export_paths[std::make_pair(doc_info.get_path(), doc_info.get_current_group())].*export_type = filename;
 }
+
+static void export_all_step(const Document &doc, const std::filesystem::path &path)
+{
+    STEPExporter exporter;
+
+    auto groups_by_body = doc.get_groups_by_body();
+    for (auto body_groups : groups_by_body) {
+        const SolidModel *last_solid_model = nullptr;
+        for (auto group : body_groups.groups) {
+            if (auto gr = dynamic_cast<const IGroupSolidModel *>(group)) {
+                if (gr->get_solid_model())
+                    last_solid_model = gr->get_solid_model();
+            }
+        }
+
+        if (last_solid_model)
+            last_solid_model->add_to_step_exporter(exporter, body_groups.body.m_name.c_str());
+    }
+
+    exporter.write(path);
+}
+
 void Editor::on_export_solid_model(const ActionConnection &conn)
 {
     const auto action = std::get<ActionID>(conn.id);
@@ -72,7 +95,7 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
 
     auto filter_any = Gtk::FileFilter::create();
     std::string suffix;
-    if (action == ActionID::EXPORT_SOLID_MODEL_STEP) {
+    if (any_of(action, ActionID::EXPORT_SOLID_MODEL_STEP, ActionID::EXPORT_ALL_SOLID_MODELS_STEP)) {
         filter_any->set_name("STEP");
         filter_any->add_pattern("*.step");
         filter_any->add_pattern("*.stp");
@@ -101,15 +124,20 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
             // open_file_view(file);
             //  Notice that this is a std::string, not a Glib::ustring.
             const auto path = path_from_string(append_suffix_if_required(file->get_path(), suffix));
-            auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
-            if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
-                if (action == ActionID::EXPORT_SOLID_MODEL_STEP)
-                    gr->get_solid_model()->export_step(path);
-                else
-                    gr->get_solid_model()->export_stl(path);
-                set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
-                                            export_type, path_to_string(path));
+            if (action == ActionID::EXPORT_ALL_SOLID_MODELS_STEP) {
+                export_all_step(m_core.get_current_document(), path);
             }
+            else {
+                auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
+                if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
+                    if (action == ActionID::EXPORT_SOLID_MODEL_STEP)
+                        gr->get_solid_model()->export_step(path);
+                    else
+                        gr->get_solid_model()->export_stl(path);
+                }
+            }
+            set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(), export_type,
+                                        path_to_string(path));
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
