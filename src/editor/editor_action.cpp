@@ -1026,18 +1026,28 @@ void Editor::on_view_set(const ActionConnection &conn)
 
     glm::quat q;
 
-    if (action == ActionID::VIEW_FRONT)
-        q = glm::quatLookAt(glm::vec3(0, -1, 0), glm::vec3(0, 0, 1));
-    else if (action == ActionID::VIEW_BACK)
-        q = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
-    else if (action == ActionID::VIEW_TOP)
-        q = glm::quatLookAt(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
-    else if (action == ActionID::VIEW_BOTTOM)
-        q = glm::quatLookAt(glm::vec3(0, 0, 1), glm::vec3(0, -1, 0));
-    else if (action == ActionID::VIEW_RIGHT)
-        q = glm::quatLookAt(glm::vec3(-1, 0, 0), glm::vec3(0, 0, 1));
-    else if (action == ActionID::VIEW_LEFT)
-        q = glm::quatLookAt(glm::vec3(1, 0, 0), glm::vec3(0, 0, 1));
+    switch (action) {
+      case ActionID::VIEW_FRONT:
+          q = glm::quatLookAt(glm::vec3(0, -1, 0), glm::vec3(0, 0, 1));
+          break;
+      case ActionID::VIEW_BACK:
+          q = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+          break;
+      case ActionID::VIEW_TOP:
+          q = glm::quatLookAt(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+          break;
+      case ActionID::VIEW_BOTTOM:
+          q = glm::quatLookAt(glm::vec3(0, 0, 1), glm::vec3(0, -1, 0));
+          break;
+      case ActionID::VIEW_RIGHT:
+          q = glm::quatLookAt(glm::vec3(-1, 0, 0), glm::vec3(0, 0, 1));
+          break;
+      case ActionID::VIEW_LEFT:
+          q = glm::quatLookAt(glm::vec3(1, 0, 0), glm::vec3(0, 0, 1));
+          break;
+      default:
+          return;
+    }
 
     get_canvas().animate_to_cam_quat(q);
 }
