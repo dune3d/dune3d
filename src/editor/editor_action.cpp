@@ -20,7 +20,6 @@
 #include "util/paths.hpp"
 #include "core/tool_id.hpp"
 #include "buffer.hpp"
-#include <glm/gtx/quaternion.hpp>
 
 
 namespace dune3d {
