@@ -257,7 +257,7 @@ void Editor::finish_add_group(Group *new_group)
     m_workspace_browser->update_documents(get_current_document_views());
     m_workspace_browser->select_group(new_group->m_uuid);
     if (any_of(group_type, Group::Type::FILLET, Group::Type::CHAMFER)) {
-        trigger_action(ToolID::SELECT_EDGES);
+        trigger_action(ToolID::SELECT_ENTITIES);
     }
     else if (group_type == Group::Type::PIPE) {
         trigger_action(ToolID::SELECT_SPINE_ENTITIES);
