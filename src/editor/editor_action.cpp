@@ -21,7 +21,6 @@
 #include "core/tool_id.hpp"
 #include "buffer.hpp"
 
-
 namespace dune3d {
 
 static const std::map<ActionID, Group::Type> create_group_action_map = {
