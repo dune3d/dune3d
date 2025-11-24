@@ -180,6 +180,13 @@ void Editor::init_actions()
     connect_action(ActionID::VIEW_TILT_LEFT, sigc::mem_fun(*this, &Editor::on_view_rotate));
     connect_action(ActionID::VIEW_TILT_RIGHT, sigc::mem_fun(*this, &Editor::on_view_rotate));
 
+    connect_action(ActionID::VIEW_FRONT, sigc::mem_fun(*this, &Editor::on_view_set));
+    connect_action(ActionID::VIEW_BACK, sigc::mem_fun(*this, &Editor::on_view_set));
+    connect_action(ActionID::VIEW_TOP, sigc::mem_fun(*this, &Editor::on_view_set));
+    connect_action(ActionID::VIEW_BOTTOM, sigc::mem_fun(*this, &Editor::on_view_set));
+    connect_action(ActionID::VIEW_LEFT, sigc::mem_fun(*this, &Editor::on_view_set));
+    connect_action(ActionID::VIEW_RIGHT, sigc::mem_fun(*this, &Editor::on_view_set));
+
     connect_action(ActionID::VIEW_ZOOM_IN, sigc::mem_fun(*this, &Editor::on_view_zoom));
     connect_action(ActionID::VIEW_ZOOM_OUT, sigc::mem_fun(*this, &Editor::on_view_zoom));
 
@@ -1009,6 +1016,38 @@ void Editor::on_view_pan(const ActionConnection &conn)
         direction = glm::vec2(1, 0);
 
     get_canvas().animate_pan(direction * 50.f);
+}
+
+void Editor::on_view_set(const ActionConnection &conn)
+{
+    const auto action = std::get<ActionID>(conn.id);
+
+    glm::quat q;
+
+    switch (action) {
+    case ActionID::VIEW_FRONT:
+        q = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+        break;
+    case ActionID::VIEW_BACK:
+        q = glm::quatLookAt(glm::vec3(0, -1, 0), glm::vec3(0, 0, 1));
+        break;
+    case ActionID::VIEW_TOP:
+        q = glm::quatLookAt(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+        break;
+    case ActionID::VIEW_BOTTOM:
+        q = glm::quatLookAt(glm::vec3(0, 0, 1), glm::vec3(0, -1, 0));
+        break;
+    case ActionID::VIEW_RIGHT:
+        q = glm::quatLookAt(glm::vec3(-1, 0, 0), glm::vec3(0, 0, 1));
+        break;
+    case ActionID::VIEW_LEFT:
+        q = glm::quatLookAt(glm::vec3(1, 0, 0), glm::vec3(0, 0, 1));
+        break;
+    default:
+        return;
+    }
+
+    get_canvas().animate_to_cam_quat(q);
 }
 
 
