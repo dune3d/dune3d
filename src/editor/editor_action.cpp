@@ -1026,10 +1026,10 @@ void Editor::on_view_set(const ActionConnection &conn)
 
     switch (action) {
     case ActionID::VIEW_FRONT:
-        q = glm::quatLookAt(glm::vec3(0, -1, 0), glm::vec3(0, 0, 1));
+        q = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
         break;
     case ActionID::VIEW_BACK:
-        q = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+        q = glm::quatLookAt(glm::vec3(0, -1, 0), glm::vec3(0, 0, 1));
         break;
     case ActionID::VIEW_TOP:
         q = glm::quatLookAt(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
