@@ -87,12 +87,18 @@ private:
 
 Triangulator::Triangulator(const TopoDS_Shape &shape, face::Faces &faces) : m_faces(faces)
 {
+#ifndef BUILDING_DUNE3D_CORE
     {
         auto color = Preferences::get().canvas.appearance.get_color(ColorP::SOLID_MODEL);
         m_default_color.r = color.r;
         m_default_color.b = color.b;
         m_default_color.g = color.g;
     }
+#else
+    m_default_color.r = 0.5;
+    m_default_color.g = 0.5;
+    m_default_color.b = 0.5;
+#endif
     processNode(shape);
 }
 

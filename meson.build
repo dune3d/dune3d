@@ -471,3 +471,12 @@ dune3d_py = shared_module('dune3d_py',
     build_by_default: false,
     name_prefix: ''
 )
+
+dune3d_core = shared_library('dune3d_core',
+    [src_common, 'src/dune3d_core_api.cpp'],
+    dependencies: [build_dependencies],
+    link_with: [solvespace_pic, clipper_pic, dxflib_pic],
+    cpp_args: cpp_args + ['-DBUILDING_DUNE3D_CORE'],
+    include_directories: include_directories,
+    install: true
+)
