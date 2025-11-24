@@ -29,7 +29,7 @@
 	(1,43,"GtkInfoBar","version_info_bar",42,None,None,None,None,None,None),
 	(1,44,"GtkOverlay",None,42,None,None,None,1,None,None),
 	(1,45,"GtkBox","canvas_box",44,None,None,None,None,None,None),
-	(1,46,"GtkBox","lollipop_box",44,None,"overlay",None,1,None,None),
+	(1,46,"GtkBox","cube_box",44,None,"overlay",None,1,None,None),
 	(1,47,"GtkRevealer","tool_bar",44,None,"overlay",None,2,None,None),
 	(1,48,"GtkBox",None,47,None,None,None,None,None,None),
 	(1,49,"GtkLabel","tool_bar_name_label",48,None,None,None,None,None,None),

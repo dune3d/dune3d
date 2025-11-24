@@ -1,7 +1,7 @@
 #include "dune3d_application.hpp"
 #include "dune3d_appwindow.hpp"
 #include "canvas/canvas.hpp"
-#include "widgets/axes_lollipop.hpp"
+#include "widgets/axes_cube.hpp"
 #include "widgets/recent_item_box.hpp"
 #include "util/fs_util.hpp"
 #include "util/gtk_util.hpp"
@@ -149,12 +149,17 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     m_workplane_label = refBuilder->get_widget<Gtk::Label>("workplane_label");
 
     {
-        Gtk::Box *lollipop_box = refBuilder->get_widget<Gtk::Box>("lollipop_box");
-        auto axes_lollipop = Gtk::make_managed<AxesLollipop>();
-        lollipop_box->append(*axes_lollipop);
-        get_canvas().signal_view_changed().connect(sigc::track_obj(
-                [this, axes_lollipop] { axes_lollipop->set_quat(get_canvas().get_cam_quat()); }, *axes_lollipop));
-        axes_lollipop->set_quat(get_canvas().get_cam_quat());
+        Gtk::Box *cube_box = refBuilder->get_widget<Gtk::Box>("cube_box");
+        auto axes_cube = Gtk::make_managed<AxesCube>();
+        cube_box->append(*axes_cube);
+        get_canvas().signal_view_changed().connect(
+                sigc::track_obj([this, axes_cube] { axes_cube->set_quat(get_canvas().get_cam_quat()); }, *axes_cube));
+        axes_cube->set_quat(get_canvas().get_cam_quat());
+
+        axes_cube->signal_quat_changed().connect([this](const glm::quat &q) {
+            auto snapped_quat = get_canvas().get_tilt_snapped_quat(q);
+            get_canvas().animate_to_cam_quat(snapped_quat);
+        });
     }
 
 
