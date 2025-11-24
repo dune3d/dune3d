@@ -15,7 +15,7 @@ migration:
     - platform: root
       create_revision: 19074d12f7eaf6a8180cd4036a430c1d76de904e
       base_revision: 19074d12f7eaf6a8180cd4036a430c1d76de904e
-    - platform: linux
+    - platform: android
       create_revision: 19074d12f7eaf6a8180cd4036a430c1d76de904e
       base_revision: 19074d12f7eaf6a8180cd4036a430c1d76de904e
 

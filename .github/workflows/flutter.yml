@@ -1,4 +1,4 @@
-name: Flutter Build and Release
+name: Android Build and Release
 
 on:
   push:
@@ -11,6 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -18,24 +24,24 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./dune3d_flutter
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
-          flutter pub get
+        run: flutter pub get
 
-      - name: Build Linux
+      - name: Build Android APK
         working-directory: ./dune3d_flutter
-        run: flutter build linux --release
+        # Using --debug for now as we don't have signing keys set up
+        # and we don't want to fail on signing.
+        # Ideally we would set up signing for a release build.
+        run: flutter build apk --debug
 
       - name: Archive Release
         uses: thedoctor0/zip-release@0.7.6
         with:
           type: 'zip'
-          filename: 'dune3d_flutter_linux.zip'
-          directory: 'dune3d_flutter/build/linux/x64/release/bundle'
+          filename: 'dune3d_flutter_android.zip'
+          directory: 'dune3d_flutter/build/app/outputs/flutter-apk'
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: dune3d_flutter/build/linux/x64/release/bundle/dune3d_flutter_linux.zip
+          files: dune3d_flutter/build/app/outputs/flutter-apk/dune3d_flutter_android.zip

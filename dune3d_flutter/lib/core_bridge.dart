@@ -39,18 +39,21 @@ class Dune3DCore {
 
   Dune3DCore._internal() {
     var libPath = 'libdune3d_core.so';
-    if (Platform.isLinux) {
+    if (Platform.isLinux || Platform.isAndroid) {
       // On Linux, we expect the library to be in the same directory as the executable or in LD_LIBRARY_PATH
-      // For development, we might need to point to it explicitly if not installed.
-      // Assuming it is copied to the build output directory or similar.
-      // For now, we assume it's loadable by name.
+      // On Android, it should be in the native library path (automatically handled by DynamicLibrary.open)
       try {
         _lib = ffi.DynamicLibrary.open(libPath);
       } catch (e) {
-        // Fallback for development environment if needed, or print error
-        print('Failed to load $libPath: $e');
-        // Try relative path for development
-        _lib = ffi.DynamicLibrary.open('./libdune3d_core.so');
+        if (Platform.isLinux) {
+             // Fallback for development environment if needed, or print error
+            print('Failed to load $libPath: $e');
+            // Try relative path for development
+            _lib = ffi.DynamicLibrary.open('./libdune3d_core.so');
+        } else {
+             print('Failed to load $libPath: $e');
+             rethrow;
+        }
       }
     } else {
         throw UnsupportedError('Platform not supported');
