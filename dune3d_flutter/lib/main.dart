@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ui/widgets.dart';
+import 'ui/core_test_page.dart';
 
 void main() {
   runApp(const Dune3DApp());
@@ -79,12 +80,18 @@ class _MainScreenState extends State<MainScreen> {
                 selectedIcon: Icon(Icons.view_in_ar_outlined),
                 label: Text('3D View'),
               ),
+              NavigationRailDestination(
+                icon: Icon(Icons.bug_report),
+                label: Text('Core Test'),
+              ),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
           // Main Content Area
           Expanded(
-            child: Stack(
+            child: _selectedIndex == 3
+            ? const CoreTestPage()
+            : Stack(
               children: [
                 // The Viewport (3D or 2D Sketch)
                 Positioned.fill(
