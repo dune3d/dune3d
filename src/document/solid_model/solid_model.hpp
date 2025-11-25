@@ -14,6 +14,7 @@ class Document;
 class SolidModelOcc;
 class Group;
 class IGroupSolidModel;
+class STEPExporter;
 
 class SolidModel {
 public:
@@ -33,7 +34,7 @@ public:
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupSolidModelOperation &group);
     static std::shared_ptr<const SolidModel> create(const Document &doc, GroupPipe &group);
     virtual void export_stl(const std::filesystem::path &path) const = 0;
-    virtual void export_step(const std::filesystem::path &path) const = 0;
+    virtual void add_to_step_exporter(STEPExporter &exporter, const char *name) const = 0;
 
     static void export_projections(const std::filesystem::path &path, std::vector<const SolidModel *> models,
                                    const glm::dvec3 &origin, const glm::dquat &normal);
