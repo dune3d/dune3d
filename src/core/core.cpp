@@ -243,6 +243,11 @@ std::string Core::DocumentInfo::get_basename() const
     return path_to_string(m_path.filename());
 }
 
+std::string Core::DocumentInfo::get_stem() const
+{
+    return path_to_string(m_path.stem());
+}
+
 std::string Core::DocumentInfo::get_name() const
 {
     auto bn = get_basename();
