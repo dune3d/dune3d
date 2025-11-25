@@ -2,6 +2,7 @@
 #include "document/document.hpp"
 #include "document/entity/entity.hpp"
 #include "document/entity/entity_workplane.hpp"
+#include "document/entity/entity_step.hpp"
 #include "document/entity/ientity_in_workplane_set.hpp"
 #include "document/entity/ientity_movable2d.hpp"
 #include "document/entity/ientity_movable2d_initial_pos.hpp"
@@ -93,6 +94,11 @@ ToolResponse ToolPaste::begin(const ToolArgs &args)
         }
         if (auto en_cluster = dynamic_cast<IEntityClusterContentUpdate *>(new_entity.get())) {
             en_cluster->update_cluster_content_for_new_workplane(doc.get_reference_group().get_workplane_xy_uuid());
+        }
+        if (auto en_step = dynamic_cast<EntitySTEP *>(new_entity.get())) {
+            const auto is_sketch_group = get_group().get_type() == Group::Type::SKETCH;
+            if (!is_sketch_group)
+                en_step->m_include_in_solid_model = false;
         }
 
         entity_xlat.emplace(uu, new_entity->m_uuid);
