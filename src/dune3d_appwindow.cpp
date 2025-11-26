@@ -155,6 +155,27 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
         get_canvas().signal_view_changed().connect(sigc::track_obj(
                 [this, axes_lollipop] { axes_lollipop->set_quat(get_canvas().get_cam_quat()); }, *axes_lollipop));
         axes_lollipop->set_quat(get_canvas().get_cam_quat());
+
+        // Connect to the snap signal
+        axes_lollipop->signal_snap_to_plane().connect([this](int plane) {
+            switch (plane) {
+            case 0: // YZ plane (looking down X axis)
+            {
+                glm::quat q = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+                get_canvas().animate_to_cam_quat(q);
+            } break;
+            case 1: // XZ plane (looking down Y axis)
+            {
+                glm::quat q = glm::angleAxis(glm::radians(-90.0f), glm::vec3(1, 0, 0));
+                get_canvas().animate_to_cam_quat(q);
+            } break;
+            case 2: // XY plane (looking down Z axis)
+            {
+                glm::quat q = glm::angleAxis(0.0f, glm::vec3(1, 0, 0));
+                get_canvas().animate_to_cam_quat(q);
+            } break;
+            }
+        });
     }
 
 
