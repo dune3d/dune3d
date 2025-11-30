@@ -670,6 +670,26 @@ void Canvas::animate_to_center_abs(const glm::vec3 &center)
     m_cz_animator.target = center.z;
 }
 
+glm::quat Canvas::get_tilt_snapped_quat(const glm::quat &q) const
+{
+    const auto cq = get_cam_quat();
+
+    float best_angle = 99;
+    glm::quat best_q;
+    for (int i = 0; i < 4; i++) {
+        const auto tq = glm::angleAxis(-(float)(i * M_PI / 2), glm::vec3(0, 0, 1));
+        const auto nq = q * tq;
+        auto angle = glm::angle(nq * glm::inverse(cq));
+        if (angle > M_PI)
+            angle -= 2 * M_PI;
+        if (std::abs(angle) < best_angle) {
+            best_angle = std::abs(angle);
+            best_q = nq;
+        }
+    }
+    return best_q;
+}
+
 Canvas::VertexRef Canvas::get_vertex_ref_for_pick(unsigned int pick) const
 {
     for (const auto &[key, it] : m_vertex_type_picks) {

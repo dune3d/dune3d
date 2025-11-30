@@ -138,6 +138,8 @@ public:
     void animate_to_cam_quat_rel(const glm::quat &quat);
     void animate_to_center_abs(const glm::vec3 &center);
 
+    glm::quat get_tilt_snapped_quat(const glm::quat &q) const;
+
     using Projection = CanvasProjection;
     void set_projection(Projection proj);
     Projection get_projection() const

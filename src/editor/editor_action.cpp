@@ -1049,7 +1049,10 @@ void Editor::on_view_set(const ActionConnection &conn)
         return;
     }
 
-    get_canvas().animate_to_cam_quat(q);
+
+    auto sq = get_canvas().get_tilt_snapped_quat(q);
+
+    get_canvas().animate_to_cam_quat(sq);
 }
 
 
