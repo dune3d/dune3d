@@ -142,6 +142,15 @@ dim-label</property>
                   <object class="GtkOverlay">
                     <property name="vexpand">True</property>
                     <child type="overlay">
+                      <object class="GtkBox" id="cube_box">
+                        <property name="can-target">True</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="valign">start</property>
+                      </object>
+                    </child>
+                    <child type="overlay">
                       <object class="GtkBox" id="welcome_box">
                         <property name="css-classes">background
 welcome-box</property>
@@ -399,15 +408,7 @@ blah</property>
                         <property name="vexpand">True</property>
                       </object>
                     </child>
-                    <child type="overlay">
-                      <object class="GtkBox" id="lollipop_box">
-                        <property name="can-target">False</property>
-                        <property name="halign">end</property>
-                        <property name="margin-end">10</property>
-                        <property name="margin-top">10</property>
-                        <property name="valign">start</property>
-                      </object>
-                    </child>
+
                     <child type="overlay">
                       <object class="GtkRevealer" id="tool_bar">
                         <property name="can-target">False</property>
