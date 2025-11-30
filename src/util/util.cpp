@@ -13,7 +13,7 @@ namespace dune3d {
 json load_json_from_file(const std::filesystem::path &filename)
 {
     json j;
-    std::ifstream ifs{filename.string()};
+    std::ifstream ifs{filename};
     if (!ifs.is_open()) {
         throw std::runtime_error("file " + filename.string() + " not opened");
     }
