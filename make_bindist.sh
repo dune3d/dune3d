@@ -88,10 +88,21 @@ LIBS=(
 	libLerc.dll\
 	libbrotlicommon.dll\
 	libsharpyuv-0.dll\
-	libxml2-2.dll\
 	libxml2-16.dll\
 	librsvg-2-2.dll\
 	vulkan-1.dll\
+	libgstallocators-1.0-0.dll\
+	libgstd3d12-1.0-0.dll\
+	libgstgl-1.0-0.dll\
+	libgstplay-1.0-0.dll\
+	libgstreamer-1.0-0.dll\
+	libgstvideo-1.0-0.dll\
+	libgstd3dshader-1.0-0.dll\
+	libgstbase-1.0-0.dll\
+	libgstpbutils-1.0-0.dll\
+	libgsttag-1.0-0.dll\
+	liborc-0.4-0.dll\
+	libgstaudio-1.0-0.dll\
 	gspawn-win64-helper.exe\
 	gspawn-win64-helper-console.exe
 )
