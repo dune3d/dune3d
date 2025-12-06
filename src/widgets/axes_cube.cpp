@@ -1,11 +1,9 @@
 #include "axes_cube.hpp"
 #include "util/color.hpp"
 #include <glm/gtx/rotate_vector.hpp>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
-#include <optional>
 
 namespace dune3d {
 
@@ -105,8 +103,9 @@ static Model generate_model()
     Color col_gray = Color::new_from_int(200, 200, 200);
 
     auto add_face = [&](std::vector<int> idxs, std::string name, Color c, std::string lbl = "",
-                        std::optional<glm::quat> quat = std::nullopt) {
-        faces.push_back({std::move(idxs), id++, std::move(name), c, std::move(lbl), std::move(quat)});
+                        glm::quat quat = glm::quat()) {
+        faces.push_back(
+                {std::move(idxs), id++, std::move(name), c, std::move(lbl), std::make_optional(std::move(quat))});
     };
 
     // faces
@@ -260,7 +259,6 @@ void AxesCube::setup_controllers()
             const auto &faces = get_cached_model().faces;
             if (face_id < (int)faces.size()) {
                 const auto &face = faces[face_id];
-                std::cout << "Clicked: " << face.name << std::endl;
 
                 if (face.target_quat) {
                     m_signal_quat_changed.emit(*face.target_quat);
@@ -320,6 +318,7 @@ void AxesCube::render(const Cairo::RefPtr<Cairo::Context> &cr, int w, int h)
 
     cr->translate(w / 2.0, h / 2.0);
     cr->set_line_width(1.0);
+    cr->set_line_join(Cairo::Context::LineJoin::ROUND);
 
     const auto &faces = get_cached_model().faces;
 
