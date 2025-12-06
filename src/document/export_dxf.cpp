@@ -14,43 +14,39 @@ namespace {
 
 class DxfWrapper {
 public:
-    DxfWrapper(const std::filesystem::path &path)
+    DxfWrapper(const std::filesystem::path &path) : m_writer(std::ofstream{path})
     {
-        const auto filename_str = path_to_string(path);
-        m_writer = m_dxf.out(filename_str.c_str());
-        if (!m_writer)
+        if (m_writer.openFailed())
             throw std::runtime_error("couldn't open file for writing");
 
-        m_dxf.writeHeader(*m_writer);
-        m_writer->sectionEnd();
+        m_dxf.writeHeader(m_writer);
+        m_writer.sectionEnd();
 
-        m_writer->sectionEntities();
+        m_writer.sectionEntities();
     }
 
     template <typename Td, typename... Args>
     void write(void (DL_Dxf ::*f)(DL_WriterA &, const Td &, const DL_Attributes &), Args &&...args)
     {
-        std::invoke(f, m_dxf, *m_writer, Td(std::forward<Args>(args)...), DL_Attributes{});
+        std::invoke(f, m_dxf, m_writer, Td(std::forward<Args>(args)...), DL_Attributes{});
     }
     template <typename Td, typename... Args> void write(void (DL_Dxf ::*f)(DL_WriterA &, const Td &), Args &&...args)
     {
-        std::invoke(f, m_dxf, *m_writer, Td(std::forward<Args>(args)...));
+        std::invoke(f, m_dxf, m_writer, Td(std::forward<Args>(args)...));
     }
 
     ~DxfWrapper()
     {
-        m_writer->sectionEnd();
-        m_dxf.writeObjects(*m_writer);
-        m_dxf.writeObjectsEnd(*m_writer);
-        m_writer->dxfEOF();
-        m_writer->close();
-
-        delete m_writer;
+        m_writer.sectionEnd();
+        m_dxf.writeObjects(m_writer);
+        m_dxf.writeObjectsEnd(m_writer);
+        m_writer.dxfEOF();
+        m_writer.close();
     }
 
 private:
     DL_Dxf m_dxf;
-    DL_WriterA *m_writer;
+    DL_WriterA m_writer;
 };
 } // namespace
 

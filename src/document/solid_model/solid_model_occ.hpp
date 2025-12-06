@@ -1,5 +1,6 @@
 #include "solid_model.hpp"
 #include "document/group/igroup_solid_model.hpp"
+#include "util/color.hpp"
 #include <TopoDS.hxx>
 
 namespace dune3d {
@@ -8,10 +9,11 @@ class SolidModelOcc : public SolidModel {
 public:
     TopoDS_Shape m_shape;
     TopoDS_Shape m_shape_acc;
+    Color m_color;
 
 
     void export_stl(const std::filesystem::path &path) const override;
-    void export_step(const std::filesystem::path &path) const override;
+    void add_to_step_exporter(STEPExporter &exporter, const char *name) const override;
 
     bool update_acc_finish(const Document &doc, const Group &group);
     void finish(const Document &doc, const Group &group);

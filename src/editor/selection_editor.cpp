@@ -1,6 +1,7 @@
 #include "selection_editor.hpp"
 #include "core/core.hpp"
 #include "document/document.hpp"
+#include "document/group/group.hpp"
 #include "document/entity/entity.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_step.hpp"
@@ -135,7 +136,8 @@ private:
 
 class STEPEditor : public Gtk::Grid, public ChangeableCommitMode {
 public:
-    STEPEditor(const std::filesystem::path &document_dir, EntitySTEP &step) : m_doc_dir(document_dir), m_step(step)
+    STEPEditor(const Document &doc, const std::filesystem::path &document_dir, EntitySTEP &step)
+        : m_doc_dir(document_dir), m_step(step)
     {
         set_row_spacing(5);
         set_column_spacing(5);
@@ -200,14 +202,22 @@ public:
         int top = 0;
         grid_attach_label_and_widget(*this, "Path", *box, top);
 
+        const bool is_sketch_group = doc.get_group(step.m_group).get_type() == Group::Type::SKETCH;
+
         auto include_in_solid_model_switch = Gtk::make_managed<Gtk::CheckButton>("In solid model");
         include_in_solid_model_switch->set_halign(Gtk::Align::START);
-        include_in_solid_model_switch->set_active(step.m_include_in_solid_model);
-        include_in_solid_model_switch->property_active().signal_changed().connect(
-                [this, include_in_solid_model_switch] {
-                    m_step.m_include_in_solid_model = include_in_solid_model_switch->get_active();
-                    m_signal_changed.emit(CommitMode::IMMEDIATE);
-                });
+        if (is_sketch_group) {
+            include_in_solid_model_switch->set_active(step.m_include_in_solid_model);
+            include_in_solid_model_switch->property_active().signal_changed().connect(
+                    [this, include_in_solid_model_switch] {
+                        m_step.m_include_in_solid_model = include_in_solid_model_switch->get_active();
+                        m_signal_changed.emit(CommitMode::IMMEDIATE);
+                    });
+        }
+        else {
+            include_in_solid_model_switch->set_sensitive(false);
+            include_in_solid_model_switch->set_tooltip_text("Only available in Sketch Groups");
+        }
 
         attach(*include_in_solid_model_switch, 1, top++);
     }
@@ -581,7 +591,8 @@ void SelectionEditor::set_selection(const std::set<SelectableRef> &sel)
         else if (auto step = point_from_selection(m_core.get_current_document(), sel, Entity::Type::STEP)) {
             m_title->set_label("STEP");
             m_title->set_tooltip_text((std::string)step->entity);
-            auto ed = Gtk::make_managed<STEPEditor>(m_core.get_current_document_directory(),
+            auto ed = Gtk::make_managed<STEPEditor>(m_core.get_current_document(),
+                                                    m_core.get_current_document_directory(),
                                                     m_core.get_current_document().get_entity<EntitySTEP>(step->entity));
             m_editor = ed;
             auto group = m_core.get_current_document().get_entity(step->entity).m_group;

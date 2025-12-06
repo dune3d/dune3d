@@ -11,28 +11,40 @@
 #include "dune3d_appwindow.hpp"
 #include "dune3d_application.hpp"
 #include "util/template_util.hpp"
+#include "util/step_exporter.hpp"
 #include <iostream>
 
 namespace dune3d {
 
 static Glib::RefPtr<Gio::File>
-get_export_initial_filename(const Dune3DApplication::UserConfig &cfg, const IDocumentInfo &doc_info,
+get_export_initial_filename(const Dune3DApplication::UserConfig &cfg, const IDocumentInfo &doc_info, const UUID &group,
                             const std::string &suffix,
                             std::string Dune3DApplication::UserConfig::ExportPaths::*export_type)
 {
     if (!doc_info.has_path())
         return nullptr;
-    auto current_group = doc_info.get_current_group();
-    auto groups_sorted = doc_info.get_document().get_groups_sorted();
+
     std::string filename;
-    for (auto it : groups_sorted) {
-        const auto k = std::make_pair(doc_info.get_path(), it->m_uuid);
+
+    {
+        const auto k = std::make_pair(doc_info.get_path(), UUID());
         if (cfg.export_paths.contains(k))
             filename = cfg.export_paths.at(k).*export_type;
-
-        if (it->m_uuid == current_group && filename.size())
-            break;
     }
+
+    if (group || !filename.size()) {
+        auto groups_sorted = doc_info.get_document().get_groups_sorted();
+        for (auto it : groups_sorted) {
+            const auto k = std::make_pair(doc_info.get_path(), it->m_uuid);
+            if (cfg.export_paths.contains(k)) {
+                filename = cfg.export_paths.at(k).*export_type;
+            }
+
+            if (it->m_uuid == group && filename.size())
+                break;
+        }
+    }
+
     if (!filename.size()) {
         static const char *d3ddoc_suffix = ".d3ddoc";
         // fallback to document
@@ -49,15 +61,62 @@ get_export_initial_filename(const Dune3DApplication::UserConfig &cfg, const IDoc
         return nullptr;
 }
 
+static Glib::RefPtr<Gio::File>
+get_export_initial_filename(const Dune3DApplication::UserConfig &cfg, const IDocumentInfo &doc_info,
+                            const std::string &suffix,
+                            std::string Dune3DApplication::UserConfig::ExportPaths::*export_type)
+{
+    return get_export_initial_filename(cfg, doc_info, doc_info.get_current_group(), suffix, export_type);
+}
+
 
 static void set_export_initial_filename(Dune3DApplication::UserConfig &cfg, const IDocumentInfo &doc_info,
+                                        const UUID &group,
                                         std::string Dune3DApplication::UserConfig::ExportPaths::*export_type,
                                         const std::string &filename)
 {
     if (!doc_info.has_path())
         return;
-    cfg.export_paths[std::make_pair(doc_info.get_path(), doc_info.get_current_group())].*export_type = filename;
+    cfg.export_paths[std::make_pair(doc_info.get_path(), group)].*export_type = filename;
 }
+
+static void set_export_initial_filename(Dune3DApplication::UserConfig &cfg, const IDocumentInfo &doc_info,
+                                        std::string Dune3DApplication::UserConfig::ExportPaths::*export_type,
+                                        const std::string &filename)
+{
+    set_export_initial_filename(cfg, doc_info, doc_info.get_current_group(), export_type, filename);
+}
+
+static void export_step(const IDocumentInfo &doc_info, const Group &group, const SolidModel *model,
+                        const std::filesystem::path &path)
+{
+    STEPExporter exporter(doc_info.get_stem().c_str());
+    const char *name = group.find_body(doc_info.get_document()).body.m_name.c_str();
+    model->add_to_step_exporter(exporter, name);
+    exporter.write(path);
+}
+
+static void export_all_step(const IDocumentInfo &doc_info, const std::filesystem::path &path)
+{
+    STEPExporter exporter(doc_info.get_stem().c_str());
+
+    auto groups_by_body = doc_info.get_document().get_groups_by_body();
+    for (auto body_groups : groups_by_body) {
+        const SolidModel *last_solid_model = nullptr;
+        for (auto group : body_groups.groups) {
+            if (auto gr = dynamic_cast<const IGroupSolidModel *>(group)) {
+                if (gr->get_solid_model())
+                    last_solid_model = gr->get_solid_model();
+            }
+        }
+
+        if (last_solid_model)
+            last_solid_model->add_to_step_exporter(exporter, body_groups.body.m_name.c_str());
+    }
+
+    exporter.write(path);
+}
+
 void Editor::on_export_solid_model(const ActionConnection &conn)
 {
     const auto action = std::get<ActionID>(conn.id);
@@ -72,7 +131,7 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
 
     auto filter_any = Gtk::FileFilter::create();
     std::string suffix;
-    if (action == ActionID::EXPORT_SOLID_MODEL_STEP) {
+    if (any_of(action, ActionID::EXPORT_SOLID_MODEL_STEP, ActionID::EXPORT_ALL_SOLID_MODELS_STEP)) {
         filter_any->set_name("STEP");
         filter_any->add_pattern("*.step");
         filter_any->add_pattern("*.stp");
@@ -87,29 +146,39 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
     }
     filters->append(filter_any);
 
-    if (auto initial_file = get_export_initial_filename(m_win.get_app().m_user_config,
-                                                        m_core.get_current_idocument_info(), suffix, export_type)) {
+    // Use all-zeroes UUID for all-groups exports
+    auto group_uuid = (action == ActionID::EXPORT_ALL_SOLID_MODELS_STEP) ? UUID() : m_core.get_current_group();
+    if (auto initial_file = get_export_initial_filename(
+                m_win.get_app().m_user_config, m_core.get_current_idocument_info(), group_uuid, suffix, export_type)) {
         dialog->set_initial_file(initial_file);
     }
 
     dialog->set_filters(filters);
 
     // Show the dialog and wait for a user response:
-    dialog->save(m_win, [this, dialog, action, suffix, export_type](const Glib::RefPtr<Gio::AsyncResult> &result) {
+    auto handle_response = [this, dialog, action, suffix, export_type,
+                            group_uuid](const Glib::RefPtr<Gio::AsyncResult> &result) {
         try {
             auto file = dialog->save_finish(result);
             // open_file_view(file);
             //  Notice that this is a std::string, not a Glib::ustring.
             const auto path = path_from_string(append_suffix_if_required(file->get_path(), suffix));
-            auto &group = m_core.get_current_document().get_group(m_core.get_current_group());
-            if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
-                if (action == ActionID::EXPORT_SOLID_MODEL_STEP)
-                    gr->get_solid_model()->export_step(path);
-                else
-                    gr->get_solid_model()->export_stl(path);
-                set_export_initial_filename(m_win.get_app().m_user_config, m_core.get_current_idocument_info(),
-                                            export_type, path_to_string(path));
+            auto &doc_info = m_core.get_current_idocument_info();
+            if (action == ActionID::EXPORT_ALL_SOLID_MODELS_STEP) {
+                export_all_step(doc_info, path);
             }
+            else {
+                auto &group = doc_info.get_document().get_group(group_uuid);
+                if (auto gr = dynamic_cast<const IGroupSolidModel *>(&group)) {
+                    auto model = gr->get_solid_model();
+                    if (action == ActionID::EXPORT_SOLID_MODEL_STEP)
+                        export_step(doc_info, group, model, path);
+                    else
+                        model->export_stl(path);
+                }
+            }
+            set_export_initial_filename(m_win.get_app().m_user_config, doc_info, group_uuid, export_type,
+                                        path_to_string(path));
         }
         catch (const Gtk::DialogError &err) {
             // Can be thrown by dialog->open_finish(result).
@@ -118,7 +187,8 @@ void Editor::on_export_solid_model(const ActionConnection &conn)
         catch (const Glib::Error &err) {
             std::cout << "Unexpected exception. " << err.what() << std::endl;
         }
-    });
+    };
+    dialog->save(m_win, handle_response);
 }
 
 void Editor::on_export_paths(const ActionConnection &conn)

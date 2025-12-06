@@ -38,6 +38,7 @@ public:
             std::string paths;
             std::string projection;
         };
+        // Keys are (document path, group UUID). Group UUID is all zeroes for all-groups exports.
         std::map<std::pair<std::filesystem::path, UUID>, ExportPaths> export_paths;
     };
 

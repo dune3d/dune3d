@@ -252,6 +252,15 @@ std::string Core::DocumentInfo::get_name() const
         return "New Document";
 }
 
+std::string Core::DocumentInfo::get_stem() const
+{
+    auto stem = path_to_string(m_path.stem());
+    if (stem.size())
+        return stem;
+    else
+        return "New Document";
+}
+
 std::filesystem::path Core::DocumentInfo::get_dirname() const
 {
     return m_path.parent_path();
