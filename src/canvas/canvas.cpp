@@ -632,10 +632,17 @@ void Canvas::animate_to_cam_quat(const glm::quat &q)
     set_translation_rotation_animator_params(msd_params_slow);
     start_anim();
 
-    m_quat_w_animator.target = q.w;
-    m_quat_x_animator.target = q.x;
-    m_quat_y_animator.target = q.y;
-    m_quat_z_animator.target = q.z;
+    glm::quat current_quat = get_cam_quat();
+    glm::quat target_quat = q;
+
+    if (glm::dot(current_quat, target_quat) < 0.0f) {
+        target_quat = -target_quat;
+    }
+
+    m_quat_w_animator.target = target_quat.w;
+    m_quat_x_animator.target = target_quat.x;
+    m_quat_y_animator.target = target_quat.y;
+    m_quat_z_animator.target = target_quat.z;
 }
 
 void Canvas::animate_to_cam_quat_rel(const glm::quat &q)
