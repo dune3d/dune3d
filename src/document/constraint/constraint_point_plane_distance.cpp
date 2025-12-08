@@ -85,7 +85,7 @@ double ConstraintPointPlaneDistance::get_display_datum(const Document &doc) cons
 
 std::string ConstraintPointPlaneDistance::format_datum(double datum) const
 {
-    return std::format("{:.3f}", datum);
+    return format_constraint_value(datum);
 }
 
 } // namespace dune3d

@@ -96,7 +96,7 @@ double ConstraintPointDistanceBase::get_display_datum(const Document &doc) const
 
 std::string ConstraintPointDistanceBase::format_datum(double datum) const
 {
-    return std::format("{:.3f}", datum);
+    return format_constraint_value(datum);
 }
 
 double ConstraintPointDistanceBase::measure_datum(const Document &doc) const

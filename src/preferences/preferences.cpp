@@ -184,12 +184,16 @@ json EditorPreferences::serialize() const
 {
     json j;
     j["preview_constraints"] = preview_constraints;
+    j["constraint_value_rounding"] = constraint_value_rounding;
+    j["constraint_show_trailing_zeros"] = constraint_show_trailing_zeros;
     return j;
 }
 
 void EditorPreferences::load_from_json(const json &j)
 {
     preview_constraints = j.value("preview_constraints", true);
+    constraint_value_rounding = j.value("constraint_value_rounding", 3);
+    constraint_show_trailing_zeros = j.value("constraint_show_trailing_zeros", false);
 }
 
 

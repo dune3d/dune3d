@@ -71,6 +71,23 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
                     m_preferences, m_preferences.editor.preview_constraints);
             gr->add_row(*r);
         }
+        {
+            auto r = Gtk::make_managed<PreferencesRowNumeric<int>>(
+                    "Constraint value rounding", "Maximum number of decimal places for constraint values",
+                    m_preferences, m_preferences.editor.constraint_value_rounding);
+            r->get_spinbutton().set_range(0, 5);
+            r->get_spinbutton().set_increments(1, 1);
+            r->get_spinbutton().set_digits(0);
+            r->bind();
+            gr->add_row(*r);
+        }
+        {
+            auto r = Gtk::make_managed<PreferencesRowBool>(
+                    "Show trailing zeros",
+                    "Always show the maximum number of decimal places (e.g., 30.000 instead of 30)", m_preferences,
+                    m_preferences.editor.constraint_show_trailing_zeros);
+            gr->add_row(*r);
+        }
     }
     {
         auto gr = Gtk::make_managed<PreferencesGroup>("Action Bar");

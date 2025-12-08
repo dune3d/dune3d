@@ -40,6 +40,8 @@ public:
 class EditorPreferences {
 public:
     bool preview_constraints = true;
+    int constraint_value_rounding = 3;
+    bool constraint_show_trailing_zeros = false;
 
     void load_from_json(const json &j);
     json serialize() const;
