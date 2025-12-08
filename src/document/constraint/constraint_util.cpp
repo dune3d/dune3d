@@ -44,34 +44,11 @@ std::string format_constraint_value(double datum, const std::string &suffix)
     const auto rounding = prefs.constraint_value_rounding;
     const auto show_trailing = prefs.constraint_show_trailing_zeros;
 
-    std::string result;
-
     if (show_trailing || rounding == 0) {
-        result = std::format("{:.{}f}", datum, rounding);
-    }
-    else {
-        std::ostringstream oss;
-        oss << std::fixed;
-        oss.precision(rounding);
-        oss << datum;
-
-        result = oss.str();
-
-        size_t decimal_pos = result.find('.');
-        if (decimal_pos != std::string::npos) {
-            size_t last_non_zero = result.find_last_not_of('0');
-            if (last_non_zero != std::string::npos) {
-                if (last_non_zero == decimal_pos) {
-                    result = result.substr(0, decimal_pos);
-                }
-                else {
-                    result = result.substr(0, last_non_zero + 1);
-                }
-            }
-        }
+        return std::format("{:.{}f}{}", datum, rounding, suffix);
     }
 
-    return result + suffix;
+    return std::format("{:.{}g}{}", datum, rounding, suffix);
 }
 
 } // namespace dune3d
