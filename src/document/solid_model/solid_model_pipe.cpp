@@ -23,11 +23,6 @@ namespace dune3d {
 
 namespace {
 
-static gp_Pnt vec3_to_pnt(const glm::dvec3 &p)
-{
-    return {p.x, p.y, p.z};
-}
-
 class WireBuilder {
 public:
     WireBuilder(const Document &doc) : m_doc(doc)
@@ -96,10 +91,10 @@ private:
             const auto p2 = wrkpl.transform(en_bezier->m_p2);
 
 
-            poles(1) = vec3_to_pnt(p1 - m_shift);
-            poles(2) = vec3_to_pnt(c1 - m_shift);
-            poles(3) = vec3_to_pnt(c2 - m_shift);
-            poles(4) = vec3_to_pnt(p2 - m_shift);
+            poles(1) = solid_model_util::vec3_to_pnt(p1 - m_shift);
+            poles(2) = solid_model_util::vec3_to_pnt(c1 - m_shift);
+            poles(3) = solid_model_util::vec3_to_pnt(c2 - m_shift);
+            poles(4) = solid_model_util::vec3_to_pnt(p2 - m_shift);
 
             Handle(Geom_BezierCurve) curve = new Geom_BezierCurve(poles);
             auto new_edge = BRepBuilderAPI_MakeEdge(curve);
@@ -110,7 +105,7 @@ private:
             const auto p1 = wrkpl.transform(en_line->m_p1) - m_shift;
             const auto p2 = wrkpl.transform(en_line->m_p2) - m_shift;
 
-            auto new_edge = BRepBuilderAPI_MakeEdge(vec3_to_pnt(p1), vec3_to_pnt(p2));
+            auto new_edge = BRepBuilderAPI_MakeEdge(solid_model_util::vec3_to_pnt(p1), solid_model_util::vec3_to_pnt(p2));
             m_wire.Add(new_edge);
         }
         else if (auto en_arc = dynamic_cast<const EntityArc2D *>(&entity)) {
@@ -122,9 +117,9 @@ private:
             const auto center = wrkpl.transform(en_arc->m_center) - m_shift;
             const auto radius = en_arc->get_radius();
 
-            gp_Circ garc(gp_Ax2(vec3_to_pnt(center), gp_Dir(normal.x, normal.y, normal.z)), radius);
+            gp_Circ garc(gp_Ax2(solid_model_util::vec3_to_pnt(center), gp_Dir(normal.x, normal.y, normal.z)), radius);
 
-            auto new_edge = BRepBuilderAPI_MakeEdge(garc, vec3_to_pnt(from), vec3_to_pnt(to));
+            auto new_edge = BRepBuilderAPI_MakeEdge(garc, solid_model_util::vec3_to_pnt(from), solid_model_util::vec3_to_pnt(to));
             m_wire.Add(new_edge);
         }
     }
