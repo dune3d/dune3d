@@ -73,7 +73,7 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
         }
         {
             auto r = Gtk::make_managed<PreferencesRowNumeric<int>>(
-                    "Constraint value rounding", "Maximum number of decimal places for constraint values",
+                    "Constraint display rounding", "Maximum number of decimal places to show in constraint values",
                     m_preferences, m_preferences.editor.constraint_value_rounding);
             r->get_spinbutton().set_range(0, 5);
             r->get_spinbutton().set_increments(1, 1);
@@ -82,10 +82,15 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
             gr->add_row(*r);
         }
         {
-            auto r = Gtk::make_managed<PreferencesRowBool>(
-                    "Show trailing zeros",
-                    "Always show the maximum number of decimal places (e.g., 30.000 instead of 30)", m_preferences,
-                    m_preferences.editor.constraint_show_trailing_zeros);
+            auto r = Gtk::make_managed<PreferencesRowEnum<EditorPreferences::TrailingZeros>>(
+                    "Trailing zeros", "Control how trailing zeros are displayed in constraint values", m_preferences,
+                    m_preferences.editor.constraint_trailing_zeros,
+                    std::vector<std::pair<EditorPreferences::TrailingZeros, std::string>>{
+                            {EditorPreferences::TrailingZeros::OFF, "Off"},
+                            {EditorPreferences::TrailingZeros::ONE_DECIMAL, "Keep 1 decimal"},
+                            {EditorPreferences::TrailingZeros::ON, "On"},
+                    });
+            r->bind();
             gr->add_row(*r);
         }
     }
