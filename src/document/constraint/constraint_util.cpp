@@ -44,42 +44,46 @@ std::string format_constraint_value(double datum, const std::string &suffix)
     const auto rounding = prefs.constraint_value_rounding;
     const auto trailing_zeros = prefs.constraint_trailing_zeros;
 
+    std::string formatted_number;
+
     switch (trailing_zeros) {
     case EditorPreferences::TrailingZeros::ON:
-        return std::format("{:.{}f}{}", datum, rounding, suffix);
+        formatted_number = std::format("{:.{}f}", datum, rounding);
+        break;
 
     case EditorPreferences::TrailingZeros::ONE_DECIMAL:
         if (datum == std::round(datum)) {
-            return std::format("{:.1f}{}", datum, suffix);
+            formatted_number = std::format("{:.1f}", datum);
         }
-        [[fallthrough]];
+        else {
+            formatted_number = std::format("{:.{}f}", datum, rounding);
+            if (rounding > 0) {
+                auto pos = formatted_number.find_last_not_of('0');
+                if (pos != std::string::npos && formatted_number[pos] == '.') {
+                    formatted_number = formatted_number.substr(0, pos);
+                }
+                else if (pos != std::string::npos) {
+                    formatted_number = formatted_number.substr(0, pos + 1);
+                }
+            }
+        }
+        break;
 
-    case EditorPreferences::TrailingZeros::OFF: {
-        auto formatted = std::format("{:.{}f}{}", datum, rounding, suffix);
+    case EditorPreferences::TrailingZeros::OFF:
+        formatted_number = std::format("{:.{}f}", datum, rounding);
         if (rounding > 0) {
-            auto pos = formatted.find_last_not_of('0');
-            if (pos != std::string::npos && formatted[pos] == '.') {
-                formatted = formatted.substr(0, pos);
+            auto pos = formatted_number.find_last_not_of('0');
+            if (pos != std::string::npos && formatted_number[pos] == '.') {
+                formatted_number = formatted_number.substr(0, pos);
             }
             else if (pos != std::string::npos) {
-                formatted = formatted.substr(0, pos + 1);
+                formatted_number = formatted_number.substr(0, pos + 1);
             }
         }
-        return formatted;
-    }
+        break;
     }
 
-    auto formatted = std::format("{:.{}f}{}", datum, rounding, suffix);
-    if (rounding > 0) {
-        auto pos = formatted.find_last_not_of('0');
-        if (pos != std::string::npos && formatted[pos] == '.') {
-            formatted = formatted.substr(0, pos);
-        }
-        else if (pos != std::string::npos) {
-            formatted = formatted.substr(0, pos + 1);
-        }
-    }
-    return formatted;
+    return formatted_number + suffix;
 }
 
 } // namespace dune3d

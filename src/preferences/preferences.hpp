@@ -42,7 +42,7 @@ public:
     bool preview_constraints = true;
     int constraint_value_rounding = 3;
     enum class TrailingZeros { OFF, ONE_DECIMAL, ON };
-    TrailingZeros constraint_trailing_zeros = TrailingZeros::OFF;
+    TrailingZeros constraint_trailing_zeros = TrailingZeros::ONE_DECIMAL;
 
     void load_from_json(const json &j);
     json serialize() const;
