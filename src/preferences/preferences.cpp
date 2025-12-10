@@ -200,7 +200,7 @@ void EditorPreferences::load_from_json(const json &j)
     preview_constraints = j.value("preview_constraints", true);
     constraint_value_rounding = j.value("constraint_value_rounding", 3);
     constraint_trailing_zeros =
-            trailing_zeros_lut.lookup(j.value("constraint_trailing_zeros", "off"), TrailingZeros::OFF);
+            trailing_zeros_lut.lookup(j.value("constraint_trailing_zeros", "one_decimal"), TrailingZeros::ONE_DECIMAL);
 }
 
 
