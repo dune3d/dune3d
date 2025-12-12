@@ -1,5 +1,6 @@
 #pragma once
 #include <set>
+#include <string>
 #include "document/entity/entity_and_point.hpp"
 
 namespace dune3d {
@@ -62,5 +63,7 @@ template <typename T> std::set<EntityAndPoint> get_referenced_entities_and_point
     return detail::get_referenced_entities_and_points_from_constraint_helper(constraint,
                                                                              std::make_index_sequence<size>{});
 }
+
+std::string format_constraint_value(double datum, const std::string &suffix = "");
 
 } // namespace dune3d

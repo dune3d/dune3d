@@ -137,7 +137,7 @@ double ConstraintLinesAngle::get_display_datum(const Document &doc) const
 
 std::string ConstraintLinesAngle::format_datum(double datum) const
 {
-    return std::format("{:.1f}°", datum);
+    return format_constraint_value(datum, "°");
 }
 
 } // namespace dune3d

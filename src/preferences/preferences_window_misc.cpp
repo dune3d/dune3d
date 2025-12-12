@@ -71,6 +71,28 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
                     m_preferences, m_preferences.editor.preview_constraints);
             gr->add_row(*r);
         }
+        {
+            auto r = Gtk::make_managed<PreferencesRowNumeric<int>>(
+                    "Constraint display rounding", "Maximum number of decimal places to show in constraint values",
+                    m_preferences, m_preferences.editor.constraint_value_rounding);
+            r->get_spinbutton().set_range(0, 5);
+            r->get_spinbutton().set_increments(1, 1);
+            r->get_spinbutton().set_digits(0);
+            r->bind();
+            gr->add_row(*r);
+        }
+        {
+            auto r = Gtk::make_managed<PreferencesRowEnum<EditorPreferences::TrailingZeros>>(
+                    "Trailing zeros", "Control how trailing zeros are displayed in constraint values", m_preferences,
+                    m_preferences.editor.constraint_trailing_zeros,
+                    std::vector<std::pair<EditorPreferences::TrailingZeros, std::string>>{
+                            {EditorPreferences::TrailingZeros::OFF, "Off"},
+                            {EditorPreferences::TrailingZeros::ONE_DECIMAL, "Keep 1 decimal"},
+                            {EditorPreferences::TrailingZeros::ON, "On"},
+                    });
+            r->bind();
+            gr->add_row(*r);
+        }
     }
     {
         auto gr = Gtk::make_managed<PreferencesGroup>("Action Bar");

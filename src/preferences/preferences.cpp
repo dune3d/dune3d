@@ -180,16 +180,27 @@ void ToolBarPreferences::load_from_json(const json &j)
     vertical_layout = j.value("vertical_layout", false);
 }
 
+static const LutEnumStr<EditorPreferences::TrailingZeros> trailing_zeros_lut = {
+        {"off", EditorPreferences::TrailingZeros::OFF},
+        {"one_decimal", EditorPreferences::TrailingZeros::ONE_DECIMAL},
+        {"on", EditorPreferences::TrailingZeros::ON},
+};
+
 json EditorPreferences::serialize() const
 {
     json j;
     j["preview_constraints"] = preview_constraints;
+    j["constraint_value_rounding"] = constraint_value_rounding;
+    j["constraint_trailing_zeros"] = trailing_zeros_lut.lookup_reverse(constraint_trailing_zeros);
     return j;
 }
 
 void EditorPreferences::load_from_json(const json &j)
 {
     preview_constraints = j.value("preview_constraints", true);
+    constraint_value_rounding = j.value("constraint_value_rounding", 3);
+    constraint_trailing_zeros =
+            trailing_zeros_lut.lookup(j.value("constraint_trailing_zeros", "one_decimal"), TrailingZeros::ONE_DECIMAL);
 }
 
 
