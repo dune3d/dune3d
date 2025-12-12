@@ -30,10 +30,11 @@ void GroupEditor::update_body_name()
 
 GroupEditor::GroupEditor(Core &core, const UUID &group_uu) : m_core(core), m_group_uu(group_uu)
 {
+    add_css_class("group_editor");
     set_valign(Gtk::Align::START);
-    set_row_spacing(5);
+    set_row_spacing(2);
     set_column_spacing(5);
-    set_margin(10);
+    set_margin(5);
     set_row_homogeneous(true);
     m_type_label = Gtk::manage(new Gtk::Label);
     m_type_label->set_xalign(0);
