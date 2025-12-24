@@ -184,3 +184,29 @@ jobs:
     - name: Test python module
       if: ${{ matrix.target == 'dune3d_py.so' }}
       run: python3 -c 'import sys; sys.path.append("../build"); import dune3d_py'
+      
+  build-opensuse:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - all
+          - dune3d_py.so
+    runs-on: ubuntu-latest
+    container: opensuse/tumbleweed
+    needs: stylecheck
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: zypper in -y git make gcc gcc-c++ pkg-config occt-devel gtkmm4-devel libuuid-devel cairomm-devel glm-devel binutils libspnav-devel python3 meson cmake libepoxy-devel eigen3-devel python313-gobject typelib-1_0-Rsvg-2_0
+    - name: Install python dependencies
+      if: ${{ matrix.target == 'dune3d_py.so' }}
+      run: zypper in -y python-pybind11-common-devel python3-devel
+    - name: Build
+      run: |
+        mkdir ../build
+        CXX=${{ matrix.os.cxx }} CC=${{ matrix.os.cc }} meson setup ../build
+        ninja -C ../build ${{ matrix.target }}
+    - name: Test python module
+      if: ${{ matrix.target == 'dune3d_py.so' }}
+      run: python3 -c 'import sys; sys.path.append("../build"); import dune3d_py'
