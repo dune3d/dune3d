@@ -28,7 +28,7 @@
                 pkgs.librsvg
                 pkgs.gobject-introspection
                 pkgs.pkg-config
-                pkgs.wrapGAppsHook
+                pkgs.wrapGAppsHook3
                 (pkgs.python3.withPackages (p: [ p.pygobject3 ]))
               ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
                 pkgs.desktopToDarwinBundle
