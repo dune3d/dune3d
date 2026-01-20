@@ -1845,12 +1845,7 @@ void System::update_document()
                         val = ConstraintLengthRatio::s_max_ratio;
                 }
 
-                if (!std::isfinite(val))
-                    val = ConstraintLengthRatio::s_max_ratio;
-                else
-                    val = std::abs(val);
-
-                c->m_ratio = std::clamp(val, ConstraintLengthRatio::s_min_ratio, ConstraintLengthRatio::s_max_ratio);
+                c->set_datum(val);
                 c->m_modify_to_satisfy = false;
             }
         }
@@ -2380,8 +2375,7 @@ void System::visit(const ConstraintLengthRatio &constraint)
     ConstraintBase cb = {};
     cb.h.v = c;
     cb.group.v = group;
-    const auto ratio =
-            std::clamp(constraint.m_ratio, ConstraintLengthRatio::s_min_ratio, ConstraintLengthRatio::s_max_ratio);
+    const auto ratio = constraint.m_ratio;
     cb.valA = ratio;
     cb.reference = constraint.m_measurement;
 

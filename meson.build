@@ -292,6 +292,7 @@ src_gui = files(
   'src/dialogs/enter_text_window.cpp',
   'src/widgets/spin_button_dim.cpp',
   'src/widgets/spin_button_angle.cpp',
+  'src/widgets/spin_button_ratio.cpp',
   'src/util/gtk_util.cpp',
   'src/preferences/preferences_window.cpp',
   'src/preferences/action_editor.cpp',

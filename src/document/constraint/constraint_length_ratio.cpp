@@ -1,5 +1,6 @@
 #include "constraint_length_ratio.hpp"
 
+#include "constraint_util.hpp"
 #include "constraintt_impl.hpp"
 #include "document/document.hpp"
 #include "document/entity/entity.hpp"
@@ -10,10 +11,19 @@
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
 #include <algorithm>
-#include <format>
+#include <cmath>
 #include "util/glm_util.hpp"
 
 namespace dune3d {
+
+static double clamp_ratio(double value)
+{
+    if (!std::isfinite(value))
+        value = ConstraintLengthRatio::s_max_ratio;
+
+    value = std::abs(value);
+    return std::clamp(value, ConstraintLengthRatio::s_min_ratio, ConstraintLengthRatio::s_max_ratio);
+}
 
 static glm::dvec3 get_entity_anchor(const Document &doc, const Entity &entity)
 {
@@ -38,7 +48,7 @@ ConstraintLengthRatio::ConstraintLengthRatio(const UUID &uu, const json &j)
       m_ratio(j.value("ratio", 1.0)), m_wrkpl(j.value("wrkpl", UUID{})), m_measurement(j.value("measurement", false))
 {
     m_offset = j.value("offset", glm::dvec3(0.0, 0.0, 0.0));
-    m_ratio = std::clamp(m_ratio, s_min_ratio, s_max_ratio);
+    m_ratio = clamp_ratio(m_ratio);
 }
 
 json ConstraintLengthRatio::serialize() const
@@ -80,9 +90,14 @@ DatumUnit ConstraintLengthRatio::get_datum_unit() const
     return DatumUnit::RATIO;
 }
 
+void ConstraintLengthRatio::set_datum(double d)
+{
+    m_ratio = clamp_ratio(d);
+}
+
 std::string ConstraintLengthRatio::format_datum(double datum) const
 {
-    return std::format("{:.4f}×", datum);
+    return format_constraint_value(clamp_ratio(datum), "×");
 }
 
 } // namespace dune3d

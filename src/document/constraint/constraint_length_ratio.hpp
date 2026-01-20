@@ -50,10 +50,7 @@ public:
     {
         return m_ratio;
     }
-    void set_datum(double d) override
-    {
-        m_ratio = std::clamp(d, s_min_ratio, s_max_ratio);
-    }
+    void set_datum(double d) override;
     double get_display_datum(const Document &) const override;
     double measure_datum(const Document &) const override;
     std::pair<double, double> get_datum_range() const override
