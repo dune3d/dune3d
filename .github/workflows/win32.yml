@@ -42,6 +42,11 @@ jobs:
       run: |
         wget https://github.com/carrotIndustries/mingw-opencascade-lite/releases/download/v7.8.1-1/mingw-w64-x86_64-opencascade-lite-7.8.1-1-any.pkg.tar.zst
         pacman -U mingw-w64-x86_64-opencascade-lite-7.8.1-1-any.pkg.tar.zst --noconfirm
+    - name: Use patched glib2
+      shell: msys2 {0}
+      run: |
+        wget https://github.com/carrotIndustries/mingw-glib2/releases/download/2.86.3-2/mingw-w64-x86_64-glib2-2.86.3-2-any.pkg.tar.zst
+        pacman -U mingw-w64-x86_64-glib2-2.86.3-2-any.pkg.tar.zst --noconfirm
     - name: Build
       shell: msys2 {0}
       run: |
