@@ -52,7 +52,7 @@ json Document::serialize() const
     return j;
 }
 
-static const unsigned int app_version = 35;
+static const unsigned int app_version = 36;
 
 unsigned int Document::get_app_version()
 {

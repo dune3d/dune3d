@@ -32,6 +32,7 @@ public:
     virtual void tool_update_data(std::unique_ptr<ToolData> data) = 0;
     virtual void enable_hover_selection(bool enable = true) = 0;
     virtual std::optional<SelectableRef> get_hover_selection() const = 0;
+    virtual bool last_selection_is_icon() const = 0;
     virtual void set_no_canvas_update(bool v) = 0;
     virtual void set_canvas_selection_mode(SelectionMode mode) = 0;
     virtual void canvas_update_from_tool() = 0;

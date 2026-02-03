@@ -104,6 +104,8 @@ public:
         return m_hover_selection;
     }
 
+    bool last_selection_is_icon() const;
+
     void set_hover_selection(const std::optional<SelectableRef> &sr);
 
     void set_selection_invisible(bool selection_invisible) override
@@ -420,6 +422,7 @@ private:
 
     SelectionMode m_selection_mode = SelectionMode::HOVER;
     std::optional<SelectableRef> m_hover_selection;
+    bool m_hover_selection_is_icon = false;
 
     double m_last_x = 0, m_last_y = 0;
     void update_hover_selection();

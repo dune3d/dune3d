@@ -28,6 +28,7 @@
 #include "logger/log_util.hpp"
 #include "nlohmann/json.hpp"
 #include "buffer.hpp"
+#include <algorithm>
 #include <iostream>
 
 namespace dune3d {
@@ -1322,6 +1323,11 @@ std::optional<SelectableRef> Editor::get_hover_selection() const
     return get_canvas().get_hover_selection();
 }
 
+bool Editor::last_selection_is_icon() const
+{
+    return get_canvas().last_selection_is_icon();
+}
+
 glm::dvec3 Editor::get_cursor_pos() const
 {
     return get_canvas().get_cursor_pos();
@@ -1417,8 +1423,12 @@ void Editor::handle_click(unsigned int button, unsigned int n)
         if (!sel.contains(hover_sel.value()))
             sel = {*hover_sel};
 
+        const bool clicked_on_icon =
+                get_canvas().last_selection_is_icon()
+                && std::any_of(sel.begin(), sel.end(), [](const SelectableRef &sr) { return sr.is_constraint(); });
         m_drag_tool = get_tool_for_drag_move(false, sel);
-        if (m_drag_tool != ToolID::NONE && m_core.tool_can_begin(m_drag_tool, sel).get_can_begin()) {
+        if (!clicked_on_icon && m_drag_tool != ToolID::NONE
+            && m_core.tool_can_begin(m_drag_tool, sel).get_can_begin()) {
             get_canvas().inhibit_drag_selection();
             m_cursor_pos_win_drag_begin = get_canvas().get_cursor_pos_win();
             m_selection_for_drag = sel;
