@@ -465,21 +465,6 @@ std::optional<TwoPoints> joint_from_selection(const Document &doc, const std::se
     return {};
 }
 
-std::set<EntityAndPoint> coincident_enps_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
-                                                        const std::set<Entity::Type> &types)
-{
-    auto enp = point_from_selection(doc, sel);
-    if (!enp)
-        return {};
-    auto enps = coincident_enps_from_enp(doc, *enp);
-    decltype(enps) enps_filtered;
-    for (const auto &it : enps) {
-        if (types.contains(doc.get_entity(it.entity).get_type()))
-            enps_filtered.insert(it);
-    }
-    return enps_filtered;
-}
-
 std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                         const std::set<Entity::Type> &types)
 {
