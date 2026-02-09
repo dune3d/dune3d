@@ -14,14 +14,14 @@
 
 namespace dune3d {
 
-static auto curves_from_selection(const Document &doc, const std::set<SelectableRef> &sel)
+static auto curves_from_selection(const Document &doc, const std::set<SelectableRef> &sel, const UUID &group)
 {
-    return joint_from_selection(doc, sel, {Entity::Type::ARC_2D, Entity::Type::BEZIER_2D});
+    return joint_from_selection(doc, sel, {Entity::Type::ARC_2D, Entity::Type::BEZIER_2D}, group);
 }
 
 ToolBase::CanBegin ToolConstrainCurveCurveTangent::can_begin()
 {
-    auto curves = curves_from_selection(get_doc(), m_selection);
+    auto curves = curves_from_selection(get_doc(), m_selection, m_core.get_current_group());
     if (!curves.has_value())
         return false;
 
@@ -55,7 +55,7 @@ ToolBase::CanBegin ToolConstrainCurveCurveTangent::can_begin()
 
 ToolResponse ToolConstrainCurveCurveTangent::begin(const ToolArgs &args)
 {
-    auto curves = curves_from_selection(get_doc(), m_selection);
+    auto curves = curves_from_selection(get_doc(), m_selection, m_core.get_current_group());
     if (!curves)
         return ToolResponse::end();
 

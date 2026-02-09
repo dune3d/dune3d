@@ -69,7 +69,7 @@ std::optional<LinesAndPoint> lines_and_point_from_selection(const Document &doc,
 std::optional<UUID> document_from_selection(const std::set<SelectableRef> &sel);
 
 std::optional<TwoPoints> joint_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all,
-                                              const std::set<EntityType> &types);
+                                              const std::set<EntityType> &types, const UUID &group);
 
 std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
                                         const std::set<EntityType> &types);
