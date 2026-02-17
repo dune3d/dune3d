@@ -1,6 +1,7 @@
 #include "enter_datum_window.hpp"
 #include "widgets/spin_button_dim.hpp"
 #include "widgets/spin_button_angle.hpp"
+#include "widgets/spin_button_ratio.hpp"
 #include "editor/editor_interface.hpp"
 #include "util/gtk_util.hpp"
 
@@ -33,6 +34,11 @@ EnterDatumWindow::EnterDatumWindow(Gtk::Window &parent, EditorInterface &intf, c
         m_sp = Gtk::make_managed<Gtk::SpinButton>();
         m_sp->set_range(-1e3, 1e3);
         break;
+
+    case DatumUnit::RATIO: {
+        auto sp = Gtk::make_managed<SpinButtonRatio>();
+        m_sp = sp;
+    } break;
     }
     m_sp->set_margin_start(8);
     m_sp->set_value(def);

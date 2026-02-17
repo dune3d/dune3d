@@ -1092,6 +1092,42 @@ void Renderer::visit(const ConstraintEqualLength &constraint)
     add_constraint(c2, IconID::CONSTRAINT_EQUAL_LENGTH, constraint.m_uuid, v2);
 }
 
+static glm::dvec3 length_indicator_vec(const Entity &entity, const Document &doc)
+{
+    if (entity.of_type(Entity::Type::LINE_2D, Entity::Type::LINE_3D))
+        return get_vec(entity.m_uuid, doc);
+
+    if (entity.of_type(Entity::Type::ARC_2D, Entity::Type::ARC_3D))
+        return entity.get_point(2, doc) - entity.get_point(1, doc);
+
+    return glm::dvec3(0, 0, 0);
+}
+
+void Renderer::visit(const ConstraintLengthRatio &constraint)
+{
+    AutoSaveRestore asr{*this};
+    m_ca.set_vertex_constraint(true);
+
+    auto &e1 = m_doc->get_entity(constraint.m_entity1);
+    auto &e2 = m_doc->get_entity(constraint.m_entity2);
+
+    const auto c1 = get_center(e1, *m_doc);
+    const auto c2 = get_center(e2, *m_doc);
+
+    add_constraint(c1, IconID::CONSTRAINT_LENGTH_RATIO, constraint.m_uuid, length_indicator_vec(e1, *m_doc));
+    add_constraint(c2, IconID::CONSTRAINT_LENGTH_RATIO, constraint.m_uuid, length_indicator_vec(e2, *m_doc));
+
+    auto position = constraint.get_origin(*m_doc) + constraint.get_offset();
+    if (constraint.m_wrkpl) {
+        auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constraint.m_wrkpl);
+        position = wrkpl.project3(position);
+    }
+
+    const auto label = format_datum(*m_doc, constraint);
+    add_selectables(SelectableRef{SelectableRef::Type::CONSTRAINT, constraint.m_uuid, 0},
+                    m_ca.draw_bitmap_text(position, 1, label));
+}
+
 void Renderer::visit(const ConstraintEqualRadius &constraint)
 {
     auto c1 = get_center(m_doc->get_entity(constraint.m_entity1), *m_doc);

@@ -49,6 +49,7 @@ public:
     void tool_update_data(std::unique_ptr<ToolData> data) override;
     void enable_hover_selection(bool enable) override;
     std::optional<SelectableRef> get_hover_selection() const override;
+    bool last_selection_is_icon() const override;
     void set_no_canvas_update(bool v) override
     {
         m_no_canvas_update = v;

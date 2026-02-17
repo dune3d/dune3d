@@ -19,6 +19,8 @@ std::string Constraint::get_type_name(Type type)
     switch (type) {
     case Type::EQUAL_LENGTH:
         return "Equal length";
+    case Type::LENGTH_RATIO:
+        return "Length ratio";
     case Type::EQUAL_RADIUS:
         return "Equal radius";
     case Type::PARALLEL:
@@ -142,6 +144,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                      {Constraint::Type::POINT_ON_BEZIER, "point_on_bezier"},
                                      {Constraint::Type::BEZIER_BEZIER_SAME_CURVATURE, "bezier_bezier_same_curvature"},
                                      {Constraint::Type::BEZIER_ARC_SAME_CURVATURE, "bezier_arc_same_curvature"},
+                                     {Constraint::Type::LENGTH_RATIO, "length_ratio"},
                              })
 
 json Constraint::serialize() const
@@ -163,6 +166,8 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintPointOnCircle>(uu, j);
     case Type::EQUAL_LENGTH:
         return std::make_unique<ConstraintEqualLength>(uu, j);
+    case Type::LENGTH_RATIO:
+        return std::make_unique<ConstraintLengthRatio>(uu, j);
     case Type::EQUAL_RADIUS:
         return std::make_unique<ConstraintEqualRadius>(uu, j);
     case Type::SAME_ORIENTATION:
