@@ -19,7 +19,7 @@ GroupEditorFillet::GroupEditorFillet(Core &core, const UUID &group_uu) : GroupEd
 
     {
         auto button = Gtk::make_managed<Gtk::Button>("Select edges…");
-        button->signal_clicked().connect([this] { m_signal_trigger_action.emit(ToolID::SELECT_EDGES); });
+        button->signal_clicked().connect([this] { m_signal_trigger_action.emit(ToolID::SELECT_ENTITIES); });
         attach(*button, 0, m_top++, 2, 1);
     }
 }

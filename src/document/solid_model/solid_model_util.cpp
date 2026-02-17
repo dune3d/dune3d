@@ -2,8 +2,11 @@
 #include "util/paths.hpp"
 #include "document/entity/entity.hpp"
 #include "document/entity/entity_line2d.hpp"
+#include "document/entity/entity_line3d.hpp"
 #include "document/entity/entity_arc2d.hpp"
+#include "document/entity/entity_arc3d.hpp"
 #include "document/entity/entity_circle2d.hpp"
+#include "document/entity/entity_circle3d.hpp"
 #include "document/entity/entity_bezier2d.hpp"
 #include "document/entity/entity_workplane.hpp"
 #include "document/entity/entity_cluster.hpp"
@@ -17,10 +20,23 @@
 #include <gp_Pnt.hxx>
 #include <NCollection_Array1.hxx>
 #include <Geom_BezierCurve.hxx>
+#include <Geom_TrimmedCurve.hxx>
 #include <gp_Circ.hxx>
+#include <BRep_Tool.hxx>
+#include <TopExp.hxx>
+#include <Geom_Curve.hxx>
+#include <Geom_Circle.hxx>
+#include <Geom_Line.hxx>
+#include <gp_Lin.hxx>
+#include <GeomAPI_ProjectPointOnCurve.hxx>
+#include <TopoDS_Edge.hxx>
 
 namespace dune3d::solid_model_util {
 
+gp_Pnt vec3_to_pnt(const glm::dvec3 &p)
+{
+    return {p.x, p.y, p.z};
+}
 
 FaceBuilder::FaceBuilder()
 {
@@ -351,6 +367,192 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole,
         }
     }
     return wire;
+}
+
+bool isPointOnCurve(Handle(Geom_Curve)& curve, Standard_Real first, Standard_Real last, const gp_Pnt& point, double tol) {
+    if (curve.IsNull()) return false;
+
+    GeomAPI_ProjectPointOnCurve proj(point, curve, first, last);
+    if (proj.NbPoints() == 0) return false;
+
+    gp_Pnt closest = proj.NearestPoint();
+    if (point.Distance(closest) > tol) return false;
+
+    Standard_Real param = proj.LowerDistanceParameter();
+    return (param >= first - tol && param <= last + tol);
+}
+
+Handle(Geom_Curve) entityToCurve(const Entity *entity, const dune3d::Document &doc) {
+    // glm::dvec3 m_shift = entity->get_point(1, doc);
+    
+    if (auto en_bezier = dynamic_cast<const EntityBezier2D *>(entity)) {
+        const auto &wrkpl = doc.get_entity<EntityWorkplane>(en_bezier->m_wrkpl);
+        TColgp_Array1OfPnt poles(1, 4);
+        const auto c1 = wrkpl.transform(en_bezier->m_c1);
+        const auto c2 = wrkpl.transform(en_bezier->m_c2);
+        const auto p1 = wrkpl.transform(en_bezier->m_p1);
+        const auto p2 = wrkpl.transform(en_bezier->m_p2);
+
+
+        poles(1) = vec3_to_pnt(p1);
+        poles(2) = vec3_to_pnt(c1);
+        poles(3) = vec3_to_pnt(c2);
+        poles(4) = vec3_to_pnt(p2);
+
+        return new Geom_BezierCurve(poles);
+    }
+    else if (auto en_line = dynamic_cast<const EntityLine2D *>(entity)) {
+        const auto &wrkpl = doc.get_entity<EntityWorkplane>(en_line->m_wrkpl);
+        const auto p1 = vec3_to_pnt(wrkpl.transform(en_line->m_p1));
+        const auto p2 = vec3_to_pnt(wrkpl.transform(en_line->m_p2));
+
+        gp_Vec dir(p1, p2);
+        gp_Lin line(p1, dir);
+
+        Handle(Geom_Line) geomLine = new Geom_Line(line);
+
+        Standard_Real firstParam = 0.0;
+        Standard_Real lastParam  = dir.Magnitude();
+
+        Handle(Geom_TrimmedCurve) lineCurve = new Geom_TrimmedCurve(geomLine, firstParam, lastParam);
+
+        return lineCurve;
+    }
+    else if (auto en_line = dynamic_cast<const EntityLine3D *>(entity)) {
+        const auto p1 = vec3_to_pnt(en_line->get_point(1, doc));
+        const auto p2 = vec3_to_pnt(en_line->get_point(2, doc));
+
+        gp_Vec dir(p1, p2);
+        gp_Lin line(p1, dir);
+
+        Handle(Geom_Line) geomLine = new Geom_Line(line);
+
+        Standard_Real firstParam = 0.0;
+        Standard_Real lastParam  = dir.Magnitude();
+
+        Handle(Geom_TrimmedCurve) lineCurve = new Geom_TrimmedCurve(geomLine, firstParam, lastParam);
+
+        return lineCurve;
+    }
+    else if (auto en_arc = dynamic_cast<const EntityArc2D *>(entity)) {
+        const auto &wrkpl = doc.get_entity<EntityWorkplane>(en_arc->m_wrkpl);
+        const auto normal = wrkpl.get_normal_vector();
+
+        const auto center = wrkpl.transform(en_arc->m_center);
+        const auto radius = en_arc->get_radius();
+
+        gp_Circ garc(gp_Ax2(vec3_to_pnt(center), gp_Dir(normal.x, normal.y, normal.z)), radius);
+        Handle(Geom_Circle) geomArc = new Geom_Circle(garc); // we just create a normal circle for now, an arc isn't really necessary
+
+        return geomArc;
+    }
+    else if (auto en_arc = dynamic_cast<const EntityArc3D *>(entity)) {
+        const auto center = vec3_to_pnt(en_arc->m_center);
+        const auto from = vec3_to_pnt(en_arc->m_from);
+        const auto to = vec3_to_pnt(en_arc->m_to);
+        const auto radius = abs(center.Distance(from));
+        const gp_Vec v1(center, from);
+        const gp_Vec v2(center, to);
+        const gp_Dir normal = v1.Crossed(v2);
+
+        gp_Circ garc(gp_Ax2(center, normal), radius);
+        Handle(Geom_Circle) geomArc = new Geom_Circle(garc);
+
+        return geomArc;
+    }
+    else if (auto en_circle = dynamic_cast<const EntityCircle2D *>(entity)) {
+        const auto &wrkpl = doc.get_entity<EntityWorkplane>(en_circle->m_wrkpl);
+        const auto normal = wrkpl.get_normal_vector();
+        const auto center = wrkpl.transform(en_circle->m_center);
+        const auto radius = en_circle->get_radius();
+
+        gp_Circ gcircle(gp_Ax2(vec3_to_pnt(center), gp_Dir(normal.x, normal.y, normal.z)), radius);
+        Handle(Geom_Circle) geomCircle = new Geom_Circle(gcircle);
+
+        return geomCircle;
+    }
+    else if (auto en_circle = dynamic_cast<const EntityCircle3D *>(entity)) {
+        const auto normal = en_circle->m_normal;
+        const auto center = en_circle->m_center;
+        const auto radius = en_circle->m_radius;
+
+        gp_Circ gcircle(gp_Ax2(vec3_to_pnt(center), gp_Dir(normal.x, normal.y, normal.z)), radius);
+        Handle(Geom_Circle) geomCircle = new Geom_Circle(gcircle);
+
+        return geomCircle;
+    }
+
+    return nullptr;
+}
+
+void getPointsOfCurve(const Handle(Geom_Curve)& curve, 
+                      gp_Pnt& pointStart, 
+                      gp_Pnt& pointMid, 
+                      gp_Pnt& pointEnd, 
+                      bool updateParams,
+                      Standard_Real &paramStart, 
+                      Standard_Real &paramMid, 
+                      Standard_Real &paramEnd) 
+{
+    if (updateParams) {
+        paramStart = curve->FirstParameter();
+        paramEnd   = curve->LastParameter();
+    }
+
+    curve->D0(paramStart, pointStart);
+    
+    paramMid = (paramStart + paramEnd) / 2;
+
+    curve->D0(paramMid, pointMid);
+    curve->D0(paramEnd, pointEnd);
+}
+
+bool isEntityPartnerToEdge(const TopoDS_Edge& edge, const Entity *entity, const dune3d::Document &doc, double tol) {
+    Handle(Geom_Curve) entityCurve = entityToCurve(entity, doc);
+   
+    if (entityCurve.IsNull()) return false;
+
+    gp_Pnt entityStart, entityMid, entityEnd;
+    Standard_Real entityParamStart, entityParamMid, entityParamEnd;
+
+    getPointsOfCurve(entityCurve,
+                     entityStart,
+                     entityMid,
+                     entityEnd,
+                     true,
+                     entityParamStart,
+                     entityParamMid,
+                     entityParamEnd);
+
+    gp_Pnt edgeStart, edgeMid, edgeEnd;
+    Standard_Real edgeParamStart, edgeParamMid, edgeParamEnd;
+    Handle(Geom_Curve) edgeCurve = BRep_Tool::Curve(edge, edgeParamStart, edgeParamEnd);
+    
+    if (edgeCurve.IsNull()) return false;
+
+    getPointsOfCurve(edgeCurve,
+                     edgeStart,
+                     edgeMid,
+                     edgeEnd,
+                     false, // if we update the params, they will get set to infinite values
+                     edgeParamStart,
+                     edgeParamMid,
+                     edgeParamEnd);
+
+    int numIntersections = 0;
+    
+    // check if the entity curve intersects the solid edge's curve
+    numIntersections += isPointOnCurve(edgeCurve, edgeParamStart, edgeParamEnd, entityStart, tol);
+    numIntersections += isPointOnCurve(edgeCurve, edgeParamStart, edgeParamEnd, entityMid, tol);
+    numIntersections += isPointOnCurve(edgeCurve, edgeParamStart, edgeParamEnd, entityEnd, tol);
+
+
+    // check if the solid edge's curve intersects the entity curve
+    numIntersections += isPointOnCurve(entityCurve, entityParamStart, entityParamEnd, edgeStart, tol);
+    numIntersections += isPointOnCurve(entityCurve, entityParamStart, entityParamEnd, edgeMid, tol);
+    numIntersections += isPointOnCurve(entityCurve, entityParamStart, entityParamEnd, edgeEnd, tol);
+
+    return numIntersections >= 3;
 }
 
 FaceBuilder FaceBuilder::from_document(const Document &doc, const UUID &wrkpl_uu, const UUID &source_group_uu,

@@ -23,6 +23,14 @@
             }
         ]
     ],
+    "CLEAR_ENTITIES": [
+        [
+            {
+                "key": "c",
+                "mod": 0
+            }
+        ]
+    ],
     "ENTER_N_SIDES": [
         [
             {

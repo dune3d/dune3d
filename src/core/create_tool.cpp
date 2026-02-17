@@ -51,6 +51,7 @@
 #include "tools/tool_constrain_line_points_perpendicular.hpp"
 #include "tools/tool_text_to_cluster.hpp"
 #include "tools/tool_select_spine_entities.hpp"
+#include "tools/tool_select_entities.hpp"
 #include "tools/tool_import_picture.hpp"
 #include "tools/tool_add_picture_anchor.hpp"
 #include "tools/tool_move_picture_anchor.hpp"
@@ -260,6 +261,9 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
 
     case ToolID::SELECT_SPINE_ENTITIES:
         return std::make_unique<ToolSelectSpineEntities>(tool_id, *this, m_intf, flags);
+    
+    case ToolID::SELECT_ENTITIES:
+        return std::make_unique<ToolSelectEntities>(tool_id, *this, m_intf, flags);
 
     case ToolID::IMPORT_PICTURE:
     case ToolID::PASTE_PICTURE:

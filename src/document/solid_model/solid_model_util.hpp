@@ -5,6 +5,7 @@
 #include <list>
 #include "clipper2/clipper.h"
 #include <TopoDS_Builder.hxx>
+#include <TopoDS_Edge.hxx>
 
 
 namespace dune3d {
@@ -20,6 +21,10 @@ class Paths;
 }
 namespace solid_model_util {
 using namespace paths;
+
+bool isEntityPartnerToEdge(const TopoDS_Edge& edge, const Entity* entity, const dune3d::Document &doc, double tol = 1e-5);
+
+gp_Pnt vec3_to_pnt(const glm::dvec3 &p);
 
 class FaceBuilder {
 public:
