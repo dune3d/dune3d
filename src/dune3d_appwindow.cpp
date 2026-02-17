@@ -82,6 +82,7 @@ Dune3DAppWindow::Dune3DAppWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk
     {
         auto paned = refBuilder->get_widget<Gtk::Paned>("paned");
         paned->set_shrink_start_child(false);
+        paned->add_css_class("paned");
     }
 
     m_left_bar = refBuilder->get_widget<Gtk::Paned>("left_bar");
