@@ -271,6 +271,8 @@ src_gui = files(
   'src/editor/group_editor/group_editor_create.cpp',
   'src/editor/group_editor/group_editor_exploded_cluster.cpp',
   'src/editor/group_editor/group_editor_extrude.cpp',
+  'src/editor/group_editor/group_editor_local_operation.cpp',
+  'src/editor/group_editor/group_editor_chamfer.cpp',
   'src/editor/group_editor/group_editor_fillet.cpp',
   'src/editor/group_editor/group_editor_loft.cpp',
   'src/editor/group_editor/group_editor_mirror.cpp',
