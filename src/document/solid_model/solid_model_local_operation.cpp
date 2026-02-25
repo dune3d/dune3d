@@ -11,8 +11,15 @@
 
 namespace dune3d {
 
-template <typename T>
-std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, GroupLocalOperation &group)
+template <typename TGroup> struct MakeOperation {};
+template <> struct MakeOperation<GroupChamfer> {
+    using Make = BRepFilletAPI_MakeChamfer;
+};
+template <> struct MakeOperation<GroupFillet> {
+    using Make = BRepFilletAPI_MakeFillet;
+};
+
+template <typename TGroup> std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, TGroup &group)
 {
     group.m_local_operation_messages.clear();
     if (group.m_edges.size() == 0) {
@@ -35,7 +42,7 @@ std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, Gr
     }
 
     try {
-        T mf(last_solid_model->m_shape_acc);
+        typename MakeOperation<TGroup>::Make mf(last_solid_model->m_shape_acc);
         {
             TopExp_Explorer topex(last_solid_model->m_shape_acc, TopAbs_EDGE);
             std::list<TopoDS_Shape> edges;
@@ -85,12 +92,12 @@ std::shared_ptr<const SolidModel> create_local_operation(const Document &doc, Gr
 
 std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupFillet &group)
 {
-    return create_local_operation<BRepFilletAPI_MakeFillet>(doc, group);
+    return create_local_operation(doc, group);
 }
 
 std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupChamfer &group)
 {
-    return create_local_operation<BRepFilletAPI_MakeChamfer>(doc, group);
+    return create_local_operation(doc, group);
 }
 
 } // namespace dune3d
