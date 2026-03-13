@@ -1,5 +1,6 @@
 #pragma once
 #include "group_editor_sweep.hpp"
+#include "widgets/spin_button_angle.hpp"
 
 namespace dune3d {
 
@@ -12,7 +13,9 @@ public:
 
 private:
     GroupRevolve &get_group();
+    bool update_angle();
 
+    SpinButtonAngle *m_angle_sp = nullptr;
     Gtk::DropDown *m_mode_combo = nullptr;
 };
 } // namespace dune3d
