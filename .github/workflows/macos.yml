@@ -61,9 +61,16 @@ jobs:
       timeout-minutes: 10
       run: |
         bash scripts/bundle_macos.sh
-        ditto -c -k --keepParent dist/Dune\ 3D.app dist/Dune3D-${{ matrix.arch }}.zip
+        brew install create-dmg
+        create-dmg \
+          --volname "Dune3D" \
+          --window-size 500 300 \
+          --icon-size 100 \
+          --app-drop-link 400 150 \
+          "dist/Dune3D-${{ matrix.arch }}.dmg" \
+          "dist/Dune 3D.app"
     - name: Upload bundle
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.artifact_name }}
-        path: "dist/Dune3D-${{ matrix.arch }}.zip"
+        path: "dist/Dune3D-${{ matrix.arch }}.dmg"
