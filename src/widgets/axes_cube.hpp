@@ -31,6 +31,7 @@ private:
     void render(const Cairo::RefPtr<Cairo::Context> &cr, int w, int h);
     void create_layout();
     void setup_controllers();
+    void update_hover_effect();
     int get_face_at_position(double x, double y) const;
     void update_transformed_vertices();
 };
