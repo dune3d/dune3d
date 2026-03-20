@@ -181,6 +181,8 @@ void Renderer::render(const Entity &entity)
 {
     if (!entity.m_visible)
         return;
+    if (m_workspace_view->show_only_solid_models())
+        return;
     if (entity.m_construction
         && ((entity.m_group != m_current_group->m_uuid
              && !m_workspace_view->construction_entities_from_previous_groups_are_visible())
