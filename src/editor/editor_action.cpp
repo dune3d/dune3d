@@ -110,6 +110,12 @@ void Editor::init_actions()
         m_workspace_browser->update_current_group(get_current_document_views());
     });
 
+    connect_action(ActionID::TOGGLE_SHOW_ONLY_SOLID_MODEL, [this](const auto &a) {
+        if (!m_core.has_documents())
+            return;
+        set_show_only_solid_models(!get_current_workspace_view().m_show_only_solid_models);
+    });
+
     for (const auto &[id, it] : action_catalog) {
         if (std::holds_alternative<ToolID>(id)) {
             connect_action(std::get<ToolID>(id));
@@ -322,6 +328,16 @@ void Editor::set_show_previous_construction_entities(bool show)
     update_view_hints();
 }
 
+void Editor::set_show_only_solid_models(bool show)
+{
+    if (!m_core.has_documents())
+        return;
+    CanvasUpdater canvas_updater{*this};
+    get_current_workspace_view().m_show_only_solid_models = show;
+    m_show_only_solid_models_action->set_state(Glib::Variant<bool>::create(show));
+    update_view_hints();
+}
+
 void Editor::set_hide_irrelevant_workplanes(bool hide)
 {
     if (!m_core.has_documents())
@@ -454,6 +470,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::OPEN_DOCUMENT] = true;
 
     m_action_sensitivity[ActionID::TOGGLE_SOLID_MODEL] = m_core.has_documents();
+    m_action_sensitivity[ActionID::TOGGLE_SHOW_ONLY_SOLID_MODEL] = m_core.has_documents();
     m_action_sensitivity[ActionID::NEW_DOCUMENT] = true;
     m_action_sensitivity[ActionID::TOGGLE_WORKPLANE] = m_core.has_documents();
     m_action_sensitivity[ActionID::SELECT_UNDERCONSTRAINED] = m_core.has_documents();

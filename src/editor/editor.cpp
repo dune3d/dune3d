@@ -216,6 +216,11 @@ void Editor::init_view_options()
         auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
         set_show_previous_construction_entities(b);
     });
+    m_show_only_solid_models_action = m_win.add_action_bool("show_only_solid_models", false);
+    m_show_only_solid_models_action->signal_change_state().connect([this](const Glib::VariantBase &v) {
+        auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
+        set_show_only_solid_models(b);
+    });
     m_hide_irrelevant_workplanes_action = m_win.add_action_bool("irrelevant_workplanes", false);
     m_hide_irrelevant_workplanes_action->signal_change_state().connect([this](const Glib::VariantBase &v) {
         auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
