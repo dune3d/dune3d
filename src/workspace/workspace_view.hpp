@@ -35,6 +35,11 @@ public:
     {
         return m_show_construction_entities_from_previous_groups;
     }
+    bool m_show_only_solid_models = false;
+    bool show_only_solid_models() const override
+    {
+        return m_show_only_solid_models;
+    }
 
     bool m_hide_irrelevant_workplanes = false;
     bool hide_irrelevant_workplanes() const override
