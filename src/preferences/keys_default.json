@@ -138,6 +138,17 @@
         ]
     },
     {
+        "action": "TOGGLE_SHOW_ONLY_SOLID_MODEL",
+        "keys": [
+            [
+                {
+                    "key": "a",
+                    "mod": 8
+                }
+            ]
+        ]
+    },
+    {
         "action": "TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES",
         "keys": [
             [
