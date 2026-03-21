@@ -10,8 +10,11 @@
 #include "document/group/group.hpp"
 #include "selection_menu_creator.hpp"
 #include "idocument_view_provider.hpp"
+#include <memory>
 
 namespace dune3d {
+
+class IpcServer;
 
 class Dune3DApplication;
 class Preferences;
@@ -75,6 +78,36 @@ public:
 
     void open_file(const std::filesystem::path &path);
     bool has_file(const std::filesystem::path &path);
+
+    Core &get_core()
+    {
+        return m_core;
+    }
+
+    bool trigger_action(ActionToolID action, ActionSource source = ActionSource::UNKNOWN);
+    bool get_action_sensitive(ActionID action) const;
+
+    void set_ipc_cursor_override(const glm::dvec3 &pos)
+    {
+        m_ipc_cursor_override = pos;
+        m_ipc_cursor_active = true;
+    }
+    void clear_ipc_cursor_override()
+    {
+        m_ipc_cursor_active = false;
+    }
+
+    // Called by IPC server after tool operations to process pending args and update canvas
+    void ipc_tool_process(ToolResponse &resp)
+    {
+        tool_process(resp);
+    }
+
+    // Called by IPC server after property changes to refresh the viewport
+    void ipc_canvas_update()
+    {
+        canvas_update_keep_selection();
+    }
 
     ~Editor();
 
@@ -197,9 +230,6 @@ private:
                            Gdk::ModifierType state);
     void handle_tool_action(const ActionConnection &conn);
 
-    bool trigger_action(ActionToolID action, ActionSource source = ActionSource::UNKNOWN);
-    bool get_action_sensitive(ActionID action) const;
-
     void update_action_sensitivity();
     void update_action_sensitivity(const std::set<SelectableRef> &sel);
 
@@ -310,5 +340,10 @@ private:
 
     void update_title();
     UUID m_update_groups_after;
+
+    glm::dvec3 m_ipc_cursor_override = {0, 0, 0};
+    bool m_ipc_cursor_active = false;
+
+    std::unique_ptr<IpcServer> m_ipc_server;
 };
 } // namespace dune3d

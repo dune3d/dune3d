@@ -28,6 +28,7 @@
 #include "logger/log_util.hpp"
 #include "nlohmann/json.hpp"
 #include "buffer.hpp"
+#include "ipc/ipc_server.hpp"
 #include <iostream>
 
 namespace dune3d {
@@ -188,6 +189,8 @@ void Editor::init()
     });
 
     apply_preferences();
+
+    m_ipc_server = std::make_unique<IpcServer>(*this);
 }
 
 void Editor::add_tool_action(ActionToolID id, const std::string &action)
@@ -1324,6 +1327,8 @@ std::optional<SelectableRef> Editor::get_hover_selection() const
 
 glm::dvec3 Editor::get_cursor_pos() const
 {
+    if (m_ipc_cursor_active)
+        return m_ipc_cursor_override;
     return get_canvas().get_cursor_pos();
 }
 
@@ -1339,6 +1344,8 @@ glm::quat Editor::get_cam_quat() const
 
 glm::dvec3 Editor::get_cursor_pos_for_plane(glm::dvec3 origin, glm::dvec3 normal) const
 {
+    if (m_ipc_cursor_active)
+        return m_ipc_cursor_override;
     return get_canvas().get_cursor_pos_for_plane(origin, normal);
 }
 

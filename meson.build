@@ -323,6 +323,8 @@ src_gui = files(
   'src/import_dxf/dxf_importer.cpp',
   'src/editor/changeable_commit_mode.cpp',
   'src/editor/buffer.cpp',
+  'src/ipc/ipc_server.cpp',
+  'src/ipc/ipc_session.cpp',
 )
 
 src_python =  files(
