@@ -330,6 +330,18 @@ src_python =  files(
 
 prog_python = find_program('python3')
 
+if run_command([prog_python, '-c', 'import gi'], check:false).returncode() != 0
+    error('python-gobject not found')
+endif
+
+if run_command([prog_python, '-c', 'import gi;gi.require_version("Rsvg", "2.0");from gi.repository import Rsvg'], check:false).returncode() != 0
+    error('rsvg not found in gi repository')
+endif
+
+if run_command([prog_python, '-c', 'import cairo'], check:false).returncode() != 0
+    error('pycairo not found')
+endif
+
 icon_texture = custom_target(
     'icon_texture',
     output : ['icon_texture_id.hpp', 'icon_texture_map.cpp', 'icon_texture_atlas.png'],
