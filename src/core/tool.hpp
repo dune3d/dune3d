@@ -124,9 +124,11 @@ public:
         using enum E;
 
         const E can_begin;
+        const ToolID equivalent_tool;
 
         CanBegin(E e);
         CanBegin(bool x);
+        CanBegin(E e, ToolID eq);
     };
 
     virtual CanBegin can_begin()

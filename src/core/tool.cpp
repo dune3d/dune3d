@@ -4,11 +4,15 @@
 
 namespace dune3d {
 
-ToolBase::CanBegin::CanBegin(bool x) : can_begin(x ? YES : NO)
+ToolBase::CanBegin::CanBegin(bool x) : can_begin(x ? YES : NO), equivalent_tool(ToolID::NONE)
 {
 }
 
-ToolBase::CanBegin::CanBegin(E e) : can_begin(e)
+ToolBase::CanBegin::CanBegin(E e) : can_begin(e), equivalent_tool(ToolID::NONE)
+{
+}
+
+ToolBase::CanBegin::CanBegin(E e, ToolID eq) : can_begin(e), equivalent_tool(eq)
 {
 }
 
