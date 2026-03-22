@@ -124,16 +124,9 @@ public:
         using enum E;
 
         const E can_begin;
-        CanBegin(E e) : can_begin(e)
-        {
-        }
-        CanBegin(bool x) : can_begin(x ? YES : NO)
-        {
-        }
-        operator E() const
-        {
-            return can_begin;
-        }
+
+        CanBegin(E e);
+        CanBegin(bool x);
     };
 
     virtual CanBegin can_begin()

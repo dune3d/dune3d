@@ -616,7 +616,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
             if (it_cat.group == action_group && !(it_cat.flags & ActionCatalogItem::FLAGS_NO_MENU)) {
                 if (auto tool = std::get_if<ToolID>(&id)) {
                     auto r = m_core.tool_can_begin(*tool, sel);
-                    if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
+                    if (r.can_begin.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
                         ids.emplace_back(id, r.can_preview, r.force_unset_workplane_tool, r.constraint_is_in_workplane);
                         auto item = Gio::MenuItem::create(it_cat.name.menu, "menu." + action_tool_id_to_string(id));
                         if (it_cat.group == ActionGroup::MEASURE) {

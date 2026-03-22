@@ -4,6 +4,14 @@
 
 namespace dune3d {
 
+ToolBase::CanBegin::CanBegin(bool x) : can_begin(x ? YES : NO)
+{
+}
+
+ToolBase::CanBegin::CanBegin(E e) : can_begin(e)
+{
+}
+
 ToolBase::ToolBase(ToolID tool_id, ICore &core, EditorInterface &intf, Flags flags)
     : m_tool_id(tool_id), m_core(core), m_intf(intf), m_is_transient((flags & Flags::TRANSIENT) != Flags::DEFAULT),
       m_is_preview((flags & Flags::PREVIEW) != Flags::DEFAULT)
