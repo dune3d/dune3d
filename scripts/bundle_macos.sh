@@ -32,10 +32,8 @@ do
   then
     cp "$unquoted" "$loaders_dir"
     echo "\"@executable_path/../Resources/lib/gdk-pixbuf-2.0/2.10.0/loaders/$(basename "$unquoted")\"" >> "$loaders_dir.cache"
-    dylibbundler -of -b -x "$loaders_dir/$(basename "$unquoted")" -d "$lib_dir" -p @executable_path/../Resources/lib/ -s $brew_prefix/lib
   else
     echo "$item" >> "$loaders_dir.cache"
   fi
 done
-dylibbundler -of -b -x  "$bin_dir/dune3d-bin" -d "$lib_dir" -p @executable_path/../Resources/lib/
 codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --sign - "$app_dir"
