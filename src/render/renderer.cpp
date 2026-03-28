@@ -181,7 +181,8 @@ void Renderer::render(const Entity &entity)
 {
     if (!entity.m_visible)
         return;
-    if (m_workspace_view->show_only_solid_models())
+    if (m_workspace_view->show_only_solid_models() && entity.get_type() != Entity::Type::DOCUMENT
+        && entity.get_type() != Entity::Type::STEP)
         return;
     if (entity.m_construction
         && ((entity.m_group != m_current_group->m_uuid
