@@ -151,7 +151,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     }
 
 
-    if (!sr) {
+    if (!sr && !m_workspace_view->show_only_solid_models()) {
         set_chunk_from_group(*m_current_group);
         for (const auto &[uu, el] : doc.m_constraints) {
             if (m_current_group->m_uuid != el->m_group)
