@@ -116,6 +116,11 @@ void Editor::handle_tool_change()
     // panels->set_sensitive(id == ToolID::NONE);
     // canvas->set_selection_allowed(id == ToolID::NONE);
     // main_window->tool_bar_set_use_actions(core->get_tool_actions().size());
+
+    // For most tools (e.g. draw contour) it is quite confusing if everything
+    // except the solid models is hidden. Therefore disable that mode when
+    // starting a tool.
+    set_show_only_solid_models(false);
     if (tool_id != ToolID::NONE) {
         m_win.tool_bar_set_tool_name(action_catalog.at(tool_id).name.full);
         tool_bar_set_tool_tip("");
