@@ -151,7 +151,7 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     }
 
 
-    if (!sr) {
+    if (!sr && !m_workspace_view->show_only_solid_models()) {
         set_chunk_from_group(*m_current_group);
         for (const auto &[uu, el] : doc.m_constraints) {
             if (m_current_group->m_uuid != el->m_group)
@@ -180,6 +180,9 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
 void Renderer::render(const Entity &entity)
 {
     if (!entity.m_visible)
+        return;
+    if (m_workspace_view->show_only_solid_models() && entity.get_type() != Entity::Type::DOCUMENT
+        && entity.get_type() != Entity::Type::STEP)
         return;
     if (entity.m_construction
         && ((entity.m_group != m_current_group->m_uuid

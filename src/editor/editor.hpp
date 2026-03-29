@@ -176,7 +176,9 @@ private:
     Glib::RefPtr<Gio::SimpleAction> m_perspective_action;
     void set_perspective_projection(bool persp);
     Glib::RefPtr<Gio::SimpleAction> m_previous_construction_entities_action;
+    Glib::RefPtr<Gio::SimpleAction> m_show_only_solid_models_action;
     void set_show_previous_construction_entities(bool show);
+    void set_show_only_solid_models(bool show);
     Glib::RefPtr<Gio::SimpleAction> m_hide_irrelevant_workplanes_action;
     void set_hide_irrelevant_workplanes(bool hide);
     void add_tool_action(ActionToolID id, const std::string &action);
