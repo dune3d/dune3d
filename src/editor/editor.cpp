@@ -891,12 +891,14 @@ void Editor::update_view_hints()
     }
     if (m_selection_filter_window->is_active())
         hints.push_back("selection filtered");
+
     if (m_core.has_documents()) {
-        if (get_current_workspace_view().m_show_construction_entities_from_previous_groups)
+        auto &wv = get_current_workspace_view();
+
+        if (wv.m_show_construction_entities_from_previous_groups)
             hints.push_back("prev. construction entities");
-        if (get_current_workspace_view().m_hide_irrelevant_workplanes)
+        if (wv.m_hide_irrelevant_workplanes)
             hints.push_back("no irrelevant workplanes");
-        auto &wv = m_workspace_views.at(m_current_workspace_view);
         if (wv.m_curvature_comb_scale > 0)
             hints.push_back("curv. combs");
     }
