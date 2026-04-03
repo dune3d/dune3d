@@ -1612,6 +1612,7 @@ void Editor::open_file(const std::filesystem::path &path)
         m_win.get_app().add_recent_item(path);
         update_title();
         update_version_info();
+        update_view_hints();
 
 
         load_linked_documents(doc_uu);
