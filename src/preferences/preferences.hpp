@@ -41,6 +41,7 @@ class EditorPreferences {
 public:
     bool preview_constraints = true;
     int constraint_value_rounding = 3;
+    bool use_inches = false;  // 
     enum class TrailingZeros { OFF, ONE_DECIMAL, ON };
     TrailingZeros constraint_trailing_zeros = TrailingZeros::ONE_DECIMAL;
 

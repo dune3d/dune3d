@@ -189,6 +189,7 @@ static const LutEnumStr<EditorPreferences::TrailingZeros> trailing_zeros_lut = {
 json EditorPreferences::serialize() const
 {
     json j;
+    j["use_inches"] = use_inches;
     j["preview_constraints"] = preview_constraints;
     j["constraint_value_rounding"] = constraint_value_rounding;
     j["constraint_trailing_zeros"] = trailing_zeros_lut.lookup_reverse(constraint_trailing_zeros);
@@ -197,6 +198,7 @@ json EditorPreferences::serialize() const
 
 void EditorPreferences::load_from_json(const json &j)
 {
+    use_inches = j.value("use_inches", false);
     preview_constraints = j.value("preview_constraints", true);
     constraint_value_rounding = j.value("constraint_value_rounding", 3);
     constraint_trailing_zeros =

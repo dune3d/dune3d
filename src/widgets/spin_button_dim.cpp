@@ -1,11 +1,13 @@
 #include "spin_button_dim.hpp"
 #include "util/util.hpp"
+#include "preferences/preferences.hpp"
 // #include "util/gtk_util.hpp"
 #include <iomanip>
 
 namespace dune3d {
 SpinButtonDim::SpinButtonDim() : Gtk::SpinButton()
 {
+    m_use_inches = Preferences::get().editor.use_inches;
     set_increments(.1, .01);
     set_width_chars(11);
     signal_input().connect(sigc::mem_fun(*this, &SpinButtonDim::on_input), true);
@@ -39,7 +41,11 @@ bool SpinButtonDim::on_output()
     else if (value >= 0 && min < 0)
         stream << "+";
 
-    stream << std::fixed << std::setprecision(prec) << std::abs(value) << " mm";
+    if (m_use_inches) {
+        stream << std::fixed << std::setprecision(4) << std::abs(value / 25.4) << " in";
+    } else {
+        stream << std::fixed << std::setprecision(prec) << std::abs(value) << " mm";
+    }
 
     set_text(stream.str());
     return true;
@@ -216,6 +222,14 @@ int SpinButtonDim::on_input(double &v)
     try {
         va = parse_str(txt);
         v = va / 1e6;
+        // if no unit suffix was typed and we're in inches mode, convert
+        // check if input looks like a bare number (no 'i' or 'm' in it)
+        if (m_use_inches) {
+            auto has_unit = txt.find('i') != Glib::ustring::npos 
+                         || txt.find('m') != Glib::ustring::npos;
+            if (!has_unit)
+                v *= 25.4;
+        }
     }
     catch (const std::exception &e) {
         return false;

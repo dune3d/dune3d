@@ -72,6 +72,12 @@ MiscPreferencesEditor::MiscPreferencesEditor(Preferences &prefs) : m_preferences
             gr->add_row(*r);
         }
         {
+            auto r = Gtk::make_managed<PreferencesRowBool>(
+                    "Use inches", "Display constraint values in inches instead of millimeters",
+                    m_preferences, m_preferences.editor.use_inches);
+            gr->add_row(*r);
+        }
+        {
             auto r = Gtk::make_managed<PreferencesRowNumeric<int>>(
                     "Constraint display rounding", "Maximum number of decimal places to show in constraint values",
                     m_preferences, m_preferences.editor.constraint_value_rounding);

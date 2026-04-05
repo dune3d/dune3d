@@ -41,11 +41,14 @@ void add_to_referenced_enps(std::set<EntityAndPoint> &enps, const UUID &entity)
 std::string format_constraint_value(double datum, const std::string &suffix)
 {
     const auto &prefs = Preferences::get().editor;
+    if (prefs.use_inches) {
+        const double inches = datum / 25.4;
+        const auto rounding = prefs.constraint_value_rounding;
+        return std::format("{:.{}f}", inches, rounding) + "\"" + suffix;
+    }
     const auto rounding = prefs.constraint_value_rounding;
     const auto trailing_zeros = prefs.constraint_trailing_zeros;
-
     std::string formatted_number;
-
     switch (trailing_zeros) {
     case EditorPreferences::TrailingZeros::ON:
         formatted_number = std::format("{:.{}f}", datum, rounding);

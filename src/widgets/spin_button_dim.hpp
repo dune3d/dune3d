@@ -1,14 +1,13 @@
 #pragma once
 #include <gtkmm.h>
-
 namespace dune3d {
 class SpinButtonDim : public Gtk::SpinButton {
 public:
     SpinButtonDim();
-
+    void set_use_inches(bool use_inches) { m_use_inches = use_inches; }
 protected:
     int on_input(double &new_value);
     bool on_output();
-    // void on_populate_popup(Gtk::Menu *menu) override;
+    bool m_use_inches = false;
 };
 } // namespace dune3d
