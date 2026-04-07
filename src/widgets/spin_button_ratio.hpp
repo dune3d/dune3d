@@ -1,8 +1,5 @@
 #pragma once
-
-#include <gtkmm/spinbutton.h>
-
-#include "document/constraint/constraint_length_ratio.hpp"
+#include <gtkmm.h>
 
 namespace dune3d {
 class SpinButtonRatio : public Gtk::SpinButton {

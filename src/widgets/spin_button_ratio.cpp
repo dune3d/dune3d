@@ -1,6 +1,6 @@
 #include "spin_button_ratio.hpp"
 #include "util/util.hpp"
-#include "util/gtk_util.hpp"
+#include "document/constraint/constraint_length_ratio.hpp"
 #include <iomanip>
 
 namespace dune3d {
