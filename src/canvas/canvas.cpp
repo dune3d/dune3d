@@ -344,11 +344,6 @@ void Canvas::setup_controllers()
     add_controller(controller);
 }
 
-bool Canvas::last_selection_is_icon() const
-{
-    return m_hover_selection_is_icon;
-}
-
 glm::vec3 Canvas::project_arcball(const glm::vec2 &v) const
 {
     // from https://raw.org/code/trackball-rotation-using-quaternions/
@@ -782,10 +777,6 @@ void Canvas::update_hover_selection()
         auto last_hover_selection = m_hover_selection;
         m_hover_selection.reset();
         auto pick = get_hover_pick();
-
-        m_hover_selection_is_icon = false;
-        if (pick)
-            m_hover_selection_is_icon = (get_vertex_ref_for_pick(pick).type == VertexType::ICON);
 
         if (auto sr = get_selectable_ref_for_pick(pick))
             m_hover_selection = *sr;
