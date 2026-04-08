@@ -17,9 +17,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-14
+          - os: macos-15-intel
             arch: mac-intel
-          - os: macos-15
+          - os: macos-26
             arch: mac-arm64
     runs-on: ${{ matrix.os }}
     steps:

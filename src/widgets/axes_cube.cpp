@@ -228,6 +228,10 @@ void AxesCube::update_transformed_vertices()
         m_cached_quat = m_quat;
         m_cached_width = m_width;
         m_cached_height = m_height;
+
+        // Changing the position of the vertices within the widget can change what the mouse pointer hovers without its
+        // position changing (and without the widget getting any motion events).
+        update_hover_effect();
     }
 }
 
@@ -237,11 +241,7 @@ void AxesCube::setup_controllers()
     motion_controller->signal_motion().connect([this](double x, double y) {
         m_last_x = x;
         m_last_y = y;
-        int old_hovered = m_hovered_face;
-        m_hovered_face = get_face_at_position(x, y);
-        if (old_hovered != m_hovered_face) {
-            queue_draw();
-        }
+        update_hover_effect();
     });
     motion_controller->signal_leave().connect([this] {
         if (m_hovered_face != -1) {
@@ -267,6 +267,15 @@ void AxesCube::setup_controllers()
         }
     });
     add_controller(click_controller);
+}
+
+void AxesCube::update_hover_effect()
+{
+    int old_hovered = m_hovered_face;
+    m_hovered_face = get_face_at_position(m_last_x, m_last_y);
+    if (old_hovered != m_hovered_face) {
+        queue_draw();
+    }
 }
 
 int AxesCube::get_face_at_position(double x, double y) const

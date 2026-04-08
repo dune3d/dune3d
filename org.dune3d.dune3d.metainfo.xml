@@ -48,6 +48,18 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="1.4.0" date="2026-01-28">
+      <url>https://github.com/dune3d/dune3d/releases/tag/v1.4.0</url>
+      <description>
+        <p>What's new</p>
+        <ul>
+          <li>DXF export</li>
+          <li>More versatile array groups</li>
+          <li>Improved constraining workflow</li>
+          <li>Improved STEP export</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.3.0" date="2025-03-14">
       <url>https://github.com/dune3d/dune3d/releases/tag/v1.3.0</url>
       <description>

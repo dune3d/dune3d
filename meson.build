@@ -1,5 +1,5 @@
 project('dune3d', ['cpp', 'c'],
-  version: '1.3.0',
+  version: '1.4.0',
   meson_version: '>=1.3.0',
   default_options: ['cpp_std=c++20', 'warning_level=1'],
 )
@@ -273,6 +273,8 @@ src_gui = files(
   'src/editor/group_editor/group_editor_create.cpp',
   'src/editor/group_editor/group_editor_exploded_cluster.cpp',
   'src/editor/group_editor/group_editor_extrude.cpp',
+  'src/editor/group_editor/group_editor_local_operation.cpp',
+  'src/editor/group_editor/group_editor_chamfer.cpp',
   'src/editor/group_editor/group_editor_fillet.cpp',
   'src/editor/group_editor/group_editor_loft.cpp',
   'src/editor/group_editor/group_editor_mirror.cpp',
@@ -303,7 +305,6 @@ src_gui = files(
   'src/preferences/preferences_row.cpp',
   'src/preferences/preferences_window_misc.cpp',
   'src/widgets/capture_dialog.cpp',
-  'src/widgets/axes_lollipop.cpp',
   'src/widgets/axes_cube.cpp',
   'src/widgets/about_dialog.cpp',
   'src/widgets/recent_item_box.cpp',
@@ -331,6 +332,18 @@ src_python =  files(
 )
 
 prog_python = find_program('python3')
+
+if run_command([prog_python, '-c', 'import gi'], check:false).returncode() != 0
+    error('python-gobject not found')
+endif
+
+if run_command([prog_python, '-c', 'import gi;gi.require_version("Rsvg", "2.0");from gi.repository import Rsvg'], check:false).returncode() != 0
+    error('rsvg not found in gi repository')
+endif
+
+if run_command([prog_python, '-c', 'import cairo'], check:false).returncode() != 0
+    error('pycairo not found')
+endif
 
 icon_texture = custom_target(
     'icon_texture',

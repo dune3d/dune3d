@@ -325,7 +325,7 @@ Core::CanBeginInfo Core::tool_can_begin(ToolID tool_id, const std::set<Selectabl
     const auto can_begin = t->can_begin();
     ToolID force_unset_workplane_tool = ToolID::NONE;
     bool constraint_is_in_workplane = false;
-    if (can_begin != ToolBase::CanBegin::NO) {
+    if (can_begin.can_begin != ToolBase::CanBegin::NO) {
         if (auto tool_constrain = dynamic_cast<IToolConstrain *>(t.get())) {
             can_preview = tool_constrain->can_preview_constrain();
             force_unset_workplane_tool = tool_constrain->get_force_unset_workplane_tool();
@@ -428,7 +428,7 @@ ToolResponse Core::tool_begin(ToolID tool_id, const ToolArgs &args, bool transie
         if (transient)
             tool->set_transient();
         */
-        if (m_tool->can_begin() == ToolBase::CanBegin::NO) { // check if we can actually use this tool
+        if (m_tool->can_begin().can_begin == ToolBase::CanBegin::NO) { // check if we can actually use this tool
             m_tool.reset();
             return ToolResponse();
         }
@@ -675,7 +675,7 @@ bool Core::apply_preview(ToolID tool_id, const std::set<SelectableRef> &sel)
     auto tool = create_tool(tool_id, ToolBase::Flags::PREVIEW);
     tool->m_selection = sel;
 
-    if (tool->can_begin() == ToolBase::CanBegin::NO)
+    if (tool->can_begin().can_begin == ToolBase::CanBegin::NO)
         return false;
 
     if (auto constrain = dynamic_cast<IToolConstrain *>(tool.get())) {

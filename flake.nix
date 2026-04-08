@@ -11,7 +11,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (pkgs) lib;
-        stdenv = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.llvmPackages_17.stdenv
+        stdenv = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.llvmPackages_21.stdenv
                   else pkgs.gcc14Stdenv;
       in
       {
@@ -28,7 +28,7 @@
                 pkgs.librsvg
                 pkgs.gobject-introspection
                 pkgs.pkg-config
-                pkgs.wrapGAppsHook
+                pkgs.wrapGAppsHook3
                 (pkgs.python3.withPackages (p: [ p.pygobject3 ]))
               ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
                 pkgs.desktopToDarwinBundle

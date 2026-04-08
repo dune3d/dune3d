@@ -24,10 +24,20 @@ ToolBase::CanBegin ToolToggleConstruction::can_begin()
             return CanBegin::YES_NO_MENU;
 
     case ToolID::SET_CONSTRUCTION:
-        return has_normal;
+        if (has_normal && has_construction)
+            return true;
+        else if (has_normal) // no construction
+            return {CanBegin::YES, ToolID::TOGGLE_CONSTRUCTION};
+        else
+            return false;
 
     case ToolID::UNSET_CONSTRUCTION:
-        return has_construction;
+        if (has_construction && has_normal)
+            return true;
+        else if (has_construction) // no normal
+            return {CanBegin::YES, ToolID::TOGGLE_CONSTRUCTION};
+        else
+            return false;
 
     default:
         return false;

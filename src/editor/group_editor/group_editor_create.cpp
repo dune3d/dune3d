@@ -6,6 +6,7 @@
 #include "group_editor_loft.hpp"
 #include "group_editor_revolve.hpp"
 #include "group_editor_fillet.hpp"
+#include "group_editor_chamfer.hpp"
 #include "group_editor_reference.hpp"
 #include "group_editor_array.hpp"
 #include "group_editor_solid_model_operation.hpp"
@@ -46,8 +47,9 @@ GroupEditor *GroupEditor::create(Core &core, const UUID &group_uu)
     case Group::Type::REVOLVE:
         return Gtk::make_managed<GroupEditorRevolve>(core, group_uu);
     case Group::Type::FILLET:
-    case Group::Type::CHAMFER:
         return Gtk::make_managed<GroupEditorFillet>(core, group_uu);
+    case Group::Type::CHAMFER:
+        return Gtk::make_managed<GroupEditorChamfer>(core, group_uu);
     case Group::Type::REFERENCE:
         return Gtk::make_managed<GroupEditorReference>(core, group_uu);
     case Group::Type::LINEAR_ARRAY:

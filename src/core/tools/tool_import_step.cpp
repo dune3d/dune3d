@@ -65,6 +65,9 @@ ToolResponse ToolImportSTEP::begin(const ToolArgs &args)
 
 void ToolImportSTEP::update_tip()
 {
+    if (!m_step)
+        return;
+
     std::string tip = "Orientation: " + quat_to_string(m_step->m_normal);
 
     std::vector<ConstraintType> constraint_icons;
@@ -93,9 +96,8 @@ void ToolImportSTEP::update_tip()
 
 ToolResponse ToolImportSTEP::update(const ToolArgs &args)
 {
-    if (args.type == ToolEventType::MOVE) {
-        if (m_step)
-            m_step->m_origin = m_intf.get_cursor_pos();
+    if (args.type == ToolEventType::MOVE && m_step) {
+        m_step->m_origin = m_intf.get_cursor_pos();
 
         set_first_update_group_current();
     }
@@ -117,7 +119,7 @@ ToolResponse ToolImportSTEP::update(const ToolArgs &args)
         }
     }
 
-    else if (args.type == ToolEventType::ACTION) {
+    else if (args.type == ToolEventType::ACTION && m_step) {
         switch (args.action) {
         case InToolActionID::LMB:
             if (m_lock_rotation) {

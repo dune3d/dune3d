@@ -361,7 +361,8 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
     return label;
 }
 
-static std::set<EntityAndPoint> coincident_enps_from_enp(const Document &doc, const EntityAndPoint &enp)
+static std::set<EntityAndPoint> coincident_enps_from_enp(const Document &doc, const EntityAndPoint &enp,
+                                                         const UUID &group)
 {
     UUID wrkpl;
     auto &en = doc.get_entity(enp.entity);
@@ -376,6 +377,8 @@ static std::set<EntityAndPoint> coincident_enps_from_enp(const Document &doc, co
     while (!done) {
         const auto n_enps = enps.size();
         for (const auto &[uu, el] : doc.m_constraints) {
+            if (el->m_group != group)
+                continue;
             if (auto cc = dynamic_cast<const ConstraintPointsCoincident *>(el.get())) {
                 if (cc->m_wrkpl != wrkpl)
                     continue;
@@ -403,12 +406,12 @@ static std::set<EntityAndPoint> coincident_enps_from_enp(const Document &doc, co
 
 
 std::optional<TwoPoints> joint_from_selection(const Document &doc, const std::set<SelectableRef> &sel_all,
-                                              const std::set<Entity::Type> &types)
+                                              const std::set<Entity::Type> &types, const UUID &group)
 {
     const auto sel = entities_from_selection(sel_all);
     if (sel.size() == 1 && doc.is_valid_point(sel.begin()->get_entity_and_point())) {
         const auto enp = sel.begin()->get_entity_and_point();
-        auto other_enps = coincident_enps_from_enp(doc, enp);
+        auto other_enps = coincident_enps_from_enp(doc, enp, group);
         if (other_enps.size() != 2)
             return {};
         auto it = other_enps.begin();
@@ -453,7 +456,7 @@ std::optional<TwoPoints> joint_from_selection(const Document &doc, const std::se
         if (!types.contains(doc.get_entity(entity2).get_type()))
             return {};
 
-        const auto other_enps = coincident_enps_from_enp(doc, enp_joint);
+        const auto other_enps = coincident_enps_from_enp(doc, enp_joint, group);
         const auto it1 = std::ranges::find_if(other_enps, [&entity1](auto &it) { return it.entity == entity1; });
         const auto it2 = std::ranges::find_if(other_enps, [&entity2](auto &it) { return it.entity == entity2; });
         if (it1 == other_enps.end() || it2 == other_enps.end())
@@ -463,21 +466,6 @@ std::optional<TwoPoints> joint_from_selection(const Document &doc, const std::se
     }
 
     return {};
-}
-
-std::set<EntityAndPoint> coincident_enps_from_selection(const Document &doc, const std::set<SelectableRef> &sel,
-                                                        const std::set<Entity::Type> &types)
-{
-    auto enp = point_from_selection(doc, sel);
-    if (!enp)
-        return {};
-    auto enps = coincident_enps_from_enp(doc, *enp);
-    decltype(enps) enps_filtered;
-    for (const auto &it : enps) {
-        if (types.contains(doc.get_entity(it.entity).get_type()))
-            enps_filtered.insert(it);
-    }
-    return enps_filtered;
 }
 
 std::list<UUID> entities_from_selection(const Document &doc, const std::set<SelectableRef> &sel,

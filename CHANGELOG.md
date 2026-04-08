@@ -1,3 +1,62 @@
+# Version 1.4.0
+
+## New Features
+
+ - add DXF export ([3cc35b8](https://github.com/dune3d/dune3d/commit/3cc35b864d89d25d3ee2758344dd9f7e340bf828))
+ - support multiple source groups for array and mirror groups ([81dcdd4](https://github.com/dune3d/dune3d/commit/81dcdd47adeae7d99d7b3a73a4ce43578890359f))
+ - bezier/bezier, bezier/arc same curvature constraint ([ec69edc](https://github.com/dune3d/dune3d/commit/ec69edc5cdf412b3204b0e86982ef38cdc2385e2), [be266a4](https://github.com/dune3d/dune3d/commit/be266a4921feba7fa6348a3c580258ab2d3918c0))
+ - clickable cube to replace lollipop axes ([cde3c47](https://github.com/dune3d/dune3d/commit/cde3c47723b2db7a2cd4cd2137dad74e1068263f))
+ - action for exporting all bodies as STEP model ([3f80b48](https://github.com/dune3d/dune3d/commit/3f80b489f984ffcdd1c93f321af9ff1cf592f2e3))
+ - tool for converting between point on line and midpoint constraints ([568a62d](https://github.com/dune3d/dune3d/commit/568a62d3c0879c05c9ce020209e83e29161fe6a2))
+ - view option to hide irrelevant workplanes ([b8a24a6](https://github.com/dune3d/dune3d/commit/b8a24a6274ce3b0f9665fd69b880d7b3c017141d))
+
+## Enhancements
+
+ - move constraints after creating them ([5bf841a](https://github.com/dune3d/dune3d/commit/5bf841a2cff23c3d8e116e5bd5610969c6dc4abd))
+ - make rendering faster when editing the last groups in a large document ([a69d197](https://github.com/dune3d/dune3d/commit/a69d19771e9adb57f2a5f2bf04f42f1b15bcdd48))
+ - make solver faster by only adding referenced entities ([7e3d323](https://github.com/dune3d/dune3d/commit/7e3d323746ecccb821eb3f786eb6fe456116797b))
+ - allow rotating step model in import tool ([4ebbb70](https://github.com/dune3d/dune3d/commit/4ebbb706910f432ee588f47ae887c0b15a2a653f))
+ - omit trailing zeros on constraints ([8c17279](https://github.com/dune3d/dune3d/commit/8c172798543551952d57c8d098b816b062297561))
+ - add actions for switching to specific views ([5f17d39](https://github.com/dune3d/dune3d/commit/5f17d395c3ca4b17b137e9a2a30095fdc52caa6c))
+ - add go to group/source group actions ([146016c](https://github.com/dune3d/dune3d/commit/146016cf102023a04865d8bf12bde8f92aa08e38))
+ - auto-rotate workplane in draw workplane tool ([a060f4d](https://github.com/dune3d/dune3d/commit/a060f4d7a14a817c6313c9f574536b48c54a17e9))
+ - show workplane in tooltip for in-workplane entities ([0f0ce86](https://github.com/dune3d/dune3d/commit/0f0ce862a4f223835c8fd8fdc087d97fb9ade74b))
+ - add buttons for constraining in 3D to context menu ([4de7aab](https://github.com/dune3d/dune3d/commit/4de7aaba04030aebe7dcb44badb50747ed018065))
+ - add tool for converting between tangent constraints ([08d580d](https://github.com/dune3d/dune3d/commit/08d580d1c1c102d3b1dc96a98fa55cf30cb412c3))
+ - show datum in constraint tooltip ([50ebe1a](https://github.com/dune3d/dune3d/commit/50ebe1ab9f1efec62f2ee53a928dd251264da3db))
+ - don't show constrain angle/perpendicular/parallel tool if two lines have a horizontal/vertical constraint ([13f0212](https://github.com/dune3d/dune3d/commit/13f021208e5801927125751d62b70a4ae710b62a))
+ - add paste picture tool ([511456d](https://github.com/dune3d/dune3d/commit/511456d08ec5c7501d5c7dd1e57e88d01388e575))
+ - make it possible to convert constraints to measurements and vice versa ([892ddfb](https://github.com/dune3d/dune3d/commit/892ddfb5bc3e10897aeb711ecb0d1fc7f9e0ff9b))
+ - never render STEP model body if STEP model is in solid model ([801273f](https://github.com/dune3d/dune3d/commit/801273f015ca7d62c3a0b98b9c818881c4533dc4))
+ - don't crash when app becomes unresponsive on wayland ([cc2cb8b](https://github.com/dune3d/dune3d/commit/cc2cb8bbbfe25907b8e317ac07d1d7db75d69a0f))
+ - support exporting projection for multiple bodies ([3234eee](https://github.com/dune3d/dune3d/commit/3234eee58a521b327f0c46661bf08d12499b0425))
+ - make it possible to apply tangency constraints at points with more than two coincident entities ([b837dfb](https://github.com/dune3d/dune3d/commit/b837dfb6a56b26827f4869e3354b9198e66f9e20))
+ - ignore selected constraints when creating new constraints ([2eb7ad1](https://github.com/dune3d/dune3d/commit/2eb7ad11528a2f7f68c93fd4f79e0cac2aeea590))
+ - make it easier to hide reference workplanes by pressing delete ([b0a35fd](https://github.com/dune3d/dune3d/commit/b0a35fd16c2fa9a17b7af4d0243771053023b0e6))
+ - rotate window: use X/Y/Z instead of roll/pitch/yaw ([befa0d6](https://github.com/dune3d/dune3d/commit/befa0d67c3f5c9ebb3d13264079b477016e4d8d1))
+ - increase default workplane size to 100x100mm ([0e950e8](https://github.com/dune3d/dune3d/commit/0e950e81aee58fe871d3b8a04d9c3ebdfe6acbe1))
+ - make point on bezier constraint work for 3D beziers ([de16619](https://github.com/dune3d/dune3d/commit/de166198906258092af356993a8b31b11cb51162))
+
+## Bugfixes
+
+ - support documents with non-ASCII filenames on Windows ([5bdf8ef](https://github.com/dune3d/dune3d/commit/5bdf8efe0ca8df94df8c30f61fea5575895d1e40))
+ - support importing/exporting DXF files with non-ASCII filenames on Windows ([18bbd13](https://github.com/dune3d/dune3d/commit/18bbd135cfcfcfeb7de2e37f509b0d93109e5b70))
+ - disallow "In solid model" STEP entities not in sketch groups ([722d498](https://github.com/dune3d/dune3d/commit/722d49880765a89ddd5079d290eb78f0968c9e3a))
+ - don't re-solve document when adding aligned distance measurement ([e5398ed](https://github.com/dune3d/dune3d/commit/e5398ed87ae8120c3f227c2be53f1403e19bc569))
+ - update version info bar when opening or switching documents ([3c730b6](https://github.com/dune3d/dune3d/commit/3c730b656728bfb3dea2ab227bc53838dedaad87))
+ - prevent cluster entities getting from getting scaled incorrectly when opening a document in presence of ambigous constraints such as distance ([0ce9cd8](https://github.com/dune3d/dune3d/commit/0ce9cd809a6f87de35018caeafa158f07134b02d))
+ - correctly export circles in clusters ([b6fbca9](https://github.com/dune3d/dune3d/commit/b6fbca98dcdac52b1d61145b6348467bd0fdc74e))
+ - Pipe Groups: don't break if things aren't at the origin ([65dd1f3](https://github.com/dune3d/dune3d/commit/65dd1f3ba97e940af27887d150edfc449fe7fbb3))
+ - apply relative rotation such that axes make sense ([3857591](https://github.com/dune3d/dune3d/commit/3857591138976a375d05b801a2906f5e76d24d5b))
+ - don't throw exception when saving after saving from confirm close dialog ([eae0a61](https://github.com/dune3d/dune3d/commit/eae0a61a10960037960f76bc65d4edeb6ffb17bd))
+ - bezier/bezier tangent symmetric constraint now works in all workplanes instead of resulting in solver errors ([7075a3d](https://github.com/dune3d/dune3d/commit/7075a3d9c0a5b01f856bf5199e14f2fa86364e34))
+ - disallow entities and constraints in reference group ([3b2273c](https://github.com/dune3d/dune3d/commit/3b2273c349875a0e73f2dd67a383975f889e1ac5))
+ - properly render points and some constraint icons on AMD GPUs on mac OS ([7f9c0c6](https://github.com/dune3d/dune3d/commit/7f9c0c68b23810d203c0ef11a25fa272da5ef3b6))
+ - use correct mapping for roll/pitch/yaw controls in rotate tool ([09ffee8](https://github.com/dune3d/dune3d/commit/09ffee875007655081a3dec6bd94dae53cd1ed50))
+ - mac: fix broken selection on intel platform ([e4df71c](https://github.com/dune3d/dune3d/commit/e4df71ca0f7be767a138eb85d90bc2f4a6ef4348))
+ - add actions for creating all groups ([3e7759a](https://github.com/dune3d/dune3d/commit/3e7759a7cfefc385f4094d2681d6e85d78ed9e55))
+ - persist solid model operation in sketch groups ([7237eb8](https://github.com/dune3d/dune3d/commit/7237eb81991c10b702ff4e86b69fb99ec3a25075))
+
 # Version 1.3.0
 
 ## New Features

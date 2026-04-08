@@ -233,6 +233,7 @@ Constraint *ToolDrawContour::constrain_point_and_add_head_tangent_constraint(con
                     m_constraints.insert(new_constraint);
             }
         }
+        m_constraints.insert(coincident_constraint);
     }
     return coincident_constraint;
 }

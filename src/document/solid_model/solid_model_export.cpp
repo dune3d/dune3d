@@ -10,10 +10,10 @@
 #include <BRepAdaptor_Curve.hxx>
 #include <GCPnts_TangentialDeflection.hxx>
 
-
 #include <HLRBRep_Algo.hxx>
 #include <HLRBRep_HLRToShape.hxx>
 
+#include <cairomm/cairomm.h>
 
 namespace dune3d {
 

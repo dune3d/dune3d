@@ -6,7 +6,6 @@
 #include <map>
 #include <glm/glm.hpp>
 #include "document/group/all_groups_fwd.hpp"
-#include <cairomm/cairomm.h>
 
 namespace dune3d {
 

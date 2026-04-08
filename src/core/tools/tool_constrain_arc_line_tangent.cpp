@@ -19,10 +19,12 @@ struct CurveAndLine {
 };
 } // namespace
 
-static std::optional<CurveAndLine>
-curve_and_line_from_selection(const Document &doc, const std::set<SelectableRef> &sel, Entity::Type curve_type)
+static std::optional<CurveAndLine> curve_and_line_from_selection(const Document &doc,
+                                                                 const std::set<SelectableRef> &sel,
+                                                                 Entity::Type curve_type, const UUID &group)
 {
-    auto tp = joint_from_selection(doc, sel, {Entity::Type::ARC_2D, Entity::Type::LINE_2D, Entity::Type::BEZIER_2D});
+    auto tp = joint_from_selection(doc, sel, {Entity::Type::ARC_2D, Entity::Type::LINE_2D, Entity::Type::BEZIER_2D},
+                                   group);
     if (!tp)
         return {};
 
@@ -46,7 +48,7 @@ EntityType ToolConstrainArcLineTangent::get_curve_type() const
 
 ToolBase::CanBegin ToolConstrainArcLineTangent::can_begin()
 {
-    auto al = curve_and_line_from_selection(get_doc(), m_selection, get_curve_type());
+    auto al = curve_and_line_from_selection(get_doc(), m_selection, get_curve_type(), m_core.get_current_group());
     if (!al.has_value())
         return false;
 
@@ -62,7 +64,7 @@ ToolBase::CanBegin ToolConstrainArcLineTangent::can_begin()
 
 ToolResponse ToolConstrainArcLineTangent::begin(const ToolArgs &args)
 {
-    auto tp = curve_and_line_from_selection(get_doc(), m_selection, get_curve_type());
+    auto tp = curve_and_line_from_selection(get_doc(), m_selection, get_curve_type(), m_core.get_current_group());
     if (!tp)
         return ToolResponse::end();
 

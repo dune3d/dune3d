@@ -602,6 +602,7 @@ void Editor::open_context_menu(ContextMenuMode mode)
     update_action_sensitivity(sel);
     struct ActionInfo {
         ActionToolID id;
+        ToolID equivalent_tool = ToolID::NONE;
         bool can_preview = false;
         ToolID force_unset_workplane_tool = ToolID::NONE;
         bool constraint_is_in_workplane = false;
@@ -616,8 +617,9 @@ void Editor::open_context_menu(ContextMenuMode mode)
             if (it_cat.group == action_group && !(it_cat.flags & ActionCatalogItem::FLAGS_NO_MENU)) {
                 if (auto tool = std::get_if<ToolID>(&id)) {
                     auto r = m_core.tool_can_begin(*tool, sel);
-                    if (r.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
-                        ids.emplace_back(id, r.can_preview, r.force_unset_workplane_tool, r.constraint_is_in_workplane);
+                    if (r.can_begin.can_begin == ToolBase::CanBegin::YES && r.is_specific) {
+                        ids.emplace_back(id, r.can_begin.equivalent_tool, r.can_preview, r.force_unset_workplane_tool,
+                                         r.constraint_is_in_workplane);
                         auto item = Gio::MenuItem::create(it_cat.name.menu, "menu." + action_tool_id_to_string(id));
                         if (it_cat.group == ActionGroup::MEASURE) {
                             meas_items.push_back(item);
@@ -692,7 +694,8 @@ void Editor::open_context_menu(ContextMenuMode mode)
     auto sg = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::HORIZONTAL);
     if (menu->get_n_items() != 0) {
         m_context_menu->set_menu_model(menu);
-        for (const auto [id, can_preview, force_unset_workplane_tool, constraint_is_in_workplane] : ids) {
+        for (const auto [id, equivalent_tool, can_preview, force_unset_workplane_tool, constraint_is_in_workplane] :
+             ids) {
             auto button = Gtk::make_managed<Gtk::Button>();
             button->signal_clicked().connect([this, id] {
                 m_context_menu->popdown();
@@ -705,8 +708,12 @@ void Editor::open_context_menu(ContextMenuMode mode)
             button->add_css_class("context-menu-button");
             auto label = Gtk::make_managed<Gtk::Label>(action_catalog.at(id).name.menu);
             label->set_xalign(0);
-            auto label2 =
-                    Gtk::make_managed<Gtk::Label>(key_sequences_to_string(m_action_connections.at(id).key_sequences));
+            auto seqs = m_action_connections.at(id).key_sequences;
+            if (equivalent_tool != ToolID::NONE) {
+                auto eq_seqs = m_action_connections.at(equivalent_tool).key_sequences;
+                seqs.insert(seqs.end(), eq_seqs.begin(), eq_seqs.end());
+            }
+            auto label2 = Gtk::make_managed<Gtk::Label>(key_sequences_to_string(seqs));
             label2->add_css_class("dim-label");
             label2->set_margin_start(8);
             auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
@@ -884,12 +891,14 @@ void Editor::update_view_hints()
     }
     if (m_selection_filter_window->is_active())
         hints.push_back("selection filtered");
+
     if (m_core.has_documents()) {
-        if (get_current_workspace_view().m_show_construction_entities_from_previous_groups)
+        auto &wv = get_current_workspace_view();
+
+        if (wv.m_show_construction_entities_from_previous_groups)
             hints.push_back("prev. construction entities");
-        if (get_current_workspace_view().m_hide_irrelevant_workplanes)
+        if (wv.m_hide_irrelevant_workplanes)
             hints.push_back("no irrelevant workplanes");
-        auto &wv = m_workspace_views.at(m_current_workspace_view);
         if (wv.m_curvature_comb_scale > 0)
             hints.push_back("curv. combs");
     }
@@ -1603,6 +1612,7 @@ void Editor::open_file(const std::filesystem::path &path)
         m_win.get_app().add_recent_item(path);
         update_title();
         update_version_info();
+        update_view_hints();
 
 
         load_linked_documents(doc_uu);
