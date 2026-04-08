@@ -4,7 +4,6 @@
 #include "iconstraint_datum.hpp"
 #include "iconstraint_movable.hpp"
 #include "iconstraint_workplane.hpp"
-#include <algorithm>
 #include <glm/glm.hpp>
 
 namespace dune3d {

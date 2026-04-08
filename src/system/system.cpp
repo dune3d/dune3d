@@ -28,8 +28,6 @@
 #include "document/group/group_mirror_hv.hpp"
 #include "document/group/group_clone.hpp"
 #include <array>
-#include <algorithm>
-#include <cmath>
 #include <set>
 #include <iostream>
 

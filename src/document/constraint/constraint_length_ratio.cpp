@@ -6,12 +6,8 @@
 #include "document/entity/entity.hpp"
 #include "document/entity/entity_arc2d.hpp"
 #include "document/entity/entity_arc3d.hpp"
-#include "document/entity/entity_line2d.hpp"
-#include "document/entity/entity_line3d.hpp"
 #include "nlohmann/json.hpp"
 #include "util/json_util.hpp"
-#include <algorithm>
-#include <cmath>
 #include "util/glm_util.hpp"
 
 namespace dune3d {
