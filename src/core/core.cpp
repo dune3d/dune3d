@@ -560,10 +560,13 @@ bool Core::maybe_end_tool(const ToolResponse &r)
         }*/
         // tool_selection = tool->selection;
         m_last_tool_selection = m_tool->m_selection;
+        const auto current_group = r.get_current_group();
         std::cout << "end tool" << std::endl;
         m_tool.reset();
         m_signal_tool_changed.emit();
         if (r.result == ToolResponse::Result::COMMIT) {
+            if (current_group)
+                set_current_group(current_group);
             // const auto comment = action_catalog.at(tool_id_current).name;
             const auto comment = "tool";
             rebuild_internal(false, comment);

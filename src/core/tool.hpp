@@ -58,6 +58,13 @@ public:
         return ToolResponse(Result::COMMIT);
     }
 
+    static ToolResponse commit_and_set_current_group(const UUID &group)
+    {
+        ToolResponse r(Result::COMMIT);
+        r.current_group = group;
+        return r;
+    }
+
     static ToolResponse revert()
     {
         return ToolResponse(Result::REVERT);
@@ -76,8 +83,14 @@ public:
 
     ToolResponse();
 
+    UUID get_current_group() const
+    {
+        return current_group;
+    }
+
 private:
     ToolResponse(Result r);
+    UUID current_group{};
 };
 
 /**

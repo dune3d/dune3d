@@ -26,8 +26,7 @@ bool Editor::force_end_tool()
 }
 
 
-void Editor::tool_begin(ToolID id /*bool override_selection, const std::set<SelectableRef> &sel,
-                         std::unique_ptr<ToolData> data*/)
+void Editor::tool_begin(ToolID id, std::unique_ptr<ToolData> data)
 {
     if (m_core.tool_is_active()) {
         Logger::log_critical("can't begin tool while tool is active", Logger::Domain::EDITOR);
@@ -36,7 +35,7 @@ void Editor::tool_begin(ToolID id /*bool override_selection, const std::set<Sele
     m_win.hide_delete_items_popup();
 
     ToolArgs args;
-    // args.data = std::move(data);
+    args.data = std::move(data);
 
     //    if (override_selection)
     //        args.selection = sel;
