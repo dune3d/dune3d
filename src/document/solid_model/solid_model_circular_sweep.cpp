@@ -43,8 +43,11 @@ static std::shared_ptr<const SolidModel> create_circular_sweep(const Document &d
         BRepPrimAPI_MakeRevol mr{face_builder.get_faces(), ax, angle};
 
         mr.Build();
-        if (!mr.IsDone())
+        if (!mr.IsDone()) {
+            group.m_sweep_messages.emplace_back(GroupStatusMessage::Status::ERR, "solid model build failed");
             return nullptr;
+        }
+
 
         mod->m_shape = mr.Shape();
     }
