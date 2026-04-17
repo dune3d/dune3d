@@ -151,7 +151,7 @@ private:
         Editor &m_editor;
     };
 
-    void tool_begin(ToolID id);
+    void tool_begin(ToolID id, std::unique_ptr<ToolData> data = nullptr);
     void tool_process(ToolResponse &resp);
     void tool_process_one();
     void handle_cursor_move();

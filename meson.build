@@ -260,6 +260,7 @@ src_gui = files(
   'src/core/tools/tool_toggle_measurement.cpp',
   'src/core/tools/tool_convert_point_on_line_constraint.cpp',
   'src/core/tools/tool_convert_tangent_constraint.cpp',
+  'src/core/tools/tool_create_circular_sweep_group.cpp',
   'src/core/tools/tool_import_picture.cpp',
   'src/util/history_manager.cpp',
   'src/util/action_label.cpp',

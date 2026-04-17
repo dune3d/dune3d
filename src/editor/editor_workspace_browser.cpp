@@ -14,6 +14,7 @@
 #include "action/action_id.hpp"
 #include "document/solid_model/solid_model.hpp"
 #include "widgets/select_groups_dialog.hpp"
+#include "core/tool_data_create_circular_sweep_group.hpp"
 
 namespace dune3d {
 using json = nlohmann::json;
@@ -109,44 +110,23 @@ void Editor::on_add_group(Group::Type group_type, WorkspaceBrowserAddGroupMode a
         group.m_dvec = doc.get_entity<EntityWorkplane>(group.m_wrkpl).get_normal_vector();
         group.m_source_group = current_group.m_uuid;
     }
-    else if (any_of(group_type, Group::Type::LATHE, Group::Type::REVOLVE)) {
+    else if (group_type == Group::Type::REVOLVE) {
         if (!current_group.m_active_wrkpl) {
             m_workspace_browser->show_toast(toast_prefix + "Current group needs an active workplane");
             return;
         }
-        auto sel = get_canvas().get_selection();
-        auto axis_enp = point_from_selection(doc, sel);
-        if (!axis_enp) {
-            m_workspace_browser->show_toast(toast_prefix + "Select an axis entity (workplane or line)");
+        tool_begin(ToolID::CREATE_REVOLVE_GROUP, std::make_unique<ToolDataCreateCircularSweepGroup>(
+                                                         add_group_mode == WorkspaceBrowserAddGroupMode::WITH_BODY));
+        return;
+    }
+    else if (group_type == Group::Type::LATHE) {
+        if (!current_group.m_active_wrkpl) {
+            m_workspace_browser->show_toast(toast_prefix + "Current group needs an active workplane");
             return;
         }
-
-        if (axis_enp->point != 0) {
-            m_workspace_browser->show_toast(toast_prefix + "Select the body of the axis entity");
-            return;
-        }
-        const auto &axis = doc.get_entity(axis_enp->entity);
-        if (!axis.of_type(Entity::Type::WORKPLANE, Entity::Type::LINE_2D, Entity::Type::LINE_3D)) {
-            m_workspace_browser->show_toast(toast_prefix + "Axis entity must be a line or a workplane");
-            return;
-        }
-
-        if (group_type == Group::Type::LATHE) {
-            auto &group = doc.insert_group<GroupLathe>(UUID::random(), current_group.m_uuid);
-            new_group = &group;
-            group.m_wrkpl = current_group.m_active_wrkpl;
-            group.m_source_group = current_group.m_uuid;
-            group.m_origin = {axis_enp->entity, 1};
-            group.m_normal = axis_enp->entity;
-        }
-        else {
-            auto &group = doc.insert_group<GroupRevolve>(UUID::random(), current_group.m_uuid);
-            new_group = &group;
-            group.m_wrkpl = current_group.m_active_wrkpl;
-            group.m_source_group = current_group.m_uuid;
-            group.m_origin = {axis_enp->entity, 1};
-            group.m_normal = axis_enp->entity;
-        }
+        tool_begin(ToolID::CREATE_LATHE_GROUP, std::make_unique<ToolDataCreateCircularSweepGroup>(
+                                                       add_group_mode == WorkspaceBrowserAddGroupMode::WITH_BODY));
+        return;
     }
     else if (any_of(group_type, Group::Type::FILLET, Group::Type::CHAMFER)) {
         auto solid_model = SolidModel::get_last_solid_model(doc, current_group, SolidModel::IncludeGroup::YES);
