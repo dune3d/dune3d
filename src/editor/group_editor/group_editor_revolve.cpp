@@ -9,6 +9,13 @@ GroupEditorRevolve::GroupEditorRevolve(Core &core, const UUID &group_uu) : Group
 {
     auto &group = get_group();
     add_operation_combo();
+
+    m_angle_sp = Gtk::make_managed<SpinButtonAngle>();
+    m_angle_sp->set_hexpand(true);
+    m_angle_sp->set_value(group.m_angle < 0 ? group.m_angle + 360 : group.m_angle);
+    connect_spinbutton(*m_angle_sp, sigc::mem_fun(*this, &GroupEditorRevolve::update_angle));
+    grid_attach_label_and_widget(*this, "Angle", *m_angle_sp, m_top);
+
     {
         auto items = Gtk::StringList::create();
         items->append("Single");
@@ -33,7 +40,19 @@ void GroupEditorRevolve::do_reload()
 {
     GroupEditorSweep::do_reload();
     auto &group = get_group();
+    m_angle_sp->set_value(group.m_angle < 0 ? group.m_angle + 360 : group.m_angle);
     m_mode_combo->set_selected(static_cast<guint>(group.m_mode));
+}
+
+bool GroupEditorRevolve::update_angle()
+{
+    if (is_reloading())
+        return false;
+    if (get_group().m_angle == m_angle_sp->get_value())
+        return false;
+    get_group().m_angle = m_angle_sp->get_value();
+    m_core.get_current_document().set_group_generate_pending(get_group().m_uuid);
+    return true;
 }
 
 GroupRevolve &GroupEditorRevolve::get_group()
