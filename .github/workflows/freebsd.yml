@@ -1,0 +1,34 @@
+name: FreeBSD CI
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!win32-*'
+    tags: [ '*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build on FreeBSD
+    steps:
+    - uses: actions/checkout@v6
+    - name: Build on FreeBSD VM
+      id: test
+      uses: vmactions/freebsd-vm@v1
+      with:
+        usesh: true
+        prepare: |
+          pkg update -f
+          pkg upgrade -y
+          pkg install -y git gmake pkgconf libuuid gtkmm40 glm opencascade meson cmake eigen
+          ls
+          clang --version
+          git config --global --add safe.directory /home/runner/work/dune3d/dune3d
+        run: |
+          mkdir ../build
+          meson setup ../build --cmake-prefix-path=/usr/local/lib
+          meson compile -C ../build
+          rm -rf ../build
