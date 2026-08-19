@@ -38,4 +38,33 @@ do
   fi
 done
 dylibbundler -of -b -x  "$bin_dir/dune3d-bin" -d "$lib_dir" -p @executable_path/../Resources/lib/
+
+# dylibbundler points every rpath it rewrites at the same directory, so a binary
+# that started out with more than one rpath ends up with duplicate LC_RPATH
+# entries. dyld as of macOS 26 treats a duplicate as a fatal error, making the
+# bundle abort on startup without leaving a crash report, so keep one of each.
+dedupe_rpaths() {
+  local bin="$1"
+  local count path
+  local removed=0
+  while read -r count path
+  do
+    while [ "$count" -gt 1 ]
+    do
+      install_name_tool -delete_rpath "$path" "$bin"
+      count=$((count - 1))
+      removed=$((removed + 1))
+    done
+  done < <(otool -l "$bin" | awk '/LC_RPATH/ { found = 1 } found && $1 == "path" { print $2; found = 0 }' | sort | uniq -c)
+  if [ "$removed" -gt 0 ] ; then
+    echo "dropped $removed duplicate rpath(s) from $(basename "$bin")"
+    codesign --force --sign - "$bin"
+  fi
+}
+
+while IFS= read -r binary
+do
+  dedupe_rpaths "$binary"
+done < <(find "$app_dir" -type f \( -name '*.dylib' -o -name '*.so' -o -name dune3d-bin \))
+
 codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --sign - "$app_dir"
