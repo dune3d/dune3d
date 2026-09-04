@@ -17,6 +17,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <iterator>
 #include <climits>
 #include <numeric>
 #include <optional>
