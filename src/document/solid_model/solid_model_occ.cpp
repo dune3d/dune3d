@@ -103,24 +103,24 @@ static glm::dmat4 update_matrix(const gp_Trsf &tr, const glm::dmat4 &mat_in)
 
 bool Triangulator::processFace(const TopoDS_Face &face, const glm::dmat4 &mat_in)
 {
-    if (Standard_True == face.IsNull())
+    if (true == face.IsNull())
         return false;
 
     auto mat = update_matrix(face.Location().Transformation(), mat_in);
 
     TopLoc_Location loc;
-    Standard_Boolean isTessellate(Standard_False);
+    Standard_Boolean isTessellate(false);
     Handle(Poly_Triangulation) triangulation = BRep_Tool::Triangulation(face, loc);
 
     if (triangulation.IsNull() || triangulation->Deflection() > USER_PREC + Precision::Confusion())
-        isTessellate = Standard_True;
+        isTessellate = true;
 
     if (isTessellate) {
-        BRepMesh_IncrementalMesh IM(face, USER_PREC, Standard_False, USER_ANGLE);
+        BRepMesh_IncrementalMesh IM(face, USER_PREC, false, USER_ANGLE);
         triangulation = BRep_Tool::Triangulation(face, loc);
     }
 
-    if (triangulation.IsNull() == Standard_True)
+    if (triangulation.IsNull() == true)
         return false;
 
     Poly::ComputeNormals(triangulation);
@@ -333,7 +333,7 @@ void SolidModelOcc::export_stl(const std::filesystem::path &path) const
 #else
     TopoDS_Shape sh = m_shape_acc;
     BRepMesh_IncrementalMesh aMesh(m_shape_acc, deflection,
-                                   /*isRelative*/ Standard_False,
+                                   /*isRelative*/ false,
                                    /*theAngDeflection*/
                                    0.5,
                                    /*isInParallel*/ true);

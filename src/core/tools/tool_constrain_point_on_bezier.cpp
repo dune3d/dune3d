@@ -35,7 +35,7 @@ ToolResponse ToolConstrainPointOnBezier::begin(const ToolArgs &args)
     auto tp = bezier_and_point_from_selection(get_doc(), m_selection);
 
     if (!tp.has_value())
-        return ToolResponse::end();
+        return ToolResponse::end(); 
 
     ConstraintPointOnBezier *constraint;
     if (m_tool_id == ToolID::CONSTRAIN_LINE_TANGENT_ON_BEZIER)

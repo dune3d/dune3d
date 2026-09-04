@@ -148,7 +148,7 @@ void STEPImporter::processWire(const TopoDS_Wire &wire, const glm::dmat4 &mat)
 
 bool STEPImporter::processFace(const TopoDS_Face &face, Quantity_Color *color, const glm::dmat4 &mat)
 {
-    if (Standard_True == face.IsNull())
+    if (true == face.IsNull())
         return false;
 
     {
@@ -168,18 +168,18 @@ bool STEPImporter::processFace(const TopoDS_Face &face, Quantity_Color *color, c
     //	bool useBothSides = false;
 
     TopLoc_Location loc;
-    Standard_Boolean isTessellate(Standard_False);
+    Standard_Boolean isTessellate(false);
     Handle(Poly_Triangulation) triangulation = BRep_Tool::Triangulation(face, loc);
 
     if (triangulation.IsNull() || triangulation->Deflection() > USER_PREC + Precision::Confusion())
-        isTessellate = Standard_True;
+        isTessellate = true;
 
     if (isTessellate) {
-        BRepMesh_IncrementalMesh IM(face, USER_PREC, Standard_False, USER_ANGLE);
+        BRepMesh_IncrementalMesh IM(face, USER_PREC, false, USER_ANGLE);
         triangulation = BRep_Tool::Triangulation(face, loc);
     }
 
-    if (triangulation.IsNull() == Standard_True)
+    if (triangulation.IsNull() == true)
         return false;
 
     Quantity_Color lcolor;
@@ -311,7 +311,7 @@ bool STEPImporter::getColor(TDF_Label label, Quantity_Color &color)
 
 bool STEPImporter::processSolid(const TopoDS_Shape &shape, const glm::dmat4 &mat_in)
 {
-    TDF_Label label = m_assy->FindShape(shape, Standard_False);
+    TDF_Label label = m_assy->FindShape(shape, false);
     bool ret = false;
 
     hasSolid = true;

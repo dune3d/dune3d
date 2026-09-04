@@ -54,9 +54,9 @@ void STEPExporter::write(const std::filesystem::path &path) const
 #endif
 
     STEPCAFControl_Writer writer;
-    writer.SetColorMode(Standard_True);
-    writer.SetNameMode(Standard_True);
-    if (Standard_False == writer.Transfer(m_impl->doc, STEPControl_AsIs)) {
+    writer.SetColorMode(true);
+    writer.SetNameMode(true);
+    if (false == writer.Transfer(m_impl->doc, STEPControl_AsIs)) {
         throw std::runtime_error("transfer error");
     }
 
@@ -67,7 +67,7 @@ void STEPExporter::write(const std::filesystem::path &path) const
     hdr.SetOriginatingSystem(new TCollection_HAsciiString("Dune 3D"));
     hdr.SetDescriptionValue(1, new TCollection_HAsciiString("Body"));
 
-    if (Standard_False == writer.Write(path_to_string(path).c_str()))
+    if (false == writer.Write(path_to_string(path).c_str()))
         throw std::runtime_error("write error");
 }
 

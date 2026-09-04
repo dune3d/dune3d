@@ -7,6 +7,7 @@
 #include "document/entity/entity_cluster.hpp"
 #include "document/entity/entity_text.hpp"
 #include "document/document.hpp"
+#include <algorithm>
 
 namespace dune3d::paths {
 
