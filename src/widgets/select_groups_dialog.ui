@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.90.4 -->
+<!-- Created with Cambalache 1.0.3 -->
 <interface>
-  <requires lib="gtk" version="4.12"/>
+  <!-- interface-name select_groups_dialog.ui -->
+  <requires lib="gtk" version="4.18"/>
   <object class="GtkWindow" id="window">
     <property name="title">Select groups</property>
     <property name="titlebar">

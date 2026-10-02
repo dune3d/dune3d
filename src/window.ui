@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.90.4 -->
+<!-- Created with Cambalache 0.96.0 -->
 <interface>
   <!-- interface-name window.ui -->
   <requires lib="gtk" version="4.10"/>
@@ -141,13 +141,9 @@ dim-label</property>
                 <child>
                   <object class="GtkOverlay">
                     <property name="vexpand">True</property>
-                    <child type="overlay">
-                      <object class="GtkBox" id="cube_box">
-                        <property name="can-target">True</property>
-                        <property name="halign">end</property>
-                        <property name="margin-end">10</property>
-                        <property name="margin-top">10</property>
-                        <property name="valign">start</property>
+                    <child>
+                      <object class="GtkBox" id="canvas_box">
+                        <property name="vexpand">True</property>
                       </object>
                     </child>
                     <child type="overlay">
@@ -403,12 +399,15 @@ blah</property>
                         </child>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkBox" id="canvas_box">
-                        <property name="vexpand">True</property>
+                    <child type="overlay">
+                      <object class="GtkBox" id="cube_box">
+                        <property name="can-target">False</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="valign">start</property>
                       </object>
                     </child>
-
                     <child type="overlay">
                       <object class="GtkRevealer" id="tool_bar">
                         <property name="can-target">False</property>
