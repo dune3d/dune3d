@@ -193,7 +193,7 @@ public:
     enum class MoveGroup { UP, DOWN, END_OF_BODY, END_OF_DOCUMENT };
     UUID get_group_after(const UUID &group, MoveGroup dir) const;
 
-    bool reorder_group(const UUID &group, const UUID &after);
+    bool reorder_group(const std::vector<UUID> &groups, const UUID &after);
 
     ItemsToDelete get_additional_items_to_delete(const ItemsToDelete &items) const;
     void delete_items(const ItemsToDelete &items);

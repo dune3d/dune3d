@@ -47,6 +47,7 @@ void Editor::init_workspace_browser()
             sigc::mem_fun(*this, &Editor::on_workspace_browser_reset_body_color));
     m_workspace_browser->signal_set_body_color().connect(
             sigc::mem_fun(*this, &Editor::on_workspace_browser_set_body_color));
+    m_workspace_browser->signal_move_body().connect(sigc::mem_fun(*this, &Editor::on_workspace_browser_move_body));
     m_workspace_browser->signal_body_expanded().connect([this](const UUID &body_uu, bool expanded) {
         if (m_core.get_current_document()
                             .get_group(m_core.get_current_group())
@@ -297,7 +298,7 @@ void Editor::on_move_group(Document::MoveGroup op)
         return;
     }
 
-    if (!doc.reorder_group(group, group_after)) {
+    if (!doc.reorder_group({group}, group_after)) {
         m_workspace_browser->show_toast("Couldn't move group");
         return;
     }
@@ -404,6 +405,51 @@ void Editor::on_workspace_browser_reset_body_color(const UUID &uu_doc, const UUI
     doc.set_group_update_solid_model_pending(uu_group);
     m_core.rebuild("reset body color");
     canvas_update_keep_selection();
+}
+
+void Editor::on_workspace_browser_move_body(const UUID &uu_doc, const UUID &uu_group, int dir)
+{
+    if (m_core.tool_is_active())
+        return;
+    CanvasUpdater canvas_updater{*this};
+    auto &doc = m_core.get_idocument_info(uu_doc).get_document();
+
+    std::vector<UUID> groups;
+    UUID group_after;
+
+    const auto body_groups = doc.get_groups_by_body();
+    const auto body_group = std::ranges::find_if(
+            body_groups, [&uu_group](const auto &it) { return it.get_group().m_uuid == uu_group; });
+    if (body_group == body_groups.end())
+        return;
+    for (const auto it : body_group->groups) {
+        groups.push_back(it->m_uuid);
+    }
+    auto body_idx = body_group - body_groups.begin();
+    if (dir == 1)
+        body_idx -= 2;
+    else if (dir == -1)
+        body_idx++;
+    else
+        return;
+
+    if (body_idx < 0 || body_idx >= body_groups.size())
+        return;
+    group_after = body_groups.at(body_idx).groups.back()->m_uuid;
+
+    if (!group_after) {
+        m_workspace_browser->show_toast("Couldn't move body");
+        return;
+    }
+
+
+    if (!doc.reorder_group(groups, group_after)) {
+        m_workspace_browser->show_toast("Couldn't move body");
+        return;
+    }
+    m_core.set_needs_save();
+    m_core.rebuild("reorder_group");
+    m_workspace_browser->update_documents(get_current_document_views());
 }
 
 } // namespace dune3d

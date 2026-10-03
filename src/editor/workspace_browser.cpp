@@ -524,6 +524,16 @@ public:
             m_browser.m_body_menu_document = m_body->m_doc;
             m_browser.m_body_menu_body = m_body->m_uuid;
             m_browser.m_reset_body_color_action->set_enabled(m_body->m_has_color);
+            {
+                const auto body_groups =
+                        m_browser.m_core.get_idocument_info(m_body->m_doc).get_document().get_groups_by_body();
+                const auto body_idx =
+                        std::ranges::find_if(body_groups,
+                                             [this](const auto &it) { return it.get_group().m_uuid == m_body->m_uuid; })
+                        - body_groups.begin();
+                m_browser.m_move_body_up_action->set_enabled(body_idx > 1);
+                m_browser.m_move_body_down_action->set_enabled(body_idx < (body_groups.size() - 1));
+            }
             m_browser.m_body_popover->set_pointing_to(rect);
             m_browser.m_body_popover->popup();
         });
@@ -954,10 +964,16 @@ WorkspaceBrowser::WorkspaceBrowser(Core &core) : Gtk::Box(Gtk::Orientation::VERT
             "reset_color", [this] { signal_reset_body_color().emit(m_body_menu_document, m_body_menu_body); });
     actions->add_action("rename", [this] { signal_rename_body().emit(m_body_menu_document, m_body_menu_body); });
     actions->add_action("set_color", [this] { signal_set_body_color().emit(m_body_menu_document, m_body_menu_body); });
+    m_move_body_up_action = actions->add_action(
+            "move_up", [this] { signal_move_body().emit(m_body_menu_document, m_body_menu_body, 1); });
+    m_move_body_down_action = actions->add_action(
+            "move_down", [this] { signal_move_body().emit(m_body_menu_document, m_body_menu_body, -1); });
     insert_action_group("body", actions);
     m_body_menu->append("Set color", "body.set_color");
     m_body_menu->append("Reset color", "body.reset_color");
     m_body_menu->append("Rename", "body.rename");
+    m_body_menu->append("Move up", "body.move_up");
+    m_body_menu->append("Move down", "body.move_down");
 
 
     m_body_popover = Gtk::make_managed<Gtk::PopoverMenu>();

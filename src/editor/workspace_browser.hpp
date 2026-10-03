@@ -21,6 +21,7 @@ public:
 
 
     using type_signal_group_selected = sigc::signal<void(UUID, UUID)>;
+    using type_signal_move_body = sigc::signal<void(UUID, UUID, int)>;
     type_signal_group_selected signal_group_selected()
     {
         return m_signal_group_selected;
@@ -39,6 +40,11 @@ public:
     type_signal_group_selected signal_reset_body_color()
     {
         return m_signal_reset_body_color;
+    }
+
+    type_signal_move_body signal_move_body()
+    {
+        return m_signal_move_body;
     }
 
     using type_signal_group_checked = sigc::signal<void(UUID, UUID, bool)>;
@@ -145,6 +151,7 @@ private:
     type_signal_group_selected m_signal_rename_body;
     type_signal_group_selected m_signal_set_body_color;
     type_signal_group_selected m_signal_reset_body_color;
+    type_signal_move_body m_signal_move_body;
 
     type_signal_item_expanded m_signal_body_expanded;
 
@@ -167,5 +174,7 @@ private:
     UUID m_body_menu_document;
     UUID m_body_menu_body;
     Glib::RefPtr<Gio::SimpleAction> m_reset_body_color_action;
+    Glib::RefPtr<Gio::SimpleAction> m_move_body_up_action;
+    Glib::RefPtr<Gio::SimpleAction> m_move_body_down_action;
 };
 } // namespace dune3d

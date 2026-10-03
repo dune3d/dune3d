@@ -364,24 +364,38 @@ UUID Document::get_group_rel(const UUID &group, int delta) const
     return next_group->m_uuid;
 }
 
-bool Document::reorder_group(const UUID &group_uu, const UUID &after)
+bool Document::reorder_group(const std::vector<UUID> &groups, const UUID &after)
 {
-    if (group_uu == after)
+    if (groups.size() == 0)
         return false;
+    if (groups.front() == after)
+        return false;
+
+    {
+        auto index = m_groups.at(groups.front())->get_index();
+        for (const auto &uu : groups) {
+            if (m_groups.at(uu)->get_index() != index)
+                return false;
+            index++;
+        }
+    }
 
     auto groups_sorted = get_groups_sorted();
     decltype(groups_sorted) groups_new_order;
     groups_new_order.reserve(groups_sorted.size());
-    const auto group_before = get_group_rel(group_uu, -1);
+    const auto group_before = get_group_rel(groups.front(), -1);
     if (!group_before)
         return false;
 
     for (auto gr : groups_sorted) {
-        if (gr->m_uuid == group_uu)
+        if (std::ranges::find(groups, gr->m_uuid) != groups.end())
             continue;
         groups_new_order.push_back(gr);
-        if (gr->m_uuid == after)
-            groups_new_order.push_back(&get_group(group_uu));
+        if (gr->m_uuid == after) {
+            for (const auto &uu : groups) {
+                groups_new_order.push_back(&get_group(uu));
+            }
+        }
     }
 
 
@@ -401,7 +415,7 @@ bool Document::reorder_group(const UUID &group_uu, const UUID &after)
     }
     update_groups_sorted();
 
-    set_group_generate_pending(group_uu);
+    set_group_generate_pending(groups.front());
     set_group_generate_pending(group_before);
     set_group_generate_pending(after);
 
