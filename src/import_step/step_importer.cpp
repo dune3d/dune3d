@@ -30,7 +30,6 @@
 
 #include <Poly_PolygonOnTriangulation.hxx>
 #include <Poly_Triangulation.hxx>
-#include <TShort_Array1OfShortReal.hxx>
 #include <Precision.hxx>
 #include <Quantity_Color.hxx>
 #include <BRepTools_WireExplorer.hxx>
@@ -38,7 +37,6 @@
 #include <BRepAdaptor_Curve.hxx>
 
 #include <TDF_ChildIterator.hxx>
-#include <TDF_LabelSequence.hxx>
 #include <Poly.hxx>
 #include <gp_Circ.hxx>
 #include <GCPnts_TangentialDeflection.hxx>
@@ -142,13 +140,13 @@ void STEPImporter::processWire(const TopoDS_Wire &wire, const glm::dmat4 &mat)
     }
 }
 
-#if OCC_VERSION_MAJOR >= 7 && OCC_VERSION_MINOR >= 6
+#if (OCC_VERSION_MAJOR >= 7 && OCC_VERSION_MINOR >= 6) || (OCC_VERSION_MAJOR >= 8)
 #define HORIZON_NEW_OCC
 #endif
 
 bool STEPImporter::processFace(const TopoDS_Face &face, Quantity_Color *color, const glm::dmat4 &mat)
 {
-    if (Standard_True == face.IsNull())
+    if (true == face.IsNull())
         return false;
 
     {
@@ -168,18 +166,18 @@ bool STEPImporter::processFace(const TopoDS_Face &face, Quantity_Color *color, c
     //	bool useBothSides = false;
 
     TopLoc_Location loc;
-    Standard_Boolean isTessellate(Standard_False);
+    bool isTessellate(false);
     Handle(Poly_Triangulation) triangulation = BRep_Tool::Triangulation(face, loc);
 
     if (triangulation.IsNull() || triangulation->Deflection() > USER_PREC + Precision::Confusion())
-        isTessellate = Standard_True;
+        isTessellate = true;
 
     if (isTessellate) {
-        BRepMesh_IncrementalMesh IM(face, USER_PREC, Standard_False, USER_ANGLE);
+        BRepMesh_IncrementalMesh IM(face, USER_PREC, false, USER_ANGLE);
         triangulation = BRep_Tool::Triangulation(face, loc);
     }
 
-    if (triangulation.IsNull() == Standard_True)
+    if (triangulation.IsNull() == true)
         return false;
 
     Quantity_Color lcolor;
@@ -311,7 +309,7 @@ bool STEPImporter::getColor(TDF_Label label, Quantity_Color &color)
 
 bool STEPImporter::processSolid(const TopoDS_Shape &shape, const glm::dmat4 &mat_in)
 {
-    TDF_Label label = m_assy->FindShape(shape, Standard_False);
+    TDF_Label label = m_assy->FindShape(shape, false);
     bool ret = false;
 
     hasSolid = true;
@@ -333,7 +331,7 @@ bool STEPImporter::processSolid(const TopoDS_Shape &shape, const glm::dmat4 &mat
     auto mat = mat_in * glm::translate(glm::dvec3(coord.X(), coord.Y(), coord.Z()));
 
     gp_XYZ axis;
-    Standard_Real angle;
+    double angle;
 
     if (T.GetRotation(axis, angle)) {
         glm::dvec3 gaxis(axis.X(), axis.Y(), axis.Z());
@@ -363,7 +361,7 @@ bool STEPImporter::processComp(const TopoDS_Shape &shape, const glm::dmat4 &mat_
     auto mat = mat_in * glm::translate(glm::dvec3(coord.X(), coord.Y(), coord.Z()));
 
     gp_XYZ axis;
-    Standard_Real angle;
+    double angle;
 
     if (T.GetRotation(axis, angle)) {
         glm::dvec3 gaxis(axis.X(), axis.Y(), axis.Z());
@@ -447,7 +445,7 @@ Result STEPImporter::get_faces_and_points()
     Result res;
     result = &res;
 
-    TDF_LabelSequence frshapes;
+    NCollection_Sequence<TDF_Label> frshapes;
     m_assy->GetFreeShapes(frshapes);
 
     int nshapes = frshapes.Length();
@@ -497,7 +495,7 @@ Result STEPImporter::get_faces_and_points()
 std::vector<TopoDS_Shape> STEPImporter::get_shapes()
 {
     std::vector<TopoDS_Shape> r;
-    TDF_LabelSequence frshapes;
+    NCollection_Sequence<TDF_Label> frshapes;
     m_assy->GetFreeShapes(frshapes);
 
     int nshapes = frshapes.Length();

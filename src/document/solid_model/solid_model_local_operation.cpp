@@ -45,7 +45,7 @@ template <typename TGroup> std::shared_ptr<const SolidModel> create_local_operat
     try {
         typename MakeOperation<TGroup>::Make mf(last_solid_model->m_shape_acc);
 
-        TopTools_IndexedDataMapOfShapeListOfShape mapEdgeFace;
+        NCollection_IndexedDataMap<TopoDS_Shape, NCollection_List<TopoDS_Shape>, TopTools_ShapeMapHasher> mapEdgeFace;
         if constexpr (std::is_same_v<TGroup, GroupChamfer>)
             TopExp::MapShapesAndAncestors(last_solid_model->m_shape_acc, TopAbs_EDGE, TopAbs_FACE, mapEdgeFace);
 

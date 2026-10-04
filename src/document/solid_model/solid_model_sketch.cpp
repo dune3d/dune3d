@@ -40,7 +40,7 @@ std::shared_ptr<const SolidModel> SolidModel::create(const Document &doc, GroupS
                 }
 
                 for (const auto &shape : shapes->shapes) {
-                    BRepBuilderAPI_Transform tr{shape, trsf, Standard_True};
+                    BRepBuilderAPI_Transform tr{shape, trsf, true};
                     TopExp_Explorer topex(tr.Shape(), TopAbs_SOLID);
                     while (topex.More()) {
                         if (fused.IsNull())

@@ -325,7 +325,7 @@ TopoDS_Wire FaceBuilder::path_to_wire(const Clipper2Lib::PathD &path, bool hole,
             wire.Add(new_edge);
         }
         else if (auto bezier = dynamic_cast<const EntityBezier2D *>(&edge.entity)) {
-            TColgp_Array1OfPnt poles(1, 4);
+            NCollection_Array1<gp_Pnt> poles(1, 4);
             const auto control_pta = pt == 1 ? 3 : 4;
             const auto control_ptb = pt == 1 ? 4 : 3;
 

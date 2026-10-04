@@ -89,7 +89,7 @@ private:
     {
         if (auto en_bezier = dynamic_cast<const EntityBezier2D *>(&entity)) {
             const auto &wrkpl = m_doc.get_entity<EntityWorkplane>(en_bezier->m_wrkpl);
-            TColgp_Array1OfPnt poles(1, 4);
+            NCollection_Array1<gp_Pnt> poles(1, 4);
             const auto c1 = wrkpl.transform(en_bezier->m_c1);
             const auto c2 = wrkpl.transform(en_bezier->m_c2);
             const auto p1 = wrkpl.transform(en_bezier->m_p1);
