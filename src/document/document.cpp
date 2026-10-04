@@ -213,6 +213,36 @@ void Document::update_pending(const UUID &last_group_to_update_i, const std::vec
         const auto first_generate_index = get_first_index(m_first_group_generate);
         const auto first_solve_index = get_first_index(m_first_group_solve);
         const auto first_update_solid_model_index = get_first_index(m_first_group_update_solid_model);
+        const auto first_update_index = std::min(first_solve_index, first_update_solid_model_index);
+        // Only prune complete rebuilds after generated entities are stable.
+        const bool prune_by_body = !last_group_to_update && !m_first_group_generate && first_update_index != INT_MAX;
+        std::set<UUID> affected_bodies;
+        std::set<UUID> affected_groups;
+        if (prune_by_body) {
+            const auto &first_group = first_solve_index <= first_update_solid_model_index
+                                              ? get_group(m_first_group_solve)
+                                              : get_group(m_first_group_update_solid_model);
+            affected_bodies.insert(first_group.find_body(*this).group.m_uuid);
+        }
+        auto should_update_group = [&](const Group &group) {
+            if (!prune_by_body)
+                return true;
+
+            const auto body = group.find_body(*this).group.m_uuid;
+            if (affected_bodies.contains(body))
+                return true;
+
+            auto referenced_groups = group.get_referenced_groups(*this);
+            auto required_groups = group.get_required_groups(*this);
+            referenced_groups.insert(required_groups.begin(), required_groups.end());
+            for (const auto &uu : referenced_groups) {
+                if (affected_groups.contains(uu)) {
+                    affected_bodies.insert(body);
+                    return true;
+                }
+            }
+            return false;
+        };
         const Group *last_group = nullptr;
         // first pass: generate
         if (m_first_group_generate) {
@@ -248,10 +278,16 @@ void Document::update_pending(const UUID &last_group_to_update_i, const std::vec
             }
             const auto index = group->get_index();
             if (index >= first_solve_index) {
-                solve_group(*group, dragged);
+                if (should_update_group(*group)) {
+                    solve_group(*group, dragged);
+                    affected_groups.insert(group->m_uuid);
+                }
             }
             if (index >= first_update_solid_model_index) {
-                update_solid_model(*group);
+                if (should_update_group(*group)) {
+                    update_solid_model(*group);
+                    affected_groups.insert(group->m_uuid);
+                }
             }
 
             last_group = group;
