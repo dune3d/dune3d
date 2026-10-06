@@ -337,6 +337,18 @@ src_python =  files(
 
 prog_python = find_program('python3')
 
+# The build scripts need PyGObject and pycairo, which are normally installed
+# for the system interpreter only. Version managers (pyenv, mise) and
+# virtualenvs put their own python3 first in PATH, and that one usually lacks
+# both modules, so fall back to the system interpreter before giving up.
+if run_command([prog_python, '-c', 'import gi, cairo'], check:false).returncode() != 0
+    sys_python = find_program('/usr/bin/python3', required:false)
+    if sys_python.found() and run_command([sys_python, '-c', 'import gi, cairo'], check:false).returncode() == 0
+        message('@0@ lacks python-gobject or pycairo, using @1@ instead'.format(prog_python.full_path(), sys_python.full_path()))
+        prog_python = sys_python
+    endif
+endif
+
 if run_command([prog_python, '-c', 'import gi'], check:false).returncode() != 0
     error('python-gobject not found')
 endif
