@@ -59,11 +59,16 @@ jobs:
       run: echo "artifact_name=dune3d-${{ matrix.arch }}-$(date +%Y-%m-%d-%H%M)-$(echo ${{ github.ref_name }} | tr / -)" >> $GITHUB_ENV
     - name: Bundle app
       timeout-minutes: 10
+      run: bash scripts/bundle_macos.sh
+    - name: Create DMG
       run: |
-        bash scripts/bundle_macos.sh
-        ditto -c -k --keepParent dist/Dune\ 3D.app dist/Dune3D-${{ matrix.arch }}.zip
+        mkdir -p dist/dmg
+        ditto "dist/Dune 3D.app" "dist/dmg/Dune 3D.app"
+        ln -s /Applications dist/dmg/Applications
+        hdiutil create -volname "Dune 3D" -srcfolder dist/dmg -ov -format UDZO "dist/Dune3D-${{ matrix.arch }}.dmg"
     - name: Upload bundle
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.artifact_name }}
-        path: "dist/Dune3D-${{ matrix.arch }}.zip"
+        path: "dist/Dune3D-${{ matrix.arch }}.dmg"
+        archive: false
