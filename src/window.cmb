@@ -2,7 +2,7 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <!-- Created with Cambalache 1.0.3 -->
 <cambalache-project version="1.0.0" target_tk="gtk-4.0" depends="casilda-1.0,libadwaita-1,webkitgtk-6.0">
-  <ui filename="window.ui" sha256="4b764c58329a8f172a660e994d8ce90e8524c470b652d7da5df8822818756417"/>
+  <ui filename="window.ui" sha256="956ae334cc307f235f93bc63d8353723c84de19f37f9952bf2cce5650afaa9f3"/>
   <ui filename="preferences/key_sequences.ui" sha256="d590192200cd045bd56bc358b7ac8f30e037755a6b91dcd7e85cef8f537487d5"/>
   <ui filename="preferences/canvas.ui" sha256="aaae497b113ec10fc67070662befcca494b36ee9a0c79fa814ba973136fcfb53"/>
   <ui filename="widgets/select_groups_dialog.ui" sha256="d1437222c8821290dfe1ad79ec859eceeeabdc3e5c93b65f41d8bb4474b97fea"/>
