@@ -7,6 +7,7 @@ public:
     virtual bool construction_entities_from_previous_groups_are_visible() const = 0;
     virtual bool show_only_solid_models() const = 0;
     virtual bool hide_irrelevant_workplanes() const = 0;
+    virtual bool hide_previous_comments() const = 0;
     virtual float get_curvature_comb_scale() const = 0;
 };
 

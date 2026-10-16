@@ -182,6 +182,8 @@ private:
     void set_show_only_solid_models(bool show);
     Glib::RefPtr<Gio::SimpleAction> m_hide_irrelevant_workplanes_action;
     void set_hide_irrelevant_workplanes(bool hide);
+    Glib::RefPtr<Gio::SimpleAction> m_hide_previous_comments_action;
+    void set_hide_previous_comments(bool hide);
     void add_tool_action(ActionToolID id, const std::string &action);
     Gtk::Scale *m_curvature_comb_scale = nullptr;
 

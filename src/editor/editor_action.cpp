@@ -349,6 +349,16 @@ void Editor::set_hide_irrelevant_workplanes(bool hide)
     update_view_hints();
 }
 
+void Editor::set_hide_previous_comments(bool hide)
+{
+    if (!m_core.has_documents())
+        return;
+    CanvasUpdater canvas_updater{*this};
+    get_current_workspace_view().m_hide_previous_comments = hide;
+    m_hide_previous_comments_action->set_state(Glib::Variant<bool>::create(hide));
+    update_view_hints();
+}
+
 
 void Editor::on_create_group_action(const ActionConnection &conn)
 {

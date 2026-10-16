@@ -156,8 +156,18 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     if (!sr && !m_workspace_view->show_only_solid_models()) {
         set_chunk_from_group(*m_current_group);
         for (const auto &[uu, el] : doc.m_constraints) {
-            if (m_current_group->m_uuid != el->m_group)
+            const bool is_current_group = m_current_group->m_uuid == el->m_group;
+            if (el->of_type(Constraint::Type::COMMENT)) {
+                if (m_workspace_view->hide_previous_comments() && !is_current_group)
+                    continue;
+                const auto &group = doc.get_group(el->m_group);
+                if (group.get_index() > m_current_group->get_index())
+                    continue;
+            }
+            else if (!is_current_group) {
                 continue;
+            }
+
             try {
                 el->accept(*this);
             }

@@ -46,6 +46,13 @@ public:
     {
         return m_hide_irrelevant_workplanes;
     }
+
+    bool m_hide_previous_comments = false;
+    bool hide_previous_comments() const override
+    {
+        return m_hide_previous_comments;
+    }
+
     float get_curvature_comb_scale() const override
     {
         return m_curvature_comb_scale;

@@ -226,6 +226,11 @@ void Editor::init_view_options()
         auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
         set_hide_irrelevant_workplanes(b);
     });
+    m_hide_previous_comments_action = m_win.add_action_bool("previous_comments", false);
+    m_hide_previous_comments_action->signal_change_state().connect([this](const Glib::VariantBase &v) {
+        auto b = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v).get();
+        set_hide_previous_comments(b);
+    });
 
     add_tool_action(ActionID::CLIPPING_PLANE_WINDOW, "clipping_planes");
     add_tool_action(ActionID::SELECTION_FILTER, "selection_filter");
@@ -235,6 +240,7 @@ void Editor::init_view_options()
     m_view_options_menu->append("Previous construction entities", "win.previous_construction");
     m_view_options_menu->append("Only solid models", "win.show_only_solid_models");
     m_view_options_menu->append("Hide irrelevant workplanes", "win.irrelevant_workplanes");
+    m_view_options_menu->append("Hide previous comments", "win.previous_comments");
     m_view_options_menu->append("Perspective projection", "win.perspective");
     {
         auto it = Gio::MenuItem::create("scale", "scale");
@@ -907,6 +913,8 @@ void Editor::update_view_hints()
             hints.push_back("prev. construction entities");
         if (wv.m_hide_irrelevant_workplanes)
             hints.push_back("no irrelevant workplanes");
+        if (wv.m_hide_previous_comments)
+            hints.push_back("no previous comments");
         if (wv.m_curvature_comb_scale > 0)
             hints.push_back("curv. combs");
     }
