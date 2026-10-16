@@ -6,6 +6,7 @@
 #include "document/constraint/all_constraints.hpp"
 #include "document/solid_model/solid_model.hpp"
 #include "canvas/selectable_ref.hpp"
+#include "util/str_util.hpp"
 #include "workspace/idocument_view.hpp"
 #include "workspace/iworkspace_view.hpp"
 #include "workspace/entity_view.hpp"
@@ -17,6 +18,7 @@
 #include "util/fs_util.hpp"
 #include "util/arc_util.hpp"
 #include "util/template_util.hpp"
+#include "util/str_util.hpp"
 #include "logger/logger.hpp"
 #include <array>
 #include <ranges>
@@ -1310,6 +1312,26 @@ void Renderer::visit(const ConstraintBezierBezierSameCurvature &constraint)
 void Renderer::visit(const ConstraintBezierArcSameCurvature &constraint)
 {
     visit(constraint, IconID::CONSTRAINT_G2);
+}
+
+void Renderer::visit(const ConstraintComment &constraint)
+{
+    AutoSaveRestore asr{*this};
+    m_ca.set_vertex_constraint(true);
+
+    auto position = constraint.get_origin(*m_doc) + constraint.get_offset();
+    if (constraint.m_wrkpl) {
+        auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constraint.m_wrkpl);
+        position = wrkpl.project3(position);
+    }
+
+    auto label = constraint.m_comment;
+    trim(label);
+    if (label.empty())
+        label = "(empty)";
+
+    add_selectables(SelectableRef{SelectableRef::Type::CONSTRAINT, constraint.m_uuid, 0},
+                    m_ca.draw_bitmap_text(position, 1, label));
 }
 
 void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)

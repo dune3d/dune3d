@@ -322,6 +322,8 @@ const std::map<ActionToolID, ActionCatalogItem> action_catalog = {
          {{"Convert to perpendicular line on bezier constraint", "Convert to perpendicular line on bezier"},
           ActionGroup::UNKNOWN,
           ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::ADD_COMMENT, {"Add Comment", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
+        {ToolID::ENTER_COMMENT, {"Enter Comment", ActionGroup::UNKNOWN, ActionCatalogItem::FLAGS_DEFAULT}},
 };
 
 
@@ -542,6 +544,8 @@ const LutEnumStr<ToolID> tool_lut = {
         TOOL_LUT_ITEM(CONVERT_TO_POINT_ON_BEZIER_CONSTRAINT),
         TOOL_LUT_ITEM(CONVERT_TO_LINE_TANGENT_ON_BEZIER_CONSTRAINT),
         TOOL_LUT_ITEM(CONVERT_TO_LINE_PERPENDICULAR_ON_BEZIER_CONSTRAINT),
+        TOOL_LUT_ITEM(ADD_COMMENT),
+        TOOL_LUT_ITEM(ENTER_COMMENT),
 };
 
 

@@ -681,6 +681,8 @@ std::optional<ActionToolID> Editor::get_doubleclick_action(const SelectableRef &
         auto &constraint = m_core.get_current_document().get_constraint(sr.item);
         if (dynamic_cast<IConstraintDatum *>(&constraint))
             return ToolID::ENTER_DATUM;
+        else if(constraint.of_type(Constraint::Type::COMMENT))
+            return ToolID::ENTER_COMMENT;
     }
     else if (sr.type == SelectableRef::Type::ENTITY) {
         auto &entity = m_core.get_current_document().get_entity(sr.item);
