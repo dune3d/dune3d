@@ -94,4 +94,3 @@ ToolResponse ToolAddComment::update(const ToolArgs &args)
 }
 
 } // namespace dune3d
-

@@ -18,7 +18,7 @@ public:
 private:
     const EntityWorkplane *m_wrkpl = nullptr;
     ConstraintComment *m_constraint = nullptr;
-    
+
     bool m_have_win = false;
 };
 

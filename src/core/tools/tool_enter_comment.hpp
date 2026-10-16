@@ -19,9 +19,8 @@ public:
 
 private:
     ConstraintComment *m_constraint = nullptr;
-    
-            ConstraintComment *get_constraint();
 
+    ConstraintComment *get_constraint();
 };
 
 } // namespace dune3d

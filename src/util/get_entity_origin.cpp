@@ -70,22 +70,22 @@ public:
     {
         m_origin = m_wrkpl->transform(en.get_interpolated(.5));
     }
-    
+
     void visit(const EntityBezier3D &en) override
     {
         m_origin = en.get_interpolated(.5);
     }
-    
+
     void visit(const EntityCluster &en) override
     {
         m_origin = m_wrkpl->transform(en.m_origin);
     }
-    
+
     void visit(const EntityText &en) override
     {
         m_origin = m_wrkpl->transform(en.m_origin);
     }
-    
+
     void visit(const EntityPicture &en) override
     {
         m_origin = m_wrkpl->transform(en.m_origin);
