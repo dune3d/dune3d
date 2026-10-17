@@ -93,6 +93,8 @@ std::string Constraint::get_type_name(Type type)
         return "Bezier/Bezier same curvature";
     case Type::BEZIER_ARC_SAME_CURVATURE:
         return "Bezier/Arc same curvature";
+    case Type::COMMENT:
+        return "Comment";
     default:
         return "Constraint";
     }
@@ -151,6 +153,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Constraint::Type,
                                      {Constraint::Type::BEZIER_BEZIER_SAME_CURVATURE, "bezier_bezier_same_curvature"},
                                      {Constraint::Type::BEZIER_ARC_SAME_CURVATURE, "bezier_arc_same_curvature"},
                                      {Constraint::Type::LENGTH_RATIO, "length_ratio"},
+                                     {Constraint::Type::COMMENT, "comment"},
                              })
 
 json Constraint::serialize() const
@@ -238,6 +241,8 @@ std::unique_ptr<Constraint> Constraint::new_from_json(const UUID &uu, const json
         return std::make_unique<ConstraintBezierBezierSameCurvature>(uu, j);
     case Type::BEZIER_ARC_SAME_CURVATURE:
         return std::make_unique<ConstraintBezierArcSameCurvature>(uu, j);
+    case Type::COMMENT:
+        return std::make_unique<ConstraintComment>(uu, j);
     case Type::INVALID:
         throw std::runtime_error("unknown constraint type " + j.at("type").get<std::string>());
     }

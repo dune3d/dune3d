@@ -117,6 +117,8 @@ void ConstraintsBox::update_internal()
         for (const auto &[uu, it] : m_core.get_current_document().m_constraints) {
             if (it->m_group != group.m_uuid)
                 continue;
+            if (it->of_type(Constraint::Type::COMMENT))
+                continue;
             constraints.push_back(it.get());
         }
     }

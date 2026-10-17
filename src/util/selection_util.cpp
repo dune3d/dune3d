@@ -9,6 +9,7 @@
 #include "document/constraint/constraint_points_coincident.hpp"
 #include "document/constraint/constraint_hv.hpp"
 #include "document/constraint/iconstraint_datum.hpp"
+#include "document/constraint/constraint_comment.hpp"
 #include "canvas/selectable_ref.hpp"
 #include "core/idocument_info.hpp"
 #include "core/idocument_provider.hpp"
@@ -327,6 +328,13 @@ std::string get_selectable_ref_description(IDocumentProvider &prv, const UUID &c
         auto constraint = doc.get_constraint_ptr(sr.item);
         if (!constraint)
             return "not found";
+
+        if (auto comment = dynamic_cast<const ConstraintComment *>(constraint)) {
+            return "Comment on "
+                   + get_selectable_ref_description(
+                           prv, current_doc,
+                           SelectableRef{SelectableRef::Type::ENTITY, comment->m_point.entity, comment->m_point.point});
+        }
 
         std::string name = "constraint";
         std::string suffix;

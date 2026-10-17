@@ -191,6 +191,7 @@ void Editor::set_current_workspace_view(const UUID &uu)
         set_show_previous_construction_entities(wv.m_show_construction_entities_from_previous_groups);
         set_show_only_solid_models(wv.m_show_only_solid_models);
         set_hide_irrelevant_workplanes(wv.m_hide_irrelevant_workplanes);
+        set_hide_previous_comments(wv.m_hide_previous_comments);
         if (wv.m_curvature_comb_scale == 0)
             m_curvature_comb_scale->set_value(m_curvature_comb_scale->get_adjustment()->get_lower());
         else

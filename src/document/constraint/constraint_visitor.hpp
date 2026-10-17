@@ -38,5 +38,6 @@ public:
     virtual void visit(const ConstraintLinePerpendicularOnBezier &constraint) = 0;
     virtual void visit(const ConstraintBezierBezierSameCurvature &constraint) = 0;
     virtual void visit(const ConstraintBezierArcSameCurvature &constraint) = 0;
+    virtual void visit(const ConstraintComment &constraint) = 0;
 };
 } // namespace dune3d

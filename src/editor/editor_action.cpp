@@ -290,6 +290,11 @@ void Editor::init_actions()
             return;
         set_hide_irrelevant_workplanes(!get_current_workspace_view().m_hide_irrelevant_workplanes);
     });
+    connect_action(ActionID::TOGGLE_PREVIOUS_COMMENTS, [this](const auto &conn) {
+        if (!m_core.has_documents())
+            return;
+        set_hide_previous_comments(!get_current_workspace_view().m_hide_previous_comments);
+    });
 
     connect_action(ActionID::COPY, [this](const auto &conn) {
         if (auto buf = Buffer::create(m_core.get_current_document(), get_canvas().get_selection(),
@@ -346,6 +351,16 @@ void Editor::set_hide_irrelevant_workplanes(bool hide)
     CanvasUpdater canvas_updater{*this};
     get_current_workspace_view().m_hide_irrelevant_workplanes = hide;
     m_hide_irrelevant_workplanes_action->set_state(Glib::Variant<bool>::create(hide));
+    update_view_hints();
+}
+
+void Editor::set_hide_previous_comments(bool hide)
+{
+    if (!has_workspace_view())
+        return;
+    CanvasUpdater canvas_updater{*this};
+    get_current_workspace_view().m_hide_previous_comments = hide;
+    m_hide_previous_comments_action->set_state(Glib::Variant<bool>::create(hide));
     update_view_hints();
 }
 
@@ -479,6 +494,7 @@ void Editor::update_action_sensitivity(const std::set<SelectableRef> &sel)
     m_action_sensitivity[ActionID::TOGGLE_PREVIOUS_CONSTRUCTION_ENTITIES] = m_core.has_documents();
     m_action_sensitivity[ActionID::TOGGLE_IRRELEVANT_WORKPLANES] = m_core.has_documents();
     m_action_sensitivity[ActionID::EXPORT_PROJECTION_ALL] = m_core.has_documents();
+    m_action_sensitivity[ActionID::TOGGLE_PREVIOUS_COMMENTS] = m_core.has_documents();
     bool has_solid_model = false;
 
     for (const auto [act, group_type] : create_group_action_map) {
@@ -681,6 +697,8 @@ std::optional<ActionToolID> Editor::get_doubleclick_action(const SelectableRef &
         auto &constraint = m_core.get_current_document().get_constraint(sr.item);
         if (dynamic_cast<IConstraintDatum *>(&constraint))
             return ToolID::ENTER_DATUM;
+        else if (constraint.of_type(Constraint::Type::COMMENT))
+            return ToolID::ENTER_COMMENT;
     }
     else if (sr.type == SelectableRef::Type::ENTITY) {
         auto &entity = m_core.get_current_document().get_entity(sr.item);
