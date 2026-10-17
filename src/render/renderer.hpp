@@ -91,6 +91,7 @@ private:
     void visit(const ConstraintLinePerpendicularOnBezier &constr) override;
     void visit(const ConstraintBezierBezierSameCurvature &constr) override;
     void visit(const ConstraintBezierArcSameCurvature &constr) override;
+    void visit(const ConstraintComment &constr) override;
 
     ICanvas &m_ca;
     IDocumentProvider &m_doc_prv;

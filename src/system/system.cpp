@@ -2884,6 +2884,11 @@ void System::visit(const ConstraintBezierArcSameCurvature &constraint)
     visit(static_cast<const ConstraintArcArcTangent &>(constraint));
 }
 
+void System::visit(const ConstraintComment &constraint)
+{
+    // nop
+}
+
 int System::get_group_index(const UUID &uu) const
 {
     return m_doc.get_group(uu).get_index() + 1;

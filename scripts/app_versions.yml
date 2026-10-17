@@ -39,3 +39,4 @@ versions:
     37: add length ratio constraint
     38: add text bounding box anchors
     39: add tangent/perpendicular line on bezier constraint
+    40: add comments

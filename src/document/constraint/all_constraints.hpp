@@ -33,3 +33,4 @@
 #include "constraint_line_perpendicular_on_bezier.hpp"
 #include "constraint_bezier_bezier_same_curvature.hpp"
 #include "constraint_bezier_arc_same_curvature.hpp"
+#include "constraint_comment.hpp"

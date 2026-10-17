@@ -101,6 +101,7 @@ src_common = files(
   'src/document/constraint/constraint_line_perpendicular_on_bezier.cpp',
   'src/document/constraint/constraint_bezier_bezier_same_curvature.cpp',
   'src/document/constraint/constraint_bezier_arc_same_curvature.cpp',
+  'src/document/constraint/constraint_comment.cpp',
   'src/document/solid_model/solid_model.cpp',
   'src/document/solid_model/solid_model_export.cpp',
   'src/document/solid_model/solid_model_occ.cpp',
@@ -162,6 +163,7 @@ src_common = files(
   'src/util/picture_util.cpp',
   'src/util/paths.cpp',
   'src/util/step_exporter.cpp',
+  'src/util/get_entity_origin.cpp',
 )
 
 src_gui = files(
@@ -264,6 +266,8 @@ src_gui = files(
   'src/core/tools/tool_convert_tangent_constraint.cpp',
   'src/core/tools/tool_create_circular_sweep_group.cpp',
   'src/core/tools/tool_import_picture.cpp',
+  'src/core/tools/tool_add_comment.cpp',
+  'src/core/tools/tool_enter_comment.cpp',
   'src/core/tools/tool_convert_point_on_bezier_constraint.cpp',
   'src/util/history_manager.cpp',
   'src/util/action_label.cpp',

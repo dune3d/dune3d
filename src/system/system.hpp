@@ -110,6 +110,7 @@ private:
     void visit(const ConstraintLinePerpendicularOnBezier &constr) override;
     void visit(const ConstraintBezierBezierSameCurvature &constr) override;
     void visit(const ConstraintBezierArcSameCurvature &constr) override;
+    void visit(const ConstraintComment &constr) override;
     void add(const GroupExtrude &group);
     void add(const GroupLinearArray &group);
     void add(const GroupPolarArray &group);

@@ -21,6 +21,7 @@ json WorkspaceView::serialize(const UUID &uu_doc) const
     j["curvature_comb_scale"] = m_curvature_comb_scale;
     j["show_construction_entities_from_previous_groups"] = m_show_construction_entities_from_previous_groups;
     j["hide_irrelevant_workplanes"] = m_hide_irrelevant_workplanes;
+    j["hide_previous_comments"] = m_hide_previous_comments;
     return j;
 }
 
@@ -59,7 +60,8 @@ WorkspaceView::WorkspaceView(const json &j)
       m_cam_quat(j.at("cam_quat").get<glm::dquat>()), m_curvature_comb_scale(j.value("curvature_comb_scale", 0.)),
       m_show_construction_entities_from_previous_groups(
               j.value("show_construction_entities_from_previous_groups", false)),
-      m_hide_irrelevant_workplanes(j.value("hide_irrelevant_workplanes", false))
+      m_hide_irrelevant_workplanes(j.value("hide_irrelevant_workplanes", false)),
+      m_hide_previous_comments(j.value("hide_previous_comments", false))
 {
     m_documents.emplace(UUID{}, j.at("document"));
     if (m_name == "Default")

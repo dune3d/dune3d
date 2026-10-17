@@ -6,6 +6,7 @@
 #include "document/constraint/all_constraints.hpp"
 #include "document/solid_model/solid_model.hpp"
 #include "canvas/selectable_ref.hpp"
+#include "util/str_util.hpp"
 #include "workspace/idocument_view.hpp"
 #include "workspace/iworkspace_view.hpp"
 #include "workspace/entity_view.hpp"
@@ -17,6 +18,7 @@
 #include "util/fs_util.hpp"
 #include "util/arc_util.hpp"
 #include "util/template_util.hpp"
+#include "util/str_util.hpp"
 #include "logger/logger.hpp"
 #include <array>
 #include <ranges>
@@ -154,8 +156,18 @@ void Renderer::render(const Document &doc, const UUID &current_group, const IDoc
     if (!sr && !m_workspace_view->show_only_solid_models()) {
         set_chunk_from_group(*m_current_group);
         for (const auto &[uu, el] : doc.m_constraints) {
-            if (m_current_group->m_uuid != el->m_group)
+            const bool is_current_group = m_current_group->m_uuid == el->m_group;
+            if (el->of_type(Constraint::Type::COMMENT)) {
+                if (m_workspace_view->hide_previous_comments() && !is_current_group)
+                    continue;
+                const auto &group = doc.get_group(el->m_group);
+                if (group.get_index() > m_current_group->get_index())
+                    continue;
+            }
+            else if (!is_current_group) {
                 continue;
+            }
+
             try {
                 el->accept(*this);
             }
@@ -1310,6 +1322,26 @@ void Renderer::visit(const ConstraintBezierBezierSameCurvature &constraint)
 void Renderer::visit(const ConstraintBezierArcSameCurvature &constraint)
 {
     visit(constraint, IconID::CONSTRAINT_G2);
+}
+
+void Renderer::visit(const ConstraintComment &constraint)
+{
+    AutoSaveRestore asr{*this};
+    m_ca.set_vertex_constraint(true);
+
+    auto position = constraint.get_origin(*m_doc) + constraint.get_offset();
+    if (constraint.m_wrkpl) {
+        auto &wrkpl = m_doc->get_entity<EntityWorkplane>(constraint.m_wrkpl);
+        position = wrkpl.project3(position);
+    }
+
+    auto label = constraint.m_comment;
+    trim(label);
+    if (label.empty())
+        label = "(empty)";
+
+    add_selectables(SelectableRef{SelectableRef::Type::CONSTRAINT, constraint.m_uuid, 0},
+                    m_ca.draw_bitmap_text(position, 1, label));
 }
 
 void Renderer::add_constraint_icons(glm::vec3 p, glm::vec3 v, const std::vector<ConstraintType> &constraints)

@@ -62,6 +62,8 @@
 #include "tools/tool_convert_tangent_constraint.hpp"
 #include "tools/tool_create_circular_sweep_group.hpp"
 #include "tools/tool_convert_point_on_bezier_constraint.hpp"
+#include "tools/tool_add_comment.hpp"
+#include "tools/tool_enter_comment.hpp"
 #include "tool_id.hpp"
 
 namespace dune3d {
@@ -309,6 +311,12 @@ std::unique_ptr<ToolBase> Core::create_tool(ToolID tool_id, ToolBase::Flags flag
     case ToolID::CONVERT_TO_LINE_TANGENT_ON_BEZIER_CONSTRAINT:
     case ToolID::CONVERT_TO_LINE_PERPENDICULAR_ON_BEZIER_CONSTRAINT:
         return std::make_unique<ToolConvertPointOnBezierConstraint>(tool_id, *this, m_intf, flags);
+
+    case ToolID::ADD_COMMENT:
+        return std::make_unique<ToolAddComment>(tool_id, *this, m_intf, flags);
+
+    case ToolID::ENTER_COMMENT:
+        return std::make_unique<ToolEnterComment>(tool_id, *this, m_intf, flags);
     }
     throw std::runtime_error("unknown tool");
 }
