@@ -1704,6 +1704,11 @@ WorkspaceView &Editor::get_current_workspace_view()
     return m_workspace_views.at(m_current_workspace_view);
 }
 
+bool Editor::has_workspace_view() const
+{
+    return m_workspace_views.contains(m_current_workspace_view);
+}
+
 void Editor::update_title()
 {
     if (m_core.has_documents()) {

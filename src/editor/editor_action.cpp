@@ -321,7 +321,7 @@ void Editor::set_perspective_projection(bool persp)
 
 void Editor::set_show_previous_construction_entities(bool show)
 {
-    if (!m_core.has_documents())
+    if (!has_workspace_view())
         return;
     CanvasUpdater canvas_updater{*this};
     get_current_workspace_view().m_show_construction_entities_from_previous_groups = show;
@@ -331,7 +331,7 @@ void Editor::set_show_previous_construction_entities(bool show)
 
 void Editor::set_show_only_solid_models(bool show)
 {
-    if (!m_core.has_documents())
+    if (!has_workspace_view())
         return;
     CanvasUpdater canvas_updater{*this};
     get_current_workspace_view().m_show_only_solid_models = show;
@@ -341,7 +341,7 @@ void Editor::set_show_only_solid_models(bool show)
 
 void Editor::set_hide_irrelevant_workplanes(bool hide)
 {
-    if (!m_core.has_documents())
+    if (!has_workspace_view())
         return;
     CanvasUpdater canvas_updater{*this};
     get_current_workspace_view().m_hide_irrelevant_workplanes = hide;
