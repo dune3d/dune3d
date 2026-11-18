@@ -431,6 +431,21 @@ void Editor::init_canvas()
         });
         get_canvas().add_controller(controller);
     }
+    {
+        auto controller = Gtk::GestureStylus::create();
+        controller->signal_down().connect([this](double x, double y) { handle_click(1, 1); });
+        controller->signal_up().connect([this](double x, double y) {
+            m_drag_tool = ToolID::NONE;
+            if (m_core.tool_is_active()) {
+                ToolArgs args;
+                args.type = ToolEventType::ACTION;
+                args.action = InToolActionID::LMB;
+                ToolResponse r = m_core.tool_update(args);
+                tool_process(r);
+            }
+        });
+        get_canvas().add_controller(controller);
+    }
     get_canvas().signal_cursor_moved().connect(sigc::mem_fun(*this, &Editor::handle_cursor_move));
     get_canvas().signal_view_changed().connect(sigc::mem_fun(*this, &Editor::handle_view_changed));
     get_canvas().signal_select_from_menu().connect([this](const auto &sel) {
