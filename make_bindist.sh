@@ -103,6 +103,7 @@ LIBS=(
 	libgsttag-1.0-0.dll\
 	liborc-0.4-0.dll\
 	libgstaudio-1.0-0.dll\
+	libz-1.dll\
 	gspawn-win64-helper.exe\
 	gspawn-win64-helper-console.exe
 )
