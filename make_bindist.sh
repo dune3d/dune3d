@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
 DISTDIR=dist/dune3d
 rm -rf dist
 mkdir -p $DISTDIR
@@ -126,7 +128,7 @@ mkdir -p $DISTDIR/share/glib-2.0/schemas
 cp /ucrt64/share/glib-2.0/schemas/gschemas.compiled $DISTDIR/share/glib-2.0/schemas
 
 git log -10 | unix2dos > dist/log.txt
-if [ "$1" != "-n" ]; then
+if [ "${1:-}" != "-n" ]; then
 	cd dist
 	zip -r dune3d-$(date +%Y-%m-%d-%H%M).zip dune3d log.txt
 fi
