@@ -90,7 +90,11 @@ void Dune3DApplication::on_startup()
         }
     });
     add_action("logger", [this] { show_log_window(); });
-    // add_action("quit", sigc::mem_fun(*this, &PoolProjectManagerApplication::on_action_quit));
+    add_action("quit", [this] {
+        for (auto &win : get_windows()) {
+            win->close();
+        }
+    });
     // add_action("new_window", sigc::mem_fun(*this, &PoolProjectManagerApplication::on_action_new_window));
     add_action("about", sigc::mem_fun(*this, &Dune3DApplication::on_action_about));
     // add_action("view_log", [this] { show_log_window(); });
